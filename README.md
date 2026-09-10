@@ -1,4 +1,4 @@
-# Tenable Audit Studio — Enterprise Compliance Policy Platform
+# Tenable Audit Studio - Enterprise Compliance Policy Platform
 
 > **Accelerating Cyber Hygiene, Regulatory Compliance, and System Hardening for Enterprise IT, MSSPs, BFSI, Healthcare, and Defense Organizations.**
 
@@ -80,7 +80,7 @@ graph TD
 
 | Metric | Traditional Manual Process | With Tenable Audit Studio | Impact |
 | :--- | :--- | :--- | :--- |
-| **Time to Customize Baseline** | 3 – 5 business days per OS/DB | **10 – 15 minutes** | **95% Time Reduction** |
+| **Time to Customize Baseline** | 3 - 5 business days per OS/DB | **10 - 15 minutes** | **95% Time Reduction** |
 | **Syntax Error Rate** | ~18% (Nessus scan failure) | **0% (AST-guaranteed valid)** | **Eliminates Failed Scans** |
 | **Audit Deviation Documentation** | Manual spreadsheet reconciliation | **1-Click Exportable CSV/JSON** | **Audit-Ready Evidence** |
 | **Pre-Deployment Verification** | Trial-and-error Nessus scan jobs | **Built-in Interactive Regex Tester** | **Zero Production Impact** |
