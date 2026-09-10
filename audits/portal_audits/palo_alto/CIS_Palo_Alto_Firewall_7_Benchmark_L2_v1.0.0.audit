@@ -1,0 +1,531 @@
+#TRUSTED 5ebc807b9c94819e236b61124eb277ace3156fe5accc392b0cfd769ebf329dc045a24fde0676cb6e5525a9259fba09f6260194515a18e7b6a597e38a360d26fe481ab552ee02178762a6c0ad1354fe2a6a20b9edfdf5c8e6c7c057eb6de99a561d47264d20fa722b6f1799d9c0617724aca0e43e3a34b60454b244eb6dfb79effa80acc6b28efff1168de6b12c43208be2133153ea36a101696eed0fb7f9059cde6140a86e9fe9d38764f27c4cfe025018508c3f148d869b0964ef016c614a7b25e4deba7e6306b7419191f4f8a2bdc41fadb3dab0c68318fb215ced0b399240c9b8d9f5f41022a46e50043abef902175042d6698199896b3a9f1735f86bf0ffc7fb39053fffddc49b9a1d822bad5b6204be37cc4e8ab8aaaca0d8f964dee3e22ecde05eb54e5cba38ae003d1b30b66368a109459d41bbfe8e41ab80c013b7aa48f86284d16d38e804f897fc8c63684b30d785b7511eae671f52a5633e3568cad866de3f296aa5c9dfdc14205756fdf4b56b8e7ef900b902c473e3c855e67dd52c4480c3107a1d49940eb36c509567bfa8a82c6978f17516d0276c38f9e9857ac1e2ddf4b9b598a7496fb7743048d8926d637db94bef4f2a6997e592579e63d4ae438ac87a59af9adc978d3730494452be2062194cb02f0f8aa8da282c84f3584fa5384c55e454d4cea5cf99c0a9cf344226f366cfc29f7ed6294ded79040586
+#TRUST-RSA-SHA256 51a6f8fd9d009e94107e6b3bc59fc2bed82e93473e5c428d6a39ccbbdcb1bdd93e30cdafc62df5d8a33687b94f75e6e835548bc4d52d45ca768530b8c3be508d066ec4d0c4bbdbef35ccfe23f317b8cc1e9683bb5e425a21ec3e713e281f1fedb164f691516fbbe8aa3d1f0b2fab8f75f127f7154475fd6ca2b9cbba94b269809ad6f1d4b022365d7bbf7cdedb89bacec68d84c57e837189796c8196ba2507d9a54f1f489f9820e348219d74ab1031144d3c008a87a21e8dfa3addb19f3c4bafb5ee6aa4d01139e12830652a957393073de9b75659a92cc11ac56e64339ad85867c12995b312088707e2e25c7208ad8c698961449daca62f2653fc95431d298bec19ed8840a2a20099123eb38b7f3c0a182337ba569eeb0ccce7ee4083acf3ad1de5a4277dc23178ad9f57ffe2c78c3fe9bfc9873b52583af5460f430eb498b12a57318ed9a97560a01b71f0f428dc338ece178b7e438ec046fc717e01af276c70265a74dffcce98c74aa6a7abdbe61ae6d575bbf92fc647a9590dff3f2edcb1cf5608e4f04c2872c7f54bb027f4cbefd410e5c9716f7426a91ae68047164ececc721d9c9f61ba13a9b5a60a5b0e729804aeecebac9909fabe2845ccd921b26bf69ff26da2327e07c26d44790419872bef18f2e61f71b7e4efbd66127f9be93d39abf2c245c4c8d095c6940eb3dee1dbec3b3b6e591a01267dc88e88d6440b3c
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.15 $
+# $Date: 2024/11/08 $
+#
+# Description : This .audit is based on the CIS Palo Alto Firewall 7 Benchmark v1.0.0, 03-31-2017
+#               https://workbench.cisecurity.org/files/1664
+#
+#<ui_metadata>
+#<display_name>CIS Palo Alto Firewall 7 Benchmark L2 v1.0.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Palo Alto Firewall 7</name>
+#  <profile>L2</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/files/1664</link>
+#</spec>
+#<labels>palo_alto,cis,panos,pan,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>CONFIG_TYPE</name>
+#    <default>merged</default>
+#    <description>Palo Alto Config Type</description>
+#    <info>Type of configuration audited. Valid entries are merged or effective-running.</info>
+#    <value_type>PALO_ALTO_CONFIG</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Palo_Alto">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "Check for Palo Alto version 7+"
+      api_request_type : "op"
+      request          : "<show><system><info></info></system></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:value-of select=\"/response/result/system/sw-version\"/>"
+      regex            : ".*"
+      expect           : "^[\s]*7\..*"
+    </custom_item>
+  </condition>
+
+  <then>
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "1.2.4 Ensure valid certificate is set for browser-based administrator interface - Certificates"
+      info             : "In most cases, a browser HTTPS interface is used to administer the Palo Alto appliance. The certificate used to secure this session should satisfy the following criteria:
+    1. A valid certificate from a trusted source should be used. While a certificate from a trusted Public Certificate Authority is certainly valid, one from a trusted Private Certificate Authority is absolutely acceptable for this purpose.
+    2. The certificate should have a valid date. It should not have a \"to\" date in the past (it should not be expired), and should not have a \"from\" date in the future.
+    3. The certificate should use an acceptable cipher and encryption level.
+    Rationale:
+    If a certificate that is self-signed, expired, or otherwise invalid is used for the browser HTTPS interface, administrators in most cases will not be able to tell if their session is being eavesdropped on or injected into by a \"Man in the Middle\" attack.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "If a new administrative certificate is needed, acquire a certificate that meets the stated criteria and set it:
+    Navigate to Device > Certificate Management > Certificates
+    Set an appropriately named Certificate Profile for Management Interface Access:
+    Navigate to Device > Certificate Management > Certificate Profile
+    Set the Authentication Profile field so it contains the Certificate Profile created for Management Interface Access:
+    Navigate to Device > Setup > Management (tab) > Authentication Settings > Authentication Profile (field)
+    Default Value:
+    A self-signed certificate is installed by default for the administrative interface."
+      reference        : "800-53|SC-17,800-53r5|SC-17,CSCv6|3.4,CSCv6|14.2,CSCv6|16.13,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-17,ITSG-33|SC-17a.,LEVEL|2NS,NESA|T7.4.2,NIAv2|CY5a,NIAv2|CY10,NIAv2|CY12,NIAv2|SS25"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"/response/result/config/shared/certificate/entry\">"
+      xsl_stmt         : "<xsl:for-each select=\"/response/result/config/shared/certificate/entry\">"
+      xsl_stmt         : "Certificate name: <xsl:value-of select=\"@name\"/>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "No certificates found"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "1.2.4 Ensure valid certificate is set for browser-based administrator interface - Certificate Profiles"
+      info             : "In most cases, a browser HTTPS interface is used to administer the Palo Alto appliance. The certificate used to secure this session should satisfy the following criteria:
+    1. A valid certificate from a trusted source should be used. While a certificate from a trusted Public Certificate Authority is certainly valid, one from a trusted Private Certificate Authority is absolutely acceptable for this purpose.
+    2. The certificate should have a valid date. It should not have a \"to\" date in the past (it should not be expired), and should not have a \"from\" date in the future.
+    3. The certificate should use an acceptable cipher and encryption level.
+    Rationale:
+    If a certificate that is self-signed, expired, or otherwise invalid is used for the browser HTTPS interface, administrators in most cases will not be able to tell if their session is being eavesdropped on or injected into by a \"Man in the Middle\" attack.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "If a new administrative certificate is needed, acquire a certificate that meets the stated criteria and set it:
+    Navigate to Device > Certificate Management > Certificates
+    Set an appropriately named Certificate Profile for Management Interface Access:
+    Navigate to Device > Certificate Management > Certificate Profile
+    Set the Authentication Profile field so it contains the Certificate Profile created for Management Interface Access:
+    Navigate to Device > Setup > Management (tab) > Authentication Settings > Authentication Profile (field)
+    Default Value:
+    A self-signed certificate is installed by default for the administrative interface."
+      reference        : "800-53|SC-17,800-53r5|SC-17,CSCv6|3.4,CSCv6|14.2,CSCv6|16.13,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-17,ITSG-33|SC-17a.,LEVEL|2NS,NESA|T7.4.2,NIAv2|CY5a,NIAv2|CY10,NIAv2|CY12,NIAv2|SS25"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"/response/result/config/shared/certificate-profile/entry\">"
+      xsl_stmt         : "<xsl:for-each select=\"/response/result/config/shared/certificate-profile/entry\">"
+      xsl_stmt         : "Certificate Profile name: <xsl:value-of select=\"@name\"/>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "No certificate profiles found"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "1.2.4 Ensure valid certificate is set for browser-based administrator interface - Authentication Profile"
+      info             : "In most cases, a browser HTTPS interface is used to administer the Palo Alto appliance. The certificate used to secure this session should satisfy the following criteria:
+    1. A valid certificate from a trusted source should be used. While a certificate from a trusted Public Certificate Authority is certainly valid, one from a trusted Private Certificate Authority is absolutely acceptable for this purpose.
+    2. The certificate should have a valid date. It should not have a \"to\" date in the past (it should not be expired), and should not have a \"from\" date in the future.
+    3. The certificate should use an acceptable cipher and encryption level.
+    Rationale:
+    If a certificate that is self-signed, expired, or otherwise invalid is used for the browser HTTPS interface, administrators in most cases will not be able to tell if their session is being eavesdropped on or injected into by a \"Man in the Middle\" attack.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "If a new administrative certificate is needed, acquire a certificate that meets the stated criteria and set it:
+    Navigate to Device > Certificate Management > Certificates
+    Set an appropriately named Certificate Profile for Management Interface Access:
+    Navigate to Device > Certificate Management > Certificate Profile
+    Set the Authentication Profile field so it contains the Certificate Profile created for Management Interface Access:
+    Navigate to Device > Setup > Management (tab) > Authentication Settings > Authentication Profile (field)
+    Default Value:
+    A self-signed certificate is installed by default for the administrative interface."
+      reference        : "800-171|3.5.1,800-53|IA-2(12),800-53r5|IA-2(12),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSCv6|3.4,CSCv6|14.2,CSCv6|16.13,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,LEVEL|2NS,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/deviceconfig/system/certificate-profile\">"
+      xsl_stmt         : "Authentication Profile: <xsl:value-of select=\"/response/result/config/devices/entry/deviceconfig/system/certificate-profile\"/>"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "No authentication profile found"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "1.6.3 Ensure that the certificate securing Remote Access VPNs is valid - Certificates"
+      info             : "The Certificate used to secure Remote Access VPNs should satisfy the following criteria:
+    * It should be a valid certificate from a trusted source. In almost cases this means a trusted Public Certificate Authority, as in most cases remote access VPN users will not have access to any Private Certificate Authorities for Certificate validation.
+    * The certificate should have a valid date. It should not have a \"to\" date in the past (it should not be expired), and should not have a \"from\" date in the future.
+    * The key length used to encrypt the certificate should be 2048 bits or more.
+    * The hash used to sign the certificate should be SHA-2 or better.
+    Rationale:
+    If presented with a certificate error, the end user in most cases will not be able to tell if their session is using a self-signed or expired certificate, or if their session is being eavesdropped on or injected into by a \"Man in the Middle\" attack.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "Create a CSR and install a certificate from a public CA here:
+    Navigate to Device > Certificate Management > Certificates
+    Apply a valid certificate to the HTTPS portal:
+    Navigate to Network > GlobalProtect > Portals > Portal Configuration > Authentication > SSL/TLS Profile
+    Apply a valid certificate to the GlobalProtect Gateway:
+    Navigate to Network > GlobalProtect > Gateways > Authentication > SSL/TLS Profile
+    Default Value:
+    Not configured"
+      reference        : "800-53|SC-17,800-53r5|SC-17,CSCv6|14.2,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-17,ITSG-33|SC-17a.,LEVEL|2NS,NESA|T7.4.2,NIAv2|CY5a,NIAv2|CY10,NIAv2|CY12,NIAv2|SS25"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"/response/result/config/shared/certificate/entry\">"
+      xsl_stmt         : "<xsl:for-each select=\"/response/result/config/shared/certificate/entry\">"
+      xsl_stmt         : "Certificate name: <xsl:value-of select=\"@name\"/>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "No certificates found"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "1.6.3 Ensure that the certificate securing Remote Access VPNs is valid - GlobalProtect Portals"
+      info             : "The Certificate used to secure Remote Access VPNs should satisfy the following criteria:
+    * It should be a valid certificate from a trusted source. In almost cases this means a trusted Public Certificate Authority, as in most cases remote access VPN users will not have access to any Private Certificate Authorities for Certificate validation.
+    * The certificate should have a valid date. It should not have a \"to\" date in the past (it should not be expired), and should not have a \"from\" date in the future.
+    * The key length used to encrypt the certificate should be 2048 bits or more.
+    * The hash used to sign the certificate should be SHA-2 or better.
+    Rationale:
+    If presented with a certificate error, the end user in most cases will not be able to tell if their session is using a self-signed or expired certificate, or if their session is being eavesdropped on or injected into by a \"Man in the Middle\" attack.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "Create a CSR and install a certificate from a public CA here:
+    Navigate to Device > Certificate Management > Certificates
+    Apply a valid certificate to the HTTPS portal:
+    Navigate to Network > GlobalProtect > Portals > Portal Configuration > Authentication > SSL/TLS Profile
+    Apply a valid certificate to the GlobalProtect Gateway:
+    Navigate to Network > GlobalProtect > Gateways > Authentication > SSL/TLS Profile
+    Default Value:
+    Not configured"
+      reference        : "800-53|SC-17,800-53r5|SC-17,CSCv6|14.2,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-17,ITSG-33|SC-17a.,LEVEL|2NS,NESA|T7.4.2,NIAv2|CY5a,NIAv2|CY10,NIAv2|CY12,NIAv2|SS25"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+      xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+      xsl_stmt         : "GlobalProtect Portal name: <xsl:value-of select=\"@name\"/>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "No GlobalProtect Portals found"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "1.6.3 Ensure that the certificate securing Remote Access VPNs is valid - GlobalProtect Gateways"
+      info             : "The Certificate used to secure Remote Access VPNs should satisfy the following criteria:
+    * It should be a valid certificate from a trusted source. In almost cases this means a trusted Public Certificate Authority, as in most cases remote access VPN users will not have access to any Private Certificate Authorities for Certificate validation.
+    * The certificate should have a valid date. It should not have a \"to\" date in the past (it should not be expired), and should not have a \"from\" date in the future.
+    * The key length used to encrypt the certificate should be 2048 bits or more.
+    * The hash used to sign the certificate should be SHA-2 or better.
+    Rationale:
+    If presented with a certificate error, the end user in most cases will not be able to tell if their session is using a self-signed or expired certificate, or if their session is being eavesdropped on or injected into by a \"Man in the Middle\" attack.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "Create a CSR and install a certificate from a public CA here:
+    Navigate to Device > Certificate Management > Certificates
+    Apply a valid certificate to the HTTPS portal:
+    Navigate to Network > GlobalProtect > Portals > Portal Configuration > Authentication > SSL/TLS Profile
+    Apply a valid certificate to the GlobalProtect Gateway:
+    Navigate to Network > GlobalProtect > Gateways > Authentication > SSL/TLS Profile
+    Default Value:
+    Not configured"
+      reference        : "800-53|SC-17,800-53r5|SC-17,CSCv6|14.2,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-17,ITSG-33|SC-17a.,LEVEL|2NS,NESA|T7.4.2,NIAv2|CY5a,NIAv2|CY10,NIAv2|CY12,NIAv2|SS25"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-gateway/entry\">"
+      xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-gateway/entry\">"
+      xsl_stmt         : "GlobalProtect Gateway name: <xsl:value-of select=\"@name\"/>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "No GlobalProtect Gateways found"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "2.1 Ensure that IP addresses are mapped to usernames - User ID Agents"
+      info             : "Configure appropriate settings to map IP addresses to usernames. Mapping userids to IP addresses is what permits the firewall to create rules based on userids and groups rather than IP addresses and subnets, as well as log events by userids rather than IP addresses or DNS names. The specifics of how to achieve IP-to-username mapping is highly dependent on the environment. It can be enabled by integrating the firewall with a domain controller, Exchange server, captive portal, Terminal Server, User-ID Agent, XML API, or syslog data from a variety of devices.
+    Rationale:
+    Understanding which user is involved in a security incident allows appropriate personnel to move quickly between the detection and reaction phases of incident response. In environments with either short DHCP lease times, or where users may move frequently between systems, the ability to analyze or report, or alert on events based on user accounts or user groups is a tremendous advantage. For forensics tasks when DHCP lease information may not be available, the Source User information may be the only way to tie together related data.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "To Set User-ID Agents:
+    Navigate to Device > User Identification > User-ID Agents
+    Set the Name, IP Address and Port of the User-ID Agent
+    Enable User Identification for each monitored zone that will have user accounts:
+    Navigate to Network > Zone, for each relevant zone enable User Identification
+    To Set Terminal Services Agents:
+    Navigate to Device > Terminal Services Agents Set the Name, IP Address and Port of the Terminal Services Agent Enable User Identification for each monitored zone that will have Terminal Servers: Navigate to Network > Zone, enable User Identification"
+      reference        : "800-171|3.5.5,800-171|3.5.6,800-53|IA-4b.,800-53r5|IA-4b.,CN-L3|7.1.2.7(b),CSCv6|6.5,CSF|PR.AC-1,CSF2.0|PR.AA-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-4b.,LEVEL|2S,NESA|T5.5.2,PCI-DSSv3.2.1|8.1.1,PCI-DSSv4.0|8.2.1,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|5"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/vsys/entry/user-id-agent/entry\">"
+      xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/user-id-agent/entry\">"
+      xsl_stmt         : "UserID Agent Name: <xsl:value-of select=\"@name\"/>, Port: <xsl:value-of select=\"port\"/>, Host: <xsl:value-of select=\"host\"/>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "No User ID Agents found"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "2.1 Ensure that IP addresses are mapped to usernames - Zones"
+      info             : "Configure appropriate settings to map IP addresses to usernames. Mapping userids to IP addresses is what permits the firewall to create rules based on userids and groups rather than IP addresses and subnets, as well as log events by userids rather than IP addresses or DNS names. The specifics of how to achieve IP-to-username mapping is highly dependent on the environment. It can be enabled by integrating the firewall with a domain controller, Exchange server, captive portal, Terminal Server, User-ID Agent, XML API, or syslog data from a variety of devices.
+    Rationale:
+    Understanding which user is involved in a security incident allows appropriate personnel to move quickly between the detection and reaction phases of incident response. In environments with either short DHCP lease times, or where users may move frequently between systems, the ability to analyze or report, or alert on events based on user accounts or user groups is a tremendous advantage. For forensics tasks when DHCP lease information may not be available, the Source User information may be the only way to tie together related data.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "To Set User-ID Agents:
+    Navigate to Device > User Identification > User-ID Agents
+    Set the Name, IP Address and Port of the User-ID Agent
+    Enable User Identification for each monitored zone that will have user accounts:
+    Navigate to Network > Zone, for each relevant zone enable User Identification
+    To Set Terminal Services Agents:
+    Navigate to Device > Terminal Services Agents Set the Name, IP Address and Port of the Terminal Services Agent Enable User Identification for each monitored zone that will have Terminal Servers: Navigate to Network > Zone, enable User Identification"
+      reference        : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSCv6|6.5,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|2S,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/zone/entry\">"
+      xsl_stmt         : "Zone - <xsl:value-of select=\"@*\"/>, Enable User Identification - <xsl:value-of select=\"enable-user-identification\"/>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "<xsl:if test=\"count(/response/result/config/devices/entry/vsys/entry/zone/entry) = 0\">"
+      xsl_stmt         : "No Network Zone Policies found"
+      xsl_stmt         : "</xsl:if>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "2.2 Ensure that WMI probing is disabled"
+      info             : "Disable WMI probing if it is not required for User-ID functionality in the environment.
+    Rationale:
+    By default, WMI probing requires a domain administrator account. A malicious user could capture the encrypted password hash for offline cracking or relayed authentication attacks. Relying on other forms of user identification, such as security log monitoring, mitigates this risk."
+      solution         : "Navigate to Device > User Identification > User Mapping > Palo Alto Networks User ID Agent Setup > Client Probing.
+    Set Enable Probing so it is unchecked.
+    Impact:
+    While this removes the exposure of having the WMI user account password being compromised, it also reduces the effectiveness of user identification during operation of the firewall (applying rules and policies). This trade-off should be weighed carefully for all installations.
+    Default Value:
+    Not configured"
+      reference        : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSCv6|9.1,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|2S,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"not(//user-id-collector/setting/enable-probing) or (//user-id-collector/setting/enable-probing = 'no')\">"
+      xsl_stmt         : "Passed - 'Enable Probing' is turned off"
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "Failed - 'Enable Probing' is turned on"
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      regex            : "(Passed|Failed)"
+      expect           : "Passed"
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "6.17 Ensure that a Zone Protection Profile with Flood Protection settings enabled for all flood types is attached to all untrusted zones"
+      info             : "Enable all Flood Protection options in the Zone Protection Profile attached to all untrusted zones. The Alert, Activate, and Maximum settings for Flood Protection depend highly on the environment and device used. Perform traffic analysis on the specific environment and firewall to determine accurate thresholds. Do not rely on default values to be appropriate for an environment.
+    Rationale:
+    Without flood protection, it may be possible for an attacker, through the use of a botnet or other means, to overwhelm network resources. Flood protection does not completely eliminate this risk; rather, it provides a layer of protection. Without a properly configured zone protection profile applied to untrusted interfaces, the protected / trusted networks are susceptible to large number of attacks. While many of these involve denial of service, some of these attacks are designed to evade IPS systems (fragmentation attacks for instance) or to evade basic firewall protections (source routing and record route attacks)."
+      solution         : "In the GUI:
+    Navigate to Network > Network Profiles > Zone Protection > Flood Protection.
+    Set all settings to \"enabled\" with at least the default values.
+    Navigate to Network > Zones, select each untrusted zone in turn, and set the Zone Protection Profile.
+    Default Value:
+    Not Configured"
+      reference        : "800-53|SC-5,800-53r5|SC-5,CSF|DE.CM-1,CSF|PR.DS-4,CSF2.0|DE.CM-01,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,LEVEL|2S,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:for-each select=\"//devices/entry/network/profiles/zone-protection-profile/entry\">"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"flood/icmp/enable='yes'\">"
+      xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMP flood protection enabled."
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMP flood protection disabled."
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"flood/icmpv6/enable='yes'\">"
+      xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMPv6 flood protection enabled."
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMPv6 flood protection disabled."
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"flood/other-ip/enable='yes'\">"
+      xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has Other IP flood protection enabled."
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has Other IP flood protection disabled."
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      xsl_stmt         : "<xsl:choose>"
+      xsl_stmt         : "<xsl:when test=\"flood/udp/enable='yes'\">"
+      xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has UDP flood protection enabled."
+      xsl_stmt         : "</xsl:when>"
+      xsl_stmt         : "<xsl:otherwise>"
+      xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has UDP flood protection disabled."
+      xsl_stmt         : "</xsl:otherwise>"
+      xsl_stmt         : "</xsl:choose>"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "<xsl:if test=\"count(//devices/entry/network/profiles/zone-protection-profile/entry) = 0\">"
+      xsl_stmt         : "Failed - No Zone Protection Profiles found"
+      xsl_stmt         : "</xsl:if>"
+      regex            : "(Passed|Failed)"
+      not_expect       : "Failed"
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "7.3 Ensure 'Security Policy' denying any/all traffic exists at the bottom of the security policies ruleset"
+      info             : "EXTREME CAUTION MUST BE USED BEFORE IMPLEMENTING THIS RECOMMENDATION, AS CERTAIN TRAFFIC PERMITTED BY DEFAULT WILL BE DENIED UNLESS SPECIFICALLY ALLOWED. Create a security rule at the bottom of the security policies ruleset denying any traffic, regardless of source, destination, or application. Ensure this policy is set to log at session end, just before pre-defined intrazone-default and interzone-default rules.
+    Rationale:
+    In incident response, logging denied traffic is often just as important as logging permitted traffic. The logs for denied traffic can be used to establish a pattern of failed attack attempts before the final attack succeeds. This can be used in attribution and identification of the attacker, but can also be used to help identify which defenses need shoring up to defend against future attacks. Viewing denied traffic can also be useful for understanding how security policies are affecting traffic.
+    Palo Alto firewalls do not log denied traffic by default. Therefore, to acquire visibility to denied traffic, a 'deny and log' policy must be created at the end of the security policy ruleset.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "Navigate to Policies > Security.
+    Set a Security Policy with: Name set to 'Deny and Log Any' Source: Zone set to Any Address set to Any Destination: Zone set to Any Address set to Any Application set to Any Service set to Any Action set to Block Profile set to None
+    Default Value:
+    Not Configured"
+      reference        : "800-171|3.13.1,800-171|3.13.6,800-53|SC-7(5),800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CSCv6|6.5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(5),LEVEL|2S,NESA|T4.5.4,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|43.1"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "Verify deny all traffic exists at bottom of ruleset"
+      xsl_stmt         : "<xsl:for-each select=\"//rulebase/security/rules/entry\">"
+      xsl_stmt         : "Security policy: '<xsl:value-of select=\"@name\"/>'"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "<xsl:if test=\"count(//rulebase/security/rules/entry) = 0\">"
+      xsl_stmt         : "No Security Policies found"
+      xsl_stmt         : "</xsl:if>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "8.3 Ensure that the Certificate used for Decryption is Trusted"
+      info             : "The CA Certificate used for in-line HTTP Man in the Middle should be trusted by target users. There are two classes of users that need to be considered.
+    1: Users that are members of the organization, users of machines under control of the organization. For these people and machines, ensure that the CA Certificate is in one of the Trusted CA certificate stores. This is easily done in Active Directory, using Group Policies for instance. A MDM (Mobile Device Manager) can be used to accomplish the same task for mobile devices such as telephones or tablets. Other central management or orchestration tools can be used for Linux or \"IoT\" (Internet of Things) devices.
+    2: Users that are not member of the organization - often these are classed as \"Visitors\" in the policies of the organization. If a public CA Certificate is a possibility for your organization, then that is one approach. A second approach is to not decrypt affected traffic - this is easily done, but leaves the majority of \"visitor\" traffic uninspected and potentially carrying malicious content. The final approach, and the one most commonly seen, is to use the same certificate as is used for members organization. In this last case, visitors will see a certificate warning, but the issuing CA will be the organization that they are visiting.
+    Rationale:
+    Using a self-signed certificate, or any certificate that generates a warning in the browser, means that members of the organization have no method of determining if they are being presented with a legitimate certificate, or an attacker's \"man in the middle' certificate. It also very rapidly teaches members of the organization to bypass all security warnings of this type.
+
+    NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution         : "Set the CA Certificate(s):
+    Navigate to Device > Setup > Certificate Management > Certificates.
+    Set the Certificate Profile needed for the SSL Forward Proxy:
+    Navigate to Device > Setup > Certificate Management > Certificate Profile.
+    Set the decryption profile to include the settings described in the SSL Forward Proxy guidance in this document:
+    Navigate to Objects > Decryption Profile.
+    Set the Decryption Policy to be applied to the appropriate interfaces and to have the categories assigned to it that comply with your organization's internal policies, regulatory requirements and legal requirements.
+    Navigate to Policies > Decryption.
+    Source: all internal user subnets.
+    Destination: all target zones (typically this is the public internet).
+    Excluded URL categories: include Health Care, Personal Banking and any other category that exposes PII, PHI or that exposes any information that might be described in your organization's internal policies, regulatory framework, privacy requirements or legal requirements as protected.
+    Decryption Policy Rule: include the SSL Forward Proxy defined above, and the Decryption Profile defined above.
+    Default Value:
+    Decryption is not enabled by default."
+      reference        : "800-53|SC-17,800-53r5|SC-17,CSCv6|12.5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-17,ITSG-33|SC-17a.,LEVEL|2NS,NESA|T7.4.2,NIAv2|CY5a,NIAv2|CY10,NIAv2|CY12,NIAv2|SS25"
+      see_also         : "https://workbench.cisecurity.org/files/1664"
+      api_request_type : "op"
+      request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "Verify that the Decryption certificate is trusted"
+      xsl_stmt         : "<xsl:for-each select=\"//vsys/entry/rulebase/decryption/rules/entry[type/ssl-forward-proxy]\">"
+      xsl_stmt         : "Decryption Profile '<xsl:value-of select=\"@name\"/>' is set to type 'SSL Forward Proxy'"
+      xsl_stmt         : "</xsl:for-each>"
+      xsl_stmt         : "<xsl:if test=\"count(//vsys/entry/rulebase/decryption/rules/entry[type/ssl-forward-proxy])=0\">"
+      xsl_stmt         : "No Decryption Profiles using 'SSL Forward Proxy' found"
+      xsl_stmt         : "</xsl:if>"
+      regex            : ".*"
+      expect           : "Manual Review Required"
+      severity         : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "Palo Alto software version 7 not found."
+      info        : "The target host is not running Palo Alto software version 7 or higher.
+
+      NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/1664"
+    </report>
+  </else>
+</if>
+
+</check_type>

@@ -1,0 +1,803 @@
+#TRUSTED 3e5225729d8c95a9d2a93d1a85d16989896151560e1b0ea1900180beef8ebd090d3f9c877d7970ee84374800c10218e444137a7f9c4e1ca50bdf624a991be892d3dc8adf2956fb232910717c8cd435f5562d122134db1586e017f9cab16dff85f90a9590edfa71399620a6203f9caf1f9e299fb743cb3e43f91a87f3d9cdce18bf2938bea8c70e504d5218b3c3f0a68c275674e05c12ce0c8d7f1dfc6dd0804450279c688d01561cdd40b3d6342f84d87ca7092df191771b8fb7198f8fa287774fc61663169a068e67c4742a142a39bafce8bc6c3c84051ed69017d6c8a6df079e73e8f3f27f6c4f79ef79ea02de90b83e11c0b3da35407c50eba62f13cb4cc824af67b1d20281397e750ce50af75c7e56d7f58b9ea1c9e357962a3406a00651b3baad0e0ac8a29cf08d2a9eb693ecad2ddab35dbc1d64761c23669e085e5b9f80400487c8b8a869177358ab7c070445a4635bb17bdf57dd302299e9301a543572e5cac91947a57066a0b3693f3aab9593605262cbb86a2dff1d56efe59cbe03a4852615b025009e69200164984cad637a906017a25af0652d57e973930e290b6ef252e955bcfac0f56c0d55bfdeb68c655440ba5a767b5155af491d972f95aa83ef9138e66c02778289b58b392709193c9cbb1395a0c381e4e5dfd4aa0b8ad04eb154765097cffc65619b3f7cb3eef2a41d5552f89532e1dfe5ac9a2268b99d
+#TRUST-RSA-SHA256 04d7cc1a995619ec23c21336f79bb2e365e62a86dc3ee9feeb6a135ccf1d867df5a31f9c6902c3bd3269cf99a5e9b257791c6c10209613d36b1e22c90bac4b184be0cee52cbb12ed35e2fcdaf68e6bb9a80585bfd9835af8153b862296f49b63b3f63549bd42395f99d86e6cc0448be39c21821707cfe9ec80882761069867af9b2cc1288949906564d68a9d32dbefb8a4837c18017c93e12ffe7367de89e77e2ef31a6b414b637488409e449e5e88cc137520c6d81e55a2754e48080f5559373610ae0171b0949c7d667aac2c9689538bfe3c36e557e9211622994e17c625771e538d455559a9e2e5619ec282f24f88c7760e87e42c3715164f71df9046466f1d04b87e2721850370f0e331d9f2ccf9cb751992afd3280e6984647e477f3b56d0a3482cf5a8834f6add69fb976a7d52195f7e12edd51637dc129a610e88df5d910367398697ec6e01791eb03acae909bb9f24f6c45b17c31d06a8d9da588de28ff172ea58df1e98d158153a34f5df5e7fc4f4037cfcde93bc9fb0ef5fa1ac8e194684e6cdfb6f5bf601b908ddb3704a48672294612442b814249521dbbdaa23eadace8e7cee17d3bc259e22de73f918b2bbf76458e21c90b191a3834a279adb95aa92b6e97ee359ff01e972eb124fd537361572b3cc5596dd54559e00f88270454a74cd9d2758228817ef868aae725c976ae5ce89238154fb5f2cd15277656b
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2024/08/28 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Docker Enterprise 2.x Linux/UNIX v2r2 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Docker Enterprise 2.x Linux/Unix UCP v2r2</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Docker Enterprise 2.x</name>
+#  <profile>OS Linux/Unix UCP</profile>
+#  <version>2.2.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip</link>
+#</spec>
+#<labels>disa,docker_enterprise_linux_2.x,agent</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>UCP_IP</name>
+#    <default>127.0.0.1</default>
+#    <description>Universal Control Plane IP</description>
+#    <info>The Universal Control Plane (UCP) IP.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>UCP_PORT</name>
+#    <default>443</default>
+#    <description>Universal Control Plane Port</description>
+#    <info>The Universal Control Plane (UCP) Port.</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Check if this is a Docker Host"
+      cmd         : "/usr/bin/docker version --format '{{.Server.Platform.Name}}'"
+      expect      : "^Docker Engine - Enterprise.*$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_Docker_Enterprise_2.x_Linux_Unix_UCP_v2r2.audit from DISA Docker Enterprise 2.x Linux/UNIX v2r2 STIG"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001000 - The Docker Enterprise Per User Limit Login Session Control in the Universal Control Plane (UCP) Admin Settings must be set to an organization-defined value for all accounts and/or account types."
+      info        : "The UCP component of Docker Enterprise includes a built-in access authorization mechanism called eNZi which can be integrated with an LDAP server and subsequently configured to limit the number of concurrent sessions to an organization-defined number for all accounts and/or account types. Per-user session control limits are configured with a default of 10. For reference, the per user limit in UCP specifies the maximum number of sessions that any user can have active at any given time. If creating a new session would put a user over this limit then the least recently used session will be deleted. A value of zero disables limiting the number of sessions that users may have. This configuration applies to both the UCP and DTR management consoles.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set the 'Per User Limit' Login Session Control in the UCP Admin Settings per the requirements set forth by the System Security Plan (SSP).
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Authentication & Authorization' and set the 'Per User Limit' field according to the requirements of this control.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands on either a UCP Manager node or using a UCP client bundle. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'per_user_limit' entry under the '[auth.sessions]' section according to the requirements of this control. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-53|AC-10,800-53r5|AC-10,CAT|III,CCI|CCI-000054,CSF2.0|PR.AA-05,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-10,NESA|T5.5.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-235775r960735_rule,STIG-ID|DKER-EE-001000,STIG-Legacy|SV-104693,STIG-Legacy|V-94863,Vuln-ID|V-235775"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001080 - The audit log configuration level must be set to request in the Universal Control Plane (UCP) component of Docker Enterprise."
+      info        : "The UCP and Docker Trusted Registry (DTR) components of Docker Enterprise provide audit record generation capabilities. Audit logs capture all HTTP actions for the following endpoints: Kubernetes API, Swarm API and UCP API. The following UCP API endpoints are excluded from audit logging (where '*' designates a wildcard of exclusions): '/_ping', '/ca', '/auth', '/trustedregistryca', '/kubeauth', '/metrics', '/info', '/version*', '/debug', '/openid_keys', '/apidocs', 'kubernetesdocs' and '/manage'. Audit log verbosity can be set to one of the following levels: 'none', 'metadata', or 'request'. To meet the requirements of this control, the 'request' verbosity level must be configured in UCP.
+
+The data captured at each level for UCP and the eNZI authentication and authorization backplane is described below:
+
+'none': audit logging is disabled
+
+'metadata':
+ - method and API endpoint for the request
+ - UCP user which made the request
+ - response status (success/failure)
+ - timestamp of the call
+ - object ID of created/updated resource (for create/update calls)
+ - license key
+ - remote address
+
+'request': includes all fields from the 'metadata' level, as well as the request payload
+
+DTR audits all events associated with repository activities. Events are considered as follows: create, get, delete, update, send, fail, and scan. The following types are associated with the defined audit events: repository, tag, blob, manifest, webhook, uri, promotion, push mirroring, poll mirroring, garbage collector, system.
+
+The Docker Engine - Enterprise component of Docker Enterprise relies on the underlying host operating system's auditing capabilities. By default, the host OS is not configured to audit Docker Engine - Enterprise.
+
+Satisfies: SRG-APP-000016, SRG-APP-000089, SRG-APP-000515, SRG-APP-000510, SRG-APP-000509, SRG-APP-000508, SRG-APP-000507, SRG-APP-000506, SRG-APP-000505, SRG-APP-000504, SRG-APP-000503, SRG-APP-000502, SRG-APP-000501, SRG-APP-000500, SRG-APP-000499, SRG-APP-000498, SRG-APP-000497, SRG-APP-000496, SRG-APP-000495, SRG-APP-000494, SRG-APP-000493, SRG-APP-000492, SRG-APP-000484, SRG-APP-000447, SRG-APP-000381, SRG-APP-000343, SRG-APP-000101, SRG-APP-000100, SRG-APP-000099, SRG-APP-000098, SRG-APP-000097, SRG-APP-000096, SRG-APP-000095, SRG-APP-000093, SRG-APP-000092, SRG-APP-000091
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Set the remote syslog configuration in UCP:
+
+via UI:
+
+As a Docker EE Admin, navigate to 'Admin Settings' | 'Audit Logs' in the UCP management console, and set the 'Audit Log Level' to 'Request'.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine that can communicate with the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file under the '[audit_log_configuration]' section set 'level = request'.
+Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.1.7,800-171|3.1.12,800-171|3.3.1,800-171|3.3.2,800-171|3.4.5,800-53|AC-6(9),800-53|AC-17(1),800-53|AU-3,800-53|AU-3(1),800-53|AU-4(1),800-53|AU-12a.,800-53|AU-12c.,800-53|AU-14(1),800-53|AU-14(2),800-53|CM-5(1),800-53|SI-7(8),800-53|SI-10(3),800-53r5|AC-6(9),800-53r5|AC-17(1),800-53r5|AU-3a.,800-53r5|AU-3b.,800-53r5|AU-3c.,800-53r5|AU-3d.,800-53r5|AU-3e.,800-53r5|AU-3f.,800-53r5|AU-3(1),800-53r5|AU-4(1),800-53r5|AU-12a.,800-53r5|AU-12c.,800-53r5|AU-14(1),800-53r5|SI-7(8),800-53r5|SI-10(3),CAT|II,CCI|CCI-000067,CCI|CCI-000130,CCI|CCI-000131,CCI|CCI-000132,CCI|CCI-000133,CCI|CCI-000134,CCI|CCI-000135,CCI|CCI-000169,CCI|CCI-000172,CCI|CCI-001462,CCI|CCI-001464,CCI|CCI-001487,CCI|CCI-001814,CCI|CCI-001851,CCI|CCI-002234,CCI|CCI-002723,CCI|CCI-002754,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.2(d),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CN-L3|8.1.4.4(c),CN-L3|8.1.4.4(d),CN-L3|8.1.10.6(a),CN-L3|8.1.10.6(i),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.AC-3,CSF|PR.AC-4,CSF|PR.DS-4,CSF|PR.DS-6,CSF|PR.IP-1,CSF|PR.PT-1,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|ID.RA-09,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,CSF2.0|PR.PS-04,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.12.4.1,ISO/IEC-27001|A.12.4.3,ITSG-33|AC-6,ITSG-33|AC-17(1),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-4,ITSG-33|AU-12a.,ITSG-33|AU-12c.,ITSG-33|AU-14,ITSG-33|AU-14a.,ITSG-33|CM-5(1),ITSG-33|SI-7,ITSG-33|SI-7a.,ITSG-33|SI-10,ITSG-33|SI-10a.,NESA|T3.3.1,NESA|T3.4.1,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.4,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.3.1,NESA|T7.3.2,NESA|T7.3.3,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SM8,NIAv2|SS6e,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv3.2.1|10.5.5,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|7.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-235778r960765_rule,STIG-ID|DKER-EE-001080,STIG-Legacy|SV-104699,STIG-Legacy|V-94869,SWIFT-CSCv1|2.6,SWIFT-CSCv1|5.1,SWIFT-CSCv1|6.4,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,TBA-FIISB|45.1.1,Vuln-ID|V-235778"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001100 - LDAP integration in Docker Enterprise must be configured."
+      info        : "Both the Universal Control Plane (UCP) and Docker Trusted Registry (DTR) components of Docker Enterprise leverage the same authentication and authorization backplane known as eNZi. The eNZi backplane provides automated mechanisms for supporting account management functions and allows for LDAP integration in UCP and DTR. While eNZi includes its own managed user database, it is recommended that LDAP integration be configured to more completely satisfy the requirements of this control.
+
+Satisfies: SRG-APP-000023, SRG-APP-000405, SRG-APP-000404, SRG-APP-000403, SRG-APP-000401, SRG-APP-000397, SRG-APP-000392, SRG-APP-000148, SRG-APP-000141, SRG-APP-000391
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Enable and configure LDAP integration in the UCP Admin Settings.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Authentication & Authorization' and set 'LDAP Enabled' to 'Yes' and properly configure the LDAP/AD settings as per the appropriate OS STIG.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands on either a UCP Manager node or using a UCP client bundle. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'backend' entry under the '[auth]' section to 'ldap', and add an '[auth.ldap]' sub-section per the UCP configuration options as documented at https://docs.docker.com/ee/ucp/admin/configure/ucp-configuration-file/#authldap-optional. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.1.1,800-171|3.4.6,800-171|3.4.7,800-171|3.5.1,800-171|3.5.2,800-171|3.5.9,800-53|AC-2(1),800-53|CM-7a.,800-53|IA-2,800-53|IA-2(12),800-53|IA-5(1)(f),800-53|IA-5(2)(d),800-53|IA-8(1),800-53|IA-8(2),800-53|IA-8(4),800-53r5|AC-2(1),800-53r5|CM-7a.,800-53r5|IA-2,800-53r5|IA-2(12),800-53r5|IA-8(1),CAT|II,CCI|CCI-000015,CCI|CCI-000381,CCI|CCI-000764,CCI|CCI-001953,CCI|CCI-001954,CCI|CCI-001991,CCI|CCI-002010,CCI|CCI-002011,CCI|CCI-002014,CCI|CCI-002041,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|7.1.3.2(d),CN-L3|7.1.3.5(c),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.1.4.4(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-2(1),ITSG-33|CM-7a.,ITSG-33|IA-2,ITSG-33|IA-2a.,ITSG-33|IA-5(1),ITSG-33|IA-5(2),ITSG-33|IA-8,ITSG-33|IA-8a.,NESA|T2.3.8,NESA|T4.3.1,NESA|T5.2.3,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-235780r960768_rule,STIG-ID|DKER-EE-001100,STIG-Legacy|SV-104703,STIG-Legacy|V-95113,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.8,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.6,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-235780"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001170 - A policy set using the built-in role-based access control (RBAC) capabilities in the Universal Control Plane (UCP) component of Docker Enterprise must be configured."
+      info        : "Both the UCP and Docker Trusted Registry (DTR) components of Docker Enterprise leverage the same authentication and authorization backplane known as eNZi. eNZi provides UCP and DTR with role-based access control functionality to enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies. The eNZi backplane includes its own managed user database, and also allows for LDAP integration in UCP and DTR. While role-based access control mechanisms are provided regardless of whether or not LDAP integration is enabled, it is recommended to enable LDAP integration to better meet the requirements of this control.
+
+Satisfies: SRG-APP-000033, SRG-APP-000038, SRG-APP-000039, SRG-APP-000080, SRG-APP-000243, SRG-APP-000246, SRG-APP-000247, SRG-APP-000267, SRG-APP-000311, SRG-APP-000313, SRG-APP-000314, SRG-APP-000328, SRG-APP-000340, SRG-APP-000342, SRG-APP-000378, SRG-APP-000380, SRG-APP-000384
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Apply RBAC policy sets in UCP per the requirements set forth by the SSP.
+
+via UI:
+
+As a Docker EE Admin, navigate to 'Access Control' | 'Grants' in the UCP web console. Create grants and cluster role bindings for Swarm per the requirements set forth by the SSP.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands on a machine that can communicate with the UCP management console:
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+
+Create grants for Swarm for applicable subjects, objects and roles using the following command:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' -X PUT https://[ucp_url]/collectionGrants/[subjectID]/[objectID]/[roleID]"
+      reference   : "800-171|3.1.1,800-171|3.1.3,800-171|3.1.5,800-171|3.1.7,800-171|3.4.5,800-171|3.4.7,800-171|3.4.9,800-171|3.13.4,800-53|AC-3,800-53|AC-3(4),800-53|AC-4,800-53|AC-6(8),800-53|AC-6(10),800-53|AC-16a.,800-53|AU-10,800-53|CM-5(1),800-53|CM-7(2),800-53|CM-11(2),800-53|SC-4,800-53|SC-5(1),800-53|SC-5(2),800-53|SI-11b.,800-53r5|AC-3,800-53r5|AC-3(4),800-53r5|AC-4,800-53r5|AC-6(8),800-53r5|AC-6(10),800-53r5|AC-16a.,800-53r5|AU-10,800-53r5|CM-5(1)(a),800-53r5|CM-7(2),800-53r5|SC-4,800-53r5|SC-5(1),800-53r5|SC-5(2),800-53r5|SI-11b.,CAT|II,CCI|CCI-000166,CCI|CCI-000213,CCI|CCI-001090,CCI|CCI-001094,CCI|CCI-001095,CCI|CCI-001314,CCI|CCI-001368,CCI|CCI-001414,CCI|CCI-001764,CCI|CCI-001812,CCI|CCI-001813,CCI|CCI-002165,CCI|CCI-002233,CCI|CCI-002235,CCI|CCI-002262,CCI|CCI-002263,CCI|CCI-002264,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|DE.AE-1,CSF|DE.CM-1,CSF|DE.CM-3,CSF|ID.AM-3,CSF|PR.AC-4,CSF|PR.AC-5,CSF|PR.DS-4,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.PT-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.8.2.1,ISO/IEC-27001|A.8.2.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.6.2,ITSG-33|AC-3,ITSG-33|AC-3(4),ITSG-33|AC-4,ITSG-33|AC-6,ITSG-33|AC-16a.,ITSG-33|AU-10,ITSG-33|CM-5(1),ITSG-33|CM-7(2),ITSG-33|SC-4,ITSG-33|SC-4a.,ITSG-33|SC-5(1),ITSG-33|SC-5(2),ITSG-33|SI-11c.,NESA|T1.3.2,NESA|T1.3.3,NESA|T3.3.1,NESA|T4.2.1,NESA|T4.3.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.4.6,NESA|T5.5.4,NESA|T5.6.1,NESA|T5.7.2,NESA|T7.3.3,NESA|T7.5.2,NESA|T7.5.3,NESA|T7.6.4,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|GS8e,NIAv2|GS10c,NIAv2|GS11a,NIAv2|GS12a,NIAv2|GS14a,NIAv2|GS15a,NIAv2|GS16a,NIAv2|NS13a,NIAv2|NS13b,NIAv2|NS13c,NIAv2|NS14,NIAv2|SS13c,NIAv2|SS15a,NIAv2|SS15c,NIAv2|SS23,NIAv2|SS27a,NIAv2|SS27b,NIAv2|SS28,NIAv2|SS29,NIAv2|SS32,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|7.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-235781r960792_rule,STIG-ID|DKER-EE-001170,STIG-Legacy|SV-104705,STIG-Legacy|V-95355,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.4,SWIFT-CSCv1|5.1,SWIFT-CSCv1|6.4,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-235781"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001180 - A policy set using the built-in role-based access control (RBAC) capabilities in the Docker Trusted Registry (DTR) component of Docker Enterprise must be set - team member access"
+      info        : "Both the Universal Control Plane (UCP) and DTR components of Docker Enterprise leverage the same authentication and authorization backplane known as eNZi. eNZi provides UCP and DTR with role-based access control functionality to enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies. These policies are defined in the System Security Plan along with organization information, application user roles, system resources and access requirements. The eNZi backplane includes its own managed user database, and also allows for LDAP integration in UCP and DTR. While role-based access control mechanisms are provided regardless of whether or not LDAP integration is enabled, it is recommended to enable LDAP integration to better meet the requirements of this control.
+
+Satisfies: SRG-APP-000033, SRG-APP-000243, SRG-APP-000246, SRG-APP-000247, SRG-APP-000267, SRG-APP-000328, SRG-APP-000340, SRG-APP-000342, SRG-APP-000378, SRG-APP-000380, SRG-APP-000384, SRG-APP-000038, SRG-APP-000039, SRG-APP-000080, SRG-APP-000311, SRG-APP-000313, SRG-APP-000314
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Verify that the applied organization, team and user permissions in DTR are configured per the SSP.
+
+via UI:
+
+As a Docker EE Admin, navigate to 'Organizations' and setup the list of organizations and teams within those organizations per the requirements set forth by the SSP. Navigate to 'Users' and assign users to appropriate organizations, teams and repositories per the SSP.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE admin, execute the following commands on a machine that can communicate with the DTR management console:
+
+AUTHTOKEN=$(curl -kLsS -u <username>:<password> 'https://[dtr_url]/auth/token' | jq -r .token)
+
+Execute the following command to give teams in an organization access to the appropriate repositories per the System Security Plan:
+
+curl -k -H 'Authorization: Bearer $AUTHTOKEN' -X PUT 'https://[dtr_url]/api/v0/repositories/[namespace]/[reponame]/teamAccess/[teamname]'
+
+Execute the following commands on a machine that can communicate with the UCP management console to add/remove members to/from the team with access to these repositories as appropriate per the SSP:
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+
+Add: curl -sk -H 'Authorization: Bearer $AUTHTOKEN' -X PUT https://[ucp_url]/accounts/[orgNameOrID]/teams/[teamNameOrID]/members/[memberNameOrID]
+Remove: curl -sk -H 'Authorization: Bearer $AUTHTOKEN' -X DELETE https://[ucp_url]/accounts/[orgNameOrID]/teams/[teamNameOrID]/members/[memberNameOrID]"
+      reference   : "800-171|3.1.1,800-171|3.1.3,800-171|3.1.5,800-171|3.1.7,800-171|3.4.5,800-171|3.4.7,800-171|3.4.9,800-171|3.13.4,800-53|AC-3,800-53|AC-3(4),800-53|AC-4,800-53|AC-6(8),800-53|AC-6(10),800-53|AC-16a.,800-53|AU-10,800-53|CM-5(1),800-53|CM-7(2),800-53|CM-11(2),800-53|SC-4,800-53|SC-5(1),800-53|SC-5(2),800-53|SI-11b.,800-53r5|AC-3,800-53r5|AC-3(4),800-53r5|AC-4,800-53r5|AC-6(8),800-53r5|AC-6(10),800-53r5|AC-16a.,800-53r5|AU-10,800-53r5|CM-5(1)(a),800-53r5|CM-7(2),800-53r5|SC-4,800-53r5|SC-5(1),800-53r5|SC-5(2),800-53r5|SI-11b.,CAT|II,CCI|CCI-000166,CCI|CCI-000213,CCI|CCI-001090,CCI|CCI-001094,CCI|CCI-001095,CCI|CCI-001314,CCI|CCI-001368,CCI|CCI-001414,CCI|CCI-001764,CCI|CCI-001812,CCI|CCI-001813,CCI|CCI-002165,CCI|CCI-002233,CCI|CCI-002235,CCI|CCI-002262,CCI|CCI-002263,CCI|CCI-002264,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|DE.AE-1,CSF|DE.CM-1,CSF|DE.CM-3,CSF|ID.AM-3,CSF|PR.AC-4,CSF|PR.AC-5,CSF|PR.DS-4,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.PT-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.8.2.1,ISO/IEC-27001|A.8.2.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.6.2,ITSG-33|AC-3,ITSG-33|AC-3(4),ITSG-33|AC-4,ITSG-33|AC-6,ITSG-33|AC-16a.,ITSG-33|AU-10,ITSG-33|CM-5(1),ITSG-33|CM-7(2),ITSG-33|SC-4,ITSG-33|SC-4a.,ITSG-33|SC-5(1),ITSG-33|SC-5(2),ITSG-33|SI-11c.,NESA|T1.3.2,NESA|T1.3.3,NESA|T3.3.1,NESA|T4.2.1,NESA|T4.3.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.4.6,NESA|T5.5.4,NESA|T5.6.1,NESA|T5.7.2,NESA|T7.3.3,NESA|T7.5.2,NESA|T7.5.3,NESA|T7.6.4,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|GS8e,NIAv2|GS10c,NIAv2|GS11a,NIAv2|GS12a,NIAv2|GS14a,NIAv2|GS15a,NIAv2|GS16a,NIAv2|NS13a,NIAv2|NS13b,NIAv2|NS13c,NIAv2|NS14,NIAv2|SS13c,NIAv2|SS15a,NIAv2|SS15c,NIAv2|SS23,NIAv2|SS27a,NIAv2|SS27b,NIAv2|SS28,NIAv2|SS29,NIAv2|SS32,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|7.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-235782r960792_rule,STIG-ID|DKER-EE-001180,STIG-Legacy|SV-104707,STIG-Legacy|V-95357,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.4,SWIFT-CSCv1|5.1,SWIFT-CSCv1|6.4,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-235782"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "DKER-EE-001870 - The Docker Enterprise self-signed certificates in Universal Control Plane (UCP) must be replaced with DoD trusted, signed certificates."
+      info        : "Docker Enterprise includes the following capabilities that are considered non-essential:
+
+*NOTE: disabling these capabilities negatively affects the operation of Docker Trusted Registry (DTR) and should be disregarded when UCP and DTR are installed. The security capabilities provided by UCP and DTR offset any potential vulnerabilities associated with not disabling these essential capabilities the Engine provides.
+
+(Docker Engine - Enterprise: Standalone) - The majority of these items were originally identified as part of the CIS Docker Benchmark, which as of the CIS Docker Benchmark v1.2.0, are still applicable to Docker Engine - Enterprise 18.09
+- inter-container communication (icc)* (CIS Docker Benchmark Recommendation 2.1)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- userland proxy for loopback traffic* (CIS Docker Benchmark Recommendation 2.15)
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+- Swarm Mode (CIS Docker Benchmark Recommendation 7.1)
+
+(Docker Engine - Enterprise: As part of a UCP cluster)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+
+(UCP)
+- Managed user database
+- self-signed certificates
+- periodic usage reporting and API tracking
+- allow users and administrators to schedule containers on all nodes, including UCP managers and DTR nodes
+
+(DTR)
+- periodic data usage/analytics reporting
+- create repository on push
+- self-signed certificates
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Integrate UCP with a trusted certificate authority CA.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Certificates'. Fill in (or click on the 'Upload' links) the 'CA Certificate' field with the contents of the external public CA certificate. Assuming the user generated a server certificate from that CA for UCP, also fill in the 'Server Certificate' and 'Private Key' fields with the contents of the public/private certificates respectively. The 'Server Certificate' field must include both the UCP server certificate and any intermediate certificates. Click on the 'Save' button.
+
+If DTR was previously integrated with this UCP cluster, execute a 'dtr reconfigure' command as a superuser on one of the UCP Manager nodes in the cluster to re-configure DTR with the updated UCP certificates.
+
+via CLI:
+Linux: As a superuser, execute the following commands on each UCP Manager node in the cluster and in the directory where keys and certificates are located:
+
+Create a container that attaches to the same volume where certificates are stored:
+
+docker create --name replace-certs -v ucp-controller-server-certs:/data busybox
+
+Copy keys and certificates to the container's volumes:
+
+docker cp cert.pem replace-certs:/data/cert.pem
+docker cp ca.pem replace-certs:/data/ca.pem
+docker cp key.pem replace-certs:/data/key.pem
+
+Remove the container, since it is no longer needed:
+
+docker rm replace-certs
+
+Restart the container, since it is no longer needed:
+
+docker rm replace-certs
+
+Restart the ucp-controller container:
+
+docker restart ucp-controller
+
+If DTR was previously integrated with this UCP cluster, execute a 'dtr reconfigure' command as a superuser on one of the UCP Manager nodes in the cluster to re-configure DTR with the updated UCP certificates."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-235793r960963_rule,STIG-ID|DKER-EE-001870,STIG-Legacy|SV-104757,STIG-Legacy|V-95619,SWIFT-CSCv1|2.3,Vuln-ID|V-235793"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+      cmd         : "/usr/bin/echo '' | /usr/bin/openssl s_client -connect @UCP_IP@:@UCP_PORT@ | /usr/bin/openssl x509 -noout -text"
+      expect      : "Manual_Review"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001890 - The option in Universal Control Plane (UCP) allowing users and administrators to schedule containers on all nodes, including UCP managers and Docker Trusted Registry (DTR) nodes must be disabled in Docker Enterprise."
+      info        : "Docker Enterprise includes the following capabilities that are considered non-essential:
+
+*NOTE: disabling these capabilities negatively affects the operation of UCP and DTR and should be disregarded when UCP and DTR are installed. The security capabilities provided by UCP and DTR offset any potential vulnerabilities associated with not disabling these essential capabilities the Engine provides.
+
+(Docker Engine - Enterprise: Standalone) - The majority of these items were originally identified as part of the CIS Docker Benchmark, which as of the CIS Docker Benchmark v1.2.0, are still applicable to Docker Engine - Enterprise 18.09
+- inter-container communication (icc)* (CIS Docker Benchmark Recommendation 2.1)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- userland proxy for loopback traffic* (CIS Docker Benchmark Recommendation 2.15)
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+- Swarm Mode (CIS Docker Benchmark Recommendation 7.1)
+
+(Docker Engine - Enterprise: As part of a UCP cluster)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+
+(UCP)
+- Managed user database
+- self-signed certificates
+- periodic usage reporting and API tracking
+- allow users and administrators to schedule containers on all nodes, including UCP managers and DTR nodes
+
+(DTR)
+- periodic data usage/analytics reporting
+- create repository on push
+- self-signed certificates
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Prevent admins and users from being able to schedule containers on manager nodes and DTR nodes.
+
+via UI:
+
+As a Docker EE Admin, navigate to 'Admin Settings' | 'Scheduler' in the UCP management console. Uncheck both the 'Allow administrators to deploy containers on UCP managers or nodes running DTR' and 'Allow users to schedule on all nodes, including UCP managers and DTR nodes' options. Click 'Save'.
+
+via CLI:
+
+Linux: As a Docker EE Admin, execute the following commands on a machine that can communicate with the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator:
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'enable_admin_ucp_scheduling' entry under the '[scheduling_configuration]' section to 'false'. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml
+
+Delete the Grant for the 'Scheduler' role against the '/' collection for the 'docker-datacenter' organization by executing the following command:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' -X DELETE https://[ucp_url]/collectionGrants/[subjectID]/[objectID]/[roleID]"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-235795r960963_rule,STIG-ID|DKER-EE-001890,STIG-Legacy|SV-104761,STIG-Legacy|V-95623,SWIFT-CSCv1|2.3,Vuln-ID|V-235795"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001910 - Periodic data usage and analytics reporting in Universal Control Plane (UCP) must be disabled in Docker Enterprise."
+      info        : "Docker Enterprise includes the following capabilities that are considered non-essential:
+
+*NOTE: disabling these capabilities negatively affects the operation of UCP and Docker Trusted Registry (DTR) and should be disregarded when UCP and DTR are installed. The security capabilities provided by UCP and DTR offset any potential vulnerabilities associated with not disabling these essential capabilities the Engine provides.
+
+(Docker Engine - Enterprise: Standalone) - The majority of these items were originally identified as part of the CIS Docker Benchmark, which as of the CIS Docker Benchmark v1.2.0, are still applicable to Docker Engine - Enterprise 18.09
+- inter-container communication (icc)* (CIS Docker Benchmark Recommendation 2.1)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- userland proxy for loopback traffic* (CIS Docker Benchmark Recommendation 2.15)
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+- Swarm Mode (CIS Docker Benchmark Recommendation 7.1)
+
+(Docker Engine - Enterprise: As part of a UCP cluster)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+
+(UCP)
+- Managed user database
+- self-signed certificates
+- periodic usage reporting and API tracking
+- allow users and administrators to schedule containers on all nodes, including UCP managers and DTR nodes
+
+(DTR)
+- periodic data usage/analytics reporting
+- create repository on push
+- self-signed certificates
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Disable usage and API analytics tracking in UCP:
+
+via UI:
+
+As a Docker EE Admin, navigate to 'Admin Settings' | 'Usage' in the UCP management console. Uncheck both the 'Enable hourly usage reporting' and 'Enable API and UI tracking' options. Click 'Save'.
+
+via CLI:
+
+Linux: As a Docker EE Admin, execute the following commands on a machine that can communicate with the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator:
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file. Set both the 'disable_usageinfo' and 'disable_tracking' entries under the '[tracking_configuration]' section to 'true'. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-235797r960963_rule,STIG-ID|DKER-EE-001910,STIG-Legacy|SV-104765,STIG-Legacy|V-95627,SWIFT-CSCv1|2.3,Vuln-ID|V-235797"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-002180 - SAML integration must be enabled in Docker Enterprise."
+      info        : "Both the Universal Control Plane (UCP) and Docker Trusted Registry (DTR) components of Docker Enterprise leverage the same authentication and authorization backplane known as eNZi. The eNZi backplane includes its own managed user database, and also allows for LDAP and SAML integration in UCP and DTR. To meet the requirements of this control, configure LDAP and SAML integration.
+
+Satisfies: SRG-APP-000149, SRG-APP-000150, SRG-APP-000151, SRG-APP-000152, SRG-APP-000153, SRG-APP-000391, SRG-APP-000392, SRG-APP-000402, SRG-APP-000403, SRG-APP-000404, SRG-APP-000405
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Enable and configure SAML integration in the UCP Admin Settings.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Authentication & Authorization' and set 'SAML Enabled' to 'Yes' and properly configure the SAML settings.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine with connectivity to the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file. Set the 'samlEnabled' entry under the '[auth]' section to 'true'. Set the 'idpMetadataURL' and 'spHost' entries under the '[auth.saml]' to appropriate values per the UCP configuration options as documented at https://docs.docker.com/ee/ucp/admin/configure/ucp-configuration-file/#authsaml-optional. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.5.1,800-171|3.5.3,800-53|IA-2(1),800-53|IA-2(2),800-53|IA-2(3),800-53|IA-2(4),800-53|IA-2(5),800-53|IA-2(12),800-53|IA-8(1),800-53|IA-8(2),800-53|IA-8(4),800-53r5|IA-2(1),800-53r5|IA-2(2),800-53r5|IA-2(12),800-53r5|IA-8(1),CAT|II,CCI|CCI-000765,CCI|CCI-000766,CCI|CCI-000767,CCI|CCI-000768,CCI|CCI-000770,CCI|CCI-001953,CCI|CCI-001954,CCI|CCI-002009,CCI|CCI-002010,CCI|CCI-002011,CCI|CCI-002014,CN-L3|7.1.2.7(b),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,ITSG-33|IA-2(1),ITSG-33|IA-2(2),ITSG-33|IA-2(3),ITSG-33|IA-2(4),ITSG-33|IA-2(5),ITSG-33|IA-2(5)(a),ITSG-33|IA-2(5)(b),ITSG-33|IA-8,ITSG-33|IA-8a.,NESA|T2.3.8,NESA|T4.3.1,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM36,NIAv2|VL3c,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-235821r960972_rule,STIG-ID|DKER-EE-002180,STIG-Legacy|SV-104815,STIG-Legacy|V-95677,SWIFT-CSCv1|1.2,SWIFT-CSCv1|2.8,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-235821"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-002490 - The Lifetime Minutes and Renewal Threshold Minutes Login Session Controls must be set to 10 and 0 respectively in Docker Enterprise - lifetime_minutes"
+      info        : "The Universal Control Plane (UCP) component of Docker Enterprise includes a built-in access authorization mechanism called eNZi which can be integrated with an LDAP server and subsequently terminate all network connections associated with a communications session at the end of the session, or as follows: for in-band management sessions (privileged sessions), the session must be terminated after 10 minutes of inactivity; and for user sessions (non-privileged session), the session must be terminated after 15 minutes of inactivity, except to fulfill documented and validated mission requirements. The lifetime minutes login session control is configured with a default of 60 minutes (1 hour) and the renewal threshold minutes is configured with a default of 20 minutes. For reference, the lifetime login session control in UCP specifies the initial lifetime (in minutes) of a session from the moment it is generated. The renewal threshold setting indicates a period of time (in minutes) before the expiration of a session where, if used, a session will be extended by the current configured lifetime from then. This value cannot be greater than the configured lifetime. A value equal to the lifetime means that sessions will be extended with every use. A value of zero indicates that sessions should never be extended but this may result in unexpectedly being logged out if the session expires while performing a series of actions in the UI. This configuration only applies to both the UCP and Docker Trusted Registry (DTR) management consoles and not when connecting via the command line. When connecting via the command line, this control is not applicable.
+
+It's important to note that the notion of a session varies depending on how one is connecting to a UCP cluster or DTR. In all of these cases, there is no specific session termination capability. Either the session times out, the user's client bundle has expired, or a user explicitly logs out. This has been outlined as follows:
+
+(UCP and DTR UIs) When connecting to a UCP cluster or DTR via the web console, a user's session is active until any of the following conditions is met:
+- the session expires based on the values configured for 'Lifetime Minutes' and 'Renewal Threshold Minutes' in the UCP Admin Settings
+- the user explicitly clicks the 'Sign Out' button
+
+(UCP and DTR CLIs) When connecting to a UCP cluster or DTR via the command line using a client bundle, a user's session is active until any of the following conditions is met:
+- the certificate contained within a user's client bundle hasn't expired
+- the public key in the certificate contained with a user's client bundle is no long associated with that user (i.e. a client bundle is revoked from within the UCP user management options)
+- the user's account is no longer active (either explicitly disabled from within the UCP user management options or at the LDAP server)
+- the user's password is changed
+
+Satisfies: SRG-APP-000190, SRG-APP-000002, SRG-APP-000003, SRG-APP-000295, SRG-APP-000389, SRG-APP-000400
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set the 'Lifetime Minutes' and 'Renewal Threshold Minutes' Login Session Controls in the UCP Admin Settings to '10' and '0' respectively.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Authentication & Authorization' and set the 'Lifetime Minutes' and 'Renewal Threshold Minutes' fields to '10' and '0' respectively.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine with connectivity to the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'lifetime_minutes' and 'renewal_threshold_minutes' entries under the '[auth.sessions]' section to '10' and '0' respectively.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.1.10,800-171|3.1.11,800-171|3.5.2,800-171|3.13.9,800-53|AC-11a.,800-53|AC-11(1),800-53|AC-12,800-53|IA-5(13),800-53|IA-11,800-53|SC-10,800-53r5|AC-11a.,800-53r5|AC-11(1),800-53r5|AC-12,800-53r5|IA-5(13),800-53r5|SC-10,CAT|II,CCI|CCI-000057,CCI|CCI-000060,CCI|CCI-001133,CCI|CCI-002007,CCI|CCI-002038,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iii),HIPAA|164.312(d),ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11a.,ITSG-33|AC-11(1),ITSG-33|AC-12,ITSG-33|IA-5,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T2.3.9,NESA|T4.5.1,NESA|T5.2.3,NESA|T5.5.1,NIAv2|AM23a,NIAv2|AM23b,NIAv2|AM23c,NIAv2|AM23d,NIAv2|NS49,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-235825r961068_rule,STIG-ID|DKER-EE-002490,STIG-Legacy|SV-104821,STIG-Legacy|V-95683,SWIFT-CSCv1|2.6,Vuln-ID|V-235825"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-002490 - The Lifetime Minutes and Renewal Threshold Minutes Login Session Controls must be set to 10 and 0 respectively in Docker Enterprise - renewal_threshold_minutes"
+      info        : "The Universal Control Plane (UCP) component of Docker Enterprise includes a built-in access authorization mechanism called eNZi which can be integrated with an LDAP server and subsequently terminate all network connections associated with a communications session at the end of the session, or as follows: for in-band management sessions (privileged sessions), the session must be terminated after 10 minutes of inactivity; and for user sessions (non-privileged session), the session must be terminated after 15 minutes of inactivity, except to fulfill documented and validated mission requirements. The lifetime minutes login session control is configured with a default of 60 minutes (1 hour) and the renewal threshold minutes is configured with a default of 20 minutes. For reference, the lifetime login session control in UCP specifies the initial lifetime (in minutes) of a session from the moment it is generated. The renewal threshold setting indicates a period of time (in minutes) before the expiration of a session where, if used, a session will be extended by the current configured lifetime from then. This value cannot be greater than the configured lifetime. A value equal to the lifetime means that sessions will be extended with every use. A value of zero indicates that sessions should never be extended but this may result in unexpectedly being logged out if the session expires while performing a series of actions in the UI. This configuration only applies to both the UCP and Docker Trusted Registry (DTR) management consoles and not when connecting via the command line. When connecting via the command line, this control is not applicable.
+
+It's important to note that the notion of a session varies depending on how one is connecting to a UCP cluster or DTR. In all of these cases, there is no specific session termination capability. Either the session times out, the user's client bundle has expired, or a user explicitly logs out. This has been outlined as follows:
+
+(UCP and DTR UIs) When connecting to a UCP cluster or DTR via the web console, a user's session is active until any of the following conditions is met:
+- the session expires based on the values configured for 'Lifetime Minutes' and 'Renewal Threshold Minutes' in the UCP Admin Settings
+- the user explicitly clicks the 'Sign Out' button
+
+(UCP and DTR CLIs) When connecting to a UCP cluster or DTR via the command line using a client bundle, a user's session is active until any of the following conditions is met:
+- the certificate contained within a user's client bundle hasn't expired
+- the public key in the certificate contained with a user's client bundle is no long associated with that user (i.e. a client bundle is revoked from within the UCP user management options)
+- the user's account is no longer active (either explicitly disabled from within the UCP user management options or at the LDAP server)
+- the user's password is changed
+
+Satisfies: SRG-APP-000190, SRG-APP-000002, SRG-APP-000003, SRG-APP-000295, SRG-APP-000389, SRG-APP-000400
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set the 'Lifetime Minutes' and 'Renewal Threshold Minutes' Login Session Controls in the UCP Admin Settings to '10' and '0' respectively.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Authentication & Authorization' and set the 'Lifetime Minutes' and 'Renewal Threshold Minutes' fields to '10' and '0' respectively.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine with connectivity to the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'lifetime_minutes' and 'renewal_threshold_minutes' entries under the '[auth.sessions]' section to '10' and '0' respectively.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.1.10,800-171|3.1.11,800-171|3.5.2,800-171|3.13.9,800-53|AC-11a.,800-53|AC-11(1),800-53|AC-12,800-53|IA-5(13),800-53|IA-11,800-53|SC-10,800-53r5|AC-11a.,800-53r5|AC-11(1),800-53r5|AC-12,800-53r5|IA-5(13),800-53r5|SC-10,CAT|II,CCI|CCI-000057,CCI|CCI-000060,CCI|CCI-001133,CCI|CCI-002007,CCI|CCI-002038,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iii),HIPAA|164.312(d),ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11a.,ITSG-33|AC-11(1),ITSG-33|AC-12,ITSG-33|IA-5,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T2.3.9,NESA|T4.5.1,NESA|T5.2.3,NESA|T5.5.1,NIAv2|AM23a,NIAv2|AM23b,NIAv2|AM23c,NIAv2|AM23d,NIAv2|NS49,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-235825r961068_rule,STIG-ID|DKER-EE-002490,STIG-Legacy|SV-104821,STIG-Legacy|V-95683,SWIFT-CSCv1|2.6,Vuln-ID|V-235825"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-002970 - The Docker Enterprise per user limit login session control must be set per the requirements in the System Security Plan (SSP)."
+      info        : "The Universal Control Plane (UCP) component of Docker Enterprise includes a built-in access authorization mechanism called eNZi which can be integrated with an LDAP server and allows for automatic user session termination after organization-defined conditions or trigger events requiring session disconnect. The lifetime minutes login session control is configured with a default of 60 minutes (1 hour) and the renewal threshold minutes is configured with a default of 20 minutes. For reference, the lifetime login session control in UCP specifies the initial lifetime (in minutes) of a session from the moment it is generated. The renewal threshold setting indicates a period of time (in minutes) before the expiration of a session where, if used, a session will be extended by the current configured lifetime from then. This value cannot be greater than the configured lifetime. A value equal to the lifetime means that sessions will be extended with every use. A value of zero indicates that sessions should never be extended but this may result in unexpectedly being logged out if the session expires while performing a series of actions in the UI. This configuration only applies to both the UCP and Docker Trusted Registry (DTR) management consoles and not when connecting via the command line. When connecting via the command line, this control is not applicable.
+
+It's important to note that the notion of a session varies depending on how one is connecting to a UCP cluster or DTR. In all of these cases, there is no specific session termination capability. Either the session times out, the user's client bundle has expired, or a user explicitly logs out. This has been outlined as follows:
+
+(UCP and DTR UIs) When connecting to a UCP cluster or DTR via the web console, a user's session is active until any of the following conditions is met:
+- the session expires based on the values configured for 'Lifetime Minutes' and 'Renewal Threshold Minutes' in the UCP Admin Settings
+- the user explicitly clicks the 'Sign Out' button
+
+(UCP and DTR CLIs) When connecting to a UCP cluster or DTR via the command line using a client bundle, a user's session is active until any of the following conditions is met:
+- the certificate contained within a user's client bundle hasn't expired
+- the public key in the certificate contained with a user's client bundle is no long associated with that user (i.e. a client bundle is revoked from within the UCP user management options)
+- the user's account is no longer active (either explicitly disabled from within the UCP user management options or at the LDAP server)
+- the user's password is changed
+
+*NOTE: Docker Engine - Enterprise, by itself, does not meet the requirements of this control. If the intent is to use Docker in a model consistent with the access control policies as required by this control, obtain and properly configure the UCP component of Docker Enterprise.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set the 'Per User Limit' Login Session Control in the UCP Admin Settings per the requirements set forth by the SSP but not '0'.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Authentication & Authorization' and set the 'Per User Limit' field according to the SSP.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine with connectivity to the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'per_user_limit' entry under the '[auth.sessions]' section according to the SSP but not 0. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CAT|III,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49,Rule-ID|SV-235829r961221_rule,STIG-ID|DKER-EE-002970,STIG-Legacy|SV-104829,STIG-Legacy|V-95691,Vuln-ID|V-235829"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-003590 - Content Trust enforcement must be enabled in Universal Control Plane (UCP) in Docker Enterprise."
+      info        : "The UCP and Docker Trusted Registry (DTR) components of Docker Enterprise can be used in concert to perform an integrity check of organization-defined software at startup. In the context of Docker Enterprise, software would be analogous to Docker images that have been pulled from trusted or untrusted sources. Docker Hub is the most common upstream endpoint for retrieving Docker images. However, only 'Docker Certified' images on Docker Hub are considered trusted and come with SLAs and trusted signatures from their respective vendors. All other images from Docker Hub or other external registries must be carefully inspected and triaged prior to use. Docker Content Trust (DCT) provides for content integrity checking mechanisms on Docker images. DCT can be combined with LDAP, Docker Trusted Registry (DTR) and Universal Control Plane (UCP) to enforce image signatures from users/accounts in LDAP. Therefore, to meet the requirements of this control, it is imperative that UCP has LDAP integration enabled and that content trust enforcement is enabled and properly configured.
+
+An operational requirement of this control is that of the required use of an established continuous integration and deployment workflow that effectively dictates exactly what software is allowed to run on UCP.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Enable Content Trust enforcement in UCP.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Docker Content Trust' and check the box next to 'Run only signed images'. Set the appropriate Orgs and Teams that images must be signed by in the dropdown that follows to match that of the organizational policies.
+
+via CLI:
+
+Linux: As a Docker EE Admin, execute the following commands on a machine that can communicate with the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator:
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'require_content_trust' entry under the '[trust_configuration]' section to 'true'. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.4.8,800-53|CM-7(5)(b),800-53r5|CM-7(5)(b),CAT|II,CCI|CCI-001774,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.5.1,ISO/IEC-27001|A.12.6.2,ITSG-33|CM-7,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,Rule-ID|SV-235838r961479_rule,STIG-ID|DKER-EE-003590,STIG-Legacy|SV-104847,STIG-Legacy|V-95709,SWIFT-CSCv1|2.3,TBA-FIISB|44.2.2,TBA-FIISB|49.2.3,Vuln-ID|V-235838"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "DKER-EE-003920 - Universal Control Plane (UCP) must be integrated with a trusted certificate authority (CA) in Docker Enterprise."
+      info        : "Both the UCP and Docker Trusted Registry (DTR) components of Docker Enterprise leverage the same authentication and authorization backplane known as eNZi. The eNZi backplane includes its own managed user database, and also allows for LDAP integration in UCP and DTR. To meet the requirements of this control, configure LDAP integration. UCP also includes two certificate authorities for establishing root of trust. One CA is used to sign client bundles and the other is used for TLS communication between UCP components and nodes. Both of these CAs should be integrated with an external, trusted CA. DTR should be integrated with this same external, trusted CA as well.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Integrate UCP with a trusted CA.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Certificates'. Fill in (or click on the 'Upload' links) the 'CA Certificate' field with the contents of your public CA certificate. Assuming the user has generated a server certificate from that CA for UCP, also fill in the 'Server Certificate' and 'Private Key' fields with the contents of the public/private certificates respectively. The 'Server Certificate' field must include both the UCP server certificate and any intermediate certificates. Click on the 'Save' button.
+
+If DTR was previously integrated with this UCP cluster, execute a 'dtr reconfigure' command as a superuser on one of the UCP Manager nodes in the cluster to re-configure DTR with the updated UCP certificates.
+
+via CLI:
+Linux : As a superuser, execute the following commands on each UCP Manager node in the cluster and in the directory where keys and certificates are stored:
+
+Create a container that attaches to the same volume where certificates are stored:
+
+docker create --name replace-certs -v ucp-controller-server-certs:/data busybox
+
+Copy keys and certificates to the container's volumes:
+
+docker cp cert.pem replace-certs:/data/cert.pem
+docker cp ca.pem replace-certs:/data/ca.pem
+docker cp key.pem replace-certs:/data/key.pem
+
+Remove the container, since it is no longer needed:
+
+docker rm replace-certs
+
+Restart the container, since it is no longer needed:
+
+docker rm replace-certs
+
+Restart the ucp-controller container:
+
+docker restart ucp-controller
+
+If DTR was previously integrated with this UCP cluster, execute a 'dtr reconfigure' command as a superuser on one of the UCP Manager nodes in the cluster to re-configure DTR with the updated UCP certificates."
+      reference   : "800-171|3.13.15,800-53|SC-23(5),800-53r5|SC-23(5),CAT|II,CCI|CCI-002470,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-235841r961596_rule,STIG-ID|DKER-EE-003920,STIG-Legacy|SV-104853,STIG-Legacy|V-95715,Vuln-ID|V-235841"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+      cmd         : "/usr/bin/echo '' | /usr/bin/openssl s_client -connect @UCP_IP@:@UCP_PORT@ | /usr/bin/openssl x509 -noout -text"
+      expect      : "Manual_Review"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "DKER-EE-004370 - Docker Content Trust enforcement must be enabled in Universal Control Plane (UCP)."
+      info        : "The UCP and Docker Trusted Registry (DTR) components of Docker Enterprise can be used in concert with built-in audit logging capabilities to audit detected potential integrity violations per the requirements set forth by the System Security Plan (SSP).
+
+In the context of Docker Enterprise, software would be analogous to Docker images that have been pulled from trusted or untrusted sources. Docker Hub is the most common upstream endpoint for retrieving Docker images. However, only 'Docker Certified' images on Docker Hub are considered trusted and come with SLAs and trusted signatures from their respective vendors. All other images from Docker Hub or other external registries must be carefully inspected and triaged prior to use. Docker Content Trust (DCT) provides for content integrity checking mechanisms on Docker images. DCT can be combined with LDAP, DTR and UCP to enforce image signatures from users/accounts in LDAP. Therefore, to meet the requirements of this control, it is imperative that UCP has LDAP integration enabled and that content trust enforcement is enabled and properly configured.
+
+The UCP and DTR components of Docker Enterprise provide audit record generation capabilities. Audit logs capture all HTTP actions for the following endpoints: Kubernetes API, Swarm API and UCP API. The following UCP API endpoints are excluded from audit logging (where '*' designates a wildcard of exclusions): '/_ping', '/ca', '/auth', '/trustedregistryca', '/kubeauth', '/metrics', '/info', '/version*', '/debug', '/openid_keys', '/apidocs', 'kubernetesdocs' and '/manage'. Audit log verbosity can be set to one of the following levels: 'none', 'metadata', or 'request'. To meet the requirements of this control, the 'request' verbosity level must be configured in UCP.
+
+The data captured at each level for UCP and the eNZI authentication and authorization backplane is described below:
+
+'none': audit logging is disabled
+
+'metadata':
+ - method and API endpoint for the request
+ - UCP user which made the request
+ - response status (success/failure)
+ - timestamp of the call
+ - object ID of created/updated resource (for create/update calls)
+ - license key
+ - remote address
+
+'request': includes all fields from the 'metadata' level, as well as the request payload
+
+DTR audits all events associated with repository activities. Events are considered as follows: create, get, delete, update, send, fail, and scan. The following types are associated with the defined audit events: repository, tag, blob, manifest, webhook, uri, promotion, push mirroring, poll mirroring, garbage collector, system.
+
+The Docker Engine - Enterprise component of Docker Enterprise relies on the underlying host operating system's auditing capabilities. By default, the host OS is not configured to audit Docker Engine - Enterprise.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Enable Content Trust enforcement in UCP.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Docker Content Trust' and check the box next to 'Run only signed images'. Set the appropriate Orgs and Teams that images must be signed by in the dropdown that follows to match that of the organizational policies.
+
+via CLI:
+
+Linux: As a Docker EE Admin, execute the following commands on a machine that can communicate with the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator:
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file, set the 'require_content_trust' entry under the '[trust_configuration]' section to 'true'. Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-53|SI-7(8),800-53r5|SI-7(8),CAT|II,CCI|CCI-002724,CSF|PR.DS-6,CSF2.0|DE.CM-09,CSF2.0|ID.RA-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-02,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|SI-7,ITSG-33|SI-7a.,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2,Rule-ID|SV-235847r961770_rule,STIG-ID|DKER-EE-004370,STIG-Legacy|SV-104867,STIG-Legacy|V-95729,SWIFT-CSCv1|6.4,Vuln-ID|V-235847"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "DKER-EE-006190 - Docker Enterprise Universal Control Plane (UCP) must be integrated with a trusted certificate authority (CA)."
+      info        : "When integrating the UCP and Docker Trusted Registry (DTR) management consoles with an external, trusted certificate authority (CA), both UCP and DTR will validate these certificate chains per the requirements set forth by the System Security Plan (SSP).
+
+UCP establishes mutual TLS authentication for all Engine - Enterprise nodes in a cluster using a built-in certificate authority which inherently meets the requirements of this control. This is described below.
+
+The UCP component of Docker Enterprise includes a built-in public key infrastructure (PKI) system. When a UCP cluster is initialized, the first node designates itself as a manager node. That node subsequently generates a new root CA along with a key pair, which are used to secure communications with other UCP manager and worker nodes that are joined to the cluster. One can also specify his/her own externally-generated root CA upon initialization of a UCP cluster. The manager node also generates two tokens to use when joining additional nodes to the cluster: one worker token and one manager token. Each token includes the digest of the root CA's certificate and a randomly generated secret. When a node joins the cluster, the joining node uses the digest to validate the root CA certificate from the remote manager. The remote manager uses the secret to ensure the joining node is an approved node. Each time a new node joins the cluster, the manager issues a certificate to the node. The certificate contains a randomly generated node ID to identify the node under the certificate common name (CN) and the role under the organizational unit (OU). The node ID serves as the cryptographically secure node identity for the lifetime of the node in the current UCP cluster. In this mutual TLS architecture, all nodes encrypt communications using a minimum of TLS 1.2. This information can also be referenced at https://docs.docker.com/engine/swarm/how-swarm-mode-works/pki/.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+Integrate UCP with a trusted CA.
+
+via UI:
+
+In the UCP web console, navigate to 'Admin Settings' | 'Certificates'. Fill in (or click on the 'Upload' links) the 'CA Certificate' field with the contents of the trusted CA certificate. Assuming the user generated a server certificate from that CA for UCP, also fill in the 'Server Certificate' and 'Private Key' fields with the contents of the public/private certificates respectively. The 'Server Certificate' field must include both the UCP server certificate and any intermediate certificates. Click on the 'Save' button.
+
+If DTR was previously integrated with this UCP cluster, execute a 'dtr reconfigure' command as a superuser on one of the UCP Manager nodes in the cluster to re-configure DTR with the updated UCP certificates.
+
+via CLI:
+Linux: As a superuser, execute the following commands on each UCP Manager node in the cluster and in the directory where keys and certificates are located:
+
+Create a container that attaches to the same volume where certificates are stored:
+
+docker create --name replace-certs -v ucp-controller-server-certs:/data busybox
+
+Copy keys and certificates to the container's volumes:
+
+docker cp cert.pem replace-certs:/data/cert.pem
+docker cp ca.pem replace-certs:/data/ca.pem
+docker cp key.pem replace-certs:/data/key.pem
+
+Remove the container, since it is no longer needed:
+
+docker rm replace-certs
+
+Restart the ucp-controller container:
+
+docker restart ucp-controller
+
+If DTR was previously integrated with this UCP cluster, execute a 'dtr reconfigure' command as a superuser on one of the UCP Manager nodes in the cluster to re-configure DTR with the updated UCP certificates."
+      reference   : "800-171|3.5.2,800-53|IA-5(2)(a),800-53r5|IA-5(2)(b)(1),CAT|II,CCI|CCI-000185,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5(2)(a),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-235871r961038_rule,STIG-ID|DKER-EE-006190,STIG-Legacy|SV-104917,STIG-Legacy|V-95779,Vuln-ID|V-235871"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+      cmd         : "/usr/bin/echo '' | /usr/bin/openssl s_client -connect @UCP_IP@:@UCP_PORT@ | /usr/bin/openssl x509 -noout -text"
+      expect      : "Manual_Review"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "DKER-EE-006280 - Docker Enterprise Universal Control Plane (UCP) must be configured to use TLS 1.2."
+      info        : "By default docker UCP is configured to use TLS v1.2, if this setting is misconfigured, older protocols containing security weaknesses could be utilized. TLS requires a handshake between client and server which is where the TLS version utilized in the connection is negotiated. For DoD use cases, all TLS must be at version 1.2.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the UCP component of Docker Enterprise.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine that can communicate with the UCP management console. Replace [ucp_url] with the UCP URL, [ucp_username] with the username of a UCP administrator and [ucp_password] with the password of a UCP administrator.
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' https://[ucp_url]/api/ucp/config-toml > ucp-config.toml
+
+Open the 'ucp-config.toml' file under the '[cluster_config]' section set 'min_TLS_version = TLSv1.2'.
+Save the file.
+
+Execute the following commands to update UCP with the new configuration:
+
+curl -sk -H 'Authorization: Bearer $AUTHTOKEN' --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+      reference   : "800-171|3.1.13,800-53|AC-17(2),800-53r5|AC-17(2),CAT|II,CCI|CCI-001453,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-235874r961869_rule,STIG-ID|DKER-EE-006280,STIG-Legacy|SV-104923,STIG-Legacy|V-95785,SWIFT-CSCv1|2.6,Vuln-ID|V-235874"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_Docker_Enterprise_2.x_Linux_Unix_UCP_v2r2.audit from DISA Docker Enterprise 2.x Linux/UNIX v2r2 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</check_type>

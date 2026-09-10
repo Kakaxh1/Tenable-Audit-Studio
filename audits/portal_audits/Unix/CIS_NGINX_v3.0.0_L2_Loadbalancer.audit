@@ -1,0 +1,240 @@
+#TRUSTED 56f22181a8d5f4ddb75bebadd98cae270e1529b80b4ffeda03bd858563ef1f0e4a255a01a0fb74c2f4b2f139b4ae6859ed65afd465ab385ae4f8ae656cf99532e8f89d17c9a3375bdf137b116472e598efbd0b90fb117bfbfe195d5f1c8a3077a3ebbeb08f4b9f8c2a11cb11585720d8200768372f68fe398978306bb44c2df75038b8053221ce12be03d001c2fe8ecfdab7b1027cb644d630535bb6347a32bab0302918e1dacfafca386e0e75f8982694a2e46f329c58d6a2d39f5af3c8db7fdf3f72949251e68100d7ec1a81067453cbbe7d4a0fa0cf708436ebeaa494e92b2432eb198e8a496ec94eb97e6d0c0edd10fd94a7be24507aadccdc73b16d6d2021a57c97891bbbd101eeea244bd1f1a34a8b4a7d615c80ce1265e8d11275c690775198d785f64439e656bd994ca02c5924c1749aad935c792d91eabd13bc3609176b9ddc187373a81ae235cf7d46da84e9f4b5c299718439741ab1201ba8b3b306cb120f30ab23efc6703e301736b912fc5645e665dd82f9ad59e19f14c5afa6bf1eb78ad83e2cfb0f7bb680b9b509e37ab98e6af4e17edd9c8b5439f0c162be14d2096682b7c9e9b734871f086d064bb2733659019b2e493f1b70a7f762d4298f880c5ba0a10296bd4bd311b804253524d59fa631f2192ee07e41bd2ce4e558d972d69599dc0845a496ef54b366a6934637e1431af79abdddb5e6371f943a32
+#TRUST-RSA-SHA256 5cbf5da784a22240dd8303c251317f989376ed0448152f853628331caeb90c23d1103bb487a8f13ea992d2f4a553bc4a4b8d343ffb69b4befe85920a523d1be007ffe9b04e906b3ec111e6ba9056720a255b6b2ec01c59d5d0a9e30ac7f072b6364cabb73c489588c8dfcb76a3728ac2fb5cf22b74baf55ac7fdfe34e4225f03344768f389c4781cf6c8d338711e9e2708559760373a4c84307693839752fcf592bf7df915ac6849595a9f9d8a6386e1a319698c6f6e1696d4ff3ecb663c0a894e6621800249b76229c854a642b1987d6dad09953841fa3012aeddfc6580257d03058b934cfc3f5348a924ef151bb766e0cebc040c7b8e1811452c4f2929faa3e85ff1091590f58e0ea63bbffe2f6bb421d0bc8adb094b15ad5b8d776042dbbf6a22750296ee7812a8010c8a916700000c94bf87c63b751a2e849d1a16d616393f4ebca6aa6b660ac7168405f66fb7be14ef6d8384e13fe964792746d600c8d69caa4879a332d0b87999af0617d44f9713eb12158fb4797e2b0d6c1acfe59f88ae0133b9de9360453fddaa856c96fce2a5ae36e22b7a1e01e229a1d8e1b0d59786bf072903432893a3724c469cfd870c07a212b1e4e0de955b8eaee4c8c0e1778003f497d0ac5bac7a820db19263f8a6f5c8f99dd59a9ce17c486a1a3c2c5047864f2ad13b61c5bc2e17285732414e2311138a0092b9256f3257bd35e3f5752e
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/03/23 $
+#
+# description : This .audit is designed against the CIS NGINX Benchmark 3.0.0
+#
+#<ui_metadata>
+#<display_name>CIS NGINX v3.0.0 L2 Loadbalancer</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>NGINX</name>
+#  <profile>L2 Loadbalancer</profile>
+#  <version>3.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/18528</link>
+#</spec>
+#<labels>agent,nginx</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Check if NGINX is installed"
+      cmd         : "nginx -v"
+      expect      : "nginx[\\s]+version[\\s]*:"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_NGINX_v3.0.0_L2_Loadbalancer.audit from CIS NGINX 3.0.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.10 Ensure the upstream traffic server certificate is trusted"
+      info        : "When acting as a reverse proxy, NGINX must be configured to function as a secure TLS client. This requires validating the identity of the upstream server by verifying its certificate against a trusted Certificate Authority (CA). Furthermore, NGINX must ensure that the hostname of the upstream server matches the name (Subject Name / SAN) within the certificate itself.
+
+Without proper validation, NGINX blindly trusts the identity of the upstream server, making it vulnerable to man-in-the-middle (MitM) attacks within the internal network. An attacker could impersonate a legitimate backend service and intercept sensitive traffic. By enforcing certificate validation ( proxy_ssl_verify ) and hostname verification ( proxy_ssl_name ), NGINX guarantees that it is communicating with the intended, authentic upstream server.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "To securely configure upstream validation, you must obtain the CA certificate that signed your upstream server's certificate.
+
+ - Place the CA certificate (e.g., upstream_ca.crt ) in a secure directory on the NGINX server (e.g., /etc/nginx/ssl/ ).
+ - In the location block that proxies traffic, add the following three directives. The proxy_ssl_name must match the hostname used in the proxy_pass directive.
+
+location /api/ {
+    proxy_pass https://your-upstream-hostname.com;
+    # 1. Enable verification
+    proxy_ssl_verify on;
+
+    # 2. Specify the CA to trust for verification
+    proxy_ssl_trusted_certificate /etc/nginx/ssl/upstream_ca.crt;
+
+    # 3. Verify the certificate's name matches the server's hostname
+    proxy_ssl_name your-upstream-hostname.com;
+}
+
+Impact:
+
+Enabling strict upstream verification introduces a dependency on certificate lifecycle management. If the upstream server's certificate expires or is misconfigured, or if the CA certificate file on the NGINX server is outdated, NGINX will refuse to connect to the upstream, resulting in a service outage. This behavior is intentional and secures the connection at the cost of requiring careful certificate management."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(proxy_ssl_trusted_certificate|proxy_ssl_verify|proxy_ssl_name)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.1.1 Ensure allow and deny filters limit access to specific IP addresses"
+      info        : "Access control based on IP addresses is a fundamental defense-in-depth mechanism. By using NGINX's allow and deny directives, access to the entire server or specific location blocks can be restricted to trusted network sources, such as internal subnets, specific hosts, or VPN ranges. This is particularly effective for protecting non-public administrative interfaces or internal APIs from the public internet.
+
+Applying the principle of least privilege at the network layer is a highly effective security measure. By explicitly defining which IP addresses or CIDR ranges are permitted to access sensitive resources and implicitly denying all others with deny all;, the attack surface is significantly reduced. This prevents unauthorized network segments from even attempting to exploit potential application-layer vulnerabilities.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Identify the specific location block you wish to protect (e.g., an admin login page or internal stats). Compile a list of trusted source IP addresses and network ranges. Add allow directives for each trusted source, followed by a final deny all; directive. NGINX processes rules in order, and stops at the first match.
+
+location /admin_login/ {
+    # Allow a specific monitoring server
+    allow 192.168.1.100;
+
+    # Allow the internal office network range
+    allow 10.20.30.0/24;
+
+    # Deny all other access to this location
+    deny all;
+
+    # ... other directives for the admin location, e.g., proxy_pass ...
+}
+
+Impact:
+
+A misconfigured IP filter list can lead to service denial for legitimate users or services. In dynamic environments where IP addresses can change (e.g., cloud instances without static IPs), this can be a particular challenge. Maintaining accurate and up-to-date IP allow-lists requires operational discipline."
+      reference   : "800-171|3.13.1,800-171r3|03.13.01,800-53|SC-7(8),800-53r5|SC-7(8),CN-L3|8.1.10.6(j),CSCv7|9.5,CSCv8|13.10,CSF|PR.AC-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.23,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(8),LEVEL|2M,NESA|T4.5.4,NIAv2|SU4,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(allow|deny)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.2.4 Ensure the number of connections per IP address is limited"
+      info        : "NGINX's ngx_http_limit_conn_module provides a mechanism to limit the number of simultaneous connections from a single client IP address. This is achieved in two steps:
+
+ - limit_conn_zone : This directive, typically defined in the http block, creates a shared memory zone to store the state for each client IP address.
+ - limit_conn : This directive, applied in a server or location block, enforces a specific connection limit using the previously defined zone.
+
+When a client exceeds this limit, NGINX will reject new connections with a 503 Service Temporarily Unavailable error.
+
+The primary purpose of connection limiting is to mitigate resource exhaustion and certain types of Denial of Service (DoS) attacks where an attacker opens many connections and holds them open for as long as possible. It is a different tool than rate limiting ( limit_req ), which is designed to stop rapid-fire requests (like brute-force attacks). By enforcing a reasonable connection limit, the server can prevent a single malicious or misconfigured client from consuming an unfair share of worker connections.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "First, define a shared memory zone in the http block. Then, apply a carefully considered limit in the server or location context.
+
+Understanding the zone size: The memory usage for the $binary_remote_addr key is fixed ( 64 bytes on a 64-bit system ). Therefore, 1 megabyte of zone memory can store approximately 16,384 states. A 10m zone can store over 160,000 states.
+
+Example Configuration:
+
+http {
+
+    # Define a 10MB zone named 'per_ip' to track connections by IP.
+    # $binary_remote_addr is more memory-efficient than $remote_addr.
+    limit_conn_zone $binary_remote_addr zone=per_ip:10m;
+
+    server {
+
+        # Apply a general limit of 20 connections per IP for this server.
+        # This might be a reasonable starting point for a public site.
+        limit_conn per_ip 20;
+
+        # For a resource-intensive download area, apply a stricter limit.
+        location /downloads/ {
+            limit_conn per_ip 5;
+        }
+    }
+}
+
+Impact:
+
+This is a critical consideration. A single public IP address can represent thousands of individual users behind a large corporate NAT, a university campus, or a Carrier-Grade NAT (CG-NAT) from a mobile provider. Setting the connection limit too low will block legitimate users in these scenarios. The appropriate limit is a delicate balance and depends entirely on the target audience. A public-facing website requires a much higher limit than a restricted admin interface."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|2M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(limit_conn_zone|limit_conn)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.2.5 Ensure rate limits by IP address are set"
+      info        : "NGINX's ngx_http_limit_req_module provides a mechanism to limit the rate of incoming requests from a single client IP address, based on the \\\"leaky bucket\\\" algorithm. This is configured in two steps:
+
+1. limit_req_zone : This directive, defined in the http block, creates a shared memory zone that defines the bucket's parameters, such as the average request rate.
+
+2. limit_req : This directive, applied in a server or location block, enforces the rate limit using a specific zone and defines how \\\"bursts\\\" of traffic are handled.
+
+When a client exceeds the defined rate, NGINX will reject new requests with a 503 Service Temporarily Unavailable error.
+
+Rate limiting is the primary defense against application-level, high-frequency attacks. Its main purpose is to prevent brute-force password guessing on login endpoints, API abuse by automated scripts, and aggressive content scraping. Unlike connection limiting ( limit_conn ), which focuses on slow, simultaneous connections, rate limiting ( limit_req ) targets clients making an excessive number of requests in a short period.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "First, define a shared memory zone in the http block. Then, apply a carefully tuned limit only to the specific location blocks that require protection.
+
+Understanding the \\\"Leaky Bucket\\\" Parameters:
+
+ - rate : The average rate at which the bucket \\\"leaks\\\" (requests are processed). 5r/s means 5 requests per second.
+ - burst : The size of the bucket. It's the number of \\\"token\\\" requests a client can make in excess of the defined rate. A burst=10 allows a client to burst up to 10 requests instantly before the rate limit kicks in.
+ - nodelay : Without nodelay, excess requests in a burst are queued and processed at the defined rate (slowing the client down). With nodelay, excess requests are processed immediately as long as they fit in the burst \\\"bucket\\\", and only requests beyond the burst limit are rejected. For APIs and login pages, nodelay is generally preferred for a better user experience.
+
+Example Configuration:
+
+http {
+
+    # Define a 10MB zone for login attempts.
+    # Rate: 1 request per second average.
+    limit_req_zone $binary_remote_addr zone=login_limit:10m rate=1r/s;
+
+    server {
+
+        # NO global rate limit here!
+
+        location / {
+            # Normal traffic, no rate limit
+        }
+
+        # Apply a strict rate limit ONLY to the login endpoint
+        location /login {
+
+            # Use the 'login_limit' zone.
+            # Allow a burst of 5 requests, then enforce the 1r/s limit.
+            # 'nodelay' ensures a user can quickly resubmit a form without being artificially slowed down.
+            limit_req zone=login_limit burst=5 nodelay;
+
+            # ... other settings ...
+        }
+    }
+}
+
+Impact:
+
+Applying a global, aggressive rate limit is extremely dangerous and will almost certainly block legitimate users accessing your site from behind a shared NAT (e.g., corporate offices, datacenters, mobile networks). Rate limiting is a surgical tool that must be applied only to specific, sensitive locations (e.g., /login, /api/v1/authenticate ) where abuse is likely. Incorrectly configured rate limits are a common source of user complaints and support tickets."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|2M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(limit_req_zone|limit_req)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_NGINX_v3.0.0_L2_Loadbalancer.audit from CIS NGINX 3.0.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

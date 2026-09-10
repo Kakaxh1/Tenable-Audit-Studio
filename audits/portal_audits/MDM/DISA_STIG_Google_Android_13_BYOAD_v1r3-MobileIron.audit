@@ -1,0 +1,610 @@
+#TRUSTED 88a9b76b3ef748bbd600867d3785e595b3224a19de75d5c419928b64e7a6ae42455895a2214e59e29d4968364a172cd910a9780a2520e2860d9b701e265deea72ab6b86fcf260c153ea3f034307488b644c270c56b16054e497062ef0f7434392bae48abdae3d9f774d70d572322865fdc730554fb622ec54126030c67ad04ffe3b24b499558dea27a57628a53d4bf46c15113640998eae58c8a292e233bbccb4a7d3bacdf257792d42152ad9c0ca3415ca14b1d89de33bb6665042e959f4ab485b1221d88fe015992acad0b90136120d22806f337434c2a6b7c8e35940f7553d2921abc7ee7bbad9aa71b47c3f421027ab284e5e7d4c35ff5dc1f53e5c5642dbab233894df1345da0af93a21a8d6b932c0feb620a8305557702024834bdb865db990047df2cfafb28458f74b648b91bac74bd29dfbf68cb1f12600d31f920133af88b91b48761fbf16f0d5224c6f4766ac7fd2e4775d8e115e2cb5c9b26da62329c6d9e66bdc070193d5b8118dfbc293ac1e7a90010638b079f3abd15b8564d81ae618a240e533a0d8986bb442f62c002b58d7fe960136dd6fd4a3f598e15911e7aeffa8e83bb4419b0daecb490691f0db63311dbe40e26639a909fa9ae3b84a378444986efbc7738b29cac41a5379ab45234649e9e28487aab629272199336ac3c7312d6c156bd50b3fc636e1c8f46715b0f4329e0fc321541ce765cfdb9da
+#TRUST-RSA-SHA256 b2f005afc5a4b52e4e2a4dcfef0d350b270a52109c6e71437acd63cf0c0a6f670fec368e8919f3ff1d48f182aa313f2cb34a7770d41f024e940e6efa6e6d128a3231b1f389e1f3aaa1b3314d5c84fe605b001002c5279632f1cfa1e14bbfd355e9b6baed742252d167b53fa67bd7db7db42cb05a6c4097adcb4aeec42d65c382cc9ffb1c1c37788ea416fc3134acf8537f07506891d61ecef2428ab855a2cb56a486d53c9c03df4e0ec5d6f12003a9ef3dde6eb215545ab78314b4816d168a0b93a102c1cc2709b946b3f2c286971f2d91f6d851e777d8e58f173a8ac6d71121d4236ad471ee67580ad27a4776eca245196434a6153bfbf9dee3becf168c503bfdeb40ff7ac095a1ab722b75cfccdd6b40d17f49128243643b191d303c9092f81b9b282abce566860a684b07dbadb70813e6f8c801b697a27c6b33c1235925a4db9924230aba6290aaef9d3194296b9e253c67146b9cfec8130b14285b1438ae53e95d8da00b1d5b42ea35420fc56154c029fbf5e354143a992af6fa7a60d43f615bede1cbb66cf842ea62ae8d7adc548afab475c0ed598bc07ea60524964f557cede56ce5e82110bac7de508af38d654411f94c0bffb61bb17f40d04b1eadb0c337276a74dd5b716947be3bf1aa827dcd0428b43f1b4ac2ba3002c822b7d89d1e622e25f5211c8da9a8b499fe0a903b2a49569920465f345810862e3ffe6833
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/03/13 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Google Android 13 BYOAD v1r3 STIG.
+#
+#<ui_metadata>
+#<display_name>MobileIron - DISA Google Android 13 BYOAD v1r3</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Google Android 13 BYOAD</name>
+#  <profile>MobileIron</profile>
+#  <version>1.3.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip</link>
+#</spec>
+#<labels>mdm,mobileiron,android,google</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>WHITELIST</name>
+#    <default>.*</default>
+#    <description>Device Application Whitelist</description>
+#    <info>This is a comma separated whitelist of applications. Only these applications may be present on the device. Use a variable value of '.*' if this check is N/A for your organization, otherwise use a format like 'application_name1,application_name2,etc'.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BLACKLIST</name>
+#    <default>!@#$%$#@!</default>
+#    <description>Device Application Blacklist</description>
+#    <info>This is a comma separated blacklist of applications. None of these applications may be present on the device. Use a variable value of !@#$%$#@!' if this check is N/A for your organization, otherwise use a format like 'application_name1,application_name2,etc'.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"MDM" mdm_type:MOBILEIRON>
+
+<report type:"WARNING">
+  description : "GOOG-13-701100 - Google Android 13 must prohibit DOD VPN profiles in the Personal Profile."
+  info        : "If DOD VPN profiles are configured in the Personal Profile DOD sensitive data world be at risk of compromise and the DOD network could be at risk of being attacked by malware installed on the device.
+
+SFR ID: FMT_SMF_EXT.1.1 #3
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Do not configure DOD VPN profiles in the Personal Profile."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02,800-171r3|03.04.02a.,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|III,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-258475r1120908_rule,STIG-ID|GOOG-13-701100,SWIFT-CSCv1|2.3,Vuln-ID|V-258475"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-706000 - Google Android 13 must be configured to enforce a minimum password length of six characters and not allow passwords that include more than four repeating or sequential characters."
+  info           : "Password strength is a measure of the effectiveness of a password in resisting guessing and brute force attacks. The ability to crack a password is a function of how many attempts an adversary is permitted, how quickly an adversary can do each attempt, and the size of the password space. The longer the minimum length of the password is, the larger the password space. Having a too-short minimum password length significantly reduces password strength, increasing the chance of password compromise and resulting device and data compromise.
+
+Satisfies: PP-MDF-333024, PP-MDF-333025
+
+SFR ID: FMT_SMF_EXT.1.1 #1a"
+  solution       : "Configure the Google Android 13 device to enforce high password quality for the device and standard DOD password complexity rules for the Work Profile (at least six-character length and prevent passwords from containing more than four repeating or sequential characters). In addition, enable OneLock so the user only must enter their device password to unlock the Work Profile. Note: enabling OneLock is optional and is a two-step process: configuration on the EMM and configuration by the user on the phone. If OneLock is not used, the user will always need to enter separate passwords to unlock the device and to unlock the Work Profile.
+
+1. Set the password on the whole device:
+Set device password complexity to 'HIGH' (requires (at minimum) an eight numeric character password, or six alphabetic character password, or a six alphanumeric character password)
+
+On the EMM console:
+a. Open 'Lock screen' settings.
+b. Open 'Set required password complexity on parent'.
+c. Select 'High'.
+
+2. Set DOD password for the Work Profile.
+
+On the EMM console:
+a. Open 'Lock screen' settings.
+b. Open 'Password constraints'.
+c. Open 'Minimum password quality'.
+d. Choose Numeric Complex, Alphabetic, Alphanumeric, or Complex.
+e. Open 'Minimum password length'.
+f. Enter in the number of characters as '6'.
+
+3. Enable OneLock on the EMM.
+
+On the MDM console:
+a. Disable the following Android API: 'DISALLOW_UNIFIED_PASSWORD'. The exact procedure will depend on the EMM product.
+Note: this control may be called 'Require separate challenge'.
+
+4. Train users to implement OneLock with the following User Based Enforcement (UBE): procedure:
+
+a. Open Settings >> Security & privacy >> More security settings.
+b. Enable 'Use one lock'."
+  reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CAT|II,CCI|CCI-000205,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-258476r985624_rule,STIG-ID|GOOG-13-706000,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-258476"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                 "Policy: " + .policyName + " - Passcode Length = \(.policyRules.SECURITY_PWD_LENGTH // "Not Defined")"'
+  regex          : "Passcode Length ="
+  expect         : "Passcode Length = ([6-9]|[1-8][0-9]|9[0-9])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-706300 - Google Android 13 must be configured to lock the display after 15 minutes (or less) of inactivity - or less of inactivity."
+  info           : "The screen lock timeout must be set to a value that helps protect the device from unauthorized access. Having a too-long timeout would increase the window of opportunity for adversaries who gain physical access to the mobile device through loss, theft, etc. Such devices are much more likely to be in an unlocked state when acquired by an adversary, thus granting immediate access to the data on the mobile device. The maximum timeout period of 15 minutes has been selected to balance functionality and security; shorter timeout periods may be appropriate depending on the risks posed to the mobile device.
+
+SFR ID: FMT_SMF_EXT.1.1 #2b"
+  solution       : "Configure the Google Android 13 device to enable a screen-lock policy of 15 minutes for the max period of inactivity.
+
+Note: Google Android 13 does not support the 15 minute increment. The available allowable selection is 10 minutes, then increases to 30 minutes. Therefore, the control will be set to 10 minutes.
+
+On the EMM console:
+
+1. Open 'Lock screen restrictions'.
+2. Set 'Max time to screen lock' to '600'.
+Note: The units are in seconds."
+  reference      : "800-171|3.1.10,800-171r3|03.01.10a.,800-53|AC-11a.,800-53r5|AC-11a.,CAT|II,CCI|CCI-000057,CN-L3|8.1.4.1(b),DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11a.,NESA|T2.3.8,NESA|T2.3.9,NIAv2|AM23a,NIAv2|AM23b,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,Rule-ID|SV-258478r971318_rule,STIG-ID|GOOG-13-706300,Vuln-ID|V-258478"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Device Lock Timeout = \(.policyRules.SECURITY_GRACE_PERIOD // "Not Defined")"'
+  regex          : "Device Lock Timeout ="
+  expect         : "Device Lock Timeout = ([1-9]|1[0-5])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-706400 - Google Android 13 must be configured to not allow more than 10 consecutive failed authentication attempts."
+  info           : "The more attempts an adversary makes to guess a password, the more likely the adversary will enter the correct password and gain access to resources on the device. Setting a limit on the number of attempts mitigates this risk. Setting the limit at 10 or less gives authorized users the ability to make a few mistakes when entering the password but still provides adequate protection against dictionary or brute force attacks on the password.
+
+SFR ID: FMT_SMF_EXT.1.1 #2c, FIA_AFL_EXT.1.5"
+  solution       : "Configure the Google Android 13 device to allow only 10 or fewer consecutive failed authentication attempts.
+
+Note: Work Profile will be wiped.
+
+On the EMM console:
+
+1. Open 'Lock screen' settings.
+2. Open 'Lock screen restrictions'.
+3. Set 'Max password failures for local wipe' to a number between 1 and 10."
+  reference      : "800-171|3.1.8,800-171r3|03.01.08a.,800-53|AC-7a.,800-53r5|AC-7a.,CAT|II,CCI|CCI-000044,CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,Rule-ID|SV-258479r958388_rule,STIG-ID|GOOG-13-706400,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2,Vuln-ID|V-258479"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Maximum Number of Failed Attempts = \(.policyRules.SECURITY_PWD_MAX_FAILED_ATTEMPTS // "Not Defined")"'
+  regex          : "Maximum Number of Failed Attempts ="
+  expect         : "Maximum Number of Failed Attempts = ([1-9]|10)"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-706500 - Google Android 13 must be configured to enforce an application installation policy by specifying one or more authorized application repositories."
+  info           : "Forcing all applications to be installed from authorized application repositories can prevent unauthorized and malicious applications from being installed and executed on mobile devices. Allowing such installations and executions could cause a compromise of DOD data accessible by these unauthorized/malicious applications.
+
+SFR ID: FMT_SMF_EXT.1.1 #8a"
+  solution       : "Configure the Google Android 13 device to disable unauthorized application repositories.
+
+On the EMM console:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow install unknown sources' to 'ON'.
+3. Toggle 'Disallow installs from unknown sources globally' to 'ON'."
+  reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258480r959010_rule,STIG-ID|GOOG-13-706500,SWIFT-CSCv1|2.3,Vuln-ID|V-258480"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="LOCKDOWN") | "Policy: " + .policyName + " - Lockdown Unknown Sources = \(.policyRules.LOCKDOWN_UNKNOWN_SOURCES // "Not Defined")"'
+  regex          : "Lockdown Unknown Sources ="
+  expect         : "Lockdown Unknown Sources = On"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "GOOG-13-706600 - Google Android 13 must be configured to enforce an application installation policy by specifying an application allowlist that restricts applications by the following characteristics: [selection: list of digital signatures, cryptographic hash values, names, application version]."
+  info             : "The application allowlist, in addition to controlling the installation of applications on the MD, must control user access/execution of all core and preinstalled applications, or the MD must provide an alternate method of restricting user access/execution to core and preinstalled applications.
+
+Core application: Any application integrated into the OS by the OS or MD vendors.
+
+Preinstalled application: Additional noncore applications included in the OS build by the OS vendor, MD vendor, or wireless carrier.
+
+Requiring all authorized applications to be in an application allowlist prevents the execution of any applications (e.g., unauthorized, malicious) that are not part of the allowlist. Failure to configure an application allowlist properly could allow unauthorized and malicious applications to be downloaded, installed, and executed on the mobile device, causing a compromise of DOD data accessible by these applications.
+
+The application allowlist, in addition to controlling the installation of applications on the MD, must control user access/execution of all core applications (included in the OS by the OS vendor) and preinstalled applications (provided by the MD vendor and wireless carrier), or the MD must provide an alternate method of restricting user access/execution to core and preinstalled applications.
+
+SFR ID: FMT_SMF_EXT.1.1 #8b"
+  solution         : "Configure the Google Android 13 device to use an application allowlist.
+
+On the EMM console:
+
+1. Go to the Android app catalog for managed Google Play.
+2. Select apps to be available (only approved apps).
+3. Push updated policy to the device.
+
+Note: Managed Google Play is an allowed App Store."
+  reference        : "800-171|3.4.7,800-171r3|03.04.06,800-53|CM-7(2),800-53r5|CM-7(2),CAT|II,CCI|CCI-001764,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7(2),NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,Rule-ID|SV-258481r958804_rule,STIG-ID|GOOG-13-706600,SWIFT-CSCv1|2.3,Vuln-ID|V-258481"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | whitelist |
+                 if (length > 0) then
+                    hostname + " has one or more non-whitelisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " All items were whitelisted."
+                 end'
+  regex            : ''
+  expect           : 'All items were whitelisted.'
+  bw_list          : "@WHITELIST@"
+  output_all_lines : YES
+</custom_item>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "GOOG-13-706700 - Google Android 13 allowlist must be configured to not include applications with the following characteristics (work profile only):"
+  info             : "1. Back up mobile device (MD) data to non-DOD cloud servers (including user and application access to cloud backup services);
+2. Transmit MD diagnostic data to non-DOD servers;
+3. Voice assistant application if available when MD is locked;
+4. Voice dialing application if available when MD is locked;
+5. Allows synchronization of data or applications between devices associated with user; and
+6. Allows unencrypted (or encrypted but not FIPS 140-2 validated) data sharing with other MDs or printers - work profile only:
+
+Requiring all authorized applications to be in an application allowlist prevents the execution of any applications (e.g., unauthorized, malicious) that are not part of the allowlist. Failure to configure an application allowlist properly could allow unauthorized and malicious applications to be downloaded, installed, and executed on the mobile device, causing a compromise of DOD data accessible by these applications. Applications with the listed characteristics have features that can cause the compromise of sensitive DOD data or have features with no known application in the DOD environment.
+
+Application Note: The application allowlist, in addition to controlling the installation of applications on the MD, must control user access/execution of all core and preinstalled applications, or the MD must provide an alternate method of restricting user access/execution to core and preinstalled applications.
+
+Core application: Any application integrated into the OS by the OS or MD vendors.
+
+Preinstalled application: Additional noncore applications included in the OS build by the OS vendor, MD vendor, or wireless carrier.
+
+SFR ID: FMT_SMF_EXT.1.1 #8b"
+  solution         : "Configure the Google Android 13 device application allowlist to exclude applications with the following characteristics:
+
+- Back up MD data to non-DOD cloud servers (including user and application access to cloud backup services);
+- Transmit MD diagnostic data to non-DOD servers;
+- Voice assistant application if available when MD is locked;
+- Voice dialing application if available when MD is locked;
+- Allows synchronization of data or applications between devices associated with user;
+- Payment processing; and
+- Allows unencrypted (or encrypted but not FIPS 140-2 validated) data sharing with other MDs, display screens (screen mirroring), or printers.
+
+On the EMM console:
+
+1. Go to the Android app catalog for managed Google Play.
+2. Before selecting an app, review the app details and privacy policy to ensure the app does not include prohibited characteristics."
+  reference        : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258482r1032950_rule,STIG-ID|GOOG-13-706700,SWIFT-CSCv1|2.3,Vuln-ID|V-258482"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | blacklist |
+                 if (length > 0) then
+                    hostname + " has one or more blacklisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " No blacklisted items found."
+                 end'
+  regex            : ''
+  expect           : 'No blacklisted items found.'
+  bw_list          : "@BLACKLIST@"
+  output_all_lines : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-13-706800 - Google Android 13 must be configured to not display the following (work profile) notifications when the device is locked: [selection:"
+  info        : "a. email notifications
+b. calendar appointments
+c. contact associated with phone call notification
+d. text message notification
+e. other application-based notifications
+f. all notifications] - work profile notifications when the device is locked:
+
+Many mobile devices display notifications on the lock screen so that users can obtain relevant information in a timely manner without having to frequently unlock the phone to determine if there are new notifications. However, in many cases, these notifications can contain sensitive information. When they are available on the lock screen, an adversary can see them merely by being in close physical proximity to the device. Configuring the mobile operating system (MOS) to not send notifications to the lock screen mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #18
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 13 device to not display (work profile) notifications when the device is locked.
+
+On the EMM console:
+
+1. Open 'Lock screen' settings.
+2. Open 'Lock screen restrictions'.
+3. Toggle 'Disable unredacted notifications'."
+  reference   : "800-171|3.1.10,800-171r3|03.01.10,800-53|AC-11(1),800-53r5|AC-11(1),CAT|II,CCI|CCI-000060,CN-L3|8.1.4.1(b),DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11(1),NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,Rule-ID|SV-258483r958404_rule,STIG-ID|GOOG-13-706800,Vuln-ID|V-258483"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-13-707200 - Google Android 13 must be configured to disable trust agents - NOTE: This requirement is not applicable (NA) for specific biometric authentication factors included in the product's Common Criteria evaluation."
+  info        : "Trust agents allow a user to unlock a mobile device without entering a passcode when the mobile device is, for example, connected to a user-selected Bluetooth device or in a user-selected location. This technology would allow unauthorized users to have access to DOD sensitive data if compromised. By not permitting the use of nonpassword authentication mechanisms, users are forced to use passcodes that meet DOD passcode requirements.
+
+SFR ID: FMT_SMF_EXT.1.1 #22, FIA_UAU.5.1
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 13 device to disable trust agents at the same location where the DOD password is implemented (device or work profile).
+
+On the EMM console:
+
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Toggle 'Disable trust agents' to 'ON'.
+4. Open 'Lock screen restrictions'.
+5. Select 'Work Profile'.
+6. Toggle 'Disable trust agents' to 'ON'."
+  reference   : "800-171|3.5.3,800-171r3|03.05.03,800-53|IA-2(3),800-53r5|IA-2(1),CAT|II,CCI|CCI-000767,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(3),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-258484r985628_rule,STIG-ID|GOOG-13-707200,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-258484"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-13-707700 - Google Android 13 must be configured to display the DOD advisory warning message at startup or each time the user unlocks the Work Profile."
+  info        : "Before granting access to the system, the mobile operating system is required to display the DOD-approved system use notification message or banner that provides privacy and security notices consistent with applicable Federal laws, Executive Orders, directives, policies, regulations, standards, and guidance. Required banners help ensure that DOD can audit and monitor the activities of mobile device users without legal restriction.
+
+System use notification messages can be displayed when individuals first access or unlock the mobile device. The banner must be implemented as a 'click-through' banner at device unlock (to the extent permitted by the operating system). A 'click-through' banner prevents further activity on the information system unless and until the user executes a positive action to manifest agreement by clicking on a box indicating 'OK'.
+
+The approved DOD text must be used exactly as required in the Knowledge Service referenced in DODI 8500.01. For devices accommodating banners of 1300 characters, the banner text is:
+
+You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+-At any time, the USG may inspect and seize data stored on this IS.
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+
+For devices with severe character limitations, the banner text is:
+
+I've read & consent to terms in IS user agreem't.
+
+The administrator must configure the banner text exactly as written without any changes.
+
+SFR ID: FMT_SMF_EXT.1.1 #36
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the DOD warning banner by the following method (required text is found in the Vulnerability Discussion):
+
+By placing the DOD warning banner text in the user agreement signed by each Google Android 13 device user (preferred method).
+
+Note: It is not possible for the EMM to force a warning banner be placed on the device screen when using 'work profile for employee-owned devices (BYOD)' deployment mode."
+  reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,CAT|III,CCI|CCI-000048,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-258485r958390_rule,STIG-ID|GOOG-13-707700,TBA-FIISB|45.2.4,Vuln-ID|V-258485"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-708600 - Google Android 13 must be configured to not allow backup of all work profile applications to remote systems."
+  info           : "Backups to remote systems (including cloud backup) can leave data vulnerable to breach on the external systems, which often offer less protection than the mobile operating system (MOS). Where the remote backup involves a cloud-based solution, the backup capability is often used to synchronize data across multiple devices. In this case, DOD devices may synchronize DOD sensitive information to a user's personal device or other unauthorized computers that are vulnerable to breach. Disallowing remote backup mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #40"
+  solution       : "Configure the Google Android 13 device to disable backup to remote systems (including commercial clouds).
+
+On the EMM console:
+
+1. Open 'Device owner management'.
+2. Toggle 'Enable backup service' to 'OFF'."
+  reference      : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CAT|II,CCI|CCI-001090,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,Rule-ID|SV-258486r1117267_rule,STIG-ID|GOOG-13-708600,Vuln-ID|V-258486"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Google Backup Enabled = \(.policyRules.LOCKDOWN_GOOGLE_BACKUP // "Not Defined")"'
+  regex          : "Google Backup Enabled ="
+  expect         : "Google Backup Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-708900 - Google Android 13 must be configured to disable exceptions to the access control policy that prevent [selection: application processes, groups of application processes] from accessing [selection: all, private] data stored by other [selection: application processes, groups of application processes]."
+  info           : "App data sharing gives apps the ability to access the data of other apps for enhanced user functionality. However, sharing also poses a significant risk that unauthorized users or apps will obtain access to DOD sensitive information. To mitigate this risk, there are data sharing restrictions, primarily from sharing data from personal (unmanaged) apps and work (managed) apps. If a user is allowed to make exceptions to the data sharing restriction policy, the user could enable unauthorized sharing of data, leaving it vulnerable to breach. Limiting the granting of exceptions to either the Administrator or common application developer mitigates this risk.
+
+Copy/paste of data between applications in different application processes or groups of application processes is considered an exception to the access control policy and therefore, the Administrator must be able to enable/disable the feature. Other exceptions include allowing any data or application sharing between process groups.
+
+SFR ID: FMT_SMF_EXT.1.1 #42, FDP_ACF_EXT.1.2"
+  solution       : "Configure the Google Android 13 device to enable the access control policy that prevents [selection: application processes, groups of application processes] from accessing [selection: all, private] data stored by other [selection: application processes, groups of application processes].
+
+Note: All application data is inherently sandboxed and isolated from other applications. To disable copy/paste on the EMM console:
+
+1. Open 'User restrictions'.
+2. Open 'Set user restrictions'.
+3. Toggle 'Disallow cross profile copy/paste' to 'ON'.
+4. Toggle 'Disallow sharing data into the profile' to 'ON'."
+  reference      : "800-171|3.1.5,800-171r3|03.01.05a.,800-53|AC-6(8),800-53|SC-39,800-53r5|AC-6(8),800-53r5|SC-39,CAT|II,CCI|CCI-002233,CCI|CCI-002530,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSF|PR.AC-4,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ITSG-33|AC-6,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-258487r1117274_rule,STIG-ID|GOOG-13-708900,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-258487"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Cross Profile Copy/Paste = \(.policyRules.LOCKDOWN_COPY_PASTE // "Not Defined")"'
+  regex          : "Cross Profile Copy/Paste Enabled ="
+  expect         : "Cross Profile Copy/Paste = Off"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-13-709800 - Google Android 13 users must complete required training."
+  info        : "The security posture of Google devices requires the device user to configure several required policy rules on their device. User-Based Enforcement (UBE) is required for these controls. In addition, if the Authorizing Official (AO) has approved the use of an unmanaged personal space, the user must receive training on risks. If a user is not aware of their responsibilities and does not comply with UBE requirements, the security posture of the Google mobile device and DOD sensitive data may become compromised.
+
+SFR ID: NA
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "All Google Android 13 device users must complete training on the following training topics (users must acknowledge that they have reviewed training via a signed User Agreement or similar written record):
+- Operational security concerns introduced by unmanaged applications/unmanaged personal space, including applications using global positioning system (GPS) tracking.
+- The need to ensure no DOD data is saved to the personal space or transmitted from a personal app (for example, from personal email).
+- If the Purebred key management app is used, users are responsible for always maintaining positive control of their credentialed device. The DOD PKI certificate policy requires subscribers to maintain positive control of the devices that contain private keys and to report any loss of control so the credentials can be revoked. Upon device retirement, turn-in, or reassignment, ensure that a factory data reset is performed prior to device hand-off. Follow mobility service provider decommissioning procedures as applicable.
+- How to configure the following UBE controls (users must configure the control) on the Google device:
+ **Do not remove DOD intermediate and root PKI digital certificates
+ **Do not configure a DOD network (work) VPN profile on any third-party VPN client installed in the personal space
+- How to implement OneLock.
+- Screenshots will not be taken of any 'work' related managed data.-Screenshots will not be taken of any 'work' related managed data."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258488r959010_rule,STIG-ID|GOOG-13-709800,SWIFT-CSCv1|2.3,Vuln-ID|V-258488"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-13-710000 - Google Android 13 must have the DOD root and intermediate PKI certificates installed (work profile only)."
+  info        : "DOD root and intermediate PKI certificates are used to verify the authenticity of PKI certificates of users and web services. If the root and intermediate certificates are not available, an adversary could falsely sign a certificate in such a way that it could not be detected. Providing access to the DOD root and intermediate PKI certificates greatly diminishes the risk of this attack.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 13 device to install DOD root and intermediate certificates (work profile only).
+
+On the EMM console upload DOD root and intermediate certificates as part of the work profile.
+
+The current DOD root and intermediate PKI certificates may be obtained in self-extracting zip files at http://cyber.mil/pki-pke (for NIPRNet)."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258489r959010_rule,STIG-ID|GOOG-13-710000,SWIFT-CSCv1|2.3,Vuln-ID|V-258489"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-710100 - The Google Android 13 work profile must be configured to prevent users from adding personal email accounts to the work email app."
+  info           : "If the user can add a personal email account (POP3, IMAP, EAS) to the work email app, it could be used to forward sensitive DOD data to unauthorized recipients. Restricting email account addition to the administrator or restricting email account addition to allowlisted accounts mitigates this vulnerability.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution       : "Configure the Google Android 13 device to prevent users from adding personal email accounts to the work email app.
+
+On the EMM console:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow modify accounts' to 'ON'.
+
+Refer to the EMM documentation to determine how to provision users' work email accounts for the work email app."
+  reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258490r959010_rule,STIG-ID|GOOG-13-710100,SWIFT-CSCv1|2.3,Vuln-ID|V-258490"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Email Account Creation = \(.policyRules.LOCKDOWN_EMAIL_ACCOUNT_CREATION // "Not Defined")"'
+  regex          : "Email Account Creation ="
+  expect         : "Email Account Creation = Off"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "GOOG-13-710200 - The Google Android 13 work profile must be configured to enforce the system application disable list (work profile only)."
+  info             : "The system application disables list controls user access to/execution of all core and preinstalled applications.
+
+Core application: Any application integrated into Google Android 13 by Google.
+
+Preinstalled application: Additional noncore applications included in the Google Android 13 build by Google or the wireless carrier.
+
+Some system applications can compromise DOD data or upload users' information to non-DOD-approved servers. A user must be blocked from using such applications that exhibit behavior that can result in compromise of DOD data or DOD user information.
+
+The site administrator must analyze all preinstalled applications on the device and disable all applications not approved for DOD use by configuring the system application disable list.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution         : "Configure the Google Android 13 device to enforce the system application disable list (work profile only).
+
+The required configuration is the default configuration when the device is enrolled. If the device configuration is changed, use the following procedure to bring the device back into compliance:
+
+On the EMM console:
+
+1. Open 'Apps management' section.
+2. Select 'Hide apps on parent'.
+3. Enter package names of apps to hide.
+
+Configure a list of approved Google core and preinstalled apps in the core app allowlist."
+  reference        : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258491r959010_rule,STIG-ID|GOOG-13-710200,SWIFT-CSCv1|2.3,Vuln-ID|V-258491"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | blacklist |
+                 if (length > 0) then
+                    hostname + " has one or more blacklisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " No blacklisted items found."
+                 end'
+  regex            : ''
+  expect           : 'No blacklisted items found.'
+  bw_list          : "@BLACKLIST@"
+  output_all_lines : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-13-710300 - Google Android 13 must be provisioned as a BYOAD device (Android work profile for employee-owned devices [BYOD])."
+  info        : "The Android work profile for employee-owned devices (BYOD) is the designated application group for the BYOAD use case.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 13 device for BYOD (work profile for employee-owned devices [BYOD]).
+
+On the EMM console, configure the default enrollment as work profile for employee-owned devices (BYOD).
+
+Refer to the EMM documentation to determine how to configure the device."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258492r959010_rule,STIG-ID|GOOG-13-710300,SWIFT-CSCv1|2.3,Vuln-ID|V-258492"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-13-710400 - The Google Android 13 work profile must be configured to disable automatic completion of workspace internet browser text input."
+  info        : "The autofill functionality in the web browser allows the user to complete a form that contains sensitive information, such as personally identifiable information (PII), without previous knowledge of the information. By allowing the use of autofill functionality, an adversary who learns a user's Android 13 device password, or who otherwise can unlock the device, may be able to further breach other systems by relying on the autofill feature to provide information unknown to the adversary. By disabling the autofill functionality, the risk of an adversary gaining further information about the device's user or compromising other systems is significantly mitigated.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Chrome browser on the Google Android 13 device work profile to disable autofill.
+
+On the EMM console:
+
+1. Open 'Managed Configurations' section.
+2. Select the Chrome Browser version from the work profile.
+3. Ensure 'SearchSuggestEnabled' is turned 'OFF'.
+
+Refer to the EMM documentation to determine how to configure Chrome Browser Settings."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258493r959010_rule,STIG-ID|GOOG-13-710400,SWIFT-CSCv1|2.3,Vuln-ID|V-258493"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-13-710500 - The Google Android 13 work profile must be configured to disable the autofill services."
+  info        : "The autofill services allow the user to complete text inputs that could contain sensitive information, such as personally identifiable information (PII), without previous knowledge of the information. By allowing the use of autofill services, an adversary who learns a user's Android 13 device password, or who otherwise can unlock the device, may be able to further breach other systems by relying on the autofill services to provide information unknown to the adversary. By disabling the autofill services, the risk of an adversary gaining further information about the device's user or compromising other systems is significantly mitigated.
+
+Examples of apps that offer autofill services include Samsung Pass, Google, Dashlane, LastPass, and 1Password.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 13 device work profile to disable the autofill services.
+
+On the EMM console:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow autofill' to 'ON'."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258494r959010_rule,STIG-ID|GOOG-13-710500,SWIFT-CSCv1|2.3,Vuln-ID|V-258494"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-13-710800 - Android 13 devices must have the latest available Google Android 13 operating system installed."
+  info        : "Required security features are not available in earlier operating system versions. In addition, earlier versions may have known vulnerabilities.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Install the latest released version of the Google Android 13 operating system on all managed Google devices.
+
+Note: Google Android device operating system updates are released directly by Google or can be distributed via the EMM. Check each device manufacturer and/or carriers for current updates."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258495r959010_rule,STIG-ID|GOOG-13-710800,SWIFT-CSCv1|2.3,Vuln-ID|V-258495"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-13-710900 - Android 13 devices must be configured to disable the use of third-party keyboards (work profile only)."
+  info           : "Many third-party keyboard applications are known to contain malware.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution       : "Configure the Google Android 13 device to disallow the use of third-party keyboards (work profile only).
+
+On the EMM console:
+
+1. Open 'Input methods'.
+2. Tap 'Set input methods'.
+3. Select only the approved keyboards.
+
+Additionally, admins can configure application allowlists for Google Play so no third-party keyboards are available for user installation."
+  reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258496r959010_rule,STIG-ID|GOOG-13-710900,SWIFT-CSCv1|2.3,Vuln-ID|V-258496"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Input restrictions = \(.policyRules.LOCKDOWN_AFW_RESTRICT_INPUT_METHODS // "Not Defined")"'
+  regex          : "Input restrictions ="
+  expect         : "Input restrictions = on"
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-13-712300 - The Google Android 13 must allow only the administrator (EMM) to install/remove DOD root and intermediate PKI certificates (work profile) - EMM to install/remove DOD root and intermediate PKI certificates."
+  info        : "DOD root and intermediate PKI certificates are used to verify the authenticity of PKI certificates of users and web services. If the user is allowed to remove root and intermediate certificates, the user could allow an adversary to falsely sign a certificate in such a way that it could not be detected. Restricting the ability to remove DOD root and intermediate PKI certificates to the Administrator mitigates this risk.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Google Android 13 device to prevent a user from removing DOD root and intermediate PKI certificates (work profile).
+
+On the EMM console:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow config credentials' to 'ON'."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02,800-171r3|03.04.02a.,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|II,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-258497r959010_rule,STIG-ID|GOOG-13-712300,SWIFT-CSCv1|2.3,Vuln-ID|V-258497"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-13-999999 - All Google Android 13 BYOAD installations must be removed."
+  info        : "Google Android 13 BYOAD is no longer supported by Google and therefore may contain security vulnerabilities.
+
+Satisfies: FMT_MOF_EXT.1.2 #47
+Reference: PP-MDF-990000
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Remove all installations of Google Android 13 BYOAD."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_13_BYOAD_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-276957r1134303_rule,STIG-ID|GOOG-13-999999,SWIFT-CSCv1|2.3,Vuln-ID|V-276957"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_13_BYOAD_Y25M10_STIG.zip"
+</report>
+
+</check_type>

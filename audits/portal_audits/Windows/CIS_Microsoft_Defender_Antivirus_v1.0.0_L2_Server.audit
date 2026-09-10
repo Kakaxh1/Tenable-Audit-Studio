@@ -1,0 +1,188 @@
+#TRUSTED 174c0ed291e8c145bd38799066f0af449a805bf175660c30ea8329fcad78790e2ed1dec92a72536ad44941ee2b57538d24a979d55538720baa6ddc45f980a4a4f0f7f7bfe45cc3e979aa13968aa4f5cf8837f403aea1f8c97fc1956bec8a10e3cc6c21584dcf3f9e5d9f930ec3c13a11de981ffae798445f66fb19942357f0b1b3205ec1a94a648631abe92530a74a101b930f03fc934c803d99e0b61c1b759aa853cd0325435f64fc52b4c1c40bc3d26687cfadd7e1fd2252162a9a172f03313b3e69b1f5bf038296d00b043fe421e867507c2eadc83868249bc01a2820ce32fc92aabfe18357208f446bf66ebd556a3baf20f861208cebae9e1ffa94c2365e20b759f52ea0f1a30c2ef3b89b5f5a5d047f67c31db2fd6f4e1d1b918e7ab4828fba0d6945b7e34d97f2173489bc498f92969e190881022efac5b31bcb28cf25ba8a0509afde4d2a5dafc07755ec1bb0d50b28aaaa4aaed46db571d71d8fe7cd08e36d5049f194bd7ed3a6888f3dd8b2102509864f94bdade5f1956ee1eceacb2e08a36bdd67c0247273f34246f05d59249394d9e3b14159fa3cc6acc4d37e0c328263001e2d37ace88cfe577d9c134b10c7f6f1018f222e62b54804273bcb681a2f32f883f309343bd71630cfd48826ef5a9273e4f3f4f8f56d7ee6dab2470fe4b1416f5744e37e61d2cbb3da4736dd9f3cec54e86101ff09d57177bcd9bd5b
+#TRUST-RSA-SHA256 4e8253b473f16d8699efd72662441ca4b5c972593dd7399877b8dffed8c54f3eff17b81a256d62c697a14ce03948b47ebd11a8e3b6d6f9e3d2abd97ccbc00d8285dda8893213a61adadc1f544902e87593ce37c9ab3841ff892e1133f4762a67ef3d7bb62f401b9fdc87f9aec483720662e91658e0cb5c4ff4f9211ba815cb0f139c0c5b05fbf314e66f4de9ba38d3948dee117377ca94e088bdb0043a829caa8ecdd7e20f811bd9b967d51b67097ce7943d2b95844d0b53dfd1de4cb5c73ae83f478d2a640cee4e1e73a6d56202ebfed0e29ab2c1f7f2d286b0d00458d9898672ffff7bd6e8adc2dfd8ea1a0c85799cdd3d3d9e86f5fb6dce02d4d861035167ff13249ba2d45f25cd4070a48131b47a8ef1d3a6c39eea6209be21f575a95c479cb8ebe89baa7390ff8d162d5281a8383c12b2fa99d942b881be0b03ef76eba31559b44e106f2daffbdf803d09d5edf7aceef568fc692b90daec5ca2a5b8315a07e4892cdbacab8db75c40a5d24460fee18d5de572e923a628830b0af5c93a4f3107cf571ba1204a0f25fe5e2b065b91b9fe07b281e4a3d9285c0684d5eb2a4ec5c97e5058d3de9cdc18e3a580b91b7f72b9e37d14de2ef445835ee021edb5c027ce83f7bf01dd15a64cbc85793eb1758fee302beccb070e6aa62270ccda94f2cc3dfdff9700fcf696ed5710278a315d8c05cfa3c6eec2a25a87495e628ffce9
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/04/14 $
+#
+# description : This .audit is designed against the CIS Microsoft Defender Antivirus Benchmark 1.0.0
+#
+#<ui_metadata>
+#<display_name>CIS Microsoft Defender Antivirus v1.0.0 L2 Server</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Microsoft Defender Antivirus</name>
+#  <profile>L2 Server</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/25919</link>
+#</spec>
+#<labels>agent,cis,windows_defender</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"CIS Microsoft Defender Antivirus">
+
+<if>
+  <condition type:"OR">
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "Check if Windows Defender is installed - Windows Desktop"
+      value_type      : POLICY_TEXT
+      value_data      : "Windows Defender"
+      powershell_args : "Get-Wmiobject -Namespace root/SecurityCenter2 -Class AntiVirusProduct | SELECT displayName"
+      check_type      : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "Check if Windows Defender is installed - Windows Server"
+      value_type      : POLICY_TEXT
+      value_data      : "Windows-Defender"
+      powershell_args : "Get-WindowsFeature | Where {$_.Name -eq 'Windows-Defender' -And $_.InstallState -eq 'Installed'} | SELECT Name"
+      check_type      : CHECK_REGEX
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Microsoft_Defender_Antivirus_v1.0.0_L2_Server.audit from CIS Microsoft Defender Antivirus 1.0.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/25919"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "1.11.1.1.1 Ensure 'Configure Brute-Force Protection aggressiveness' is set to 'Enabled: Medium' or higher"
+      info        : "This policy setting configures whether Brute-Force Protection in Microsoft Defender Antivirus is enabled. Brute-force protection can detect and block attempts to forcibly sign in to a system.
+
+The recommended state for this setting is: Enabled: Medium . Configuring this setting to Enabled: High also conforms to the benchmark.
+
+This feature can help reduce the likelihood of a successful brute force attack."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Enabled: Medium or Enabled: High :
+
+Computer Configuration\Policies\Administrative Templates\Windows Components\Microsoft Defender Antivirus\Remediation\Behavioral Network Blocks\Brute-Force Protection\Configure Brute-Force Protection aggressiveness
+
+Note: This Group Policy path is provided by the Group Policy template WindowsDefender.admx/adml that is included with the Microsoft Windows 11 Release 24H2 Administrative Templates (or newer).
+
+Impact:
+
+Some legitimate authentication attempts may be detected or blocked depending on the configuration of this feature.
+
+When set to Medium, detections or blocks will occur when the confidence level is above 99%.
+
+When set to High, detections or blocks will occur when the confidence level is above 90%."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-171r3|03.14.02,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|8.1,CSCv8|10.1,CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.7,ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,LEVEL|2A,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/25919"
+      value_type  : POLICY_DWORD
+      value_data  : "1" || "2"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows Defender\Remediation\Behavioral Network Blocks\Brute Force Protection"
+      reg_item    : "BruteForceProtectionAggressiveness"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "1.11.1.2.1 Ensure 'Configure how aggressively Remote Encryption Protection blocks threats' is set to 'Enabled: Medium' or higher"
+      info        : "This policy setting configures how aggressively Remote Encryption Prevention Protection blocks malicious IP addresses.
+
+The recommended state for this setting is: Enabled: Medium or higher. Configuring this setting to Enabled: High also conforms to the benchmark.
+
+This feature can help reduce the likelihood of users visiting malicious websites."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Enabled: Medium or Enabled: High :
+
+Computer Configuration\Policies\Administrative Templates\Windows Components\Microsoft Defender Antivirus\Remediation\Behavioral Network Blocks\Remote Encryption Protection\Configure how aggressively Remote Encryption Protection blocks threats
+
+Note: This Group Policy path is provided by the Group Policy template WindowsDefender.admx/adml that is included with the Microsoft Windows 11 Release 24H2 Administrative Templates (or newer).
+
+Impact:
+
+Legitimate websites could be detected or blocked by Remote Encryption Prevention Protection depending on the configuration of this feature.
+
+When set to Medium, detections or blocks will occur when the confidence level is above 99%.
+
+When set to High, detections or blocks will occur when the confidence level is above 90%."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-171r3|03.14.02,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|8.1,CSCv8|10.1,CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.7,ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,LEVEL|2A,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/25919"
+      value_type  : POLICY_DWORD
+      value_data  : "1" || "2"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows Defender\Remediation\Behavioral Network Blocks\Remote Encryption Protection"
+      reg_item    : "RemoteEncryptionProtectionAggressiveness"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "1.12.1 Ensure 'Configure Watson events' is set to 'Disabled'"
+      info        : "This policy setting determines whether Watson events are sent to Microsoft. Watson events are the reports that get sent to Microsoft when a program or service crashes or fails, including the possibility of automatic submission.
+
+The recommended state for this setting is: Disabled.
+
+In high-security environments, data must never be shared with third-parties without explicit consent, as it may contain sensitive information."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Disabled :
+
+Computer Configuration\Policies\Administrative Templates\Windows Components\Microsoft Defender Antivirus\Reporting\Configure Watson events
+
+Note: This Group Policy path is provided by the Group Policy template WindowsDefender.admx/adml that is included with the Microsoft Windows 8.1 & Server 2012 R2 Administrative Templates (or newer).
+
+Impact:
+
+Watson events will not be sent to Microsoft automatically when a program or service crashes or fails."
+      reference   : "800-171|3.12.3,800-171r3|03.12.03,800-53|CA-7,800-53r5|CA-7,CSCv7|13.3,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.CM-1,CSF|DE.CM-2,CSF|DE.CM-3,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-1,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-7,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|DE.CM-01,CSF2.0|DE.CM-02,CSF2.0|DE.CM-03,CSF2.0|DE.CM-06,CSF2.0|DE.CM-09,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-07,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.36,ISO-27001-2022|9.1,ISO-27001-2022|9.3.2,ISO-27001-2022|9.3.3,ITSG-33|CA-7,LEVEL|2A,NESA|M1.2.2,NESA|M5.3.1,NESA|M5.4.1,NESA|M6.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/25919"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows Defender\Reporting"
+      reg_item    : "DisableGenericReports"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "1.8.1 Ensure 'Convert warn verdict to block' is set to 'Enabled'"
+      info        : "This policy setting controls whether Microsoft Defender Antivirus network protection will display a warning, or block network traffic.
+
+The recommended state for this setting is: Enabled.
+
+Potentially suspicious network traffic should be blocked until it has been reviewed, and an exception has been granted."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Enabled :
+
+Computer Configuration\Administrative Templates\Windows Components\Microsoft Defender Antivirus\Network Inspection System\Convert warn verdict to block
+
+Note: This Group Policy path is provided by the Group Policy template WindowsDefender.admx/adml that is included with the Microsoft Windows 11 Release 24H2 Administrative Templates (or newer).
+
+Impact:
+
+Legitimate network traffic could be blocked by Microsoft Defender Antivirus network protection."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-171r3|03.14.02,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|8.1,CSCv8|10.1,CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.7,ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,LEVEL|2A,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/25919"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows Defender\NIS"
+      reg_item    : "EnableConvertWarnToBlock"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Microsoft_Defender_Antivirus_v1.0.0_L2_Server.audit from CIS Microsoft Defender Antivirus 1.0.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/25919"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

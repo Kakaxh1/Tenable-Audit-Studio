@@ -1,0 +1,481 @@
+#TRUSTED 6cc08ca8e5a79fe985fa7a0ee13e81d0399f119aa3e668698b77f25a7e5604045be277318978c41e18facc1a57975eb9a4b7f24dd3650d71b386a0e2dc0f494f4e5e4de893255f03f43d2d9c3ebad749db6252cf6c0310d388d3d7dcb3d085f286febcc14f904a9ae29e225c6046ac20af21db6778c96bea5bb3a656893295c1b1be36147bc67e7b2a10612aec1b1adb9fd5d934f345d5cefa31b856417211ebe01b6266b2f479726ef06db1aef94cff0a0d6d5f71d198a3c1353301e77c346b449c796fc1e77ec06a747c5afad3d9aa9c90bb14c1d11ea917de1a0a7bf5245bad1bbd87d847bfc078a71888ae96673a7fed6658845e9833514deadaf6879d725869d3aec21f601c3513f9200d57ec57d4b4a7ec7b10a06ca42eabfba24bf21d3cdb49e4a895eb5f651a336972ac8603fee002a3ace93e07ab0b323635087dd2e7557f21d7f05971f5272bcf9313273459c2d41f727829df597730593df608c2c38e5e9ac210987254e20c2ada89f167869fdfbb760cd9901e2103878b37be29d2010d5e51ac1d6c57f47d502cc58ef4bcc899fcd3c41231b1e30f46770b6c0cb01a4c9558fd6858fbe7898c1ce1785cb5328b9571049d532ec100c51fed99d2ca7c7689552139d26d5de71e0584f28264c33a6241f4c242bf660002f597fec2c08c23e0c43f19f08e313e95db18ffee934042b1bec43a498f427140b5fe0f3a
+#TRUST-RSA-SHA256 3d363d64d5bb23d7d8c81798abd430c743971d4892cb1e2604bcf14d6342564db6b752dcf27a213b51a57c0f3ef735640f928034d9fdc595ab7cc366bd4c3e773f3b2c8d81ae75b65df948f9e500399597dae75e799dd4de2d2ebe7ddb47c5268c525400d02e8d7b0390a32be8f253510ac5f14a70d9853344fc0f1a39daa04e016f6955b8de1a699921ce0ed6b8d25cbc185b022a3cae3827083cff3e14604474beb599b870337cceda5ab29ca31f2a4e270a0084d575efd96e0c5cdc03097834dc1fc73b44d5bbd9589118387ea38e9cb03964dab3cbc8e74a0c663d17df6654a6824422c17a711b2607509f428d92ab7d7e15f3e25712414cb92f8f1f32461ef21a874fb45ad930e9480d8548c4a54fa3c4705c5a148d8e9b441a2c74635cf75b66befae595fe27990b4d988f15f00d577db04c1f9907ce420f8451e0351c1f82caf9006bd9f874f980d9a47823d6a76c61302017cf0be023ca859020d7b04fc6257662352e10f5676223c9f2e89f4789acd0962ca7675ab21068a60f96669806fefb22e6e2822f5e68e2fa3e5706087bf650e9a5b7eb7154b2306566f08ffcb673606a2a15f1e19de26a6b346d670c4cbf1f74249c8cf17fcf366f51cfdfbf77cf12fee57fc88d8ce95946d4f109bd7158aa570b8d5354ad8b25b285326f4945a06ae1fa9f36c990ea999783b8bc6a27d25bc7629e32f2c4502a4b280f29
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2025/01/06 $
+#
+# description : This document implements the security configuration as recommended by the
+#               MSCT Microsoft Edge Version 128 Security Baseline
+#
+#<ui_metadata>
+#<display_name>MSCT Edge v128 v1.0.0</display_name>
+#<spec>
+#  <type>MSCT</type>
+#  <name>Edge v128</name>
+#  <version>1.0.0</version>
+#  <link>https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524</link>
+#</spec>
+#<labels>msct_edge_128,agent</labels>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"Microsoft Security Compliance Toolkit">
+
+<if>
+  <condition type:"OR">
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "Check for Microsoft Edge - 64 bit systems"
+      value_type      : POLICY_TEXT
+      value_data      : "^[\s]*1(2[8-9]|[3-9][0-9])\."
+      powershell_args : "$version=Get-ItemProperty HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction Ignore | Where-Object -Property DisplayName -eq 'Microsoft Edge' | Select DisplayVersion; If ($version) { $version } Else { 'Not Found' }"
+      check_type      : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "Check for Microsoft Edge - 32 bit systems"
+      value_type      : POLICY_TEXT
+      value_data      : "^[\s]*1(2[8-9]|[3-9][0-9])\."
+      powershell_args : "$version=Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction Ignore | Where-Object -Property DisplayName -eq 'Microsoft Edge' | Select DisplayVersion; If ($version) { $version } Else { 'Not Found' }"
+      check_type      : CHECK_REGEX
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "MSCT_Microsoft_Edge_Version_128_v1.0.0.audit from MSCT Microsoft Edge Version 128 Security Baseline"
+    </report>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Allow Basic authentication for HTTP"
+      info        : "If you enable this policy or leave it unset, Basic authentication challenges received over non-secure HTTP will be allowed.
+
+If you disable this policy, non-secure HTTP requests from the Basic authentication scheme are blocked, and only secure HTTPS is allowed.
+
+This policy setting is ignored (and Basic is always forbidden) if the 'AuthSchemes' (Supported authentication schemes) policy is set and does not include Basic."
+      solution    : "Policy Path: Microsoft Edge\HTTP authentication
+Policy Setting Name: Allow Basic authentication for HTTP"
+      reference   : "800-171|3.5.2,800-53|IA-5(6),800-53r5|IA-5(6),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5(6),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|5.4,TBA-FIISB|26.1"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "BasicAuthOverHttpEnabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Allow unconfigured sites to be reloaded in Internet Explorer mode"
+      info        : "This policy allows users to reload unconfigured sites (that are not configured in the Enterprise Mode Site List) in Internet Explorer mode when browsing in Microsoft Edge and a site requires Internet Explorer for compatibility.
+
+After a site has been reloaded in Internet Explorer mode, 'in-page' navigations will stay in Internet Explorer mode (for example, a link, script, or form on the page, or a server-side redirect from another 'in-page' navigation). Users can choose to exit from Internet Explorer mode, or Microsoft Edge will automatically exit from Internet Explorer mode when a navigation that isn't 'in-page' occurs (for example, using the address bar, the back button, or a favorite link).
+
+Users can also optionally tell Microsoft Edge to use Internet Explorer mode for the site in the future. This choice will be remembered for a length of time managed by the 'InternetExplorerIntegrationLocalSiteListExpirationDays' (Specify the number of days that a site remains on the local IE mode site list) policy.
+
+If the 'InternetExplorerIntegrationLevel' (Configure Internet Explorer integration) policy is set to 'IEMode', then sites explicitly configured by the 'InternetExplorerIntegrationSiteList' (Configure the Enterprise Mode Site List) policy's site list to use Microsoft Edge can't be reloaded in Internet Explorer mode, and sites configured by the site list or by the 'SendIntranetToInternetExplorer' (Send all intranet sites to Internet Explorer) policy to use Internet Explorer mode can't exit from Internet Explorer mode.
+
+If you enable this policy, users are allowed to reload unconfigured sites in Internet Explorer mode.
+
+If you disable this policy, users aren't allowed to reload unconfigured sites in Internet Explorer mode.
+
+Note that if you enable this policy, it takes precedence over how you configured the 'InternetExplorerIntegrationTestingAllowed' (Allow Internet Explorer mode testing) policy, and that policy will be disabled.
+
+To learn more about Internet Explorer mode, see https://go.microsoft.com/fwlink/?linkid=2094210"
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Allow unconfigured sites to be reloaded in Internet Explorer mode"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "InternetExplorerIntegrationReloadInIEModeAllowed"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Allow user-level native messaging hosts (installed without admin permissions)"
+      info        : "If you set this policy to Enabled or leave it unset, Microsoft Edge can use native messaging hosts installed at the user level.
+
+If you set this policy to Disabled, Microsoft Edge can only use these hosts if they're installed at the system level."
+      solution    : "Policy Path: Microsoft Edge\Native Messaging
+Policy Setting Name: Allow user-level native messaging hosts (installed without admin permissions)"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "NativeMessagingUserLevelHosts"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Allow users to proceed from the HTTPS warning page"
+      info        : "Microsoft Edge shows a warning page when users visit sites that have SSL errors.
+
+If you enable or don't configure (default) this policy, users can click through these warning pages.
+
+If you disable this policy, users are blocked from clicking through any warning page."
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Allow users to proceed from the HTTPS warning page"
+      reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "SSLErrorOverrideAllowed"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Automatically open downloaded MHT or MHTML files from the web in Internet Explorer mode"
+      info        : "This policy controls whether MHT or MHTML files that are downloaded from the web are automatically opened in Internet Explorer mode.
+
+If you enable this policy, the MHT or MHTML files that are downloaded from the web can be opened in both Microsoft Edge and Internet Explorer mode to provide the best user experience.
+
+If you disable or don't configure this policy, MHT or MHTML files that are downloaded from the web won't automatically open in Internet Explorer mode.
+
+To learn more about Internet Explorer mode, see https://go.microsoft.com/fwlink/?linkid=2094210"
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Automatically open downloaded MHT or MHTML files from the web in Internet Explorer mode"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "InternetExplorerIntegrationZoneIdentifierMhtFileAllowed"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Configure Edge Website Typo Protection"
+      info        : "This policy setting lets you configure whether to turn on Edge Website Typo Protection. Edge Website Typo Protection provides warning messages to help protect your users from potential typosquatting sites. By default, Edge Website Typo Protection is turned on.
+
+If you enable this policy, Edge Website Typo Protection is turned on.
+
+If you disable this policy, Edge Website Typo Protection is turned off.
+
+If you don't configure this policy, Edge Website Typo Protection is turned on but users can choose whether to use Edge Website Typo Protection."
+      solution    : "Policy Path: Microsoft Edge\Edge Website Typo Protection settings
+Policy Setting Name: Configure Edge Website Typo Protection"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "TyposquattingCheckerEnabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Configure Microsoft Defender SmartScreen to block potentially unwanted apps"
+      info        : "This policy setting lets you configure whether to turn on blocking for potentially unwanted apps with Microsoft Defender SmartScreen. Potentially unwanted app blocking with Microsoft Defender SmartScreen provides warning messages to help protect users from adware, coin miners, bundleware, and other low-reputation apps that are hosted by websites. Potentially unwanted app blocking with Microsoft Defender SmartScreen is turned off by default.
+
+If you enable this setting, potentially unwanted app blocking with Microsoft Defender SmartScreen is turned on.
+
+If you disable this setting, potentially unwanted app blocking with Microsoft Defender SmartScreen is turned off.
+
+If you don't configure this setting, users can choose whether to use potentially unwanted app blocking with Microsoft Defender SmartScreen.
+
+This policy is available only on Windows instances that are joined to a Microsoft Active Directory domain, Windows 10 Pro or Enterprise instances that enrolled for device management, or macOS instances that are that are managed via MDM or joined to a domain via MCX."
+      solution    : "Policy Path: Microsoft Edge\SmartScreen settings
+Policy Setting Name: Configure Microsoft Defender SmartScreen to block potentially unwanted apps"
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "SmartScreenPuaEnabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Configure Microsoft Defender SmartScreen"
+      info        : "This policy setting lets you configure whether to turn on Microsoft Defender SmartScreen. Microsoft Defender SmartScreen provides warning messages to help protect your users from potential phishing scams and malicious software. By default, Microsoft Defender SmartScreen is turned on.
+
+If you enable this setting, Microsoft Defender SmartScreen is turned on.
+
+If you disable this setting, Microsoft Defender SmartScreen is turned off.
+
+If you don't configure this setting, users can choose whether to use Microsoft Defender SmartScreen.
+
+This policy is available only on Windows instances that are joined to a Microsoft Active Directory domain, Windows 10 Pro or Enterprise instances that enrolled for device management, or macOS instances that are that are managed via MDM or joined to a domain via MCX."
+      solution    : "Policy Path: Microsoft Edge\SmartScreen settings
+Policy Setting Name: Configure Microsoft Defender SmartScreen"
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "SmartScreenEnabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Dynamic Code Settings"
+      info        : "This policy controls the dynamic code settings for Microsoft Edge.
+
+Disabling dynamic code improves the security of Microsoft Edge by preventing potentially hostile dynamic code and third-party code from making changes to Microsoft Edge's behavior. However this might cause compatibility issues with third-party software that must run in the browser process.
+
+If you set this policy to 0 (the default) or leave unset then Microsoft Edge will use the default settings.
+
+If you set this policy to 1 -- (EnabledForBrowser) then the Microsoft Edge browser process is prevented from creating dynamic code.
+
+Policy options mapping:* Default (0) = Default dynamic code settings* EnabledForBrowser (1) = Prevent the browser process from creating dynamic codeUse the preceding information when configuring this policy."
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Dynamic Code Settings"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "DynamicCodeSettings"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Enable Application Bound Encryption"
+      info        : "Enabling this policy or leaving it unset binds the encryption keys used for local data storage to Microsoft Edge whenever possible.
+
+Disabling this policy has a detrimental effect on Microsoft Edge's security because unknown and potentially hostile apps can retrieve the encryption keys used to secure data.
+
+Only turn off this policy if there are compatibility issues such as scenarios where other applications need legitimate access to Microsoft Edge's data. Encrypted user data is expected to be fully portable between different computers or the integrity and location of Microsoft Edge's executable files isnt consistent."
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Enable Application Bound Encryption"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "ApplicationBoundEncryptionEnabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Enable browser legacy extension point blocking"
+      info        : "Sets the ProcessExtensionPointDisablePolicy on Microsoft Edge's browser process to block code injection from legacy third party applications.
+
+If you enable or don't configure this policy, the ProcessExtensionPointDisablePolicy is applied to block legacy extension points in the browser process.
+
+If you disable this policy, the ProcessExtensionPointDisablePolicy is not applied to block legacy extension points in the browser process. This has a detrimental effect on Microsoft Edge's security and stability as unknown and potentially hostile code can load inside Microsoft Edge's browser process. Only turn off the policy if there are compatibility issues with third-party software that must run inside Microsoft Edge's browser process."
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Enable browser legacy extension point blocking"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "BrowserLegacyExtensionPointsBlockingEnabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Enable site isolation for every site"
+      info        : "The 'SitePerProcess' policy can be used to prevent users from opting out of the default behavior of isolating all sites. Note that you can also use the 'IsolateOrigins' (Enable site isolation for specific origins) policy to isolate additional, finer-grained origins.
+
+If you enable this policy, users can't opt out of the default behavior where each site runs in its own process.
+
+If you disable or don't configure this policy, a user can opt out of site isolation.  (For example, by using 'Disable site isolation' entry in edge://flags.)  Disabling the policy or not configuring the policy doesn't turn off Site Isolation."
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Enable site isolation for every site"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "SitePerProcess"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Control which extensions cannot be installed"
+      info        : "Lets you specify which extensions the users CANNOT install.
+
+Extensions already installed will be disabled if blocked without a way for the user to enable them.
+
+After a disabled extension is removed from the blocklist it will automatically get re-enabled.
+
+A blocklist value of '*' means all extensions are blocked unless they are explicitly listed in the allowlist.
+
+If this policy isn't set the user can install any extension in Microsoft Edge.
+
+Example value:extension_id1extension_id2"
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Control which extensions cannot be installed"
+      reference   : "800-171|3.4.8,800-53|CM-7(4),800-53r5|CM-7(4),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|CM-7,NIAv2|SS13a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,SWIFT-CSCv1|2.3,TBA-FIISB|44.2.2,TBA-FIISB|49.2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_TEXT
+      value_data  : "*"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge\ExtensionInstallBlocklist"
+      reg_item    : "1"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Prevent bypassing Microsoft Defender SmartScreen prompts for sites"
+      info        : "This policy setting lets you decide whether users can override the Microsoft Defender SmartScreen warnings about potentially malicious websites.
+
+If you enable this setting, users can't ignore Microsoft Defender SmartScreen warnings and they are blocked from continuing to the site.
+
+If you disable or don't configure this setting, users can ignore Microsoft Defender SmartScreen warnings and continue to the site.
+
+This policy is available only on Windows instances that are joined to a Microsoft Active Directory domain, Windows 10 Pro or Enterprise instances that enrolled for device management, or macOS instances that are that are managed via MDM or joined to a domain via MCX."
+      solution    : "Policy Path: Microsoft Edge\SmartScreen settings
+Policy Setting Name: Prevent bypassing Microsoft Defender SmartScreen prompts for sites"
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "PreventSmartScreenPromptOverride"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Prevent bypassing of Microsoft Defender SmartScreen warnings about downloads"
+      info        : "This policy lets you determine whether users can override Microsoft Defender SmartScreen warnings about unverified downloads.
+
+If you enable this policy, users in your organization can't ignore Microsoft Defender SmartScreen warnings, and they're prevented from completing the unverified downloads.
+
+If you disable or don't configure this policy, users can ignore Microsoft Defender SmartScreen warnings and complete unverified downloads.
+
+This policy is available only on Windows instances that are joined to a Microsoft Active Directory domain, Windows 10 Pro or Enterprise instances that enrolled for device management, or macOS instances that are that are managed via MDM or joined to a domain via MCX."
+      solution    : "Policy Path: Microsoft Edge\SmartScreen settings
+Policy Setting Name: Prevent bypassing of Microsoft Defender SmartScreen warnings about downloads"
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "PreventSmartScreenPromptOverrideForFiles"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Show the Reload in Internet Explorer mode button in the toolbar"
+      info        : "Set this policy to show the Reload in Internet Explorer mode button in the toolbar. Users can hide the button in the toolbar through edge://settings/appearance.  The button will only be shown on the toolbar when the 'InternetExplorerIntegrationReloadInIEModeAllowed' (Allow unconfigured sites to be reloaded in Internet Explorer mode) policy is enabled or if the user has chosen to enable 'Allow sites to be reloaded in Internet Explorer mode'.
+
+If you enable this policy, the Reload in Internet mode button is pinned to the toolbar.
+
+If you disable or don't configure this policy, the Reload in Internet Explorer mode button isn't shown in the toolbar by default. Users can toggle the Show Internet Explorer mode button in edge://settings/appearance."
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Show the Reload in Internet Explorer mode button in the toolbar"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "InternetExplorerModeToolbarButtonEnabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Specifies whether SharedArrayBuffers can be used in a non cross-origin-isolated context"
+      info        : "Specifies whether SharedArrayBuffers can be used in a non cross-origin-isolated context.  A SharedArrayBuffer is a binary data buffer that can be used to create views on shared memory.  SharedArrayBuffers have a memory access vulnerability in several popular CPUs.
+
+If you enable this policy, sites are allowed to use SharedArrayBuffers with no restrictions.
+
+If you disable or don't configure this policy, sites are allowed to use SharedArrayBuffers only when cross-origin isolated.
+
+Microsoft Edge will require cross-origin isolation when using SharedArrayBuffers from Microsoft Edge 91 onward for Web Compatibility reasons."
+      solution    : "Policy Path: Microsoft Edge
+Policy Setting Name: Specifies whether SharedArrayBuffers can be used in a non cross-origin-isolated context"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "SharedArrayBufferUnrestrictedAccessAllowed"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Specifies whether to allow websites to make requests to any network endpoint in an insecure manner."
+      info        : "Controls whether websites are allowed to make requests to more-private network endpoints.
+
+When this policy is enabled, all Private Network Access checks are disabled for all origins. This may allow attackers to perform cross-site request forgery (CSRF) attacks on private network servers.
+
+When this policy is disabled or not configured, the default behavior for requests to more-private network endpoints will depend on the user's personal configuration for the BlockInsecurePrivateNetworkRequests, PrivateNetworkAccessSendPreflights, and PrivateNetworkAccessRespectPreflightResults feature flags. These flags may be controlled by experimentation or set via the command line.
+
+This policy relates to the Private Network Access specification. See https://wicg.github.io/private-network-access/ for more details.
+
+A network endpoint is more private than another if:
+
+1) Its IP address is localhost and the other is not.
+
+2) Its IP address is private and the other is public.
+
+In the future, depending on spec evolution this policy might apply to all cross-origin requests directed at private IPs or localhost.
+
+When this policy enabled websites are allowed to make requests to any network endpoint, subject to other cross-origin checks."
+      solution    : "Policy Path: Microsoft Edge\Private Network Request Settings
+Policy Setting Name: Specifies whether to allow websites to make requests to any network endpoint in an insecure manner."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "InsecurePrivateNetworkRequestsAllowed"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Supported authentication schemes"
+      info        : "Specifies which HTTP authentication schemes are supported.
+
+You can configure the policy by using these values: 'basic', 'digest', 'ntlm', and 'negotiate'. Separate multiple values with commas.
+
+Note: All values for this policy are case sensitive.
+
+If you don't configure this policy, all four schemes are used.
+
+Example value: basic,digest,ntlm,negotiate"
+      solution    : "Policy Path: Microsoft Edge\HTTP authentication
+Policy Setting Name: Supported authentication schemes"
+      reference   : "800-171|3.5.2,800-53|IA-5(6),800-53r5|IA-5(6),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5(6),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|5.4,TBA-FIISB|26.1"
+      see_also    : "https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-128/ba-p/4237524"
+      value_type  : POLICY_TEXT
+      value_data  : "ntlm,negotiate"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Edge"
+      reg_item    : "AuthSchemes"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "MSCT_Microsoft_Edge_Version_128_v1.0.0.audit from MSCT Microsoft Edge Version 128 Security Baseline"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

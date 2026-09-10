@@ -1,0 +1,2000 @@
+#TRUSTED 1369c386333344694377ffa6034307bba68078f563b9964b58fadc1009ef875364c0b13a84d89e55d78353d53cf849f199de5a58881e0ee3d0d4b17df5b5f1040341ceaa73b79e65c5f5c543e4cdddc2b73d614258a0786b12218d9ae4378e2d13dc5f8b36580b5620765c2d735c6ae134bb67e48b72c2084201a2091d4c11abc7258f83f92ce3c7d84aea02e4bc7ef19064f27c07f0dd1e6d04be405d46baa73ac48faf8efb6f1e0a5c8b03a4315698fbed9b6da142a6b86f43dbc6c052b248b7baf7cb3d5d7bbd759b01e69389a77b94fe6e18006a343300bfd15428988aa30403a0edccf25d9dbbb39623de81e316830e8ebae7c1355c0e057cc970e01c79e7d14f14963e6431b72139dc00325911ab3d02136747a36e19b87311053397e4c5c0ed50f851ab6cfe4492175415f3a5029db43d477755eb0e9f018c4bdc5d90549377daab459a8b84839fd2a8fb02d5b7375b4def728c77516b812d4c1f54ab909bb62d61f5b6a7b4fd9a9b12c24c18be2423b93ba9118504abf4156d57378664f4ff10dc610fe88650b5c663a550c3f691607b17551003abfe0be604ecf55b6c092608c5d1d831ddfa4bb8e74e85c9ac651bf7bf0ba54062eeff15e6ae17557cdb602431d07fc0fe2df4ba3b5194909f54791ff83026359641b0cb98c319b1319b449814483bee62dedb9c84ff63bde7c2d574bae50231359020d43f82e714
+#TRUST-RSA-SHA256 a56a69d7428b5c6d0cbc54062841bab37b5f7b0e515b7ea09085f287bc9bcc925d7ea545a17327a1c686bac15905fce7886878c8a8e369bc8019b7e5106d142831b4ceff90fe511d8ac2e5b3816c9e72d4852d94c42c8db2a013e508bfa6d3fb0ac105a2391286d4c218bfab7e02bad358dca2a4a44fb7d2e6a35eda8798b1487898838b4cea6f4b33edc3b2b15475045d2b10004b35592b746c80209d4d286a2592f2385c60a9200197f49e074e6fff5ca9e7a752575ca1e1fecdc37dbc6dd8348535f5c8f08206038f0cb175024455cfa97c18b8053da10da45265e0c667c77b2c2f657168f603ccae300fe138ef1e98a6f8ba9209d9f655be80438df81302b0c6bc7e8d5426f70d9fb77c32c9c0d6913e25d12bd7df72aa371e4fb24a5ffff678ce65d92f641562bdfc52e6f4c42d05bf663b65af649cb17f07d98384053b69537d7bfe61dc97979dc4c0b7f1b096a234e0764fd73ccf55d14fac9b61806266b76ae902bd96b4244ddba519e21a80a1c6ff88b541ab8822d40bdb58f256dbd97ac185385e166a202ee547a756418e5b4c491d560fdedf73ed96283ae6e60ad1f4684e600db8e534808b2f9ebd1217ebc0d13c96bf747f00d96ff88f17cf987261df45a10e922e2aeaf50beda2def7f605777d18d49bffbc2830835bc0f757af67646217791f621580ffa24baefa6b771dd937d719a9fe64c4138d1ffb12e8
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.13 $
+# $Date: 2025/09/16 $
+#
+# description : This document implements the security configuration as recommended by the
+#               CIS Check Point Firewall Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS Check Point Firewall L1 v1.1.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Check Point Firewall</name>
+#  <profile>L1</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/files/2828</link>
+#</spec>
+#<labels>checkpoint,cis,gaia,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>TIMEZONE</name>
+#    <default>America / New_York</default>
+#    <description>Timezone</description>
+#    <info>Timezone for the device.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>DNS_PRIMARY</name>
+#    <default>10.0.0.1</default>
+#    <description>Primary DNS Server</description>
+#    <info>Primary DNS Server</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>DNS_SECONDARY</name>
+#    <default>10.0.0.2</default>
+#    <description>Second DNS Server</description>
+#    <info>Secondary DNS Server</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>DNS_TERTIARY</name>
+#    <default>10.0.0.3</default>
+#    <description>Third DNS Server</description>
+#    <info>Tertiary DNS Server</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>IPV6_STATE</name>
+#    <default>off</default>
+#    <description>IPv6 Usage on Target</description>
+#    <info>Valid values are off or on</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SNMP_TRAPS_RECEIVER</name>
+#    <default>10.0.0.4</default>
+#    <description>SNMP Traps Target</description>
+#    <info>The IP address for the SNMP traps receiver</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>NTP_PRIMARY</name>
+#    <default>time.nist.gov</default>
+#    <description>Primary NTP Server</description>
+#    <info>Primary NTP Server</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>NTP_SECONDARY</name>
+#    <default>time-a.nist.gov</default>
+#    <description>Second NTP Server</description>
+#    <info>Secondary NTP Server</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>AAA_SERVER</name>
+#    <default>10.0.0.5</default>
+#    <description>AAA Server</description>
+#    <info>AAA Server used for TACACS+ or RADIUS</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>BANNER_MSG</name>
+#    <default>Unauthorized use of this system is prohibited.</default>
+#    <description>Banner message</description>
+#    <info>This is the banner text which should be displayed to a user at login</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>MOTD_MSG</name>
+#    <default>Unauthorized use of this system is prohibited.</default>
+#    <description>MOTD message</description>
+#    <info>This is the MOTD text which should be displayed to a user at login</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"CheckPoint">
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.1 Ensure Minimum Password Length is set to 14 or higher"
+  info        : "Defines the minimum length a password can be. The minimum number of characters of a password that is to be allowed for users or SNMP users. Does not apply to passwords that have already been set.
+
+Rationale:
+
+Password length has been found to be a primary factor in characterizing password strength. Passwords that are too short yield to brute force attacks as well as to dictionary attacks using words and commonly chosen passwords."
+  solution    : "Run the following command to set the min-password-length setting.
+CLI:
+
+Hostname>set password-controls min-password-length 14
+
+GUI:
+
+Navigate to User Management > Password Policy
+Ensure 'Minimum Password Length' is set to 14 or higher.
+
+Default Value:
+
+6"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls min-password-length"
+  expect      : "set password-controls min-password-length (1[4-9]|[2-9][0-9]|1[0-2][0-7]|128)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.2 Ensure Disallow Palindromes is selected"
+  info        : "A palindrome is a sequence of letters, numbers, or characters that can be read the same in each direction. racecar, bob, and noon are some of the famous examples of Palindrome.
+
+Rationale:
+
+The Palindrome words are high on wordlists which are used before any brute-force attacks, and it's simpler to crack using the password cracking tools."
+  solution    : "Run the following command to set the palindrome-check setting.
+CLI:
+
+Hostname>set password-controls palindrome-check on
+
+GUI:
+
+Navigate to User Management > Password Policy
+Ensure 'Disallow Palindrome' is checked.
+
+Default Value:
+
+Selected"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls palindrome-check"
+  expect      : "set password-controls palindrome-check (on|true)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.3 Ensure Password Complexity is set to 3"
+  info        : "This checks all new passwords to ensure that they meet basic requirements for strong passwords. The required number of character types are: Upper case alphabetic (A-Z), Lower case alphabetic (a-z), Digits (0-9), Other (everything else). A value of '1' effectively disables this check. Changes to this setting do not affect existing passwords.
+
+Rationale:
+
+Password complexity recommendations are derived from the USGCB (United States Government Configuration Baseline), Common Weakness Enumeration, and benchmarks published by the CIS (Center for Internet Security). Password complexity adds entropy to a password, in comparison to a simple password of the same length. A complex password is more difficult to attack, either directly against administrative interfaces or cryptographically, against captured password hashes. However, making a password of greater length will generally have a greater impact in this regard, in comparison to making a shorter password more complex."
+  solution    : "Run the following command to set the password-controls complexity setting.
+CLI:
+
+Hostname>set password-controls complexity 3
+
+
+
+GUI:
+
+Navigate to User Management > Password Policy > Password Complexity:
+checked the '3 - Require three character types' setting.
+
+Default Value:
+
+2"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls complexity"
+  expect      : "set password-controls complexity [34][\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.4 Ensure Check for Password Reuse is selected and History Length is set to 12 or more - history-checking"
+  info        : "Check for reuse of passwords. When a user's password is changed, the new password is checked against the recent passwords for the user. An identical password is not allowed. The number of passwords kept in the record is set by History length. Does not apply to SNMP passwords. Enables or disables password history checking and password history recording, for all users.
+
+Rationale:
+
+The longer a user uses the same password, the greater the chance that an attacker can determine the password through brute force attacks. Also, any accounts that may have been compromised will remain exploitable for as long as the password is left unchanged. If password changes are required but password reuse is not prevented, or if users continually reuse a small number of passwords, the effectiveness of a good password policy is greatly reduced. While current guidance emphasizes password length above frequent password changes, not enforcing password re-use guidance adds the temptation of using a small pool of passwords, which can make an attacker's job easier across an entire infrastructure."
+  solution    : "Run the following command to set tie history-checking setting.
+CLI:
+
+Hostname>set password-controls history-checking on
+
+Hostname>set password-controls history-length 12
+
+GUI:
+
+Navigate to User Management > Password Policy > Password History:
+checked the 'Check for Password Reuse' setting.
+
+Navigate to User Management > Password Policy > Password History:
+Set 'History Length' is set to 12 or more.
+
+Default Value:
+
+Selected"
+  reference   : "800-171|3.5.8,800-171r3|03.05.07e.,800-53|IA-5(1)(e),800-53r5|IA-5(1)(e),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(e),NESA|T5.2.3,NIAv2|AM22c,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls history-checking"
+  expect      : "set password-controls history-checking (on|true)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.4 Ensure Check for Password Reuse is selected and History Length is set to 12 or more - history-length"
+  info        : "Check for reuse of passwords. When a user's password is changed, the new password is checked against the recent passwords for the user. An identical password is not allowed. The number of passwords kept in the record is set by History length. Does not apply to SNMP passwords. Enables or disables password history checking and password history recording, for all users.
+
+Rationale:
+
+The longer a user uses the same password, the greater the chance that an attacker can determine the password through brute force attacks. Also, any accounts that may have been compromised will remain exploitable for as long as the password is left unchanged. If password changes are required but password reuse is not prevented, or if users continually reuse a small number of passwords, the effectiveness of a good password policy is greatly reduced. While current guidance emphasizes password length above frequent password changes, not enforcing password re-use guidance adds the temptation of using a small pool of passwords, which can make an attacker's job easier across an entire infrastructure."
+  solution    : "Run the following command to set tie history-checking setting.
+CLI:
+
+Hostname>set password-controls history-checking on
+
+Hostname>set password-controls history-length 12
+
+GUI:
+
+Navigate to User Management > Password Policy > Password History:
+checked the 'Check for Password Reuse' setting.
+
+Navigate to User Management > Password Policy > Password History:
+Set 'History Length' is set to 12 or more.
+
+Default Value:
+
+Selected"
+  reference   : "800-171|3.5.8,800-171r3|03.05.07e.,800-53|IA-5(1)(e),800-53r5|IA-5(1)(e),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(e),NESA|T5.2.3,NIAv2|AM22c,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls history-length"
+  expect      : "set password-controls history-length (1[2-9]|[2-9][0-9])[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.5 Ensure Password Expiration is set to 90 days"
+  info        : "The number of days for which a password is valid. After that time, the password expires. The count starts when the user changes their passwords. Users are required to change an expired password the next time they log in. If set to never, passwords do not expire. Does not apply to SNMP users.
+
+Rationale:
+
+The window of opportunity for an attacker to leverage compromised credentials or successfully compromise credentials via an online brute force attack is limited by the age of the password. Therefore, reducing the maximum age of a password also reduces an attacker's window of opportunity."
+  solution    : "Run the following command to set the history-length setting.
+CLI:
+
+Hostname>set password-controls history-length 90
+
+GUI:
+
+Navigate to User Management > Password Policy > Mandatory Password Changes: Password Expiration:
+Set 'Password expires after' setting to 90 or less
+
+Default Value:
+
+Password never expire"
+  reference   : "800-171|3.5.2,800-171r3|03.05.07d.,800-53|IA-5(1)(d),800-53r5|IA-5(1)(d),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(d),NESA|T5.2.3,NIAv2|AM20,NIAv2|AM21,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls password-expiration"
+  expect      : "set password-controls password-expiration ([1-9]|[1-8][0-9]|90)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.6 Ensure Warn users before password expiration is set to 7 days"
+  info        : "The number of days before the password expires that the user starts getting warned they will have to change it. A user that does not log in will not see the warning.
+
+Rationale:
+
+Providing an advance warning that a password will be expiring gives users time to think of a secure password. Users caught unaware may choose a simple password or write it down where it may be discovered."
+  solution    : "Run the following command to set the expiration-warning-days setting.
+CLI:
+
+Hostname>set password-controls expiration-warning-days 7
+
+GUI:
+
+Navigate to User Management > Password Policy > Mandatory Password Changes
+Set 'Warn users before password expiration' is set to 7 days or less.
+
+
+
+Default Value:
+
+7 days"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01b.,800-53|AC-2f.,800-53r5|AC-2f.,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2f.,NESA|M4.4.3,NESA|T5.2.1,NIAv2|SS14d,PCI-DSSv3.2.1|8.1.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls expiration-warning-days"
+  expect      : "set password-controls expiration-warning-days [1-7][\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.7 Ensure Lockout users after password expiration is set to 1"
+  info        : "Lockout users after password expiration. After a user's password has expired, they have this number of days to log in and change it. If they do change their password within that number of days they will be unable to log in: They are locked out. A value of never allows the user to wait as long as they want to change their password.
+
+Rationale:
+
+User accounts and their passwords are the front-line of defense against malicious users gaining access to critical systems and data. Just as important as ensuring strong passwords are used and changed regularly, unused accounts should be closely monitored and disabled, whenever possible. Inactive accounts could become targets of brute force or dictionary attacks to gain access to the network and critical data/devices attached to it."
+  solution    : "Run the following command to set the expiration-lockout-days setting.
+CLI:
+
+Hostname>set password-controls expiration-lockout-days 1
+
+
+
+GUI:
+
+Navigate to User Management > Password Policy > Mandatory Password Changes > Lockout users after password expiration:
+Checked 'Lockout user after' setting and set to 1 day.
+
+Default Value:
+
+Never lockout users after password expires"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01b.,800-53|AC-2f.,800-53r5|AC-2f.,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2f.,NESA|M4.4.3,NESA|T5.2.1,NIAv2|SS14d,PCI-DSSv3.2.1|8.1.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls expiration-lockout-days"
+  expect      : "set password-controls expiration-lockout-days 1[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.8 Ensure Deny access to unused accounts is selected"
+  info        : "Deny access to unused accounts. If there has been no successful login attempt in a set period of time, the user is locked out and cannot log in.
+
+Rationale:
+
+User accounts that have been unused for over a given period of time can be automatically disabled. Unused accounts pose a threat to system security since the users are not logging in to notice failed login attempts or other anomalies"
+  solution    : "Run the following command to set the deny-on-nonuse setting.
+CLI:
+
+Hostname>set password-controls deny-on-nonuse enable on
+
+GUI:
+
+Navigate to User Management > Password Policy > Deny access to unused accounts:
+Checked the 'Deny access to unused accounts' setting.
+
+Default Value:
+
+Not Selected"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01b.,800-53|AC-2f.,800-53r5|AC-2f.,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2f.,NESA|M4.4.3,NESA|T5.2.1,NIAv2|SS14d,PCI-DSSv3.2.1|8.1.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls deny-on-nonuse enable"
+  expect      : "set password-controls deny-on-nonuse enable (on|true)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.9 Ensure Days of non-use before lock-out is set to 30"
+  info        : "Days of non-use before lock-out. The number of days in which a user has not (successfully) logged in before that user is locked out. This only takes effect if Deny access to unused accounts is selected.
+
+Rationale:
+
+User accounts that have been unused for over a given period of time can be automatically disabled. It is recommended that accounts that are unused for 30 days should be disabled. Unused accounts pose a threat to system security since the users are not logging in to notice failed login attempts or other anomalies."
+  solution    : "Run the following command to set the deny-on-nonuse allowed-days setting.
+CLI:
+
+Hostname>set password-controls deny-on-nonuse allowed-days 30
+
+GUI:
+
+Navigate to User Management > Password Policy > Deny access to unused accounts:
+Set 'Days of non-use before lock-out' to 30 or less.
+
+Note: This setting only takes effect if 'Deny access to unused accounts' is enabled.
+
+Default Value:
+
+365"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01b.,800-53|AC-2f.,800-53r5|AC-2f.,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2f.,NESA|M4.4.3,NESA|T5.2.1,NIAv2|SS14d,PCI-DSSv3.2.1|8.1.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls deny-on-nonuse allowed-days"
+  expect      : "set password-controls deny-on-nonuse allowed-days ([1-9]|[1-2][0-9]|30)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.10 Ensure Force users to change password at first login after password was changed from Users page is selected"
+  info        : "Force users to change password at first login after their password was changed using the command set user password or from the WebUI User Management > Users page.
+
+Rationale:
+
+This forces the user to change the password and not to use the password set by the Administrator."
+  solution    : "Run the following command to set force-change-when setting.
+CLI:
+
+Hostname>set password-controls force-change-when password
+
+GUI:
+
+Navigate to User Management > Password Policy > Mandatory Password Change:
+Checked the 'Force users to change password at first login after password was changed from Users page' setting.
+
+
+
+Default Value:
+
+Not Selected"
+  reference   : "800-171|3.5.9,800-171r3|03.05.07,800-53|IA-5(1)(f),800-53r5|IA-5(1)(f),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.6"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls force-change-when password"
+  expect      : "set password-controls force-change-when password[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.11 Ensure Deny access after failed login attempts is selected"
+  info        : "If the configured limit is reached, the user is locked out (unable to log in) for a configurable period of time.
+
+Rationale:
+
+Locking out user IDs after n unsuccessful consecutive login attempts mitigate brute force password attacks against your systems."
+  solution    : "Run the following command to set the deny-on-fail setting.
+CLI:
+
+Hostname>set password-controls deny-on-fail enable on
+
+GUI:
+
+Navigate to User Management > Password Policy > Deny Access After Failed Login Attempts:
+Checked the 'Deny access after failed login attempts' setting.
+
+
+
+Default Value:
+
+Not selected"
+  reference   : "800-171|3.1.10,800-171r3|03.01.10,800-53|AC-11,800-53r5|AC-11,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls deny-on-fail enable"
+  expect      : "set password-controls deny-on-fail enable (on|true)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.12 Ensure Maximum number of failed attempts allowed is set to 5 or fewer"
+  info        : "This only takes effect if Deny access after failed attempts is enabled. The number of failed login attempts that a user is allowed before being locked out. After making that many successive failed attempts, future attempts will fail. When one login attempt succeeds, counting of failed attempts stops, and the count is reset to zero.
+
+Rationale:
+
+Repeated failed login attempts could either be a valid user who has forgotten the password, or a malicious attempt to gain access to the system. For this reason, this setting should be as restrictive as possible to mitigate brute force attack attempts to discover a user's password."
+  solution    : "Run the following command to set the deny-on-fail failures-allowed setting.
+CLI:
+
+Hostname>set password-controls deny-on-fail failures-allowed 5
+
+
+
+GUI:
+
+Navigate to User Management > Password Policy > Deny Access After Failed Login Attempts:
+checked and set ' Maximum number of failed attempts allowed is set to' setting to 5 or fewer.
+
+Default Value:
+
+10"
+  reference   : "800-171|3.1.10,800-171r3|03.01.10,800-53|AC-11,800-53r5|AC-11,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls deny-on-fail failures-allowed"
+  expect      : "set password-controls deny-on-fail failures-allowed [1-5][\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "1.13 Ensure Allow access again after time is set to 300 or more seconds"
+  info        : "Allow access again after a user has been locked out (due to failed login attempts). The user is allowed access after the configured time if there have been no login attempts during that time). This setting only takes effect if Deny access after failed login attempts is selected.
+
+Rationale:
+
+Users can accidentally lock themselves out of their accounts if they mistype their password multiple times. To reduce the chance of such accidental lockouts, the Allow access again after time setting determines the number of seconds that must elapse before the counter that tracks failed logon attempts and triggers lockouts is reset to 0."
+  solution    : "Run the following command to set the deny-on-fail allow-afte setting.
+CLI:
+
+Hostname> set password-controls deny-on-fail allow-after 300
+
+
+
+
+
+GUI:
+
+Navigate to User Management > Password Policy > Deny Access After Failed Login Attempts:
+Set the 'Allow access again after time' setting to 300 or more seconds.
+
+Default Value:
+
+1200 (20 minutes)
+
+Notes:
+
+Looking for input regarding a value for this recommendation."
+  reference   : "800-171|3.1.10,800-171r3|03.01.10,800-53|AC-11,800-53r5|AC-11,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set password-controls deny-on-fail allow-after 300"
+  expect      : "set password-controls deny-on-fail allow-after ([3-9][0-9]{2}|[1-9][0-9]{3}|[1-9][0-9]{4}|[1-5][0-9]{5}|60[0-3][0-9]{3}|604[0-7][0-9]{2}|604800)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.1 Ensure 'Login Banner' is set - message banner on"
+  info        : "Configure a login banner, ideally approved by the organization's legal team. This banner should, at minimum, prohibit unauthorized access, provide notice of logging or monitoring, and avoid using the word 'welcome' or similar words of invitation.
+
+Rationale:
+
+Through a properly stated login banner, the risk of unintentional access to the device by unauthorized users is reduced. Should legal action take place against a person accessing the device without authorization, the login banner greatly diminishes a defendant's claim of ignorance."
+  solution    : "Run the following command to enable and set the Banner.
+CLI:
+
+Hostname>set message banner on msgvalue 'Organization_Banner'
+
+
+
+GUI:
+
+Navigate to System Management > Messages
+Checked the Banner message and configured the organization defined banner."
+  reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,TBA-FIISB|45.2.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set message banner"
+  expect      : "set message banner on[\\s]*[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.1 Ensure 'Login Banner' is set - message banner msgvalue"
+  info        : "Configure a login banner, ideally approved by the organization's legal team. This banner should, at minimum, prohibit unauthorized access, provide notice of logging or monitoring, and avoid using the word 'welcome' or similar words of invitation.
+
+Rationale:
+
+Through a properly stated login banner, the risk of unintentional access to the device by unauthorized users is reduced. Should legal action take place against a person accessing the device without authorization, the login banner greatly diminishes a defendant's claim of ignorance."
+  solution    : "Run the following command to enable and set the Banner.
+CLI:
+
+Hostname>set message banner on msgvalue 'Organization_Banner'
+
+
+
+GUI:
+
+Navigate to System Management > Messages
+Checked the Banner message and configured the organization defined banner."
+  reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,TBA-FIISB|45.2.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set message banner on( line)? msgvalue"
+  expect      : "set message banner on( line)? msgvalue \"@BANNER_MSG@\""
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.2 Ensure 'Message Of The Day (MOTD)' is set - motd banner on"
+  info        : "Sets the MOTD message.
+
+Rationale:
+
+Network banners are electronic messages that provide notice of legal rights to users of computer networks. From a legal standpoint, banners have four primary functions.
+
+First, banners may be used to generate consent to real-time monitoring under Title III.
+
+Second, banners may be used to generate consent to the retrieval of stored files and records pursuant to ECPA.
+
+Third, in the case of government networks, banners may eliminate any Fourth Amendment 'reasonable expectation of privacy' that government employees or other users might otherwise retain in their use of the government's network under O'Connor v."
+  solution    : "Run the following command to enable and configured the MOTD setting.
+CLI:
+
+Hostname> set message motd on msgvalue 'MOTD BANNER'
+
+GUI:
+
+Navigate to System Management -> Messages -> Message of the day
+Checked the Message of the day and add 'MOTD Banner'."
+  reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,TBA-FIISB|45.2.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set message motd"
+  expect      : "set message motd on[\\s]*[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.2 Ensure 'Message Of The Day (MOTD)' is set - motd banner msgvalue"
+  info        : "Sets the MOTD message.
+
+Rationale:
+
+Network banners are electronic messages that provide notice of legal rights to users of computer networks. From a legal standpoint, banners have four primary functions.
+
+First, banners may be used to generate consent to real-time monitoring under Title III.
+
+Second, banners may be used to generate consent to the retrieval of stored files and records pursuant to ECPA.
+
+Third, in the case of government networks, banners may eliminate any Fourth Amendment 'reasonable expectation of privacy' that government employees or other users might otherwise retain in their use of the government's network under O'Connor v."
+  solution    : "Run the following command to enable and configured the MOTD setting.
+CLI:
+
+Hostname> set message motd on msgvalue 'MOTD BANNER'
+
+GUI:
+
+Navigate to System Management -> Messages -> Message of the day
+Checked the Message of the day and add 'MOTD Banner'."
+  reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,TBA-FIISB|45.2.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set message motd on( line)? msgvalue"
+  expect      : "set message motd on( line)? msgvalue \"@MOTD_MSG@\""
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.3 Ensure Core Dump is enabled"
+  info        : "A Core Dump contains the recorded state of the working memory and CPU's contents of the Gaia system at the time that a Gaia process terminated abnormally. The core file is stored in the /var/log/dump/usermode directory.
+
+Rationale:
+
+The Core Dump helps in troubleshooting to identify for which reason the process/system got crashed."
+  solution    : "Run the following command to set Core Dump.
+
+Hostname> set core-dump enable
+
+GUI:
+
+Navigate to System Management > Core Dump > select Enable Core Dumps
+
+Default Value:
+
+enabled"
+  reference   : "800-53|SC-24,800-53r5|SC-24,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-24,ITSG-33|SC-24a.,QCSC-v1|5.2.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set core-dump enable"
+  expect      : "set core-dump enable"
+</custom_item>
+
+<report type:"WARNING">
+  description : "2.1.4 Ensure Config-state is saved"
+  info        : "The 'Config state' setting provides the detail of the current configuration which is saved or unsaved. Saved state indicates the current configuration of the system is matched with the saved configuration, while unsaved state indicates a configuration change has been made and it has not been saved to the configuration file.
+
+Rationale:
+
+The Unsaved state indicates that some configuration changes are made in the system. Administrator needs to review whether all changes are authorized or not by verifying configuration change logs.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Run the following command to save the configuration.
+
+Hostname> save config
+
+Default Value:
+
+NA"
+  reference   : "800-171|3.4.1,800-171r3|03.04.01,800-53|CM-2,800-53r5|CM-2,CSCv7|5.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-2,LEVEL|1A,NESA|T3.2.5,NESA|T7.5.1,NIAv2|SS16,QCSC-v1|5.2.1,QCSC-v1|5.2.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.5 Ensure unused interfaces are disabled"
+  info        : "Disables the unused interfaces.
+
+Rationale:
+
+Shutting down the unused interfaces is a complement to physical security. In fact, an attacker connecting physically to an unused port of the security appliance can use the interface to gain access to the device if the relevant interface has not been disabled and the source restriction to management access is not enabled.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Run the following command disable the unused interface.
+CLI:
+
+Hostname> set interface <Interface_Number> state off
+
+GUI:
+
+Navigate to Network Management > Network Interfaces > Open unused Interface > unchecked Enable
+
+Default Value:
+
+NA"
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171r3|03.13.01,800-53|SC-7,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set interface .+"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.6 Ensure DNS server is configured - primary"
+  info        : "Gaia uses the Domain Name Service (DNS) to translate host names into IP addresses. To enable DNS lookups, you must specify the primary DNS server for your system. You can also specify secondary and tertiary DNS servers. When resolving host names, the system consults the primary name server. If a failure or time-out occurs, the system consults the secondary name server, and if necessary, the tertiary.
+
+Rationale:
+
+The purpose is to perform the resolution of system hostnames to Internet Protocol (IP) addresses."
+  solution    : "Run the following command to set DNS server.
+CLI:
+
+Hostname> set dns primary <IP_Address>
+Hostname> set dns secondary <IP_Address>
+Hostname> set dns tertiary <IP_Address>
+
+
+
+GUI:
+
+Navigate to Network Management > Hosts and DNS > DNS
+Set Primary, secondary and tertiary DNS server address.
+
+Default Value:
+
+Not Configured"
+  reference   : "800-53|SC-20,800-53r5|SC-20,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-20,QCSC-v1|5.2.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set dns primary"
+  expect      : "set dns primary @DNS_PRIMARY@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.6 Ensure DNS server is configured - secondary"
+  info        : "Gaia uses the Domain Name Service (DNS) to translate host names into IP addresses. To enable DNS lookups, you must specify the primary DNS server for your system. You can also specify secondary and tertiary DNS servers. When resolving host names, the system consults the primary name server. If a failure or time-out occurs, the system consults the secondary name server, and if necessary, the tertiary.
+
+Rationale:
+
+The purpose is to perform the resolution of system hostnames to Internet Protocol (IP) addresses."
+  solution    : "Run the following command to set DNS server.
+CLI:
+
+Hostname> set dns primary <IP_Address>
+Hostname> set dns secondary <IP_Address>
+Hostname> set dns tertiary <IP_Address>
+
+
+
+GUI:
+
+Navigate to Network Management > Hosts and DNS > DNS
+Set Primary, secondary and tertiary DNS server address.
+
+Default Value:
+
+Not Configured"
+  reference   : "800-53|SC-21,800-53r5|SC-21,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-21,ITSG-33|SC-21a.,NESA|T4.5.1,QCSC-v1|5.2.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set dns secondary"
+  expect      : "set dns secondary @DNS_SECONDARY@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.6 Ensure DNS server is configured - tertiary"
+  info        : "Gaia uses the Domain Name Service (DNS) to translate host names into IP addresses. To enable DNS lookups, you must specify the primary DNS server for your system. You can also specify secondary and tertiary DNS servers. When resolving host names, the system consults the primary name server. If a failure or time-out occurs, the system consults the secondary name server, and if necessary, the tertiary.
+
+Rationale:
+
+The purpose is to perform the resolution of system hostnames to Internet Protocol (IP) addresses."
+  solution    : "Run the following command to set DNS server.
+CLI:
+
+Hostname> set dns primary <IP_Address>
+Hostname> set dns secondary <IP_Address>
+Hostname> set dns tertiary <IP_Address>
+
+
+
+GUI:
+
+Navigate to Network Management > Hosts and DNS > DNS
+Set Primary, secondary and tertiary DNS server address.
+
+Default Value:
+
+Not Configured"
+  reference   : "800-53|SC-21,800-53r5|SC-21,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-21,ITSG-33|SC-21a.,NESA|T4.5.1,QCSC-v1|5.2.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set dns tertiary"
+  expect      : "set dns tertiary @DNS_TERTIARY@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.7 Ensure IPv6 is disabled if not used"
+  info        : "Although IPv6 has many advantages over IPv4, not all organizations have IPv6 or dual stack configurations implemented
+
+Rationale:
+
+If IPv6 or dual stack is not to be used, it is recommended that IPv6 be disabled to reduce the attack surface of the system."
+  solution    : "Run the following command to enable or disable IPv6.
+
+Hostname> set ipv6-state on
+Hostname> set ipv6-state off
+
+Default Value:
+
+ipv6 is disabled"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set ipv6-state"
+  expect      : "set ipv6-state @IPV6_STATE@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.8 Ensure Host Name is set"
+  info        : "Changes the device default hostname.
+
+Rationale:
+
+The device hostname plays an important role in asset inventory and identification as a security requirement, but also in the public keys and certificate deployments as well as when correlating logs from different systems during an incident handling."
+  solution    : "Run the following command to set Host Name.
+CLI:
+
+Hostname> set hostname <name>
+
+GUI:
+
+Navigate to Network Management > Hosts and DNS > System Name > Host Name"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSCv6|3.1,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set hostname"
+  expect      : "set hostname .+"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.9 Ensure Telnet is disabled"
+  info        : "Disables the telnet access to the security appliance in the case it has been configured.
+
+Rationale:
+
+Telnet is an unsecure protocol as username and password are conveyed in clear text during the administrator authentication and can be retrieved through network sniffing."
+  solution    : "Run the following command to disable the telnet.
+CLI:
+
+Hostname> set net-access telnet off
+
+GUI:
+
+Navigate to System Management > Network Access > verify Enable Telnet is unchecked.
+
+Default Value:
+
+Off"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSCv6|9.1,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set net-access telnet"
+  expect      : "set net-access telnet off"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.1.10 Ensure DHCP is disabled"
+  info        : "Disable the Dynamic Host Configuration Protocol (DHCP) server on your device.
+
+Rationale:
+
+The DHCP server supplies automatic configuration parameters, such as dynamic IP address, to requesting systems. A dedicated server located in a secured management zone should be used to provide DHCP services instead. Attackers can potentially be used for denial-of-service (DoS) attacks."
+  solution    : "Run the following command to disable the DHCP.
+CLI:
+
+Hostname> set dhcp server disable
+
+GUI:
+
+Navigate to Network Management > DHCP Server > DHCP Server Configuration > veriify Enable DHCP Server is unchecked
+
+Default Value:
+
+DHCP Server Disabled"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set dhcp server"
+  not_expect  : "set dhcp server .* enable"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.2.1 Ensure SNMP agent is disabled"
+  info        : "The Simple Network Management Protocol (SNMP) server is used to listen for SNMP commands from an SNMP management system, execute the commands or collect the information and then send results back to the requesting system.
+
+Rationale:
+
+The SNMP server can communicate using SNMP v1, which transmits data in the clear and does not require authentication to execute commands. Unless absolutely necessary, it is recommended that the SNMP service not be used. If SNMP is required the server should be configured to use only SNMPv3."
+  solution    : "Run the following command to configure the SNMP.
+
+CLI:
+Hostname> set snmp agent off
+
+GUI:
+
+System Management > SNMP > Unhecked the Enable SNMP Agent
+
+Default Value:
+
+SNMP Agent Disabled"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set snmp agent"
+  expect      : "set snmp agent off"
+</custom_item>
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Check for snmp agent off"
+      regex       : "set snmp agent"
+      expect      : "set snmp agent off"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.2.2 Ensure SNMP version is set to v3-Only"
+      info        : "Sets the SNMP v3.
+
+    Rationale:
+
+    SNMP Version 3 provides security enhancements that are not available in SNMP Version 1 or SNMP Version 2c. SNMP Versions 1 and 2c transmit data between the SNMP server and SNMP agent in clear text. SNMP Version 3 adds authentication and privacy options to secure protocol operations. For configuration purposes, the authentication and privacy options are grouped together into security models. Security models apply to users and groups, and are divided into the following three types: -NoAuthPriv-No Authentication and No Privacy, which means that no security is applied to messages. -AuthNoPriv-Authentication but No Privacy, which means that messages are authenticated. -AuthPriv-Authentication and Privacy, which means that messages are authenticated and encrypted. It is recommended that packets should be authenticated and encrypted"
+      solution    : "Run the following command to configure the SNMP agent-version v3-only
+    CLI:
+
+    Hostname> set snmp agent-version v3-Only
+
+
+
+    GUI:
+
+    Navigate to System Management > SNMP > Select V3-Only in Version
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <report type:"PASSED">
+      description : "2.2.3 Ensure SNMP traps is enabled - authorizationError"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+    Rationale:
+
+    The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+    CLI:
+
+    Hostname> set snmp traps trap authorizationError enable
+    Hostname> set snmp traps trap coldStart enable
+    Hostname> set snmp traps trap configurationChange enable
+    Hostname> set snmp traps trap configurationSave enable
+    Hostname> set snmp traps trap linkUpLinkDown enable
+    Hostname> set snmp traps trap lowDiskSpace enable
+
+    GUI:
+
+    Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+    uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <report type:"PASSED">
+      description : "2.2.3 Ensure SNMP traps is enabled - coldStart"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+    Rationale:
+
+    The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+    CLI:
+
+    Hostname> set snmp traps trap authorizationError enable
+    Hostname> set snmp traps trap coldStart enable
+    Hostname> set snmp traps trap configurationChange enable
+    Hostname> set snmp traps trap configurationSave enable
+    Hostname> set snmp traps trap linkUpLinkDown enable
+    Hostname> set snmp traps trap lowDiskSpace enable
+
+    GUI:
+
+    Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+    uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <report type:"PASSED">
+      description : "2.2.3 Ensure SNMP traps is enabled - configurationChange"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+    Rationale:
+
+    The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+    CLI:
+
+    Hostname> set snmp traps trap authorizationError enable
+    Hostname> set snmp traps trap coldStart enable
+    Hostname> set snmp traps trap configurationChange enable
+    Hostname> set snmp traps trap configurationSave enable
+    Hostname> set snmp traps trap linkUpLinkDown enable
+    Hostname> set snmp traps trap lowDiskSpace enable
+
+    GUI:
+
+    Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+    uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <report type:"PASSED">
+      description : "2.2.3 Ensure SNMP traps is enabled - configurationSave"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+    Rationale:
+
+    The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+    CLI:
+
+    Hostname> set snmp traps trap authorizationError enable
+    Hostname> set snmp traps trap coldStart enable
+    Hostname> set snmp traps trap configurationChange enable
+    Hostname> set snmp traps trap configurationSave enable
+    Hostname> set snmp traps trap linkUpLinkDown enable
+    Hostname> set snmp traps trap lowDiskSpace enable
+
+    GUI:
+
+    Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+    uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <report type:"PASSED">
+      description : "2.2.3 Ensure SNMP traps is enabled - linkUpLinkDown"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+    Rationale:
+
+    The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+    CLI:
+
+    Hostname> set snmp traps trap authorizationError enable
+    Hostname> set snmp traps trap coldStart enable
+    Hostname> set snmp traps trap configurationChange enable
+    Hostname> set snmp traps trap configurationSave enable
+    Hostname> set snmp traps trap linkUpLinkDown enable
+    Hostname> set snmp traps trap lowDiskSpace enable
+
+    GUI:
+
+    Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+    uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <report type:"PASSED">
+      description : "2.2.3 Ensure SNMP traps is enabled - lowDiskSpace"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+    Rationale:
+
+    The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+    CLI:
+
+    Hostname> set snmp traps trap authorizationError enable
+    Hostname> set snmp traps trap coldStart enable
+    Hostname> set snmp traps trap configurationChange enable
+    Hostname> set snmp traps trap configurationSave enable
+    Hostname> set snmp traps trap linkUpLinkDown enable
+    Hostname> set snmp traps trap lowDiskSpace enable
+
+    GUI:
+
+    Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+    uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <report type:"PASSED">
+      description : "2.2.4 Ensure SNMP traps receivers is set"
+      info        : "Enables SNMP traps receivers where traps to be sent to.
+
+    Rationale:
+
+    The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS or SNMP traps receivers and should be enabled in order to be sent and processed by the NMS. The NMS or SNMP traps receivers will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps receivers.
+    CLI:
+
+    Hostname> add snmp traps receiver 10.10.168.86 version v3
+
+    GUI:
+
+    Navigate to System Management > SNMP > Trap Receivers Setting > Add > Add IP Address Version details.
+
+
+
+    Default Value:
+
+    Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+  </then>
+
+  <else>
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.2 Ensure SNMP version is set to v3-Only"
+      info        : "Sets the SNMP v3.
+
+  Rationale:
+
+  SNMP Version 3 provides security enhancements that are not available in SNMP Version 1 or SNMP Version 2c. SNMP Versions 1 and 2c transmit data between the SNMP server and SNMP agent in clear text. SNMP Version 3 adds authentication and privacy options to secure protocol operations. For configuration purposes, the authentication and privacy options are grouped together into security models. Security models apply to users and groups, and are divided into the following three types: -NoAuthPriv-No Authentication and No Privacy, which means that no security is applied to messages. -AuthNoPriv-Authentication but No Privacy, which means that messages are authenticated. -AuthPriv-Authentication and Privacy, which means that messages are authenticated and encrypted. It is recommended that packets should be authenticated and encrypted"
+      solution    : "Run the following command to configure the SNMP agent-version v3-only
+  CLI:
+
+  Hostname> set snmp agent-version v3-Only
+
+
+
+  GUI:
+
+  Navigate to System Management > SNMP > Select V3-Only in Version
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set snmp agent-version"
+      expect      : "set snmp agent-version v3-Only"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.3 Ensure SNMP traps is enabled - authorizationError"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+  Rationale:
+
+  The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+  CLI:
+
+  Hostname> set snmp traps trap authorizationError enable
+  Hostname> set snmp traps trap coldStart enable
+  Hostname> set snmp traps trap configurationChange enable
+  Hostname> set snmp traps trap configurationSave enable
+  Hostname> set snmp traps trap linkUpLinkDown enable
+  Hostname> set snmp traps trap lowDiskSpace enable
+
+
+
+  GUI:
+
+  Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+  uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set snmp traps trap"
+      expect      : "set snmp traps trap authorizationError enable"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.3 Ensure SNMP traps is enabled - coldStart"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+  Rationale:
+
+  The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+  CLI:
+
+  Hostname> set snmp traps trap authorizationError enable
+  Hostname> set snmp traps trap coldStart enable
+  Hostname> set snmp traps trap configurationChange enable
+  Hostname> set snmp traps trap configurationSave enable
+  Hostname> set snmp traps trap linkUpLinkDown enable
+  Hostname> set snmp traps trap lowDiskSpace enable
+
+
+
+  GUI:
+
+  Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+  uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set snmp traps trap"
+      expect      : "set snmp traps trap coldStart enable"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.3 Ensure SNMP traps is enabled - configurationChange"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+  Rationale:
+
+  The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+  CLI:
+
+  Hostname> set snmp traps trap authorizationError enable
+  Hostname> set snmp traps trap coldStart enable
+  Hostname> set snmp traps trap configurationChange enable
+  Hostname> set snmp traps trap configurationSave enable
+  Hostname> set snmp traps trap linkUpLinkDown enable
+  Hostname> set snmp traps trap lowDiskSpace enable
+
+
+
+  GUI:
+
+  Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+  uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set snmp traps trap"
+      expect      : "set snmp traps trap configurationChange enable"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.3 Ensure SNMP traps is enabled - configurationSave"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+  Rationale:
+
+  The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+  CLI:
+
+  Hostname> set snmp traps trap authorizationError enable
+  Hostname> set snmp traps trap coldStart enable
+  Hostname> set snmp traps trap configurationChange enable
+  Hostname> set snmp traps trap configurationSave enable
+  Hostname> set snmp traps trap linkUpLinkDown enable
+  Hostname> set snmp traps trap lowDiskSpace enable
+
+
+
+  GUI:
+
+  Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+  uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set snmp traps trap"
+      expect      : "set snmp traps trap configurationSave enable"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.3 Ensure SNMP traps is enabled - linkUpLinkDown"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+  Rationale:
+
+  The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+  CLI:
+
+  Hostname> set snmp traps trap authorizationError enable
+  Hostname> set snmp traps trap coldStart enable
+  Hostname> set snmp traps trap configurationChange enable
+  Hostname> set snmp traps trap configurationSave enable
+  Hostname> set snmp traps trap linkUpLinkDown enable
+  Hostname> set snmp traps trap lowDiskSpace enable
+
+
+
+  GUI:
+
+  Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+  uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set snmp traps trap"
+      expect      : "set snmp traps trap linkUpLinkDown enable"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.3 Ensure SNMP traps is enabled - lowDiskSpace"
+      info        : "Enables SNMP traps to be sent to the NMS.
+
+  Rationale:
+
+  The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS and should be enabled in order to be sent and processed by the NMS. The NMS will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps.
+  CLI:
+
+  Hostname> set snmp traps trap authorizationError enable
+  Hostname> set snmp traps trap coldStart enable
+  Hostname> set snmp traps trap configurationChange enable
+  Hostname> set snmp traps trap configurationSave enable
+  Hostname> set snmp traps trap linkUpLinkDown enable
+  Hostname> set snmp traps trap lowDiskSpace enable
+
+
+
+  GUI:
+
+  Navigate to System Management > SNMP > Enabled Traps > Set and select the following traps
+  uthorizationError, coldStart, configurationChange, configurationSave, linkUpLinkDown and lowDiskSpace
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set snmp traps trap"
+      expect      : "set snmp traps trap lowDiskSpace enable"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.2.4 Ensure SNMP traps receivers is set"
+      info        : "Enables SNMP traps receivers where traps to be sent to.
+
+  Rationale:
+
+  The purpose of the SNMP service is to monitor in real time the events occurring on systems in order to meet the security requirement of availability of systems and services. The traps are SNMP notifications sent to the NMS or SNMP traps receivers and should be enabled in order to be sent and processed by the NMS. The NMS or SNMP traps receivers will then provide a comprehensive aggregation and reporting of events generated, thus helping administrator."
+      solution    : "Run the following command to Configure the SNMP traps receivers.
+  CLI:
+
+  Hostname> add snmp traps receiver 10.10.168.86 version v3
+
+  GUI:
+
+  Navigate to System Management > SNMP > Trap Receivers Setting > Add > Add IP Address Version details.
+
+
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "add snmp traps receiver"
+      expect      : "add snmp traps receiver @SNMP_TRAPS_RECEIVER@ version v3"
+    </custom_item>
+  </else>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.3.1 Ensure NTP is enabled and IP address is set for Primary and Secondary NTP server - ntp active"
+  info        : "These settings enable the use of primary and secondary NTP servers to provide redundancy in case of a failure involving the primary NTP server.
+
+Rationale:
+
+NTP enables the device to maintain accurate time and date when receiving updates from a reliable NTP server. Accurate timestamps are critical when correlating events with other systems, troubleshooting, or performing investigative work. Logs and certain cryptographic functions, such as those utilizing certificates, rely on accurate time and date parameters. In addition, rules referencing a Schedule object will not function as intended if the device's time and date are incorrect. For additional security, authenticated NTP can be utilized. If Symmetric Key authentication is selected, only SHA1 should be used, as MD5 is considered severely compromised."
+  solution    : "Run the following command to enable the NTP and configure the Primary & Secondary NTP server.
+CLI:
+
+Hostname> set ntp active on
+Hostname> set ntp server primary ntpserver.time.com version 3
+Hostname> set ntp server primary 10.22.13.33 version 3
+
+GUI:
+
+System Management > Time > Set Time and Date > Checked Set Time and Date automatically using Network Time Protocol (NTP) and configured the Primary NTP Server and Secondary NTP server
+
+Default Value:
+
+No"
+  reference   : "800-171|3.3.7,800-171r3|03.03.07,800-53|AU-8,800-53r5|AU-8,CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.17,ITSG-33|AU-8,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set ntp active"
+  expect      : "set ntp active on"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.3.1 Ensure NTP is enabled and IP address is set for Primary and Secondary NTP server - ntp server primary"
+  info        : "These settings enable the use of primary and secondary NTP servers to provide redundancy in case of a failure involving the primary NTP server.
+
+Rationale:
+
+NTP enables the device to maintain accurate time and date when receiving updates from a reliable NTP server. Accurate timestamps are critical when correlating events with other systems, troubleshooting, or performing investigative work. Logs and certain cryptographic functions, such as those utilizing certificates, rely on accurate time and date parameters. In addition, rules referencing a Schedule object will not function as intended if the device's time and date are incorrect. For additional security, authenticated NTP can be utilized. If Symmetric Key authentication is selected, only SHA1 should be used, as MD5 is considered severely compromised."
+  solution    : "Run the following command to enable the NTP and configure the Primary & Secondary NTP server.
+CLI:
+
+Hostname> set ntp active on
+Hostname> set ntp server primary ntpserver.time.com version 3
+Hostname> set ntp server primary 10.22.13.33 version 3
+
+GUI:
+
+System Management > Time > Set Time and Date > Checked Set Time and Date automatically using Network Time Protocol (NTP) and configured the Primary NTP Server and Secondary NTP server
+
+Default Value:
+
+No"
+  reference   : "800-171|3.3.7,800-171r3|03.03.07,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSCv6|6.1,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.17,ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set ntp server primary"
+  expect      : "set ntp server primary @NTP_PRIMARY@ version 3"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.3.1 Ensure NTP is enabled and IP address is set for Primary and Secondary NTP server - ntp server secondary"
+  info        : "These settings enable the use of primary and secondary NTP servers to provide redundancy in case of a failure involving the primary NTP server.
+
+Rationale:
+
+NTP enables the device to maintain accurate time and date when receiving updates from a reliable NTP server. Accurate timestamps are critical when correlating events with other systems, troubleshooting, or performing investigative work. Logs and certain cryptographic functions, such as those utilizing certificates, rely on accurate time and date parameters. In addition, rules referencing a Schedule object will not function as intended if the device's time and date are incorrect. For additional security, authenticated NTP can be utilized. If Symmetric Key authentication is selected, only SHA1 should be used, as MD5 is considered severely compromised."
+  solution    : "Run the following command to enable the NTP and configure the Primary & Secondary NTP server.
+CLI:
+
+Hostname> set ntp active on
+Hostname> set ntp server primary ntpserver.time.com version 3
+Hostname> set ntp server primary 10.22.13.33 version 3
+
+GUI:
+
+System Management > Time > Set Time and Date > Checked Set Time and Date automatically using Network Time Protocol (NTP) and configured the Primary NTP Server and Secondary NTP server
+
+Default Value:
+
+No"
+  reference   : "800-171|3.3.7,800-171r3|03.03.07,800-53|AU-8(2),800-53r5|SC-45(2),CN-L3|8.1.4.3(b),CSCv6|6.1,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.17,ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set ntp server secondary"
+  expect      : "set ntp server secondary @NTP_SECONDARY@ version 3"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.3.2 Ensure timezone is properly configured"
+  info        : "Sets the local time zone information so that the time displayed by the device is more relevant to those who are viewing it.
+
+Rationale:
+
+Having a correct time set on the device is important for two main reasons. The first reason is that digital certificates compare this time to the range defined by their Valid From and Valid To fields to define a specific validity period. The second reason is to have relevant time stamps when logging information. Whether you are sending messages to a Syslog server, sending messages to an SNMP monitoring station, or performing packet captures, timestamps have little usefulness if you cannot be certain of their accuracy."
+  solution    : "Run the following command to Configure the Timezone used by the enterprise (GMT, UTC, EDT, PST).
+CLI:
+
+Hostname> set timezone Asia / Kolkata
+
+GUI:
+
+System Management > Time > Set Time Zone > Time Zone
+
+
+
+Default Value:
+
+Time Zone: America/New_York (GMT -05:00)"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSCv6|3.1,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set timezone"
+  expect      : "set timezone @TIMEZONE@"
+</custom_item>
+
+<report type:"WARNING">
+  description : "2.4.1 Ensure 'System Backup' is set."
+  info        : "List last-successful backup which is taken either locally or on a remote server. The backup can be taken locally on the device and also on a remote server via FTP, tftp or scp. The backup which is taken last is marked with (latest) in backup type.
+
+Rationale:
+
+The backup helps in restoring the configuration in the case of system failure or corruption or in the condition of device replacement.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Run the following command to Configure the backup.
+CLI:
+
+To take the backup local on the device.
+Hostname> add backup local
+
+To take the backup of FTP or SCP server.
+Hostname>add backup [ftp|scp] ip [IP Address] path [Path to store backup] username [Username] password [Password]
+
+To take the backup on tftp server.
+Hostname>add backup tftp [IP address of tftp server]
+
+GUI:
+
+Navigate to Maintenance > System Backup  >  Backup > Select (This appliance | SCP Server | FTP Server | TFTP Server)
+
+Default Value:
+
+Not Configured"
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171r3|03.04.01,800-171r3|03.04.02,800-53|CM-2,800-53|CM-6,800-53r5|CM-2,800-53r5|CM-6,CSCv7|5.2,CSCv7|5.5,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-2,ITSG-33|CM-6,LEVEL|1A,NESA|T3.2.5,NESA|T7.5.1,NIAv2|SS16,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+<report type:"WARNING">
+  description : "2.4.2 Ensure 'Snapshot' is set"
+  info        : "An image of the system partition creates when takes the snapshots, includes all the configuration settings, Operating System and Checkpoint files. The locally stored firewall logs are not stored in the snapshots, as log partition is not included in the Snapshots. Snapshots can be restored on the same hardware on which it takes or on the same configuration hardware.
+
+Rationale:
+
+Snapshots are critical to system recovery in the event of a System crash.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Run the following command to take the snapshot.
+CLI:
+
+To take the snapshot run the following command on the device.
+Hostname> add snapshot [snapshot_name]
+
+GUI:
+
+Navigate to Maintenance > Snapshot Management > New
+Provide the Name and description for the snapshot
+
+Default Value:
+
+Not Configured"
+  reference   : "800-171|3.4.1,800-171r3|03.04.01,800-53|CM-2,800-53r5|CM-2,CSCv7|5.3,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-2,LEVEL|1A,NESA|T3.2.5,NESA|T7.5.1,NIAv2|SS16,QCSC-v1|5.2.1,QCSC-v1|5.2.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+<report type:"WARNING">
+  description : "2.4.3 Configuring Scheduled Backups"
+  info        : "The backup can be scheduled to take daily, weekly or monthly. The backup can be taken locally on the device and also on a remote server via FTP, tftp or scp. The backup which is taken last is marked with (latest) in backup type.
+
+Rationale:
+
+The backup helps in restoring the configuration in the case of system failure or corruption or in the condition of device replacement.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "GUI:
+
+Navigate to Maintenance > System Backup > Scheduled Backup > Add Scheduled Backup
+Provide the Backup Type and Backup Schedule as per organization's policy."
+  reference   : "800-171|3.4.1,800-171r3|03.04.01,800-53|CM-2,800-53r5|CM-2,CSCv7|5.3,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-2,LEVEL|1M,NESA|T3.2.5,NESA|T7.5.1,NIAv2|SS16,QCSC-v1|5.2.1,QCSC-v1|5.2.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.5.1 Ensure CLI session timeout is set to less than or equal to 10 minutes"
+  info        : "Set the CLI Session Timeout value for device management to 10 minutes or less to automatically close inactive sessions.
+
+Rationale:
+
+An unattended computer with an open administrative session to the device could allow an unauthorized user access to the firewall's management interface"
+  solution    : "Run the following command to Configure the Inactivity Timeout for Command Line.
+CLI:
+
+Hostname> set inactivity-timeout 10
+
+GUI:
+
+Navigate to System Management > Session > Command Line Shell  >  Inactivity Timeout - Set to 10 or less
+
+Default Value:
+
+10"
+  reference   : "800-171|3.1.11,800-171r3|03.01.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSCv6|16.4,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set inactivity-timeout"
+  expect      : "set inactivity-timeout ([1-9]|10)[\s]*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.5.2 Ensure Web session timeout is set to less than or equal to 10 minutes"
+  info        : "Set the WebUI Session Timeout value for device management to 10 minutes or less to automatically close inactive sessions.
+
+Rationale:
+
+An unattended computer with an open administrative session to the device could allow an unauthorized user access to the firewall's management interface"
+  solution    : "Run the following command to Configure the Inactivity Timeout for Web UI.
+CLI:
+
+Hostname> set web session-timeout 10
+
+GUI:
+
+Navigate to System Management > Session > Web UI  >  Inactivity Timeout - Set to 10 or less
+
+Default Value:
+
+10"
+  reference   : "800-171|3.1.11,800-171r3|03.01.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSCv6|16.4,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set web session-timeout"
+  expect      : "set web session-timeout ([1-9]|10)[\s]*$"
+</custom_item>
+
+<report type:"WARNING">
+  description : "2.5.3 Ensure Client Authentication is secured."
+  info        : "Client Authentication allows a user and device to authenticate to the firewall and inherit pre-configured firewall rules for a set amount of time. By default, these connections are unencrypted yet can travel over unsecured networks. It is recommended that all Client Authentication connections be made using the HTTPS configuration. This both uniquely identifies the gateway and keeps the authentication credentials from being copied when going over the network.
+
+Rationale:
+
+The Client Authentication is used to authenticate a user or device to the firewall and by default, it works on HTTP port 900 and telnet port 259. The setting is stored in $FWDIR/conf/fwauthd.conf file. HTTP and telnet both are non-secure plaintext protocol and there is a number of published vulnerabilities, including the possibility of information disclosure and unauthorized access to the host system, which could permit sensitive data to be compromised. HTTPS configuration for all Client Authentication connections helps in identifying the gateway and keeps the authentication credentials from being copied when passes through the network.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Comment out or remove the following line from $FWDIR/conf/fwauthd.conf file, or disable the telnet service listening on port 259 by default, write a rule that prevents connections to the daemon in the rulebase.
+
+#259    fwssd       in.aclientd     wait    259
+
+Edit the following line to include SSL setting in $FWDIR/conf/fwauthd.conf file.
+
+900     fwssd       in.ahclientd    wait    900 ssl:defaultCert
+
+Default Value:
+
+259 fwssd in.aclientd wait 259 900 fwssd in.ahclientd wait 900"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+<if>
+  <condition type:"OR">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Check for radius-servers configured"
+      regex       : "add aaa radius-servers"
+      expect      : "add aaa radius-servers"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.5.4 Ensure Radius or TACACS+ server is configured - tacacs-servers state on"
+      info        : "Configured the TACACS-Servers or Radius server for central authentication.
+
+  Rationale:
+
+  Authentication, authorization and accounting (AAA) scheme provide an authoritative source for managing and monitoring access for devices.
+
+  NOTE: The target was not found to have the tacacs-server state to on."
+      solution    : "run the following command to enable and add TACACS+ servers.
+  CLI:
+
+  Hostname> set aaa tacacs-servers state on
+  Hostname> add aaa tacacs-servers priority <priority_value> server <IP_Address> key <Key> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Ensuere Enable TACACS+ authentication is checked
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Enable TACACS+ Servers > Add Provide <Server_IP_Address>, <Priority> and <Timeout>.
+
+  Run the following command to enable and add Radius servers.
+  CLI:
+
+  Hostname>add aaa radius-servers priority <priority_value> host <IP_Address> secret <Key>  port <Port_number> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > Radius Servers > Add
+  Provide <Server_IP_Address>, <Priority>, <UDP_Port> and <Timeout>.
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+    </report>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.5.4 Ensure Radius or TACACS+ server is configured - aaa server"
+      info        : "Configured the TACACS-Servers or Radius server for central authentication.
+
+  Rationale:
+
+  Authentication, authorization and accounting (AAA) scheme provide an authoritative source for managing and monitoring access for devices."
+      solution    : "run the following command to enable and add TACACS+ servers.
+  CLI:
+
+  Hostname> set aaa tacacs-servers state on
+  Hostname> add aaa tacacs-servers priority <priority_value> server <IP_Address> key <Key> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Ensuere Enable TACACS+ authentication is checked
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Enable TACACS+ Servers > Add Provide <Server_IP_Address>, <Priority> and <Timeout>.
+
+  Run the following command to enable and add Radius servers.
+  CLI:
+
+  Hostname>add aaa radius-servers priority <priority_value> host <IP_Address> secret <Key>  port <Port_number> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > Radius Servers > Add
+  Provide <Server_IP_Address>, <Priority>, <UDP_Port> and <Timeout>.
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.1.11,800-171r3|03.01.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSCv6|16.4,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "add aaa radius-servers priority"
+      expect      : "add aaa radius-servers priority .+ host @AAA_SERVER@ secret .+ port .+ timeout .+"
+    </custom_item>
+  </then>
+
+  <else>
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.5.4 Ensure Radius or TACACS+ server is configured - tacacs-servers state on"
+      info        : "Configured the TACACS-Servers or Radius server for central authentication.
+
+  Rationale:
+
+  Authentication, authorization and accounting (AAA) scheme provide an authoritative source for managing and monitoring access for devices."
+      solution    : "run the following command to enable and add TACACS+ servers.
+  CLI:
+
+  Hostname> set aaa tacacs-servers state on
+  Hostname> add aaa tacacs-servers priority <priority_value> server <IP_Address> key <Key> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Ensuere Enable TACACS+ authentication is checked
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Enable TACACS+ Servers > Add Provide <Server_IP_Address>, <Priority> and <Timeout>.
+
+  Run the following command to enable and add Radius servers.
+  CLI:
+
+  Hostname>add aaa radius-servers priority <priority_value> host <IP_Address> secret <Key>  port <Port_number> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > Radius Servers > Add
+  Provide <Server_IP_Address>, <Priority>, <UDP_Port> and <Timeout>.
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "set aaa tacacs-servers state"
+      expect      : "set aaa tacacs-servers state on"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "2.5.4 Ensure Radius or TACACS+ server is configured - aaa server"
+      info        : "Configured the TACACS-Servers or Radius server for central authentication.
+
+  Rationale:
+
+  Authentication, authorization and accounting (AAA) scheme provide an authoritative source for managing and monitoring access for devices."
+      solution    : "run the following command to enable and add TACACS+ servers.
+  CLI:
+
+  Hostname> set aaa tacacs-servers state on
+  Hostname> add aaa tacacs-servers priority <priority_value> server <IP_Address> key <Key> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Ensuere Enable TACACS+ authentication is checked
+
+  Navigate to User Management > Authentication Servers > TACACS+ configuration > Enable TACACS+ Servers > Add Provide <Server_IP_Address>, <Priority> and <Timeout>.
+
+  Run the following command to enable and add Radius servers.
+  CLI:
+
+  Hostname>add aaa radius-servers priority <priority_value> host <IP_Address> secret <Key>  port <Port_number> timeout <timeout_value>
+
+  GUI:
+
+  Navigate to User Management > Authentication Servers > Radius Servers > Add
+  Provide <Server_IP_Address>, <Priority>, <UDP_Port> and <Timeout>.
+
+  Default Value:
+
+  Not Configured"
+      reference   : "800-171|3.1.11,800-171r3|03.01.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSCv6|16.4,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+      see_also    : "https://workbench.cisecurity.org/files/2828"
+      regex       : "add aaa tacacs-servers priority"
+      expect      : "add aaa tacacs-servers priority .+ server @AAA_SERVER@ key .+ timeout .+"
+    </custom_item>
+  </else>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.6.1 Ensure mgmtauditlogs is set to on"
+  info        : "The mgmtauditlogs specifies if the Gaia sends the Gaia audit logs (for configuration changes that authorized users make) to a Check Point Management Server.
+
+Rationale:
+
+The mgmtauditlogs enables the logging functionality for configuration change done by the user. In Gaia os, we can export the Syslog messages from security gateway to Syslog server or security management server, and it can be reviewed as normal logs in SmartView Tracker. This enables organizations to monitor and analyze configuration change made by users."
+  solution    : "Run the following command to enable the mgmtauditlogs.
+CLI:
+
+Hostname> set syslog mgmtauditlogs on
+
+GUI:
+
+Navigate to System Management > System Logging > System Logging
+checked the Send audit logs to management server upon successful configuration"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set syslog mgmtauditlogs"
+  expect      : "set syslog mgmtauditlogs on"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.6.2 Ensure auditlog is set to permanent"
+  info        : "The auditlog specifies if the Gaia saves the logs for configuration changes that authorized users have done.
+
+Rationale:
+
+The auditlogs defines how it saves the configuration change logs. The configuration change log helps organizations to monitor and analyze configuration change made by users."
+  solution    : "Run the following command to enable the auditlog.
+CLI:
+
+Hostname> set syslog auditlog permanent
+
+GUI:
+
+Navigate to System Management > System Logging > System Logging
+checked the Send audit logs to syslog upon successful configuration"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set syslog auditlog"
+  expect      : "set syslog auditlog permanent"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "2.6.3 Ensure cplogs is set to on"
+  info        : "The cplogs specifies if the Gaia sends the Gaia system logs to a Check Point Management Server:
+
+Rationale:"
+  solution    : "Run the following command to enable the cplogs.
+CLI:
+
+Hostname> set syslog cplogs on
+
+GUI:
+
+Navigate to System Management > System Logging > System Logging
+checked the Send Syslog messages to management server"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+  regex       : "set syslog cplogs"
+  expect      : "set syslog cplogs on"
+</custom_item>
+
+<report type:"WARNING">
+  description : "3.3 Use Checkpoint Sections and Titles"
+  info        : "Use Sections to organize rules into related groups, whenever possible. Set each off with a descriptive Section Title.
+
+Rationale:
+
+Rulebase clarity helps all workers and reviewers. By organizing rules, inserting new rules is easier, and all can see the relationships among rules.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Add a description for each rule."
+  reference   : "800-171|3.4.1,800-171r3|03.04.01,800-53|CM-2,800-53r5|CM-2,CSCv7|11.1,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-2,LEVEL|1M,NESA|T3.2.5,NESA|T7.5.1,NIAv2|SS16,QCSC-v1|5.2.1,QCSC-v1|5.2.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+<report type:"WARNING">
+  description : "3.13 Ensure Disk Space Alert is set"
+  info        : "This is used to generate the Log and Alert when disk space reaches the configured limit.
+
+Rationale:
+
+The device might get inaccessible and the logs are not getting stored once the disk space reaches to the maximum capacity. It is imperative that organizations log critical infrastructure appropriately, store and archive these logs in a central location
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Go to the following path and configured the Disk Space Alert.
+
+SmartConsole > Gateways & Servers > Select each Gateway > Logs > Local Storage
+
+* Checked the When disk space is below and value MBytes or Percentage is configured as per the Organization Policy.
+* Set the Issue alert to Log, Popup Alert, Mail or SNMP trap alert."
+  reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+<report type:"WARNING">
+  description : "3.20 Ensure Logging is enabled for Track Options of Global Properties"
+  info        : "This defines the system-wide logging and alerting of parameters.
+
+Rationale:
+
+This enables the logging and alerting for specific types of parameters.
+
+VPN successful key exchange: specifies the action to be taken when VPN keys are successfully exchanged.
+
+VPN packet handling errors: specifies the action to be taken when encryption or decryption errors occur. A log entry contains the action performed (Drop or Reject) and a short description of the error cause, for example, scheme or method mismatch.
+
+VPN configuration & key exchange errors: specifies the action to be taken when logging configuration or key exchange errors occur, for example, when attempting to establish encrypted communication with a network object inside the same encryption domain.
+
+IP Options drop: specifies the action to take when a packet with IP Options is encountered. The Check Point Security Gateway always drops these packets, but you can log them or issue an alert.
+
+Administrative notifications: specifies the action to be taken when an administrative event (for example, when a certificate is about to expire) occurs.
+
+SLA violation: specifies the action to be taken when an SLA violation occurs, as defined in the Virtual Links window.
+
+Connection matched by SAM: specifies the action to be taken when a connection is blocked by SAM (Suspicious Activities Monitoring).
+
+Dynamic object resolution failure: specifies the action to be taken when a dynamic object cannot be resolved.
+
+Log every authenticated HTTP connection: specifies that a log entry should be generated for every authenticated HTTP connection.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Logging is set to Log or Popup Alert or Mail Alert or SNMP Trap Alert for the following events
+
+SmartConsole > Global Properties > Log and Alert > Track Options
+VPN successful key exchange
+VPN packet handling errors
+VPN configuration & key exchange errors
+IP Options drop
+Administrative Notification
+Connection matched by SAM
+Dynamic object resolution failure
+Packet is incorrectly tagged
+Packet tagging brute force attack
+
+Checked the  Log every authenticated HTTP connection."
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,LEVEL|1A,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://workbench.cisecurity.org/files/2828"
+</report>
+
+</check_type>

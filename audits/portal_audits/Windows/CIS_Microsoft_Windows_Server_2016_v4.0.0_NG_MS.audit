@@ -1,0 +1,296 @@
+#TRUSTED a49599764f62935db40cd4b20d05c116cd075ea8e18612566b4b850d0bf94b4c2522de72b1799f9eb310d9c12b27a9abde3a00dd7d260b2c5450c298e08cb7ef17a1ebae0e50e826a63d38b60d9de3377087269fcef49aad464538e662caf2bdfec2804960093118ee95e9ff600e42882dfea8756af90c54be5338041d383e6bb59c53528032bde0e385497e5d389325ec316d5a35fae4adfcc5f880612b2b14cb6ee2f22fd92ff0c278bd818344a1187a6232843598e277deb3f487100a74c54fed6c14ffe9cf3f4356ee22a1c89e90c17ac5a95ee7d589a9cb0afd9bcfdb159dccc8b597343d85362c71c9e7db26a1bb33474f90cfff0c5b8e88aa28aedb2659b5fc8dad93b4de2c101c740623a4963cc94a227c0aeca286ac1f76bfb0ecaf04672895b4db13d0f6cad0b94fb40077d8967ef630c9896050e717de7b61c2b33042c7cf619cdcb2e10305e70a617093526fa54bf196d4b49be7fe517c7d5cb044fcb41b85ab682afb81e196d9e1ba80caeb521f93e784afab5ba95ef08c7dded3513f6e669d267d8b00292ce2f01185ea49da116130dbbfe12d871acccad2b678ebf52fce3815d1dfd9eb43d182e7716a78a89831e372dc8d7b860ea248657b105bd252846ed2990fc6e9b37fba0493f6ccb393999130f365397b7f8f5387141eb99e77206f1af5f22dcaa4d5da4dcec61344156318835f1e09c8a549e96dc1
+#TRUST-RSA-SHA256 5379cd6724968931c0cd57bb91e5638518428272528cbffa7f0d2a2fa3f9744c015acf0750b9bb902aa14528b20864c91a1c9482b80e59e4436d3280946bbe018fa86e565d25097e717fa5e565f1da7dc18cac4ea6a5059d7fb2dcafd2cdfba66d9b1c3591235e0fba1d7204d59ac579455190e4a5d2b853e9977ac220ff1e5f5417997c2d4f80697d47bdac31e97afbeffdb9ff3f49cb2ab0850c7d171315a203b8a55a09a5e54ba0ab4c0ba67138d47a68e4e819bf73e74129ba021e4a87ed8281c90c85f082f5ed7aed29b12c5bfa0cda20a29d425d7ae5520764888e166e1e28d89ff6648beda4e3b366aa6cf9b9d88d85d9a4173d4982769033e38d969c1e3c647f44f3c9d8d2beb09267d09a0804d56262a635d9a87c6fbf009f9a8b66acab67824e6010c960cb49cb6e031f8422e7b451030de1f6781032a09de69182c31bf112aa4f1bb5fe3873887a1841490c7c6e08408054bf110769eb2489dba9c4eb5742b5300b1a27af3dd343e8b8a82d41b1fd24d389fcf91e19de82a9ad5c1e7492a0bf7fcd869f2b335c33b7c9cdd6428a2080f91b84dd734e404c4c3a62f1f9068b0e28ed9592ffa0f1792b609512448de2c527d465252fcf811cfdb295f0c2019b9ca7b63fdd6c7af0a5c0bae63c4f64ee8daad2ed8b21dea032d26aeb04040e4b2c3c912314c665e196928aff5a48997374ba71d403574dbb87fee3f2
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2025/10/30 $
+#
+# description : This .audit is designed against the CIS Microsoft Windows Server 2016 Benchmark 4.0.0
+#
+#<ui_metadata>
+#<display_name>CIS Microsoft Windows Server 2016 v4.0.0 NG MS</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Microsoft Windows Server 2016</name>
+#  <profile>NG MS</profile>
+#  <version>4.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/23898</link>
+#</spec>
+#<labels>agent,windows_server_ms_2016</labels>
+#<benchmark_refs>CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>PLATFORM_VERSION</name>
+#    <default>2016</default>
+#    <description>Windows Server Version</description>
+#    <info>Windows Server Version</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"CIS Microsoft Windows Server 2016">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Windows Server 2016 is installed"
+      value_type  : POLICY_TEXT
+      value_data  : "^[a-zA-Z0-9\(\)\s]*@PLATFORM_VERSION@[\s]*[a-zA-Z0-9\(\)\s:]*$"
+      reg_key     : "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+      reg_item    : "ProductName"
+      check_type  : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type          : WMI_POLICY
+      description   : "Check if server is Standalone or Member Server"
+      value_type    : POLICY_DWORD
+      value_data    : 2 || 3
+      wmi_namespace : "root/CIMV2"
+      wmi_request   : "select DomainRole from Win32_ComputerSystem"
+      wmi_attribute : "DomainRole"
+      wmi_key       : "DomainRole"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Microsoft_Windows_Server_2016_v4.0.0_NG_MS.audit from CIS Microsoft Windows Server 2016 Benchmark v4.0.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "18.9.5.1 (NG) Ensure 'Turn On Virtualization Based Security' is set to 'Enabled'"
+      info        : "This policy setting specifies whether Virtualization Based Security is enabled. Virtualization Based Security uses the Windows Hypervisor to provide support for security services.
+
+The recommended state for this setting is: Enabled
+
+Note: Virtualization Based Security requires a 64-bit version of Windows with Secure Boot enabled, which in turn requires that Windows was installed with a UEFI BIOS configuration, not a Legacy BIOS configuration. In addition, if running Windows on a virtual machine, the hardware-assisted CPU virtualization feature (Intel VT-x or AMD-V) must be exposed by the host to the guest VM.
+
+More information on system requirements for this feature can be found at Windows Defender Credential Guard Requirements (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-requirements
+
+Note #2: Credential Guard and Device Guard are not currently supported when using Azure IaaS VMs.
+
+Kerberos, NTLM, and Credential manager isolate secrets by using virtualization-based security. Previous versions of Windows stored secrets in the Local Security Authority (LSA). Prior to Windows 10, the LSA stored secrets used by the operating system in its process memory. With Windows Defender Credential Guard enabled, the LSA process in the operating system talks to a new component called the isolated LSA process that stores and protects those secrets. Data stored by the isolated LSA process is protected using virtualization-based security and is not accessible to the rest of the operating system."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Enabled :
+
+Computer Configuration\Policies\Administrative Templates\System\Device Guard\Turn On Virtualization Based Security
+
+Note: This Group Policy path may not exist by default. It is provided by the Group Policy template DeviceGuard.admx/adml that is included with the Microsoft Windows 10 RTM (Release 1507) Administrative Templates (or newer).
+
+Impact:
+
+Warning: All drivers on the system must be compatible with this feature or the system may crash. Ensure that this policy setting is only deployed to computers which are known to be compatible.
+
+Warning #2: Enabling Windows Defender Credential Guard on Domain Controllers is not supported.The domain controller hosts authentication services which integrate with processes isolated when Windows Defender Credential Guard is enabled, causing crashes."
+      reference   : "800-53|SI-16,800-53r5|SI-16,CSCv7|8.3,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|NGA"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows\DeviceGuard"
+      reg_item    : "EnableVirtualizationBasedSecurity"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "18.9.5.2 (NG) Ensure 'Turn On Virtualization Based Security: Select Platform Security Level' is set to 'Secure Boot' or higher"
+      info        : "This policy setting specifies whether Virtualization Based Security (VBS) is enabled. VBS uses the Windows Hypervisor to provide support for security services.
+
+The recommended state for this setting is: Secure Boot or Secure Boot and DMA Protection
+
+Note: VBS requires a 64-bit version of Windows with Secure Boot enabled, which in turn requires that Windows was installed with a UEFI BIOS configuration, not a Legacy BIOS configuration. In addition, if running Windows on a virtual machine, the hardware-assisted CPU virtualization feature (Intel VT-x or AMD-V) must be exposed by the host to the guest VM.
+
+More information on system requirements for this feature can be found at Windows Defender Credential Guard Requirements (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-requirements
+
+Note #2: Credential Guard and Device Guard are not currently supported when using Azure IaaS VMs.
+
+Secure Boot can help reduce the risk of bootloader attacks and in conjunction with DMA protections to help protect data from being scraped from memory."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Secure Boot or Secure Boot and DMA Protection :
+
+Computer Configuration\Policies\Administrative Templates\System\Device Guard\Turn On Virtualization Based Security: Select Platform Security Level
+
+Note: This Group Policy path may not exist by default. It is provided by the Group Policy template DeviceGuard.admx/adml that is included with the Microsoft Windows 10 RTM (Release 1507) Administrative Templates (or newer).
+
+Impact:
+
+Choosing the Secure Boot option provides the system with as much protection as is supported by the computer's hardware. A system with input/output memory management units (IOMMUs) will have Secure Boot with DMA protection. A system without IOMMUs will simply have Secure Boot enabled without DMA protection.
+
+Choosing the Secure Boot with DMA protection option requires the system to have IOMMUs in order to enable VBS. Without IOMMU hardware support, VBS will be disabled.
+
+Warning: All drivers on the system must be compatible with this feature or the system may crash. Ensure that this policy setting is only deployed to computers which are known to be compatible."
+      reference   : "800-53|SI-16,800-53r5|SI-16,CSCv7|8.3,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|NGA"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      value_type  : POLICY_DWORD
+      value_data  : "3" || "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows\DeviceGuard"
+      reg_item    : "RequirePlatformSecurityFeatures"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "18.9.5.3 (NG) Ensure 'Turn On Virtualization Based Security: Virtualization Based Protection of Code Integrity' is set to 'Enabled with UEFI lock'"
+      info        : "This setting enables virtualization based protection of Kernel Mode Code Integrity. When this is enabled, kernel mode memory protections are enforced and the Code Integrity validation path is protected by the Virtualization Based Security feature.
+
+The recommended state for this setting is: Enabled with UEFI lock
+
+Note: Virtualization Based Security requires a 64-bit version of Windows with Secure Boot enabled, which in turn requires that Windows was installed with a UEFI BIOS configuration, not a Legacy BIOS configuration. In addition, if running Windows on a virtual machine, the hardware-assisted CPU virtualization feature (Intel VT-x or AMD-V) must be exposed by the host to the guest VM.
+
+More information on system requirements for this feature can be found at Windows Defender Credential Guard Requirements (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-requirements
+
+Note #2: Credential Guard and Device Guard are not currently supported when using Azure IaaS VMs.
+
+The Enabled with UEFI lock option ensures that Virtualization Based Protection of Code Integrity cannot be disabled remotely."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Enabled with UEFI lock :
+
+Computer Configuration\Policies\Administrative Templates\System\Device Guard\Turn On Virtualization Based Security: Virtualization Based Protection of Code Integrity
+
+Note: This Group Policy path may not exist by default. It is provided by the Group Policy template DeviceGuard.admx/adml that is included with the Microsoft Windows 10 RTM (Release 1507) Administrative Templates (or newer).
+
+Impact:
+
+Warning: All drivers on the system must be compatible with this feature or the system may crash. Ensure that this policy setting is only deployed to computers which are known to be compatible.
+
+Warning #2: Once this setting is turned on and active, Virtualization Based Security cannot be disabled solely via GPO or any other remote method. After removing the setting from GPO, the features must also be manually disabled locally at the machine using the steps provided at this link:
+
+Manage Windows Defender Credential Guard (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-manage#disable-windows-defender-credential-guard"
+      reference   : "800-53|SI-16,800-53r5|SI-16,CSCv7|8.3,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|NGA"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows\DeviceGuard"
+      reg_item    : "HypervisorEnforcedCodeIntegrity"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "18.9.5.4 (NG) Ensure 'Turn On Virtualization Based Security: Require UEFI Memory Attributes Table' is set to 'True (checked)'"
+      info        : "This option will only enable Virtualization Based Protection of Code Integrity on devices with UEFI firmware support for the Memory Attributes Table. Devices without the UEFI Memory Attributes Table may have firmware that is incompatible with Virtualization Based Protection of Code Integrity which in some cases can lead to crashes or data loss or incompatibility with certain plug-in cards. If not setting this option the targeted devices should be tested to ensure compatibility.
+
+The recommended state for this setting is: True (checked)
+
+Note: Virtualization Based Security requires a 64-bit version of Windows with Secure Boot enabled, which in turn requires that Windows was installed with a UEFI BIOS configuration, not a Legacy BIOS configuration. In addition, if running Windows on a virtual machine, the hardware-assisted CPU virtualization feature (Intel VT-x or AMD-V) must be exposed by the host to the guest VM.
+
+More information on system requirements for this feature can be found at Windows Defender Credential Guard Requirements (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-requirements
+
+Note #2: Credential Guard and Device Guard are not currently supported when using Azure IaaS VMs.
+
+This setting will help protect this control from being enabled on a system that is not compatible which could lead to a crash or data loss."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to TRUE :
+
+Computer Configuration\Policies\Administrative Templates\System\Device Guard\Turn On Virtualization Based Security: Require UEFI Memory Attributes Table
+
+Note: This Group Policy path may not exist by default. It is provided by the Group Policy template DeviceGuard.admx/adml that is included with the Microsoft Windows 10 Release 1703 Administrative Templates (or newer).
+
+Impact:
+
+Warning: All drivers on the system must be compatible with this feature or the system may crash. Ensure that this policy setting is only deployed to computers which are known to be compatible."
+      reference   : "800-53|SI-16,800-53r5|SI-16,CSCv7|8.3,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|NGA"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows\DeviceGuard"
+      reg_item    : "HVCIMATRequired"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "18.9.5.5 (NG) Ensure 'Turn On Virtualization Based Security: Credential Guard Configuration' is set to 'Enabled with UEFI lock' (MS Only)"
+      info        : 'This setting lets users turn on Credential Guard with virtualization-based security to help protect credentials. The \'Enabled with UEFI lock\' option ensures that Credential Guard cannot be disabled remotely. In order to disable the feature, you must set the Group Policy to \'Disabled\' as well as remove the security functionality from each computer, with a physically present user, in order to clear configuration persisted in UEFI.
+
+The recommended state for this setting is: Enabled with UEFI lock but only on Member Servers (not Domain Controllers).
+
+Note: Virtualization Based Security requires a 64-bit version of Windows with Secure Boot enabled, which in turn requires that Windows was installed with a UEFI BIOS configuration, not a Legacy BIOS configuration. In addition, if running Windows on a virtual machine, the hardware-assisted CPU virtualization feature (Intel VT-x or AMD-V) must be exposed by the host to the guest VM.
+
+More information on system requirements for this feature can be found at Windows Defender Credential Guard Requirements (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-requirements
+
+Note #2: Credential Guard and Device Guard are not currently supported when using Azure IaaS VMs.
+
+The Enabled with UEFI lock option ensures that Credential Guard cannot be disabled remotely.'
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Enabled with UEFI lock (on Member Servers only):
+
+Computer Configuration\Policies\Administrative Templates\System\Device Guard\Turn On Virtualization Based Security: Credential Guard Configuration
+
+Note: This Group Policy path may not exist by default. It is provided by the Group Policy template DeviceGuard.admx/adml that is included with the Microsoft Windows 10 Release 1511 Administrative Templates (or newer).
+
+Impact:
+
+Warning: All drivers on the system must be compatible with this feature or the system may crash. Ensure that this policy setting is only deployed to computers which are known to be compatible.
+
+Warning #2: Enabling Windows Defender Credential Guard on Domain Controllers is not supported.The domain controller hosts authentication services which integrate with processes isolated when Windows Defender Credential Guard is enabled, causing crashes.
+
+Warning #3: Once this setting is turned on and active, Credential Guard cannot be disabled solely via GPO or any other remote method. After removing the setting from GPO, the features must also be manually disabled locally at the machine using the steps provided at this link:
+
+Manage Windows Defender Credential Guard (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-manage#disable-windows-defender-credential-guard"
+      reference   : "800-53|SI-16,800-53r5|SI-16,CSCv7|8.3,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|NGA"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows\DeviceGuard"
+      reg_item    : "LsaCfgFlags"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "18.9.5.7 (NG) Ensure 'Turn On Virtualization Based Security: Secure Launch Configuration' is set to 'Enabled'"
+      info        : "Secure Launch protects the Virtualization Based Security environment from exploited vulnerabilities in device firmware.
+
+The recommended state for this setting is: Enabled
+
+Note: Virtualization Based Security requires a 64-bit version of Windows with Secure Boot enabled, which in turn requires that Windows was installed with a UEFI BIOS configuration, not a Legacy BIOS configuration. In addition, if running Windows on a virtual machine, the hardware-assisted CPU virtualization feature (Intel VT-x or AMD-V) must be exposed by the host to the guest VM.
+
+More information on system requirements for this feature can be found at Windows Defender Credential Guard Requirements (Windows 10) | Microsoft Docs https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-requirements
+
+Note #2: Credential Guard and Device Guard are not currently supported when using Azure IaaS VMs.
+
+Secure Launch changes the way windows boots to use Intel Trusted Execution Technology (TXT) and Runtime BIOS Resilience features to prevent firmware exploits from being able to impact the security of the Windows Virtualization Based Security environment."
+      solution    : "To establish the recommended configuration via GP, set the following UI path to Enabled :
+
+Computer Configuration\Policies\Administrative Templates\System\Device Guard\Turn On Virtualization Based Security: Secure Launch Configuration
+
+Note: This Group Policy path may not exist by default. It is provided by the Group Policy template DeviceGuard.admx/adml that is included with the Microsoft Windows 10 Release 1809 & Server 2019 Administrative Templates (or newer).
+
+Impact:
+
+Warning : All drivers on the system must be compatible with this feature or the system may crash. Ensure that this policy setting is only deployed to computers which are known to be compatible."
+      reference   : "800-53|SI-16,800-53r5|SI-16,CSCv7|8.3,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|NGA"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Policies\Microsoft\Windows\DeviceGuard"
+      reg_item    : "ConfigureSystemGuardLaunch"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Microsoft_Windows_Server_2016_v4.0.0_NG_MS.audit from CIS Microsoft Windows Server 2016 Benchmark v4.0.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23898"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

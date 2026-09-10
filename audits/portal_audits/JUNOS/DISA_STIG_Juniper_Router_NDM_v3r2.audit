@@ -1,0 +1,1530 @@
+#TRUSTED 67ccb291a29de55fbf7f027d7bcee09684c3e77e57bfef22d232636e1a702b2ebe6b652be26f3943e2d3291a551e778caf4075205394dc6de4124e1f9b7e790bd9679d252fccad23b44a30b297734a6bd3c050b34093628f32c3df829c0f3b0f2df498d9766b4541911065c40963457a8c17990c8cf988cca87c7245aa5efa6b5414a1322d0c03647e2c97b56a2831a336c79a91e9d626583ca44848248e8a0926a1b0074ef59d59117c447dcaf771393f7ecbbd3286a59a5094ef008b7cb683ec0f8acce0ba656503db51ae40578857bb2ec12bebf7711716cdbfcfdaaab48a2da4e5f8ecb8e0d9751a98d5d5ffae71ea3a4d0ff76f39d99b07f595e47c4a27cce9eb63757033f34686b99be68d4e3e8f8bfa4df43fe1285ff8c153520d67efa55076cce362e0a1ff5346ff9cd4916ff92158ac7a48fbb8075f57d34c7ad53ed067a60e5d895447689335a40b191c0a33c488ab660dbf73e8961302f25c3c1338c667d806a4918ac031f3614508294ea52fb80f0e4a6664df09d0d152877906cd4f3ed78948695b796d2c07aaa1e40f66bfaa080dc8a24c945ed9b508165c65815b376dcfb0663842d489a474fe88dfa6e3fc90c869a2131dac82fbcc049b6e772926e33973dbb77c3ba460dec37a1e258a086c5ea1598f9502c7762b8f61d0c67e2586832393d5d84d9f1fc0d0f71228b4dc7980bf5d5826a91498bc6ef6e4
+#TRUST-RSA-SHA256 a9f1ad985d9b5411a4b40a368f587073616dbdbd172717adcef9fa5837cfe5fdef1f771776af46df7c85106041fbc150a655cc021847fbb0a267323fba4b6485659fac5d3643f387d1d51fea294b684cdddfaf882a9db23324c1eb5a199fd61e67caa4b0ebc1924b53ada1ceedd1a8bc74374205e0f916787a71acbe45153d66c51498ff074037e4073c23f92b2a1ab7083a35538cdc10695040ed32116a7efd357cb4d5bdc6b69862d7c32e6e504da4126ad0e73cbc834486ef28d2dfc641dd3f26e05e2df44e82c8f7908c5a0c148bdbf8bebec02c7832f3c849bab40cd95f5ae540645e51d1d58f3f461f4ed96942dab34e4f80506d795bc4e88587c33532b8cb0a95048e0f92bc398fc1e24717faf5b6fae7c457ea21a18e6598b65c14ad93dd529edd76b5d8aacfda6d82556419be126e0699a1d9ba8269271345a6c2388ef24983767d132db5ccbabedaeef54f3adb74dbee2e27784d215a46e378207819b396748a9d1fead51fd699c00f5716c743770b1637143f669670975812beecdd08ff71f176fef3af0fa487d4b604ffc0e8b093dcd8bf7483e04cd347157d66a54d54b928332146b52b30841de757a8d93572c7cce75dc226d1743963b3d59bf80a3087169d8f005c759e356470977380beb52b5b25e07c8cb6f64347f458cf1f8f8010d3214b01b6b57513ef001e441cf5cfa6633dc52a86c93fdf3f5fbd8a
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2025/04/30 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Juniper Router NDM v3r2 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Juniper Router NDM v3r2</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Juniper Router NDM</name>
+#  <version>3.2.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip</link>
+#</spec>
+#<labels>juniper,disa,junos,router,ndm</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>SSH_CONNECTION_LIMIT</name>
+#    <default>3</default>
+#    <description>SSH Connection Limit</description>
+#    <info>Concurrent sessions for administrative access</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SSH_MAX_SESSIONS</name>
+#    <default>3</default>
+#    <description>SSH Max Sessions</description>
+#    <info>Maximum number of ssh sessions allowed per single SSH connection</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>RESTRICT_MGMT_ACCESS</name>
+#    <default>RESTRICT_MGMT_ACCESS</default>
+#    <description>Filter for management traffic</description>
+#    <info>Control the flow of management information within the device</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BANNER_MESSAGE</name>
+#    <default>You are accessing a U.S. Government (USG) Information System (IS) that is provided\nfor USG-authorized use only.\n\nBy using this IS (which includes any device attached to this IS), you consent to the\nfollowing conditions:\n\n-The USG routinely intercepts and monitors communications on this IS for purposes\nincluding, but not limited to, penetration testing, COMSEC monitoring, network\noperations and defense, personnel misconduct (PM), law enforcement (LE), and\ncounterintelligence (CI) investigations.\n\n-At any time, the USG may inspect and seize data stored on this IS.\n\n-Communications using, or data stored on, this IS are not private, are subject to routine\nmonitoring, interception, and search, and may be disclosed or used for any USG-\nauthorized purpose.\n\n-This IS includes security measures (e.g., authentication and access controls) to protect\nUSG interests--not for your personal benefit or privacy.\n\n-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI\ninvestigative searching or monitoring of the content of privileged communications, or\nwork product, related to personal representation or services by attorneys,\npsychotherapists, or clergy, and their assistants.  Such communications and work product\nare private and confidential.  See User Agreement for details.</default>
+#    <description>Login Banner Message</description>
+#    <info>The DoD-approved system use notification banner.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>ADMIN_CLASS</name>
+#    <default>ADMIN</default>
+#    <description>Administrative user class</description>
+#    <info>The class used for administrative access.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SYSLOG_ARCHIVE_SIZE</name>
+#    <default>1000000</default>
+#    <description>Syslog archive file size</description>
+#    <info>The maximum size of the active log file.</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#  <variable>
+#    <name>SYSLOG_ARCHIVE_NUM_OF_FILES</name>
+#    <default>12</default>
+#    <description>Syslog archive number of files to keep</description>
+#    <info>The number of archived log files to keep.</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#  <variable>
+#    <name>PRIMARY_NTP_SERVER</name>
+#    <default>10.10.10.1</default>
+#    <description>Primary/Preferred NTP Server</description>
+#    <info>The primary or preferred NTP server in the redundant NTP configuration.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>SECONDARY_NTP_SERVER</name>
+#    <default>10.10.11.1</default>
+#    <description>Secondary NTP Server</description>
+#    <info>The secondary NTP server in the redundant NTP configuration.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>PRIMARY_RADIUS_SERVER</name>
+#    <default>10.10.12.1</default>
+#    <description>Primary Radius Server</description>
+#    <info>The primary or preferred authentication server used for the primary source of authentication.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>SECONDARY_RADIUS_SERVER</name>
+#    <default>10.10.13.1</default>
+#    <description>Secondary Radius Server</description>
+#    <info>The secondary authentication server used for the source of authentication.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>PRIMARY_SYSLOG_SERVER</name>
+#    <default>10.10.14.1</default>
+#    <description>Primary Syslog Server</description>
+#    <info>The primary or preferred syslog server used for forwarding alerts to the administrators.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>SECONDARY_SYSLOG_SERVER</name>
+#    <default>10.10.15.1</default>
+#    <description>Secondary Syslog Server</description>
+#    <info>The secondary syslog server used for forwarding alerts to the administrators.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Juniper">
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify ssh connection-limit is configured correctly"
+      regex       : "set system services ssh .+"
+      expect      : "set system services ssh connection-limit @SSH_CONNECTION_LIMIT@[\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify ssh max-sessions-per-connection is configured correctly"
+      regex       : "set system services ssh .+"
+      expect      : "set system services ssh max-sessions-per-connection @SSH_MAX_SESSIONS@[\s]*$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000010 - The Juniper router must be configured to limit the number of concurrent management sessions to an organization-defined number."
+      info        : "Device management includes the ability to control the number of administrators and management sessions that manage a device. Limiting the number of allowed administrators and sessions per administrator based on account type, role, or access type is helpful in limiting risks related to denial-of-service (DoS) attacks.
+
+This requirement addresses concurrent sessions for administrative accounts and does not address concurrent sessions by a single administrator via multiple administrative accounts. The maximum number of concurrent sessions should be defined based upon mission needs and the operational environment for each system. At a minimum, limits must be set for SSH, HTTPS, account of last resort, and root account sessions."
+      solution    : "Configure the router to limit the number of concurrent sessions as shown in the example below:
+
+[edit system services]
+set ssh connection-limit 3
+set ssh max-sessions-per-connection 3"
+      reference   : "800-53|AC-10,800-53r5|AC-10,CAT|II,CCI|CCI-000054,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-10,NESA|T5.5.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-217305r1050884_rule,STIG-ID|JUNI-ND-000010,STIG-Legacy|SV-101193,STIG-Legacy|V-91093,Vuln-ID|V-217305"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000090 - The Juniper router must be configured to automatically audit account creation."
+  info        : "Upon gaining access to a network device, an attacker will often first attempt to create a persistent method of reestablishing access. One way to accomplish this is to create a new account. Notification of account creation helps to mitigate this risk. Auditing account creation provides the necessary reconciliation that account management procedures are being followed. Without this audit trail, personnel without the proper authorization may gain access to critical network nodes."
+  solution    : "Configure the router to audit the creation of accounts. This requirement can be met by ensuring that configuration changes are logged as shown in the following example:
+
+[edit system]
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-000018,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217306r960777_rule,STIG-ID|JUNI-ND-000090,STIG-Legacy|SV-101195,STIG-Legacy|V-91095,TBA-FIISB|36.2.3,Vuln-ID|V-217306"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000100 - The Juniper router must be configured to automatically audit account modification."
+  info        : "Since the accounts in the network device are privileged or system-level accounts, account management is vital to the security of the network device. Account management by a designated authority ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel with the appropriate and necessary privileges. Auditing account modification along with an automatic notification to appropriate individuals will provide the necessary reconciliation that account management procedures are being followed. If modifications to management accounts are not audited, reconciliation of account management procedures cannot be tracked."
+  solution    : "Configure the router to audit the modification of accounts. This requirement can be met by ensuring that configuration changes are logged as shown in the following example:
+
+[edit system]
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001403,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217307r960780_rule,STIG-ID|JUNI-ND-000100,STIG-Legacy|SV-101197,STIG-Legacy|V-91097,TBA-FIISB|36.2.3,Vuln-ID|V-217307"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000110 - The Juniper router must be configured to automatically audit account disabling actions."
+  info        : "Account management, as a whole, ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel. Auditing account disabling actions will support account management procedures. When device management accounts are disabled, user or service accessibility may be affected. Auditing also ensures authorized active accounts remain enabled and available for use when required."
+  solution    : "Configure the router to audit the disabling of accounts. This requirement can be met by ensuring that configuration changes are logged as shown in the following example:
+
+[edit system]
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001404,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217308r960783_rule,STIG-ID|JUNI-ND-000110,STIG-Legacy|SV-101199,STIG-Legacy|V-91099,TBA-FIISB|36.2.3,Vuln-ID|V-217308"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000120 - The Juniper router must be configured to automatically audit account removal actions."
+  info        : "Account management, as a whole, ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel. Auditing account removal actions will support account management procedures. When device management accounts are terminated, user or service accessibility may be affected. Auditing also ensures authorized active accounts remain enabled and available for use when required."
+  solution    : "Configure the router to audit the deletion of accounts. This requirement can be met by ensuring that configuration changes are logged as shown in the following example:
+
+[edit system]
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001405,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217309r960786_rule,STIG-ID|JUNI-ND-000120,STIG-Legacy|SV-101201,STIG-Legacy|V-91101,TBA-FIISB|36.2.3,Vuln-ID|V-217309"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the router is set to restrict management access to specific IP addresses via SSH"
+      regex       : "set firewall family inet filter @RESTRICT_MGMT_ACCESS@ .+"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the filter is applied to the loopback interface"
+      regex       : "set interfaces lo[0-9]* .+"
+      expect      : "set interfaces lo[0-9]* .+ filter input @RESTRICT_MGMT_ACCESS@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000140 - The Juniper router must be configured to enforce approved authorizations for controlling the flow of management information within the device based on control policies."
+      info        : "A mechanism to detect and prevent unauthorized communication flow must be configured or provided as part of the system design. If management information flow is not enforced based on approved authorizations, the network device may become compromised. Information flow control regulates where management information is allowed to travel within a network device. The flow of all management information must be monitored and controlled so it does not introduce any unacceptable risk to the network device or data.
+
+Application-specific examples of enforcement occur in systems that employ rule sets or establish configuration settings that restrict information system services or message-filtering capability based on message content (e.g., implementing key word searches or using document characteristics).
+
+Applications providing information flow control must be able to enforce approved authorizations for controlling the flow of management information within the system in accordance with applicable policy.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Step 1: Configure the router to restrict management access to specific IP addresses via SSH as shown in the example below.
+
+[edit firewall family inet]
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH from source-address x.x.x.x/24
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH from protocol tcp
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH from port ssh
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH then accept
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH from protocol tcp
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH from port ssh
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH then log
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH then discard
+
+Step 2:  Apply the filter to the loopback interface.
+
+[edit interfaces lo0 unit 0 family inet]
+set filter input RESTRICT_MGMT_ACCESS
+
+Note: Management and control plane traffic destined to the router is punted to the routing engine. Hence, applying the filter to the loopback ensures that this traffic can be monitored regardless of the ingress physical interface.
+
+Step 1: Configure the router to restrict management access to specific IP addresses via SSH as shown in the example below.
+
+[edit firewall family inet]
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH from source-address x.x.x.x/24
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH from protocol tcp
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH from port ssh
+set filter RESTRICT_MGMT_ACCESS term ALLOW_SSH then accept
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH from protocol tcp
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH from port ssh
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH then log
+set filter RESTRICT_MGMT_ACCESS term DENY_SSH then discard
+
+Step 2:  Apply the filter to the loopback interface.
+
+[edit interfaces lo0 unit 0 family inet]
+set filter input RESTRICT_MGMT_ACCESS
+
+Note: Management and control plane traffic destined to the router is punted to the routing engine. Hence, applying the filter to the loopback ensures that this traffic can be monitored regardless of the ingress physical interface."
+      reference   : "800-171|3.1.3,800-171r3|03.01.03,800-53|AC-4,800-53r5|AC-4,800-53r5|MA-4(4)(b)(2),CAT|II,CCI|CCI-001368,CCI|CCI-004192,CN-L3|8.1.10.2(c),CSF|DE.AE-1,CSF|ID.AM-3,CSF|PR.AC-4,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.22,ITSG-33|AC-4,NESA|T4.2.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.6,NESA|T5.7.2,NESA|T7.5.2,NESA|T7.6.4,NIAv2|GS11a,NIAv2|GS12a,NIAv2|GS14a,NIAv2|GS15a,NIAv2|GS16a,NIAv2|NS13a,NIAv2|NS13b,NIAv2|NS13c,NIAv2|NS14,NIAv2|SS23,NIAv2|SS27a,NIAv2|SS27b,NIAv2|SS32,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,Rule-ID|SV-217310r991980_rule,STIG-ID|JUNI-ND-000140,STIG-Legacy|SV-101203,STIG-Legacy|V-91103,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.4,Vuln-ID|V-217310"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify login 'tries-before-disconnect' is set to 3"
+      regex       : "set system login .+"
+      expect      : "set system login retry-options tries-before-disconnect 3$"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify login lockout-period is set to 15"
+      regex       : "set system login .+"
+      expect      : "set system login retry-options lockout-period 15$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000150 - The Juniper router must be configured to enforce the limit of three consecutive invalid logon attempts after which time lock out the user account from accessing the device for 15 minutes."
+      info        : "By limiting the number of failed login attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute-forcing, is reduced."
+      solution    : "Configure the router to enforce the limit of three consecutive invalid logon attempts and lock out the user account from accessing the device for 15 minutes as shown in the example below.
+
+[edit system login]
+set retry-options tries-before-disconnect 3
+set retry-options lockout-period 15"
+      reference   : "800-171|3.1.8,800-171r3|03.01.08a.,800-53|AC-7a.,800-53r5|AC-7a.,CAT|II,CCI|CCI-000044,CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,Rule-ID|SV-217311r960840_rule,STIG-ID|JUNI-ND-000150,STIG-Legacy|SV-101205,STIG-Legacy|V-91105,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2,Vuln-ID|V-217311"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : BANNER_CHECK
+  description : "JUNI-ND-000160 - The Juniper router must be configured to display the Standard Mandatory DoD Notice and Consent Banner before granting access to the device."
+  info        : "Display of the DoD-approved use notification before granting access to the network device ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via logon interfaces with human users."
+  solution    : "Configure the router to display the Standard Mandatory DoD Notice and Consent Banner before granting access as shown in the following example:
+
+[edit system login]
+set message 'You are accessing a U.S. Government (USG) Information System (IS) that is provided\nfor USG-authorized use only.\n\nBy using this IS (which includes any device attached to this IS), you consent to the\nfollowing conditions:\n\n-The USG routinely intercepts and monitors communications on this IS for purposes\nincluding, but not limited to, penetration testing, COMSEC monitoring, network\noperations and defense, personnel misconduct (PM), law enforcement (LE), and\ncounterintelligence (CI) investigations.\n\n-At any time, the USG may inspect and seize data stored on this IS.\n\n-Communications using, or data stored on, this IS are not private, are subject to routine\nmonitoring, interception, and search, and may be disclosed or used for any USG-\nauthorized purpose.\n\n-This IS includes security measures (e.g., authentication and access controls) to protect\nUSG interests--not for your personal benefit or privacy.\n\n-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI\ninvestigative searching or monitoring of the content of privileged communications, or\nwork product, related to personal representation or services by attorneys,\npsychotherapists, or clergy, and their assistants.  Such communications and work product\nare private and confidential.  See User Agreement for details.'"
+  reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,CAT|II,CCI|CCI-000048,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-217312r960843_rule,STIG-ID|JUNI-ND-000160,STIG-Legacy|SV-101207,STIG-Legacy|V-91107,TBA-FIISB|45.2.4,Vuln-ID|V-217312"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login message"
+  content     : "@BANNER_MESSAGE@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000210 - The Juniper router must be configured to protect against an individual falsely denying having performed organization-defined actions to be covered by non-repudiation."
+  info        : "This requirement supports non-repudiation of actions taken by an administrator and is required in order to maintain the integrity of the configuration management process. All configuration changes to the network device are logged, and administrators authenticate with two-factor authentication before gaining administrative access. Together, these processes will ensure the administrators can be held accountable for the configuration changes they implement.
+
+To meet this requirement, the network device must log administrator access and activity."
+  solution    : "Configure the router to log configuration changes as shown in the following example:
+
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-53|AU-10,800-53r5|AU-10,CAT|II,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217313r960864_rule,STIG-ID|JUNI-ND-000210,STIG-Legacy|SV-101209,STIG-Legacy|V-91109,Vuln-ID|V-217313"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000250 - The Juniper router must be configured to generate audit records when successful/unsuccessful attempts to logon with access privileges occur."
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+  solution    : "Configure the router to log all logon attempts as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE authorization info
+
+Note: The parameter 'any' can be in place of 'authorization' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217315r960885_rule,STIG-ID|JUNI-ND-000250,STIG-Legacy|SV-101215,STIG-Legacy|V-91115,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217315"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (authorization|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000330 - The Juniper router must be configured to generate audit records containing the full-text recording of privileged commands."
+  info        : "Reconstruction of harmful events or forensic analysis is not possible if audit records do not contain enough information.
+
+Organizations consider limiting the additional audit information to only that information explicitly needed for specific audit requirements. The additional information required is dependent on the type of information (i.e., sensitivity of the data and the environment within which it resides). At a minimum, the organization must audit full-text recording of privileged commands. The organization must maintain audit trails in sufficient detail to reconstruct events to determine the cause and impact of compromise."
+  solution    : "Configure the router to log all configuration changes as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02b.,800-53|AU-3(1),800-53r5|AU-3(1),CAT|II,CCI|CCI-000135,CN-L3|7.1.3.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3(1),NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217316r960909_rule,STIG-ID|JUNI-ND-000330,STIG-Legacy|SV-101217,STIG-Legacy|V-91117,SWIFT-CSCv1|6.4,Vuln-ID|V-217316"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000380 - The Juniper router must be configured to protect audit information from unauthorized modification."
+  info        : "Audit information includes all information (e.g., audit records, audit settings, and audit reports) needed to successfully audit network device activity.
+
+If audit data were to become compromised, then forensic analysis and discovery of the true source of potentially malicious system activity is impossible to achieve.
+
+To ensure the veracity of audit data, the network device must protect audit information from unauthorized modification.
+
+This requirement can be achieved through multiple methods, which will depend upon system architecture and design. Some commonly employed methods include ensuring log files receive the proper file system permissions and limiting log data locations.
+
+Network devices providing a user interface to audit data will leverage user permissions and roles identifying the user accessing the data and the corresponding rights that the user enjoys in order to make access decisions regarding the modification of audit data.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Create a login class that provides the permission to configure logging parameters as well as a classes that do not allow configuration of logging parameters as shown in the example below.
+
+[edit system]
+set login class AUDITOR permissions [configure view-configuration]
+set login class AUDITOR allow-configuration '(system syslog)'
+
+set login class SR_ENGINEER permissions all
+set login class SR_ENGINEER deny-configuration '(system syslog)'"
+  reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9,800-53r5|AU-9a.,CAT|II,CCI|CCI-000163,CN-L3|7.1.2.3(d),CN-L3|7.1.3.3(f),CN-L3|8.1.3.5(c),CN-L3|8.1.4.3(c),CSF|PR.PT-1,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9,NESA|M5.2.3,NESA|M5.5.2,NESA|T3.6.4,NESA|T8.2.9,NIAv2|SM5,NIAv2|SM6,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|10.3.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217317r960933_rule,STIG-ID|JUNI-ND-000380,STIG-Legacy|SV-101219,STIG-Legacy|V-91119,Vuln-ID|V-217317"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login class .+"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000390 - The Juniper router must be configured to protect audit information from unauthorized deletion."
+  info        : "Audit information includes all information (e.g., audit records, audit settings, and audit reports) needed to successfully audit information system activity.
+
+If audit data were to become compromised, then forensic analysis and discovery of the true source of potentially malicious system activity is impossible to achieve.
+
+To ensure the veracity of audit data, the network device must protect audit information from unauthorized deletion. This requirement can be achieved through multiple methods, which will depend upon system architecture and design. Some commonly employed methods include: ensuring log files receive the proper file system permissions utilizing file system protections, restricting access, and backing up log data to ensure log data is retained.
+
+Network devices providing a user interface to audit data will leverage user permissions and roles identifying the user accessing the data and the corresponding rights the user enjoys in order to make access decisions regarding the deletion of audit data.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure one or more classes as shown in the example below whose users will not be permitted to delete files or make changes to logging parameters.
+
+[edit system]
+set login class JR_ENGINEER permissions all
+set login class JR_ENGINEER deny-configuration '(system syslog)'
+set login class JR_ENGINEER deny-commands '(file delete)'"
+  reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9,800-53r5|AU-9a.,CAT|II,CCI|CCI-000164,CN-L3|7.1.2.3(d),CN-L3|7.1.3.3(f),CN-L3|8.1.3.5(c),CN-L3|8.1.4.3(c),CSF|PR.PT-1,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9,NESA|M5.2.3,NESA|M5.5.2,NESA|T3.6.4,NESA|T8.2.9,NIAv2|SM5,NIAv2|SM6,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|10.3.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217318r960936_rule,STIG-ID|JUNI-ND-000390,STIG-Legacy|SV-101221,STIG-Legacy|V-91121,Vuln-ID|V-217318"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login class .+"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000460 - The Juniper router must be configured to limit privileges to change the software resident within software libraries."
+  info        : "Changes to any software components of the network device can have significant effects on the overall security of the network. Therefore, only qualified and authorized individuals should be allowed administrative access to the network device for implementing any changes or upgrades. If the network device were to enable non-authorized users to make changes to software libraries, those changes could be implemented without undergoing testing, validation, and approval.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure one or more classes as shown in the example below whose users will not be permitted to add, change, or delete software installed on the router.
+
+[edit system]
+set login class JR_ENGINEER permissions all
+set login class JR_ENGINEER deny-commands '(request system software)'
+
+Note: The predefined classes 'operator' and 'Read-only' do not have permissions to install or delete software."
+  reference   : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(6),800-53r5|CM-5(6),CAT|II,CCI|CCI-001499,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(6),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-217319r960960_rule,STIG-ID|JUNI-ND-000460,STIG-Legacy|SV-101223,STIG-Legacy|V-91123,Vuln-ID|V-217319"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login class .+"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify 'telnet' service is disabled"
+      regex       : "set system services .+"
+      not_expect  : "set system services telnet"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify 'finger' service is disabled"
+      regex       : "set system services .+"
+      not_expect  : "set system services finger"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify xnm-clear-text is disabled"
+      regex       : "set system services .+"
+      not_expect  : "set system services xnm-clear-text"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000470 - The Juniper router must be configured to prohibit the use of all unnecessary and nonsecure functions and services."
+      info        : "Network devices are capable of providing a wide variety of functions and services. Some of the functions and services provided by default may not be necessary to support essential organizational operations. Additionally, it is sometimes convenient to provide multiple services from a single component (e.g., email and web services); however, doing so increases risk over limiting the services provided by any one component.
+
+To support the requirements and principles of least functionality, the network device must support the organizational requirements providing only essential capabilities and limiting the use of ports, protocols, and/or services to only those required, authorized, and approved. Some network devices have capabilities enabled by default; if these capabilities are not necessary, they must be disabled. If a particular capability is used, then it must be documented and approved."
+      solution    : "Disable the following services if enabled as shown in the example below.
+
+[edit system services]
+delete telnet
+delete finger
+delete xnm-clear-text"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CAT|I,CCI|CCI-000382,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-217320r1050856_rule,STIG-ID|JUNI-ND-000470,STIG-Legacy|SV-101225,STIG-Legacy|V-91125,SWIFT-CSCv1|2.3,Vuln-ID|V-217320"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Check output to verify login class is set with the necessary privileges"
+      regex       : "set system login class .+"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Check the output to verify the user LAST_RESORT class ENGINEER authentication"
+      regex       : "set system login user user .+"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the authentication order to use the local account"
+      regex       : "set system authentication-order .+"
+      expect      : "set system authentication-order (radius|tacplus)"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000490 - The Juniper router must be configured with only one local account to be used as the account of last resort in the event the authentication server is unavailable."
+      info        : "Authentication for administrative (privileged level) access to the device is required at all times. An account can be created on the device's local database for use when the authentication server is down or connectivity between the device and the authentication server is not operable. This account is referred to as the account of last resort since it is intended to be used as a last resort and when immediate administrative access is absolutely necessary.
+
+The account of last resort logon credentials must be stored in a sealed envelope and kept in a safe. The safe must be periodically audited to verify the envelope remains sealed. The signature of the auditor and the date of the audit should be added to the envelope as a record. Administrators should secure the credentials and disable the root account (if possible) when not needed for system administration functions.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Step 1: Configure a class with the necessary privileges to troubleshoot network outage and restore operations as shown in the following example:
+
+[edit system]
+set login class ENGINEER permissions all
+set login class ENGINEER deny-configuration '(system syslog)'
+set login class ENGINEER deny-commands '(file delete)'
+
+Step 2: Assign the account of last resort to the ENGINEER class.
+
+set user LAST_RESORT class ENGINEER authentication plain-text-password
+New password: xxxxxxxxxxxxx
+
+Step 3: Configure the authentication order to use the local account if the authentication server is not reachable as shown in the example below.
+
+[edit system]
+set authentication-order radius
+
+Note: If there is no response from the authentication server, JUNOS will authenticate using a local account as last resort. It is recommended to not configure password at the end of the authentication order, as JUNOS will attempt to authenticate using a local account upon a rejection from the authentication server if password is in the authentication order. The last resort account is used when the authentication server is down."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-171r3|03.01.01a.,800-53|AC-2a.,800-53|AC-2(7)(a),800-53r5|AC-2(7)(a),CAT|II,CCI|CCI-001358,CCI|CCI-002111,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2a.,ITSG-33|AC-2(7)(a),NESA|M5.3.1,NESA|T5.2.1,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|1.1.5,PCI-DSSv4.0|1.1.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217321r1051115_rule,STIG-ID|JUNI-ND-000490,STIG-Legacy|SV-101227,STIG-Legacy|V-91127,Vuln-ID|V-217321"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify protocol-version v2 is enabled"
+      regex       : "set system services ssh .+"
+      expect      : "set system services ssh protocol-version v2"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify ssh mac is set to FIPS-140-2 compliant HMACs"
+      regex       : "set system services ssh .+"
+      expect      : "set system services ssh macs (hmac-sha2-256|hmac-sha2-512)"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000530 - The Juniper router must be configured to implement replay-resistant authentication mechanisms for network access to privileged accounts."
+      info        : "A replay attack may enable an unauthorized user to gain access to the application. Authentication sessions between the authenticator and the application validating the user credentials must not be vulnerable to a replay attack.
+
+An authentication process resists replay attacks if it is impractical to achieve a successful authentication by recording and replaying a previous authentication message.
+
+Techniques used to address this include protocols using nonces (e.g., numbers generated for a specific one-time use) or challenges (e.g., TLS, WS_Security). Additional techniques include time-synchronous or challenge-response one-time authenticators."
+      solution    : "Configure SSH to use FIPS-140-2 compliant HMACs as shown in the example below.
+
+[edit system services]
+set ssh protocol-version v2
+set ssh macs [hmac-sha2-256 hmac-sha2-512]
+
+Note: An SSH configuration enables a server and client to authorize the negotiation of only those algorithms that are configured from the allowed list. If a user tries to negotiate using an algorithm that is not part of the allowed list, the request is rejected and the session is not established."
+      reference   : "800-171|3.5.4,800-171r3|03.05.04,800-53|IA-2(8),800-53r5|IA-2(8),CAT|II,CCI|CCI-001941,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(8),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-217322r960993_rule,STIG-ID|JUNI-ND-000530,STIG-Legacy|SV-101229,STIG-Legacy|V-91129,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-217322"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000550 - The Juniper router must be configured to enforce a minimum 15-character password length."
+  info        : "Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks. Password length is one factor of several that helps to determine strength and how long it takes to crack a password.
+
+The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised. Use of more characters in a password helps to exponentially increase the time and/or resources required to compromise the password."
+  solution    : "Configure the router to enforce a minimum 15-character password length as shown in the example below.
+
+[edit system login]
+set password minimum-length 15"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-000205,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-217323r1015742_rule,STIG-ID|JUNI-ND-000550,STIG-Legacy|SV-101231,STIG-Legacy|V-91131,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-217323"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login password .+"
+  expect      : "set system login password minimum-length 1[5-9][0-9]*"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000570 - The Juniper router must be configured to enforce password complexity by requiring that at least one uppercase character be used."
+  info        : "Use of a complex passwords helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password is, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+Multifactor authentication (MFA) is required for all administrative and user accounts on network devices, except for an account of last resort and (where applicable) a root account. Passwords should only be used when MFA using PKI is not available, and for the account of last resort and root account."
+  solution    : "Configure the router to enforce password complexity by requiring that at least one uppercase character be used as shown in the example below.
+
+[edit system login]
+set password minimum-upper-cases 1"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-000192,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-217324r1015743_rule,STIG-ID|JUNI-ND-000570,STIG-Legacy|SV-101233,STIG-Legacy|V-91133,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-217324"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login password .+"
+  expect      : "set system login password minimum-upper-cases [1-9][0-9]*"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000580 - The Juniper router must be configured to enforce password complexity by requiring that at least one lowercase character be used."
+  info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+Multifactor authentication (MFA) is required for all administrative and user accounts on network devices, except for an account of last resort and (where applicable) a root account. Passwords should only be used when MFA using PKI is not available, and for the account of last resort and root account."
+  solution    : "Configure the router to enforce password complexity by requiring that at least one lowercase character be used as shown in the example below.
+
+[edit system login]
+set password minimum-lower-cases 1"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-000193,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-217325r1015744_rule,STIG-ID|JUNI-ND-000580,STIG-Legacy|SV-101235,STIG-Legacy|V-91135,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-217325"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login password .+"
+  expect      : "set system login password minimum-lower-cases [1-9][0-9]*"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000590 - The Juniper router must be configured to enforce password complexity by requiring that at least one numeric character be used."
+  info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+Multifactor authentication (MFA) is required for all administrative and user accounts on network devices, except for an account of last resort and (where applicable) a root account. Passwords should only be used when MFA using PKI is not available, and for the account of last resort and root account."
+  solution    : "Configure the router to enforce password complexity by requiring that at least one numeric character be used as shown in the example below.
+
+[edit system login]
+set password minimum-numerics 1"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-000194,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-217326r1015745_rule,STIG-ID|JUNI-ND-000590,STIG-Legacy|SV-101237,STIG-Legacy|V-91137,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-217326"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login password .+"
+  expect      : "set system login password minimum-numerics [1-9][0-9]*"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000600 - The Juniper router must be configured to enforce password complexity by requiring that at least one special character be used."
+  info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+Multifactor authentication (MFA) is required for all administrative and user accounts on network devices, except for an account of last resort and (where applicable) a root account. Passwords should only be used when MFA using PKI is not available, and for the account of last resort and root account."
+  solution    : "Configure the router to enforce password complexity by requiring that at least one special character be used as shown in the example below.
+
+[edit system login]
+set password minimum-punctuations 1"
+  reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-001619,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-217327r1015746_rule,STIG-ID|JUNI-ND-000600,STIG-Legacy|SV-101239,STIG-Legacy|V-91139,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-217327"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login password .+"
+  expect      : "set system login password minimum-punctuations [1-9][0-9]*"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify idle timeout value is set to five minutes or less"
+      regex       : "set system login class ((?!@ADMIN_CLASS@)).+ idle-timeout .+"
+      expect      : "set system login class ((?!@ADMIN_CLASS@)).+ idle-timeout [1-5]$"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify no Admin Class idle timeout value is configured"
+      regex       : "set system login class ((?!@ADMIN_CLASS@)).+ idle-timeout .+"
+      not_expect  : "idle-timeout (1[5-9]|[2-9][0-9])$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000710 - The Juniper router must be configured to terminate all network connections associated with device management after five minutes of inactivity."
+      info        : "Terminating an idle session within a short time period reduces the window of opportunity for unauthorized personnel to take control of a management session enabled on the console or console port that has been left unattended. In addition, quickly terminating an idle session will also free up resources committed by the managed network element.
+
+Terminating network connections associated with communications sessions includes, for example, de-allocating associated TCP/IP address/port pairs at the operating system level, or de-allocating networking assignments at the application level if multiple application sessions are using a single, operating system-level network connection. This does not mean that the device terminates all sessions or network access; it only ends the inactive session and releases the resources associated with that session."
+      solution    : "Set the idle timeout value to five minutes or less on all configured login classes as shown in the example below.
+
+[edit system login]
+set class ADMIN idle-timeout 5"
+      reference   : "800-171|3.13.9,800-171r3|03.13.09,800-53|SC-10,800-53r5|SC-10,CAT|I,CCI|CCI-001133,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.20,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.5.1,Rule-ID|SV-217328r961068_rule,STIG-ID|JUNI-ND-000710,STIG-Legacy|SV-101241,STIG-Legacy|V-91141,SWIFT-CSCv1|2.6,Vuln-ID|V-217328"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000870 - The Juniper router must be configured to automatically audit account enabling actions."
+  info        : "Once an attacker establishes initial access to a system, the attacker often attempts to create a persistent method of reestablishing access. One way to accomplish this is for the attacker to simply enable a new or disabled account. Notification of account enabling is one method for mitigating this risk. A comprehensive account management process will ensure an audit trail which documents the creation of application user accounts and notifies administrators and Information System Security Officers (ISSO). Such a process greatly reduces the risk that accounts will be surreptitiously created and provides logging that can be used for forensic purposes."
+  solution    : "Configure the router to audit the enabling of accounts. This requirement can be met by ensuring that configuration changes are logged as shown in the following example:
+
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info
+
+Note: Accounts can be disabled by changing the assigned class to unauthorized (no permissions). Hence, accounts can be enabled by changing the assigned class for the user to a class other than unauthorized."
+  reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-002130,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217329r961290_rule,STIG-ID|JUNI-ND-000870,STIG-Legacy|SV-101245,STIG-Legacy|V-91145,TBA-FIISB|36.2.3,Vuln-ID|V-217329"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000930 - The Juniper router must be configured to audit the execution of privileged functions."
+  info        : "Misuse of privileged functions, either intentionally or unintentionally by authorized users, or by unauthorized external entities that have compromised information system accounts, is a serious and ongoing concern and can have significant adverse impacts on organizations. Auditing the use of privileged functions is one way to detect such misuse and identify the risk from insider threats and the advanced persistent threat."
+  solution    : "Configure the router to log all commands entered from the command line interface as well as log all configuration changes as shown in the following example:
+
+[edit system]
+set syslog file LOG_FILE interactive-commands
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of configuring specific events as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host 10.1.58.2 any info"
+  reference   : "800-171|3.1.7,800-171r3|03.01.07b.,800-53|AC-6(9),800-53r5|AC-6(9),CAT|II,CCI|CCI-002234,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSF|PR.AC-4,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.12.4.3,ITSG-33|AC-6,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.5.4,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-217330r961362_rule,STIG-ID|JUNI-ND-000930,STIG-Legacy|SV-101249,STIG-Legacy|V-91149,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-217330"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (interactive-commands|change-log|any) info"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify syslog file is set to any info"
+      regex       : "set system syslog .+"
+      expect      : "set system syslog (file|host) .+ (change-log|any) info"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify syslog archive size"
+      regex       : "set system syslog .+"
+      expect      : "set system syslog file .+ archive size @SYSLOG_ARCHIVE_SIZE@"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify syslog archive number of files"
+      regex       : "set system syslog .+"
+      expect      : "set system syslog file .+ archive files @SYSLOG_ARCHIVE_NUM_OF_FILES@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-000970 - The Juniper router must be configured to allocate audit record storage capacity in accordance with organization-defined audit record storage requirements."
+      info        : "In order to ensure network devices have a sufficient storage capacity in which to write the audit logs, they need to be able to allocate audit record storage capacity.  The task of allocating audit record storage capacity is usually performed during initial device setup if it is modifiable.
+
+The value for the organization-defined audit record storage requirement will depend on the amount of storage available on the network device, the anticipated volume of logs, the frequency of transfer from the network device to centralized log servers, and other factors."
+      solution    : "Configure the number or archive files and the maximum size of the active log file to be reached prior to archiving as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE any info
+set syslog file LOG_FILE archive files 12 size 1000000"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CAT|II,CCI|CCI-001849,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217332r961392_rule,STIG-ID|JUNI-ND-000970,STIG-Legacy|SV-101253,STIG-Legacy|V-91153,Vuln-ID|V-217332"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-000990 - The Juniper router must be configured to generate an alert for all audit failure events."
+  info        : "It is critical for the appropriate personnel to be aware if a system is at risk of failing to process audit logs as required. Without a real-time alert, security personnel may be unaware of an impending failure of the audit capability and system operation may be adversely affected.
+
+Alerts provide organizations with urgent messages. Real-time alerts provide these messages immediately (i.e., the time from event detection to alert occurs in seconds or less)."
+  solution    : "Configure the router to send critical to emergency log messages to the syslog server as shown in the example below.
+
+set syslog host x.x.x.x any critical
+
+Note: The parameter 'critical' can replaced with a lesser severity level (i.e., error, warning, notice, info)."
+  reference   : "800-171|3.3.4,800-171r3|03.03.04,800-53|AU-5(2),800-53r5|AU-5(2),800-53r5|AU-9b.,CAT|II,CCI|CCI-001858,CCI|CCI-003831,CN-L3|7.1.3.3(e),CSF|PR.PT-1,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-5(2),NESA|T3.6.2,NIAv2|GS7f,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217333r991991_rule,STIG-ID|JUNI-ND-000990,STIG-Legacy|SV-101255,STIG-Legacy|V-91155,Vuln-ID|V-217333"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog host .+ any (info|notice|warning|error|critical)"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify primary NTP Server os configured"
+      regex       : "set system ntp server .+"
+      expect      : "set system ntp server @PRIMARY_NTP_SERVER@ (key [12] )?prefer"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify secondary NTP Server os configured"
+      regex       : "set system ntp server .+"
+      expect      : "set system ntp server @SECONDARY_NTP_SERVER@( key [12])?"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-001020 - The Juniper router must be configured to synchronize its clock with the primary and secondary time sources using redundant authoritative time sources."
+      info        : "The loss of connectivity to a particular authoritative time source will result in the loss of time synchronization (free-run mode) and increasingly inaccurate time stamps on audit events and other functions.
+
+Multiple time sources provide redundancy by including a secondary source. Time synchronization is usually a hierarchy; clients synchronize time to a local source while that source synchronizes its time to a more accurate source. The network device must utilize an authoritative time server and/or be configured to use redundant authoritative time sources. This requirement is related to the comparison done in CCI-001891.
+
+DoD-approved solutions consist of a combination of a primary and secondary time source using a combination or multiple instances of the following: a time server designated for the appropriate DoD network (NIPRNet/SIPRNet); United States Naval Observatory (USNO) time servers; and/or the Global Positioning System (GPS). The secondary time source must be located in a different geographic region than the primary time source."
+      solution    : "Configure the router to synchronize its clock with redundant authoritative time sources as shown in the example below.
+
+[edit system ntp]
+set server x.x.x.x
+set server x.x.x.x prefer"
+      reference   : "800-171|3.3.7,800-171r3|03.03.07,800-53|AU-8(2),800-53r5|SC-45,800-53r5|SC-45(1)(a),800-53r5|SC-45(2)(a),CAT|II,CCI|CCI-001893,CCI|CCI-004922,CCI|CCI-004923,CCI|CCI-004928,CN-L3|8.1.4.3(b),CSF|PR.PT-1,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.17,ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217334r1015747_rule,STIG-ID|JUNI-ND-001020,STIG-Legacy|SV-101257,STIG-Legacy|V-91157,TBA-FIISB|37.4,Vuln-ID|V-217334"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001030 - The Juniper router must be configured to record time stamps for log records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT)."
+  info        : "If time stamps are not consistently applied and there is no common time reference, it is difficult to perform forensic analysis.
+
+Time stamps generated by the application include date and time. Time is commonly expressed in Coordinated Universal Time (UTC), a modern continuation of Greenwich Mean Time (GMT), or local time with an offset from UTC."
+  solution    : "[edit system]
+set time-zone UTC"
+  reference   : "800-171|3.3.7,800-171r3|03.03.07b.,800-53|AU-8b.,800-53r5|AU-8b.,CAT|II,CCI|CCI-001890,CN-L3|8.1.4.3(b),CSF|PR.PT-1,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.17,ITSG-33|AU-8,NESA|T3.6.7,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217335r961443_rule,STIG-ID|JUNI-ND-001030,STIG-Legacy|SV-101259,STIG-Legacy|V-91159,TBA-FIISB|37.4,Vuln-ID|V-217335"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system time-zone .+"
+  expect      : "set system time-zone ([Uu][Tt][Cc]|[Gg][Mm][Tt])"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001060 - The Juniper router must be configured to prohibit installation of software without explicit privileged status."
+  info        : "Allowing anyone to install software, without explicit privileges, creates the risk that untested or potentially malicious software will be installed on the system. This requirement applies to code changes and upgrades for all network devices.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure one or more classes as shown in the example below whose users will not be permitted to add or change software installed on the router.
+
+[edit system]
+set login class JR_ENGINEER permissions all
+set login class JR_ENGINEER deny-commands '(request system software)'
+
+Note: The predefined classes operator and Read-only do not have permissions to install software."
+  reference   : "800-171|3.4.9,800-53|CM-11(2),800-53r5|CM-11(2),CAT|II,CCI|CCI-001812,CCI|CCI-003980,CSF|DE.CM-3,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.19,ISO/IEC-27001|A.12.6.2,QCSC-v1|8.2.1,Rule-ID|SV-217336r1015748_rule,STIG-ID|JUNI-ND-001060,STIG-Legacy|SV-101261,STIG-Legacy|V-91161,SWIFT-CSCv1|5.1,Vuln-ID|V-217336"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system login class .+"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Check for SNMP v3"
+      regex       : "set snmp v3 .+"
+      expect      : "set snmp v3 .+"
+    </custom_item>
+  </condition>
+
+  <then>
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "JUNI-ND-001120 - The Juniper router must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC)."
+      info        : "Without authenticating devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity. Bidirectional authentication provides stronger safeguards to validate the identity of other devices for connections that are of greater risk.
+
+A local connection is any connection with a device communicating without the use of a network. A network connection is any connection with a device that communicates through a network (e.g., local area or wide area network, Internet). A remote connection is any connection with a device communicating through an external network (e.g., the Internet).
+
+Because of the challenges of applying this requirement on a large scale, organizations are encouraged to only apply the requirement to those limited number (and type) of devices that truly need to support this capability."
+      solution    : "Configure the router to authenticate SNMP messages as shown in the example below.
+
+[edit snmp]
+set v3 usm local-engine user R5_NMS authentication-sha authentication-password xxxxxxxxxx
+set v3 target-address NMS_HOST address x.x.x.x
+
+edit v3 target-address NMS_HOST
+[edit snmp v3 target-address NMS_HOST]
+set address-mask 255.255.255.0
+set tag-list NMS
+set target-parameters TP1
+exit
+
+[edit snmp]
+set v3 target-parameters TP1 parameters message-processing-model v3
+set v3 target-parameters TP1 parameters security-model usm
+set v3 target-parameters TP1 parameters security-name R5_NMS
+set v3 target-parameters TP1 parameters security-level authentication
+set v3 snmp-community index1 security-name R5_NMS tag NMS
+set v3 notify SEND_TRAPS type trap tag NMS"
+      reference   : "800-171r3|03.05.02,800-53|IA-3(1),800-53r5|IA-3(1),CAT|II,CCI|CCI-001967,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-3(1),NESA|T5.4.3,QCSC-v1|13.2,Rule-ID|SV-217337r961506_rule,STIG-ID|JUNI-ND-001120,STIG-Legacy|SV-101263,STIG-Legacy|V-91163,TBA-FIISB|27.1,Vuln-ID|V-217337"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      regex       : "set snmp v3 usm local-engine .+"
+      expect      : "set snmp v3 usm local-engine user .+ authentication-sha .+"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "JUNI-ND-001120 - The Juniper router must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC)."
+      info        : "Without authenticating devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity. Bidirectional authentication provides stronger safeguards to validate the identity of other devices for connections that are of greater risk.
+
+A local connection is any connection with a device communicating without the use of a network. A network connection is any connection with a device that communicates through a network (e.g., local area or wide area network, Internet). A remote connection is any connection with a device communicating through an external network (e.g., the Internet).
+
+Because of the challenges of applying this requirement on a large scale, organizations are encouraged to only apply the requirement to those limited number (and type) of devices that truly need to support this capability."
+      solution    : "Configure the router to authenticate SNMP messages as shown in the example below.
+
+[edit snmp]
+set v3 usm local-engine user R5_NMS authentication-sha authentication-password xxxxxxxxxx
+set v3 target-address NMS_HOST address x.x.x.x
+
+edit v3 target-address NMS_HOST
+[edit snmp v3 target-address NMS_HOST]
+set address-mask 255.255.255.0
+set tag-list NMS
+set target-parameters TP1
+exit
+
+[edit snmp]
+set v3 target-parameters TP1 parameters message-processing-model v3
+set v3 target-parameters TP1 parameters security-model usm
+set v3 target-parameters TP1 parameters security-name R5_NMS
+set v3 target-parameters TP1 parameters security-level authentication
+set v3 snmp-community index1 security-name R5_NMS tag NMS
+set v3 notify SEND_TRAPS type trap tag NMS"
+      reference   : "800-171r3|03.05.02,800-53|IA-3(1),800-53r5|IA-3(1),CAT|II,CCI|CCI-001967,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-3(1),NESA|T5.4.3,QCSC-v1|13.2,Rule-ID|SV-217337r961506_rule,STIG-ID|JUNI-ND-001120,STIG-Legacy|SV-101263,STIG-Legacy|V-91163,TBA-FIISB|27.1,Vuln-ID|V-217337"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+    </report>
+  </else>
+</if>
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Check for SNMP v3"
+      regex       : "set snmp v3 .+"
+      expect      : "set snmp v3 .+"
+    </custom_item>
+  </condition>
+
+  <then>
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CONFIG_CHECK
+          description : "Verify snmp v3 usm local-engine user is set to privacy-aes128"
+          regex       : "set snmp v3 usm local-engine .+"
+          expect      : "set snmp v3 usm local-engine user .+ privacy-aes128 .+"
+        </custom_item>
+
+        <custom_item>
+          type        : CONFIG_CHECK
+          description : "Verify security-level is set to privacy"
+          regex       : "set snmp v3 target-parameters .+"
+          expect      : "set snmp v3 target-parameters .+ parameters security-level privacy"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "JUNI-ND-001130 - The Juniper router must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm."
+          info        : "Without the strong encryption that is provided by the SNMP Version 3 User-based Security Model (USM), an unauthorized user can gain access to network management information that can be used to create a network outage."
+          solution    : "Configure the router to encrypt SNMP messages using a FIPS 140-2 approved algorithm as shown in the example below.
+
+[edit snmp]
+set v3 usm local-engine user R5_NMS authentication-sha authentication-password xxxxxxxxxx
+set v3 usm local-engine user R5_NMS privacy-aes128 privacy-password xxxxxxxxxx
+set v3 target-address NMS_HOST address 10.1.58.2
+edit v3 target-address NMS_HOST
+
+[edit snmp v3 target-address NMS_HOST]
+set address-mask 255.255.255.0
+set tag-list NMS
+set target-parameters TP1
+exit
+
+[edit snmp]
+set v3 target-parameters TP1 parameters message-processing-model v3
+set v3 target-parameters TP1 parameters security-model usm
+set v3 target-parameters TP1 parameters security-name R5_NMS
+set v3 target-parameters TP1 parameters security-level privacy
+set v3 snmp-community index1 security-name R5_NMS tag NMS
+set v3 notify SEND_TRAPS type trap tag NMS
+
+Note: SNMPv3 security level privacy also authenticates the messages using the configured HMAC; hence, the authentication key must also be configured as shown in the example above."
+          reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),CAT|II,CCI|CCI-000068,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-217338r961506_rule,STIG-ID|JUNI-ND-001130,STIG-Legacy|SV-101265,STIG-Legacy|V-91165,SWIFT-CSCv1|2.6,Vuln-ID|V-217338"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "JUNI-ND-001130 - The Juniper router must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm."
+      info        : "Without the strong encryption that is provided by the SNMP Version 3 User-based Security Model (USM), an unauthorized user can gain access to network management information that can be used to create a network outage."
+      solution    : "Configure the router to encrypt SNMP messages using a FIPS 140-2 approved algorithm as shown in the example below.
+
+[edit snmp]
+set v3 usm local-engine user R5_NMS authentication-sha authentication-password xxxxxxxxxx
+set v3 usm local-engine user R5_NMS privacy-aes128 privacy-password xxxxxxxxxx
+set v3 target-address NMS_HOST address 10.1.58.2
+edit v3 target-address NMS_HOST
+
+[edit snmp v3 target-address NMS_HOST]
+set address-mask 255.255.255.0
+set tag-list NMS
+set target-parameters TP1
+exit
+
+[edit snmp]
+set v3 target-parameters TP1 parameters message-processing-model v3
+set v3 target-parameters TP1 parameters security-model usm
+set v3 target-parameters TP1 parameters security-name R5_NMS
+set v3 target-parameters TP1 parameters security-level privacy
+set v3 snmp-community index1 security-name R5_NMS tag NMS
+set v3 notify SEND_TRAPS type trap tag NMS
+
+Note: SNMPv3 security level privacy also authenticates the messages using the configured HMAC; hence, the authentication key must also be configured as shown in the example above."
+      reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),CAT|II,CCI|CCI-000068,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-217338r961506_rule,STIG-ID|JUNI-ND-001130,STIG-Legacy|SV-101265,STIG-Legacy|V-91165,SWIFT-CSCv1|2.6,Vuln-ID|V-217338"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+    </report>
+  </else>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type            : CONFIG_CHECK
+      description     : "Verify authentication-key is set correctly"
+      regex           : "set system ntp authentication-key [12] type (md5|sha1|sha2-256) value .+"
+      number_of_lines : "^2$"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the trusted key is set correctly"
+      regex       : "set system ntp trusted-key .+"
+      expect      : "set system ntp trusted-key \[1 2\]"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-001140 - The Juniper router must be configured to authenticate NTP sources using authentication that is cryptographically based."
+      info        : "If Network Time Protocol is not authenticated, an attacker can introduce a rogue NTP server. This rogue server can then be used to send incorrect time information to network devices, which will make log timestamps inaccurate and affect scheduled actions. NTP authentication is used to prevent this tampering by authenticating the time source."
+      solution    : "Configure the router to authenticate NTP sources using authentication that is cryptographically based as shown in the example below.
+
+[edit system ntp]
+set authentication-key 1 type md5 value xxxxxxxxx
+set authentication-key 2 type md5 value xxxxxxxxx
+set server x.x.x.x key 1 prefer
+set server x.x.x.x key 2
+set trusted-key [1 2]
+
+Note: SHA1 and SHA2-256 are supported with release 18.2."
+      reference   : "800-171r3|03.05.02,800-53|IA-3(1),800-53r5|IA-3(1),CAT|II,CCI|CCI-001967,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-3(1),NESA|T5.4.3,QCSC-v1|13.2,Rule-ID|SV-217339r961506_rule,STIG-ID|JUNI-ND-001140,STIG-Legacy|SV-101267,STIG-Legacy|V-91167,TBA-FIISB|27.1,Vuln-ID|V-217339"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001190 - The Juniper router must be configured to use FIPS-validated Keyed-Hash Message Authentication Code (HMAC) to protect the integrity of remote maintenance sessions."
+  info        : "Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied upon to provide confidentiality or integrity, and DoD data may be compromised.
+
+Nonlocal maintenance and diagnostic activities are those activities conducted by individuals communicating through a network, either an external network (e.g., the Internet) or an internal network.
+
+Currently, HMAC is the only FIPS-approved algorithm for generating and verifying message/data authentication codes in accordance with FIPS 198-1. Products that are FIPS 140-2 validated will have an HMAC that meets specification; however, the option must be configured for use as the only message authentication code used for authentication to cryptographic modules.
+
+Separate requirements for configuring applications and protocols used by each application (e.g., SNMPv3, SSHv2, NTP, HTTPS, and other protocols and applications that require server/client authentication) are required to implement this requirement. Where SSH is used, the SSHv2 protocol suite is required because it includes Layer 7 protocols such as SCP and SFTP, which can be used for secure file transfers."
+  solution    : "Configure SSH to use FIPS-validated HMAC for remote maintenance sessions as shown in the following example:
+
+[edit system services]
+set ssh protocol-version v2
+set ssh macs hmac-sha2-256"
+  reference   : "800-171|3.7.5,800-171r3|03.07.05,800-53|MA-4(6),800-53r5|MA-4(6),CAT|I,CCI|CCI-002890,CSF|PR.MA-2,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217340r961554_rule,STIG-ID|JUNI-ND-001190,STIG-Legacy|SV-101269,STIG-Legacy|V-91169,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217340"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system services ssh .+"
+  expect      : "set system services ssh macs (hmac-sha2-256|hmac-sha2-512)"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001200 - The Juniper router must be configured to implement cryptographic mechanisms to protect the confidentiality of remote maintenance sessions."
+  info        : "This requires the use of secure protocols instead of their unsecured counterparts, such as SSH instead of telnet, SCP instead of FTP, and HTTPS instead of HTTP. If unsecured protocols (lacking cryptographic mechanisms) are used for sessions, the contents of those sessions will be susceptible to eavesdropping, potentially putting sensitive data (including administrator passwords) at risk of compromise and potentially allowing hijacking of maintenance sessions."
+  solution    : "Configure the router to implement cryptographic mechanisms to protect the confidentiality of remote maintenance sessions using a FIPS 140-2 approved algorithm as shown in the example below.
+
+[edit system services]
+set ssh ciphers aes128-cbc"
+  reference   : "800-171|3.7.5,800-171r3|03.07.05,800-53|MA-4(6),800-53r5|MA-4(6),CAT|I,CCI|CCI-003123,CSF|PR.MA-2,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217341r961557_rule,STIG-ID|JUNI-ND-001200,STIG-Legacy|SV-101271,STIG-Legacy|V-91171,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217341"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system services ssh .+"
+  expect      : "set system services ssh ciphers (aes128-cbc|aes192-cbc|aes256-cbc)"
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Ensure the firewall policers is configured for specific traffic types"
+      regex       : "set firewall policer .+"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the CoPP filter is configured by applying policers to the appropriate traffic types"
+      regex       : "set firewall filter .+ (from (address|protocol)|then (policer|discard))"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-001210 - The Juniper router must be configured to protect against known types of Denial of Service (DoS) attacks by employing organization-defined security safeguards - DoS attacks by employing organization-defined security safeguards"
+      info        : "DoS is a condition when a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded capacity.
+
+This requirement addresses the configuration of network devices to mitigate the impact of DoS attacks that have occurred or are ongoing on device availability. For each network device, known and potential DoS attacks must be identified and solutions for each type implemented. A variety of technologies exist to limit or, in some cases, eliminate the effects of DoS attacks (e.g., limiting processes or restricting the number of sessions the device opens at one time). Employing increased capacity and bandwidth, combined with service redundancy, may reduce the susceptibility to some DoS attacks.
+
+The security safeguards cannot be defined at the DoD level because they vary according to the capabilities of the individual network devices and the security controls applied on the adjacent networks (for example, firewalls performing packet filtering to block DoS attacks).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure the router protect against known types of DoS attacks on the route processor. Implementing a CoPP policy as shown in the example below is a best practice method.
+
+Step 1: Configure policers for specific traffic types.
+
+set firewall policer CRITICAL filter-specific
+set firewall policer CRITICAL if-exceeding bandwidth-limit 4000000 burst-size-limit 1500
+set firewall policer CRITICAL then discard
+set firewall policer IMPORTANT filter-specific
+set firewall policer IMPORTANT if-exceeding bandwidth-limit 512000 burst-size-limit 16000
+set firewall policer IMPORTANT then discard
+set firewall policer NORMAL filter-specific
+set firewall policer NORMAL if-exceeding bandwidth-limit 64000 burst-size-limit 2000
+set firewall policer NORMAL then discard
+set firewall policer UNDESIRABLE filter-specific
+set firewall policer UNDESIRABLE if-exceeding bandwidth-limit 32000 burst-size-limit 1500
+set firewall policer UNDESIRABLE then discard
+set firewall policer ALL-OTHER filter-specific
+set firewall policer ALL-OTHER if-exceeding bandwidth-limit 32000 burst-size-limit 1500
+set firewall policer ALL-OTHER then discard
+
+Step 2: Configure the CoPP filter by applying policers to the appropriate traffic types.
+
+set firewall filter CoPP_Policy term CRITICAL from protocol ospf
+set firewall filter CoPP_Policy term CRITICAL from protocol pim
+set firewall filter CoPP_Policy term CRITICAL from protocol tcp destination-port bgp
+set firewall filter CoPP_Policy term CRITICAL from protocol tcp source-port bgp
+set firewall filter CoPP_Policy term CRITICAL then policer CRITICAL
+set firewall filter CoPP_Policy term IMPORTANT from source-address 10.1.1.0/24
+set firewall filter CoPP_Policy term IMPORTANT from protocol tcp destination-port ssh
+set firewall filter CoPP_Policy term IMPORTANT from protocol tcp destination-port snmp
+set firewall filter CoPP_Policy term IMPORTANT from protocol tcp destination-port ntp
+set firewall filter CoPP_Policy term IMPORTANT then policer IMPORTANT
+set firewall filter CoPP_Policy term IMPORTANT from protocol tcp destination-port ssh
+set firewall filter CoPP_Policy term IMPORTANT from protocol tcp destination-port snmp
+set firewall filter CoPP_Policy term IMPORTANT from protocol tcp destination-port ntp
+set firewall filter CoPP_Policy term IMPORTANT then discard
+set firewall filter CoPP_Policy term NORMAL from protocol icmp icmp-code ttl-eq-zero-during-transit
+set firewall filter CoPP_Policy term NORMAL from protocol icmp icmp-code port-unreachable
+set firewall filter CoPP_Policy term NORMAL from protocol icmp icmp-type echo-reply
+set firewall filter CoPP_Policy term NORMAL from protocol icmp icmp-type echo-request
+set firewall filter CoPP_Policy term NORMAL then policer NORMAL
+set firewall filter CoPP_Policy term UNDESIRABLE from protocol udp destination-port 1434
+set firewall filter CoPP_Policy term UNDESIRABLE then policer UNDESIRABLE
+set firewall filter CoPP_Policy term ALL-OTHER from address 0.0.0.0/0
+set firewall filter CoPP_Policy term ALL-OTHER then policer ALL-OTHER
+
+Step 3: Apply the CoPP filter to the loopback interface.
+
+set interface lo0 unit 0 family inet filter input CoPP_Policy"
+      reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|II,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,CSF2.0|DE.CM-01,CSF2.0|PR.IR-01,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-217342r961620_rule,STIG-ID|JUNI-ND-001210,STIG-Legacy|SV-101273,STIG-Legacy|V-91173,Vuln-ID|V-217342"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001230 - The Juniper router must be configured to generate log records when administrator privileges are modified."
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the network device (e.g., module or policy filter)."
+  solution    : "Configure the router to generate log records when account privileges are modified as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host x.x.x.x any info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217343r961800_rule,STIG-ID|JUNI-ND-001230,STIG-Legacy|SV-101275,STIG-Legacy|V-91175,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217343"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001240 - The Juniper router must be configured to generate log records when administrator privileges are deleted."
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the network device (e.g., module or policy filter)."
+  solution    : "Configure the router to generate log records when administrator privileges are deleted as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE change-log info
+
+Note: The parameter 'any' can be in place of 'change-log' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host x.x.x.x any info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217344r961812_rule,STIG-ID|JUNI-ND-001240,STIG-Legacy|SV-101277,STIG-Legacy|V-91177,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217344"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001250 - The Juniper router must be configured to generate audit records when successful/unsuccessful logon attempts occur."
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the network device (e.g., module or policy filter)."
+  solution    : "Configure the router to generate audit records when successful/unsuccessful logon attempts occur as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE authorization info
+
+Note: The parameter 'any' can be in place of authorization' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host x.x.x.x any info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217345r961824_rule,STIG-ID|JUNI-ND-001250,STIG-Legacy|SV-101279,STIG-Legacy|V-91179,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217345"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (authorization|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001260 - The Juniper router must be configured to generate log records for privileged activities."
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the network device (e.g., module or policy filter)."
+  solution    : "Configure the router to generate log records for privileged activities as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE change-log info
+set syslog file LOG_FILE interactive-commands info
+
+Note: The parameter 'any' can be in place of 'change-log' and 'interactive-commands' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host x.x.x.x any info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217346r961827_rule,STIG-ID|JUNI-ND-001260,STIG-Legacy|SV-101281,STIG-Legacy|V-91181,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217346"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (interactive-commands|change-log|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001280 - The Juniper router must be configured to generate log records when concurrent logons from different workstations occur."
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the network device (e.g., module or policy filter)."
+  solution    : "Configure the router to generate log records when concurrent logons from different workstations occur as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE authorization info
+
+Note: The parameter 'any' can be in place of authorization' as this will log everything. Also, a syslog server can be configured in addition to or in lieu of logging to a file as shown in the example below.
+
+set syslog host x.x.x.x any info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217347r961833_rule,STIG-ID|JUNI-ND-001280,STIG-Legacy|SV-101283,STIG-Legacy|V-91183,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217347"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (authorization|any) info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001300 - The Juniper router must be configured to off-load log records onto a different system than the system being audited."
+  info        : "Information stored in one location is vulnerable to accidental or incidental deletion or alteration.
+
+Off-loading is a common process in information systems with limited audit storage capacity."
+  solution    : "Configure the router to send log records to a syslog server as shown in the example below.
+
+[edit system]
+set syslog host x.x.x.x any info"
+  reference   : "800-53|AU-4(1),800-53r5|AU-4(1),CAT|II,CCI|CCI-001851,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217348r961860_rule,STIG-ID|JUNI-ND-001300,STIG-Legacy|SV-101285,STIG-Legacy|V-91185,Vuln-ID|V-217348"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog host .+ any info"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001340 - The Juniper router must be configured to generate log records for a locally developed list of auditable events."
+  info        : "Auditing and logging are key components of any security architecture. Logging the actions of specific events provides a means to investigate an attack, recognize resource utilization or capacity thresholds, or identify an improperly configured network device. If auditing is not comprehensive, it will not be useful for intrusion monitoring, security investigations, and forensic analysis."
+  solution    : "Configure the router to generate log records for a locally developed list of auditable events as shown in the example below.
+
+[edit system]
+set syslog file LOG_FILE authorization info
+set syslog file LOG_FILE any info
+set syslog file LOG_FILE change-log info
+
+Note: A syslog server can be configured in lieu of logging to a file as shown in the example below.
+
+set syslog host x.x.x.x authorization info
+set syslog host x.x.x.x any info
+set syslog host x.x.x.x change-log info"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.4.2,800-171r3|03.03.03a.,800-171r3|03.04.02a.,800-53|AU-12a.,800-53|CM-6b.,800-53r5|AU-12a.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000169,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.IP-1,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-04,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.15,ITSG-33|AU-12a.,ITSG-33|CM-6b.,NESA|T3.2.1,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217349r1050859_rule,STIG-ID|JUNI-ND-001340,STIG-Legacy|SV-101287,STIG-Legacy|V-91187,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.4,Vuln-ID|V-217349"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system syslog .+"
+  expect      : "set system syslog (file|host) .+ (authorization|security|firewall|change-log|any) info"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Primary authentication server is configured"
+      regex       : "set system (tacplus|radius)-server @PRIMARY_RADIUS_SERVER@ secret .+"
+      expect      : "set system (tacplus|radius)-server @PRIMARY_RADIUS_SERVER@ secret .+"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Secondary authentication server is configured"
+      regex       : "set system (tacplus|radius)-server @SECONDARY_RADIUS_SERVER@ secret .+"
+      expect      : "set system (tacplus|radius)-server @SECONDARY_RADIUS_SERVER@ secret .+"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the authentication order is configured to use the authentication servers"
+      regex       : "set system authentication-order .+"
+      expect      : "set system authentication-order (radius|tacplus)"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-001360 - The Juniper router must be configured to use at least two authentication servers for the purpose of authenticating users prior to granting administrative access."
+      info        : "Centralized management of user accounts and authentication increases the administrative access to the router. This control is particularly important protection against the insider threat. With robust centralized management, audit records for administrator account access to the organization's network devices can be more readily analyzed for trends and anomalies. The alternative method of defining administrator accounts on each device exposes the device configuration to remote access authentication attacks and system administrators with multiple authenticators for each network device."
+      solution    : "Step 1: Configure the authentication servers as shown in the following example:
+
+[edit system]
+set radius-server x.x.x.x secret xxxxxxxxx
+set radius-server x.x.x.x secret xxxxxxxxx
+
+Step 2: Configure the authentication order to use the authentication servers as primary source for authentication as shown in the following example:
+
+set authentication-order radius
+
+Note: If there is no response from the authentication server, JUNOS will authenticate using a local account as last resort. It is recommended to not configure the password at the end of the authentication order, as JUNOS will attempt to authenticate using a local account upon a rejection from the authentication server."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02,800-53|CM-6(1),800-53r5|CM-6(1),CAT|I,CCI|CCI-000370,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6(1),NIAv2|NS5f,Rule-ID|SV-217350r961863_rule,STIG-ID|JUNI-ND-001360,STIG-Legacy|SV-101289,STIG-Legacy|V-91189,SWIFT-CSCv1|2.3,Vuln-ID|V-217350"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001400 - The Juniper router must be configured to support organizational requirements to conduct backups of the configuration when changes occur."
+  info        : "System-level information includes default and customized settings and security attributes, including ACLs that relate to the network device configuration, as well as software required for the execution and operation of the device. Information system backup is a critical step in ensuring system integrity and availability. If the system fails and there is no backup of the system-level information, a denial of service condition is possible for all who utilize this critical network component.
+
+This control requires the network device to support the organizational central backup process for system-level information associated with the network device. This function may be provided by the network device itself; however, the preferred best practice is a centralized backup rather than each network device performing discrete backups."
+  solution    : "Configure the router to send the configuration to an SCP server up a commit command as shown in the example below.
+
+set archival configuration transfer-on-commit archive-sites scp://scpuser@1.2.3.4:/configs' password 'xxxxxxxx'"
+  reference   : "800-171|3.4.2,800-171|3.8.9,800-171r3|03.04.02a.,800-171r3|03.08.09,800-53|CM-6b.,800-53|CP-9b.,800-53r5|CM-6b.,800-53r5|CP-9b.,CAT|II,CCI|CCI-000366,CCI|CCI-000537,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.IP-4,CSF2.0|DE.CM-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.PS-01,CSF2.0|RC.RP-03,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.29,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.13,ISO/IEC-27001|A.12.3.1,ITSG-33|CM-6b.,ITSG-33|CP-9b.,NESA|T3.2.1,NESA|T3.5.1,Rule-ID|SV-217351r961863_rule,STIG-ID|JUNI-ND-001400,STIG-Legacy|SV-101291,STIG-Legacy|V-91191,SWIFT-CSCv1|2.3,Vuln-ID|V-217351"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set archival configuration .+"
+  expect      : "set archival configuration transfer-on-commit archive-sites .+"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001430 - The Juniper router must be configured to obtain its public key certificates from an appropriate certificate policy through an approved service provider."
+  info        : "For user certificates, each organization obtains certificates from an approved, shared service provider, as required by OMB policy. For federal agencies operating a legacy public key infrastructure cross-certified with the Federal Bridge Certification Authority (CA) at medium assurance or higher, this CA will suffice.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Step 1. Create a trusted profile and email address to send certificate request to.
+
+[edit security]
+set pki ca-profile DODXX_CA ca-identity xxxxx.mil
+set pki ca-profile DODXX_CA administrator email-address certadmin@xxxxx.mil
+
+Step 2. Create a revocation check to specify a method for checking certificate revocation.
+
+set pki ca-profile DODXX_CA revocation-check crl url http://server1.example.mil/CertEnroll/example.crl
+set pki ca-profile DODXX_CA revocation-check crl refresh-interval 24"
+  reference   : "800-53|SC-17,800-53r5|SC-17a.,800-53r5|SC-17b.,CAT|II,CCI|CCI-001159,CCI|CCI-004909,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.24,ITSG-33|SC-17,ITSG-33|SC-17a.,NESA|T7.4.2,NIAv2|CY5a,NIAv2|CY10,NIAv2|CY12,NIAv2|SS25,Rule-ID|SV-217352r991995_rule,STIG-ID|JUNI-ND-001430,STIG-Legacy|SV-101293,STIG-Legacy|V-91193,Vuln-ID|V-217352"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set security pki ca-profile .+"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the router is configured to send log data to the syslog primary server"
+      regex       : "set system syslog .+"
+      expect      : "set system syslog host @PRIMARY_SYSLOG_SERVER@ any info"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Verify the router is configured to send log data to the syslog secondary server"
+      regex       : "set system syslog .+"
+      expect      : "set system syslog host @SECONDARY_SYSLOG_SERVER@ any info"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUNI-ND-001440 - The Juniper router must be configured to send log data to at least two syslog servers for the purpose of forwarding alerts to the administrators and the Information System Security Officers (ISSO) - ISSO"
+      info        : "Once an attacker establishes initial access to a system, the attacker often attempts to create a persistent method of reestablishing access. One way to accomplish this is for the attacker to simply create a new account. Notification of account creation is one method for mitigating this risk. A comprehensive account management process will ensure an audit trail which documents the creation of accounts and notifies administrators and ISSOs. Such a process greatly reduces the risk that accounts will be surreptitiously created and provides logging that can be used for forensic purposes."
+      solution    : "Configure the router to send log data to the syslog servers as shown in the example below.
+
+set syslog host x.x.x.x any info
+set syslog host x.x.x.x any info"
+      reference   : "800-53|AU-4(1),800-53r5|AU-4(1),CAT|I,CCI|CCI-001851,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-220141r961863_rule,STIG-ID|JUNI-ND-001440,STIG-Legacy|SV-101295,STIG-Legacy|V-91195,Vuln-ID|V-220141"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001460 - The Juniper router must be configured with a master password that is used to generate encrypted keys for shared secrets."
+  info        : "By default, shared secrets in a Junos configuration only use an obfuscation algorithm ($9$ format), which is not very strong and can easily be decrypted. Strong encryption for configured secrets can be enabled by configuring a master password to be used as input to the password based key derivation function (PBKDF2) to generate an encryption key. The key is used as input to the Advanced Encryption Standard in Galois/Counter Mode (AES256-GCM).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the master password to be used to generate encrypted keys for shared secrets as shown in the example below.
+
+[edit]
+set system master-password plain-text-password
+Master password: xxxxxxxxxx
+Repeat master password: xxxxxxxxxx"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-220142r961863_rule,STIG-ID|JUNI-ND-001460,STIG-Legacy|SV-101299,STIG-Legacy|V-91199,SWIFT-CSCv1|2.3,Vuln-ID|V-220142"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set system master-password .+"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUNI-ND-001470 - The Juniper router must be running a Junos release that is currently supported by Juniper Networks."
+  info        : "Network devices running an unsupported operating system lack current security fixes required to mitigate the risks associated with recent vulnerabilities. Running a supported release also enables operations to maintain a stable and reliable network provided by improved quality of service and security features.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Upgrade the Juniper router to a supported release."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_Router_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-220143r961863_rule,STIG-ID|JUNI-ND-001470,STIG-Legacy|SV-101301,STIG-Legacy|V-91201,SWIFT-CSCv1|2.3,Vuln-ID|V-220143"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_Router_Y25M01_STIG.zip"
+  regex       : "set version .+"
+  severity    : MEDIUM
+</custom_item>
+
+</check_type>

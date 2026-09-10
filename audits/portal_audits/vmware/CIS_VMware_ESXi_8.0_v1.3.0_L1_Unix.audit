@@ -1,0 +1,397 @@
+#TRUSTED a642fce119f769a1f957bfbb6d263462983e5a9379e963542f9db297cccf64a9e5a8a147afc66cedd921a73dc7d78fb4858933c11bad2bcfc4d40a44489e0318a9bfebb0956ffedbf530f1afda67928efe81b5f1fe8b640c8fcf805b534648042d09e8a63dc35b6bf87c597f76e1ec12d5587ed3fa8ff939280da333860292328c364fd42e445d7b76749f9740b2e9571609a55cf45f0f88ae314f81a73e280992da6c80c1cbad0b04e651d717066673941cf84498d71d6abdde7ab1a68c32152048c25564e5d7c82bbca0dc33887338d4fda906c0d1e291cc0995b428354e0ec83aa2338339af4143c1d7747fea92cf916dae08a26a62fcc2e7acaa1df32a5bf3150e074bf015fcbd6d8c037029f8df027b2fb2dd50ffe8c588548e04212ba5402a0f069a3b0f8c6b92f25ff2145a4a6ec38c8a1d52290a903a1f6e6f89ac2bd64cce5f742a6ef9895ec11805ad3b71ada298516f930eb5a188f578f542a95190ea180f2debe5618f8c8585448b16fad8e3a8fc547ba8e6f570eb687348002c915cf770bf31e725d556dca5acf583563d9f03cb77dfdf4b196c0688d26d5546d6a86f8d504ed4469d3569dd967564b7f19ed9d8966b1198cb53864deab207c65115ab7d8e1bfb5e2622bdd105308db1f8445b425f21ab09247f319cfb85c91a6410677abd11b2469c95633e4ffd8efe7608f3f392b145f32089eeba3a6189ee
+#TRUST-RSA-SHA256 89a769210262f67177d915f4092f962836195fc089dadf2f446818320a9908868a293e26cf4840036af29c55d1b84201ce7bd350faab945ae6c91c0098de9ea9a11ae5676d2a8f71145cf29e914a17cab9a3f35524e2597c87571070ca026b15ec1728f512bbb1dd13f2352b2801a1d44ef947ece6f0deb6042e2d3dc47693a286f363c6cf00910f3e1b36851197e8641c4ddae21c04b8ad282b38c87878f756595fbff3cfcef824570ae278b1d24abfabd4d969df3941cbff897751fd7d2731ec90cf8913c62d5826b75af462ee1835d0c73920a322db6d3346bfc945eece125cd0645e447d70097ee1d4b820187c6efff0206e0b15b4a6e604a1d4af217293e0e4f4e07905cdfeac23a1ac9df55bc7f343e4cf9572969dbaa26188605e10f73b19a9eb93ac2479d207bd1da5f09f5233dffbb1dfeeacecc8fe74e560f1db743004f54fade46116dd16ca9edd1729958a7d9bf2c61b7be51af5d37a90e651afd7c9b0901e3d1de9cc004e54ac226e8099236f9d00cf34d2bc86732877d93482dee255092fb75bf46416399b5ba0f76d0a2110efba46db604f00bb47fb56c35168be4813a5d1d4d62c737bf7dc3383a8b05938338908b00930b3172d64737776cdb23c6c512af2d97fe9f0333cf84a773a00972d9b89d7048e9e065b71d4d4247bb3e3481cffc6a2e14790cecb63cb55fe725e2abe4128c5f0be89dd94b3433a
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/05/05 $
+#
+# description : This .audit is designed against the CIS VMware ESXi 8.0 Benchmark 1.3.0
+#
+#<ui_metadata>
+#<display_name>CIS VMware ESXi 8.0 v1.3.0 L1 Unix</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>VMware ESXi 8.0</name>
+#  <profile>L1</profile>
+#  <version>1.3.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/21888</link>
+#</spec>
+#<labels>cis,vmware_esxi_8.0_bare_metal</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "VMkernel found"
+      cmd         : "uname -a"
+      expect      : "VMkernel"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_VMware_ESXi_8.0_v1.3.0_L1_Unix.audit from CIS VMware ESXi 8.0 1.3.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      show_output : YES
+    </report>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Value of disableHwrng"
+          cmd         : "/bin/esxcli system settings kernel list -o disableHwrng"
+          expect      : "^[\\s]*disableHwrng[\\s]+Bool[\\s]+FALSE.*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Value of entropySources"
+          cmd         : "/bin/esxcli system settings kernel list -o entropySources"
+          expect      : "^[\\s]*entropySources[\\s]+uint32[\\s]+0.*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.11 (L1) Host must use sufficient entropy for cryptographic operations"
+          info        : "Starting with vSphere 8.0, ESXi has enhanced its entropy implementation to align with FIPS 140-3 and EAL4 certifications, ensuring a robust foundation for cryptographic operations. Kernel boot options dictate the activation of entropy sources on an ESXi host. The parameter governing this behavior is disableHwrng = FALSE and entropySources = 0.
+
+Employing adequate entropy is crucial for ensuring the strength of cryptographic operations."
+          solution    : "Impact:
+
+There is no functional impact noted."
+          reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.4 (L1) Host image profile acceptance level must be PartnerSupported or higher"
+      info        : "The acceptance level on ESXi regulates the type of software that can be installed on the system, with four distinct levels: VMwareCertified, VMwareAccepted, PartnerSupported, and CommunitySupported. It's advised to set the acceptance level to PartnerSupported or higher to ensure that only tested and digitally signed vSphere Installation Bundles (VIBs) are allowed for installation.
+
+The ESXi Image Profile should only allow signed VIBs because an unsigned VIB represents untested code installed on an ESXi host. Also, use of unsigned VIBs will cause hypervisor Secure Boot to fail to configure. Community Supported VIBs do not have digital signatures. To protect the security and integrity of your ESXi hosts, do not allow unsigned (CommunitySupported) VIBs to be installed on your hosts."
+      solution    : "To verify the host image profile acceptance level perform the following:
+
+ - From the vSphere Web Client, select the host.
+ - Click Configure, then under System select Security Profile.
+ - Under Host Image Profile Acceptance Level select Edit
+ - In the dropdown select one of the following - VMware Certified, VMware Accepted, or Partner Supported.
+
+To implement the recommended configuration state, run the following PowerCLI command (in the example code, the level is Partner Supported):
+
+# Set the Software AcceptanceLevel for each host<span>
+Foreach ($VMHost in Get-VMHost ) {
+ $ESXCli = Get-EsxCli -VMHost $VMHost
+ $ESXCli.software.acceptance.Set(\"PartnerSupported\")
+}
+
+Impact:
+
+Restricting the acceptance level to PartnerSupported or higher prevents the installation of CommunitySupported packages, which are unsigned and hence, potentially unreliable or insecure. This restriction, while enhancing security, might limit the range of software that can be installed on the ESXi host."
+      reference   : "800-171r3|03.16.02,800-53|SA-22,800-53r5|SA-22,CSCv7|2.2,CSCv8|2.2,CSF2.0|ID.AM-08,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|1A"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      cmd         : "/bin/esxcli software acceptance get"
+      expect      : "^[\\s]*(PartnerSupported|VMwareCertified|VMwareAccepted)[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "esxcli system snmp get"
+          cmd         : "/bin/esxcli system snmp get"
+          expect      : "Enable: true"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : CMD_EXEC
+          description : "6.4.1 (L1) Host SNMP services, if enabled, must limit access"
+          info        : "To manage hosts securely, if SNMP is enabled, access must be restricted. Preferably, SNMPv3 should be employed as it offers superior security through key authentication and encryption compared to SNMPv1 or SNMPv2. Configuring the destination for SNMP traps is essential for ensuring monitoring data is directed to a legitimate and secure host.
+
+Proper SNMP configuration is crucial to reduce the risk of misuse or compromise, especially if other management means are in place. SNMPv3's enhanced security features are pivotal for secure management and monitoring.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "To correct the SNMP configuration, perform the following from the ESXi Shell or vCLI:
+
+ - If SNMP is not needed, disable it by running:
+
+esxcli system snmp set --enable false
+ - If SNMP is needed, refer to the vSphere Monitoring and Performance guide, chapter 8 for steps to configure it.
+
+Additionally, the following PowerCLI command may be used to implement the configuration:
+
+# Update the host SNMP Configuration (single host connection required)
+Get-VmHostSNMP | Set-VMHostSNMP -Enabled:$true -ReadOnlyCommunity '<secret>'
+
+Notes:
+
+ - SNMP must be configured on each ESXi host
+ - SNMP settings can be configured using Host Profiles
+
+Impact:
+
+Improper SNMP configuration can redirect sensitive monitoring data to malicious hosts, risking exploitation and compromising host security."
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|9.2,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|1M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+          cmd         : "/bin/esxcli system snmp get"
+          expect      : "^Manual Review Required$"
+          severity    : MEDIUM
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "6.4.1 (L1) Host SNMP services, if enabled, must limit access"
+          info        : "To manage hosts securely, if SNMP is enabled, access must be restricted. Preferably, SNMPv3 should be employed as it offers superior security through key authentication and encryption compared to SNMPv1 or SNMPv2. Configuring the destination for SNMP traps is essential for ensuring monitoring data is directed to a legitimate and secure host.
+
+Proper SNMP configuration is crucial to reduce the risk of misuse or compromise, especially if other management means are in place. SNMPv3's enhanced security features are pivotal for secure management and monitoring."
+          solution    : "To correct the SNMP configuration, perform the following from the ESXi Shell or vCLI:
+
+ - If SNMP is not needed, disable it by running:
+
+esxcli system snmp set --enable false
+ - If SNMP is needed, refer to the vSphere Monitoring and Performance guide, chapter 8 for steps to configure it.
+
+Additionally, the following PowerCLI command may be used to implement the configuration:
+
+# Update the host SNMP Configuration (single host connection required)
+Get-VmHostSNMP | Set-VMHostSNMP -Enabled:$true -ReadOnlyCommunity '<secret>'
+
+Notes:
+
+ - SNMP must be configured on each ESXi host
+ - SNMP settings can be configured using Host Profiles
+
+Impact:
+
+Improper SNMP configuration can redirect sensitive monitoring data to malicious hosts, risking exploitation and compromising host security."
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|9.2,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|1M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.1 (L1) Host SSH daemon, if enabled, must use FIPS 140-2/140-3 validated ciphers"
+      info        : "For enhanced security, if the SSH daemon is enabled on the host, it must utilize FIPS 140-2/140-3 validated ciphers. This requirement ensures the encryption standards are robust and compliant with regulatory mandates.
+
+Employing FIPS validated ciphers is vital for maintaining a high level of security and integrity in communications. It aligns with industry best practices and regulatory compliance requirements, ensuring secure SSH connections."
+      solution    : "Impact:
+
+There is no functional impact noted for this control; however, it significantly improves the security posture by enforcing the use of strong, validated encryption ciphers for SSH communications."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|11.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)FipsMode(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)FipsMode(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "6.5.10 (L1) Host SSH daemon, if enabled, must disable TCP forwarding"
+      info        : "Disabling TCP forwarding in the SSH daemon is a measure to prevent potential unauthorized tunneling and forwarding activities that could lead to data leaks or unauthorized data access. This measure adds a layer of security to the SSH service when enabled, making the system more resilient against certain types of network attacks.
+
+Preventing TCP forwarding aids in ensuring that the SSH daemon is not misused for unauthorized tunneling. This measure assists in maintaining a more secure and controlled network environment."
+      solution    : "Impact:
+
+No functional impact has been reported. This indicates that disabling TCP forwarding is a precautionary measure that does not interfere with the normal operation of the host."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)AllowTcpForwarding(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)AllowTcpForwarding(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "6.5.11 (L1) Host SSH daemon, if enabled, must not permit tunnels"
+      info        : "Preventing tunnel creation in the SSH daemon is a security measure aimed at thwarting unauthorized network tunneling through the host. This control, when enforced, helps mitigate the risks associated with potential data exfiltration or unauthorized network access that could occur via SSH tunnels.
+
+By disallowing tunnel creation, organizations can ensure that the SSH daemon is not exploited for unauthorized tunneling activities, thus contributing to a more secure network posture."
+      solution    : "Impact:
+
+There is no reported functional impact associated with this security control, indicating that the prevention of SSH tunneling does not adversely affect the host's normal operational behavior."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)PermitTunnel(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)PermitTunnel(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "6.5.12 (L1) Host SSH daemon, if enabled, must not permit user environment settings"
+      info        : "Preventing user environment settings in the SSH daemon ensures a consistent and controlled environment, reducing the attack surface by limiting the customization of the SSH environment by users.
+
+Disallowing user environment settings within the SSH daemon reduces the potential for malicious or inadvertent misconfiguration, thus enhancing the security posture."
+      solution    : "Impact:
+
+There is no functional impact noted, indicating that restricting user environment settings does not adversely affect the operational aspects of the host."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)PermitUserEnvironment(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)PermitUserEnvironment(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.2 (L1) Host SSH daemon, if enabled, must use FIPS 140-2/140-3 validated cryptographic modules"
+      info        : "When enabled, the SSH daemon on the host should employ FIPS 140-2/140-3 validated cryptographic modules provided by OpenSSH. Although these modules are enabled by default, they can be deactivated for backward compatibility, thus auditing and ensuring the correct setting is crucial for maintaining security standards.
+
+Utilizing FIPS validated cryptographic modules ensures adherence to recognized security standards, which is essential for protecting data during SSH sessions. This aligns with industry best practices and compliance requirements, promoting a secure operating environment."
+      solution    : "Impact:
+
+There's no functional impact associated with this control. It significantly enhances the security posture by enforcing the use of validated cryptographic modules, minimizing the risks associated with SSH communications."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|11.4,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)FipsMode(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)FipsMode(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.3 (L1) Host SSH daemon, if enabled, must not allow use of gateway ports"
+      info        : "When enabled, the SSH daemon on the host should have the gateway ports feature disabled to prevent remote hosts from forwarding connections. This is a hardening measure to ensure that the SSH service is securely configured against potential forwarding misuses.
+
+Disabling gateway ports is a preventative measure to avoid unauthorized forwarding by remote hosts, thus enhancing the security posture of the system. It is a prudent step in minimizing the attack surface associated with SSH service."
+      solution    : "Impact:
+
+There are no noted functional impacts associated with this control. It is a proactive security measure designed to prevent potential misuse of SSH service forwarding capabilities, without affecting the normal operation of the host."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|9.2,CSCv7|12.4,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)GatewayPorts(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)GatewayPorts(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "6.5.4 (L1) Host SSH daemon, if enabled, must not allow host-based authentication"
+      info        : "Ensuring the SSH daemon on the host disallows host-based authentication is a crucial step towards hardening system services. This prevents a host from authenticating on behalf of the users, thereby enforcing individual accountability and minimizing the risk of unauthorized access.
+
+Disallowing host-based authentication enforces a more secure user authentication mechanism, promoting individual accountability. It minimizes the risk associated with trust relationships among hosts, thereby enhancing the overall security of the system."
+      solution    : "Impact:
+
+No functional impact is associated with this control. It solely acts to enhance security by enforcing stricter authentication practices, without hindering system operations."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)HostbasedAuthentication(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)HostbasedAuthentication(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.5 (L1) Host SSH daemon, if enabled, must set a timeout count on idle sessions"
+      info        : "Setting a timeout count on idle SSH sessions ensures that inactive sessions are automatically disconnected after a specified period. This period is calculated by multiplying the timeout count with the idle timeout interval. Automatic disconnection of idle sessions reduces the window of opportunity for unauthorized access.
+
+Implementing a timeout count on idle sessions promotes better security hygiene by minimizing the exposure of open SSH sessions. It adds a layer of protection against potential unauthorized access arising from forgotten or unattended sessions."
+      solution    : "Impact:
+
+There's no functional impact reported with this control. It's a preventive measure aimed at enhancing the security posture by mitigating the risks associated with lingering idle sessions."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)ClientAliveCountMax(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)ClientAliveCountMax(?-i)[\\s]+([1-9][0-9]*)[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.6 (L1) Host SSH daemon, if enabled, must set a timeout interval on idle sessions"
+      info        : "Implementing a timeout interval on idle SSH sessions ensures that any inactive session gets disconnected after a certain period, improving the security posture. The total timeout duration is calculated by multiplying the timeout count by the idle timeout interval.
+
+Enforcing a timeout interval on idle SSH sessions minimizes the risk of unauthorized access through forgotten or unattended sessions, thereby hardening the system services as per security best practices."
+      solution    : "Impact:
+
+No functional impact is reported with this control. The measure is preventive, aiming to mitigate risks associated with open, idle SSH sessions."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)ClientAliveInterval(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)ClientAliveInterval(?-i)[\\s]+([1-9][0-9]*)[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.7 (L1) Host SSH daemon, if enabled, must display the system login banner before granting access"
+      info        : "Implementing a system login banner before granting SSH access ensures that crucial information or notices are conveyed to users attempting to login. The banner text is set through the host's Config.Etc.Issue advanced parameter.
+
+Displaying a system login banner helps in providing legal notices or other critical information to users, ensuring they are informed before gaining access, which is a step towards hardening and securing system services."
+      solution    : "Impact:
+
+There is no functional impact reported with the enforcement of this control. It primarily serves to inform users or provide legal disclaimers, aiding in legal and regulatory compliance."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)Banner(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)Banner(?-i)[\\s]+/etc/issue[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.8 (L1) Host SSH daemon, if enabled, must ignore .rhosts files"
+      info        : "Ignoring .rhosts files is crucial in hardening the SSH daemon on the host, ensuring that trust relationships are explicitly defined and not implicitly accepted, thereby reducing the attack surface.
+
+Ignoring .rhosts files removes potential security risks associated with outdated or overly permissive trust relationships, which is a step towards a hardened and more secure system service configuration."
+      solution    : "Impact:
+
+There are no reported functional impacts associated with ignoring .rhosts files; however, this practice enhances the security posture by mitigating risks associated with unauthorized access."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)IgnoreRhosts(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)IgnoreRhosts(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5.9 (L1) Host SSH daemon, if enabled, must disable stream local forwarding"
+      info        : "Disabling stream local forwarding on the SSH daemon ensures that no Unix domain sockets are forwarded, thus enforcing a security boundary. This measure aids in maintaining the integrity and confidentiality of the system.
+
+Disabling stream local forwarding helps in preventing potential misuse of Unix domain sockets which can be a vector for certain types of attacks or data leaks."
+      solution    : "Impact:
+
+There is no functional impact reported, indicating that disabling stream local forwarding is a safe measure towards enhancing system security without affecting operations."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|5.1,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)AllowStreamLocalForwarding(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)AllowStreamLocalForwarding(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_VMware_ESXi_8.0_v1.3.0_L1_Unix.audit from CIS VMware ESXi 8.0 1.3.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/21888"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

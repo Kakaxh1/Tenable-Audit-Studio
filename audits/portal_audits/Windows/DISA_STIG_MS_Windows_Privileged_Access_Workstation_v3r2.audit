@@ -1,0 +1,762 @@
+#TRUSTED 827471c1878dee1267fde105a8ea449c148f169884243aef3ac198cc937057bd6e41e1dfde5c95f17b41f1f1e5ddb06401ed5346d5f6134779d458533a9fca307ce000209a3349346189d1ddf11fff3a3581383b43cf3cd37cd0df0032872ba219f0a29f970f2a4f25833744f3703a399402aac72d235e4a27c33e7d50e449267a1cf7edeec065f49674af8326644388ad48a53eda564bf41a98b095e0bf3a9175f171baab94efd84bcc13673e525a500bbe288b3a38e3824e31615618cd98c8ad49e4ec5ed6d72f64b2dfa3e05bc327c92362b3ff9f1ec6ee0c35bde486924e66679437f8bec0870eb82e2aaf6df9ac601c9246641150f641962957533472cc97fb3210897114c96a3f741ba3841c052528dad362839fbe22f05353c13f2ed49424e369667466d32031795c56a30106e56992c6002843178c13a9c883b206ca1606c0273867f1d7597c14b9bdcf534e1a3d7fd4e00fbf5852273f9b713a9f8fe562abf1c581b96bcfa6f357a83f5388fa6de87804deec57654d3ecaa6a90f55b095b18022beb7fb62a519acc399e68076bfc534209e25aad6ca6946d26dcbbba50d98c7f86c4e11c7fcf858654786c894b45695e0eac29289e6a1d68bc1aa96e4f668806fdeda2585c90e7b9aad1cce1112eeb99ac3a1ac967f1979028db41b96ecdb1666460ea563e236473cecb9d1849a7ea8126d8d21478f5e83a6e3c597
+#TRUST-RSA-SHA256 685bbf5af377f19dd4cbdc9a4fd1fc8f82925e3f91551200c451eb15018f27f935b54485f68bde90b1bbb21c73e0a21f754b28bfcc291b338035b41cd6ffc521e012a9bbc453ba47917d508ce9c5f8382216abaaa6e7f3692ef5c9923aafb0f1dbd7bee3329b0e5d4e860a07b31b815414161fd36d33b8129935f41616657bf891013ba417f5fbf23f7c5f1ad606aef2bf387c1be4144fd79b95acba5437cf556f6aab45c5c5521f4921ff135f3430a21048dada2709e82c80abe7b1e9bf8cdbcb24308f325eb1ac50bb14a8382e479797dc9de80848c04e00a2e9c8d1fa01bef0d652f8c312acaa2916dd12961f27648cb1d1e5c1c16860b71922b68d416f17519372ded420c3ea54c7876322f4a03c66797d5f987807ba0eab384eafa94a1c76450c494718332653141c5345c283684476175381f6e193d7c42c1ad2925da5d66bb6512747309e8b136a6006635ec5657dc10abab6fb6bc612ef667530caa6720a286693b67ddf9b0b2816448e001819260c8b8226de3adc3ff851cdae0f7cbf2e523ef7de6db7997f84d86daf7c387ea41320c90180917d60ae4307ee6c051276fd6517c53c74ef2c17be18ff6f0b3b6ce2c7547219a08ca22e962faba09e2aea80586cb35c7331033ce4f201a44fdca98cdd77b578bb598cd61df300935d08156b8f8ac62207536a1779e8ea99ddb629884171f206bad84dffb652566dc8
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2026/02/13 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Microsoft Windows PAW v3r2 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA Microsoft Windows PAW STIG v3r2</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Microsoft Windows PAW</name>
+#  <version>3.2.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip</link>
+#</spec>
+#<labels>disa,windows_paw,agent</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>WSUSSERVER_URL</name>
+#    <default>http://wuserver</default>
+#    <description>WSUS Server URL</description>
+#    <info>This is the URL to your organization's WSUS server</info>
+#    <value_type>URL</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_ON_LOCALLY_USERS</name>
+#    <default>'administrators'</default>
+#    <description>users allowed to log on locally</description>
+#    <info>users allowed to log on locally</info>
+#    <value_type>USER_RIGHTS_VALUE</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_ON_LOCALLY_USERS_DOM_ADMIN</name>
+#    <default>'enterprise administrators'</default>
+#    <description>domain admins allowed to log on locally</description>
+#    <info>WPAW-00-001400 - domain admins allowed to log on locally</info>
+#    <value_type>USER_RIGHTS_VALUE</value_type>
+#  </variable>
+#  <variable>
+#    <name>WSUS_SCHED_INSTALL_TIME</name>
+#    <default>3</default>
+#    <description>WUS Scheduled install time</description>
+#    <info>WUS Scheduled install time</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#  <variable>
+#    <name>DENY_SERV_LOGON</name>
+#    <default>'enterprise administrators'</default>
+#    <description>users not allowed to log on as a service</description>
+#    <info>users not allowed to log on as a service</info>
+#    <value_type>USER_RIGHTS_VALUE</value_type>
+#  </variable>
+#  <variable>
+#    <name>DENY_BATCH_LOGON</name>
+#    <default>'enterprise administrators'</default>
+#    <description>users not allowed to log on in a batch job</description>
+#    <info>users not allowed to log on in a batch job</info>
+#    <value_type>USER_RIGHTS_VALUE</value_type>
+#  </variable>
+#  <variable>
+#    <name>DENY_INTERACTIVE_LOGON</name>
+#    <default>'enterprise administrators'</default>
+#    <description>users not allowed to log on locally</description>
+#    <info>users not allowed to log on locally</info>
+#    <value_type>USER_RIGHTS_VALUE</value_type>
+#  </variable>
+#  <variable>
+#    <name>PLATFORM_VERSION</name>
+#    <default>2[26][0-9]{3}</default>
+#    <description>Windows Version</description>
+#    <info>Windows Version</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"MS Windows PAW">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Windows 11 is installed"
+      value_type  : POLICY_TEXT
+      value_data  : "@PLATFORM_VERSION@"
+      reg_key     : "HKLM\Software\Microsoft\Windows Nt\Currentversion"
+      reg_item    : "CurrentBuild"
+      check_type  : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Windows 11 installation type"
+      value_type  : POLICY_TEXT
+      value_data  : "Client"
+      reg_key     : "HKLM\Software\Microsoft\Windows Nt\Currentversion"
+      reg_item    : "InstallationType"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_MS_Windows_Privileged_Access_Workstation_v3r2.audit from DISA Microsoft Windows PAW v3r2 STIG"
+      info        : "Nessus has identified that Windows is installed."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      show_output : YES
+    </report>
+
+    <report type:"WARNING">
+      description : "WPAW-00-000100 - Administrators of high-value IT resources must complete required training."
+      info        : "Required training helps to mitigate the risk of administrators not following required procedures. High-value IT resources are the most important and critical IT resources within an organization. They contain the most sensitive data in an organization, perform the most critical tasks of an organization, or have access to and can control all or nearly all IT resources within an organization. Requiring a PAW used exclusively for remote administrative management of designated high-value IT resources, including servers, workstations, directory services, applications, databases, and network components, will provide a separate 'channel' for the performance of administrative tasks on high-value IT resources and isolate these functions from the majority of threats and attack vectors found on higher-risk standard client systems. A main security architectural construct of a PAW is to remove non-administrative applications and functions from the PAW. Technical controls for securing high-value IT resources will be ineffective if administrators are not aware of key security requirements.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Add the following topics to initial and annual update training modules for system administrators of high-value IT resources:
+
+- Remotely manage high-value IT resources only via a PAW.
+- Administrative accounts will not be used for non-administrative functions (for example, read email, browse Internet)."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-171r3|03.15.01a.,800-53|AT-1a.1.,800-53|CM-6b.,800-53r5|AT-1a.1.a.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000101,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|GV.OC-03,CSF2.0|GV.OV-01,CSF2.0|GV.PO-01,CSF2.0|GV.PO-02,CSF2.0|GV.SC-03,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.1,ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.4,ISO-27001-2022|A.5.31,ISO-27001-2022|A.5.36,ISO-27001-2022|A.5.37,ISO-27001-2022|A.8.9,ISO-27001-2022|5.2,ISO-27001-2022|5.3,ISO-27001-2022|7.5.1,ISO-27001-2022|7.5.2,ISO-27001-2022|7.5.3,ITSG-33|AT-1a.,ITSG-33|CM-6b.,NESA|M1.1.3,NESA|M1.2.1,NESA|M3.1.1,NESA|M5.2.1,NESA|T3.2.1,NIAv2|SA1,NIAv2|SA2,Rule-ID|SV-243442r991589_rule,STIG-ID|WPAW-00-000100,STIG-Legacy|SV-92847,STIG-Legacy|V-78141,SWIFT-CSCv1|2.3,SWIFT-CSCv1|7.2,Vuln-ID|V-243442"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "WPAW-00-000200 - Site IT resources designated as high value by the Authorizing Official (AO) must be remotely managed only via a Windows privileged access workstation (PAW) - AO must be remotely managed only via PAW"
+      info        : "The AO must designate which IT resources are high value. The list must include the following IT resources:
+
+- Directory service (including Active Directory)
+- Cloud service
+- Identity management service
+- Privileged access management service
+- Credential management service
+- Security management service (anti-virus, network monitoring/scanning, IDS/IPS, etc.)
+- Any sensitive business/mission service
+- Any other IT resource designated as high value by the AO
+
+Note: A high-value IT resource is defined as any IT resource whose purpose is considered critical to the organization or whose loss or compromise would cause a significant impact on the organization.
+
+Note: Sensitive business/mission service is any business or mission service that needs additional protection from higher-risk IT services based on the nature of the function it provides; sensitivity of the data it consumes, processes, or stores; or criticality to the operation of the organization.
+
+High-value IT resources are the most important and critical IT resources within an organization. They contain the most sensitive data in an organization, perform the most critical tasks of an organization, or have access to and can control all or nearly all IT resources within an organization. Administrator accounts for high-value IT resources must be protected against various threats and attacks because threats to sensitive privileged accounts are high and risk of compromise is increasing. Requiring a PAW used exclusively for remote administrative management of designated high-value IT resources, including servers, workstations, directory services, applications, databases, and network components, will provide a separate 'channel' for the performance of administrative tasks on high-value IT resources and isolate these functions from the majority of threats and attack vectors found on higher-risk standard client systems.
+
+Some IT resources, by the nature of the function they perform, should always be considered high value and should be remotely administered only via a PAW. The IT resources listed above are in this category.
+
+Note: The term 'manage' in the Requirement statement includes any remote connection to a high-value IT resource (for example, to view resource status and current configuration or to make changes to any resource configuration).
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "The Information System Security Manager (ISSM) or other site personnel will assist the Authorizing Official (AO) in designating and documenting which IT resources in the organization are high value. The organization's list of high-value IT resources will include the following:
+
+- Active Directory
+- Cloud service
+- Identity management service
+- Privileged access management service
+- Credential management service
+- Security management service (anti-virus, network monitoring/scanning, IDS/IPS, etc.)
+- Any sensitive business service
+- Any other IT resource designated as high value by the AO
+
+Set up procedures to ensure a Windows PAW is used to remotely manage each of these types of IT resources."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243443r991589_rule,STIG-ID|WPAW-00-000200,STIG-Legacy|SV-92849,STIG-Legacy|V-78143,SWIFT-CSCv1|2.3,Vuln-ID|V-243443"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "WPAW-00-000400 - Administrative accounts of all high-value IT resources must be assigned to a specific administrative tier in Active Directory to separate highly privileged administrative accounts from less privileged administrative accounts."
+      info        : "Note: The Microsoft Tier 0-2 AD administrative tier model (https://docs.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material#ADATM_BM) is an example.
+
+A key security construct of a PAW is to separate administrative accounts into specific trust levels so that an administrator account used to manage an IT resource at one trust level cannot be used to manage IT resources at another trust level. This architecture protects IT resources in a tier from threats from higher-risk tiers. Isolating administrative accounts by forcing them to operate only within their assigned trust zone implements the concept of containment of security risks and adversaries within a specific zone. The Tier model prevents escalation of privilege by restricting what administrators can control and where they can log on.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set up an administrative tier model for the domain (for example, the Microsoft recommended Tier 0-2 AD administrative tier model).
+
+Note: Details of the Tier model are found at https://docs.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material#ADATM_BM.
+
+Set up an Admin Organizational Unit (OU) Framework to host site PAWs. (Recommend the Microsoft PAW scripts be used to set up the PAW OU and group framework. They can be downloaded at http://aka.ms/PAWmedia.)
+
+For example:
+
+- Admin\Tier 0\Accounts
+- Admin\Tier 1\Accounts
+- Admin\Tier 2\Accounts
+- Admin\Tier 0\Groups
+- Admin\Tier 1\Groups
+- Admin\Tier 2\Groups
+- Admin\Tier 0\Devices
+- Admin\Tier 1\Devices
+- Admin\Tier 2\Devices
+
+Note: If using the Microsoft scripts, after running the scripts, PAW Users Tier 0, PAW Users Tier 1, and PAW Users Tier 2 groups may need to be created under Admin/Tier 0/Groups, Admin/Tier 1/Groups, and Admin/Tier 2/Groups, respectively.
+
+Set up administrative accounts for each assigned administrator for high-value IT resources.
+
+Based on the list of high-value IT resources with assigned administrative tier level, move Tier 0-2 administrative accounts to the appropriate Organizational Units and add the appropriate members to the relevant groups. Make sure each account and group has been assigned to one and only one tier.
+
+(Reference-defined groups in the Active Directory Domain STIG)"
+      reference   : "800-171|3.1.5,800-171|3.4.2,800-171r3|03.01.06a.,800-171r3|03.04.02a.,800-53|AC-6(5),800-53|CM-6b.,800-53r5|AC-6(5),800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CCI|CCI-002227,CN-L3|8.1.10.6(a),CN-L3|8.1.10.6(d),CSF|PR.AC-4,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(5),ITSG-33|CM-6b.,NESA|T3.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM32,NIAv2|AM33,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-243444r991589_rule,STIG-ID|WPAW-00-000400,STIG-Legacy|SV-92851,STIG-Legacy|V-78145,SWIFT-CSCv1|1.2,SWIFT-CSCv1|2.3,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-243444"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "WPAW-00-000500 - A Windows PAW must only be used to manage high-value IT resources assigned to the same tier."
+      info        : "Note: Allowed exception - For sites that are constrained in the number of available workstations, an acceptable approach is to install lower-tier administrative accounts on a separate virtual machine (VM) on the PAW workstation where higher-tier administrative accounts are installed on the host OS and lower-tier administrative accounts are installed in a VM. The VM will provide acceptable isolation between administrative accounts of different tiers.
+
+Note: Relationship between the exception in WPAW-00-000500 and WPAW-00-001000 and requirement WPAW-00-001800: WPAW-00-000500 and WPAW-00-001000 allow an exception to the requirement for sites constrained in the number of available workstations. Lower-tier, high-value admin accounts can operate in a VM if the higher-tier, high-value admin accounts operate in the VM host-OS, but WPAW-00-001800 is more appropriate for a multiple PAW VM environment.
+
+If administrative accounts assigned to different tiers were installed on the same PAW, it would be impossible to isolate administrative accounts to specific trust zones and protect IT resources from one trust zone (tier) from threats from high-risk trust zones.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set aside one or more PAWs for remote management of high-value IT resources assigned to a specific tier. For example, using the Microsoft Tier 0-2 model, each PAW would be assigned to manage either Tier 0, Tier 1, or Tier 2 high-value IT resources."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243445r991589_rule,STIG-ID|WPAW-00-000500,STIG-Legacy|SV-92853,STIG-Legacy|V-78147,SWIFT-CSCv1|2.3,Vuln-ID|V-243445"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "WPAW-00-000600 - All high-value IT resources must be assigned to a specific administrative tier to separate highly sensitive resources from less sensitive resources."
+      info        : "Note: The Microsoft Tier 0-2 AD administrative tier model (https://docs.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material#ADATM_BM) is an example.
+
+A key security construct of a PAW is to separate high-value IT resources into specific trust levels so that if a device at one trust level is compromised the risk of compromise of more critical IT resources at a different tier is reduced. This architecture protects IT resources in a tier from threats from higher-risk tiers. Isolating administrative accounts by forcing them to operate only within their assigned trust zone implements the concept of containment of security risks and adversaries within a specific zone.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set up an administrative tier model for the domain (for example, the Microsoft-recommended Tier 0-2 AD administrative tier model). (Details of the Tier model are found at https://docs.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material#ADATM_BM.)
+
+Using the list of site designated high-value IT resources (see check WPAW-00-000200), indicate on the list the administrative Tier level the resource is assigned to. (Note: The updated list will be used in check WPAW-00-000400.)
+
+In Active Directory, assign all high-value IT resources to the appropriate Organizational Units (for example):
+
+- Admin\Tier 0\Devices
+- Admin\Tier 1\Devices
+- Admin\Tier 2\Devices"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243446r991589_rule,STIG-ID|WPAW-00-000600,STIG-Legacy|SV-92855,STIG-Legacy|V-78149,SWIFT-CSCv1|2.3,Vuln-ID|V-243446"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "WPAW-00-000700 - The Windows PAW must be configured with a vendor-supported version of Windows 11 and applicable security patches that are DOD approved."
+      info            : "Older versions of operating systems usually contain vulnerabilities that have been fixed in later released versions. In addition, most operating system patches contain fixes for recently discovered security vulnerabilities. Due to the highly privileged activities of a PAW, it must be maintained at the highest security posture possible and therefore must have one of the current vendor-supported operating system versions installed.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Install one of the current vendor-supported versions of Windows 11 on site PAWs, including the most recently released patches.
+
+Note: There is no central list in the DOD of 'approved' operating system versions. The Microsoft website will list supported versions of Windows 11 and patches. If a STIG is available for one or more of the vendor-supported versions of Windows 11, the version can be considered to be DOD approved. Local AOs usually have implemented a procedure for testing Windows updates before they are deployed. Check with the local AO's staff to determine the latest approved version of Windows 11."
+      reference       : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243447r991589_rule,STIG-ID|WPAW-00-000700,STIG-Legacy|SV-92857,STIG-Legacy|V-78151,SWIFT-CSCv1|2.3,Vuln-ID|V-243447"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : ".*"
+      powershell_args : "Get-ItemProperty -Path 'hklm:Software\Microsoft\Windows Nt\Currentversion' -name 'CurrentBuild'|Select CurrentBuild"
+      severity        : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"WARNING" type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "WUServer"
+          value_type  : POLICY_TEXT
+          value_data  : "@WSUSSERVER_URL@"
+          reg_key     : "HKLM\Software\Policies\Microsoft\Windows\Windowsupdate"
+          reg_item    : "WUServer"
+          reg_option  : CAN_NOT_BE_NULL
+          severity    : MEDIUM
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "AUOptions"
+          value_type  : POLICY_DWORD
+          value_data  : "4"
+          reg_key     : "HKLM\Software\Policies\Microsoft\Windows\Windowsupdate\Au"
+          reg_item    : "AUOptions"
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "ScheduledInstallDay"
+          value_type  : POLICY_DWORD
+          value_data  : "0"
+          reg_key     : "HKLM\Software\Policies\Microsoft\Windows\Windowsupdate\Au"
+          reg_item    : "ScheduledInstallDay"
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "ScheduledInstallTime"
+          value_type  : POLICY_DWORD
+          value_data  : @WSUS_SCHED_INSTALL_TIME@
+          reg_key     : "HKLM\Software\Policies\Microsoft\Windows\Windowsupdate\Au"
+          reg_item    : "ScheduledInstallTime"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "WPAW-00-000800 - A Windows update service must be available to provide software updates for the PAW platform."
+          info        : "Older versions of operating systems usually contain vulnerabilities that have been fixed in later versions. In addition, most operating system patches contain fixes for recently discovered security vulnerabilities. Due to the highly privileged activities of a PAW, it must be maintained at the highest security posture possible and therefore must have the latest operating system updates installed.
+
+Because a PAW is isolated from online operating system update services, a software update service must be available on the intranet to manage operating system and other software updates for site PAWs. A separate software update service is not required at each tier.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "Install a Windows update service (for example, Microsoft WSUS or System Center Configuration Manager [SCCM]) to provide software updates to all Windows-based PAWs in the organization.
+
+Configure the Windows update service to download available operating system updates and install them when approved.
+
+Based on site policy, configure the Windows update service to either automatically approve new updates for installation or to not install updates until installation is initiated by an authorized PAW maintenance administrator.
+
+If WSUS is being used, configure Windows Update for WSUS on each PAW (use appropriate configuration procedures if an alternate Windows update service is used).
+
+Go to Computer Configuration\Administrative Templates\Windows Components\Windows Updates and follow the steps below:
+
+1. Enable the Configure Automatic Updates policy.
+2. Select option 4 - Auto download and schedule the install.
+3. Change the option 'Scheduled install day' to '0 - Every Day' and the option 'Scheduled install time' to your organizational preference.
+4. Enable option 'Specify intranet Microsoft update service location' policy, and specify in both options the URL of the WSUS server."
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243448r991589_rule,STIG-ID|WPAW-00-000800,STIG-Legacy|SV-92859,STIG-Legacy|V-78153,SWIFT-CSCv1|2.3,Vuln-ID|V-243448"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "WPAW-00-001000 - The Windows PAW must be configured so that all non-administrative-related applications and functions are blocked or removed from the PAW platform, including but not limited to email, Internet browsing, and line-of-business applications."
+      info            : "Note: The intent of this requirement is that a PAW must not be used for any function not related to the management of high-value IT resources.
+
+Note: Authorized exception - It is noted that administrators will need access to non-administrative functions, such as email and the Internet, but a PAW must not be used for these activities. For sites that are constrained in the number of available workstations, an acceptable approach is to install the non-administrative services on a separate virtual machine (VM) on the workstation where the PAW service is installed. The VM will provide acceptable isolation between high-value administrative management accounts and non-administrative services.
+
+Note: Relationship between the exception in WPAW-00-000500 and WPAW-00-001000 and requirement WPAW-00-001800: WPAW-00-000500 and WPAW-00-001000 allow an exception to the requirement for sites constrained in the number of available workstations. Lower-tier, high-value admin accounts can operate in a VM if the higher-tier, high-value admin accounts operate in the VM host-OS, but WPAW-00-001800 is more appropriate for a multiple PAW VM environment.
+
+A main security architectural construct of a PAW is to remove non-administrative applications and functions from the PAW workstation. Many standard user applications and functions, including email processing, Internet browsing, and using business applications, can increase the security risk to the workstation. These apps and functions are susceptible to many security vulnerabilities, including phishing attacks and embedded malware. This increased risk is not acceptable for the highly privileged activities of a PAW.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Remove email applications and all line-of business applications from the PAW.
+
+Note: Internet browsing is blocked using the PAW host-based firewall or by configuring a proxy address with a loopback address on the PAW. (See STIG check WPAW-00-002200.)"
+      reference       : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243449r991589_rule,STIG-ID|WPAW-00-001000,STIG-Legacy|SV-92861,STIG-Legacy|V-78155,SWIFT-CSCv1|2.3,Vuln-ID|V-243449"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : "Manual Review Required"
+      powershell_args : "Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher | Sort-Object -Unique DisplayName | Format-Table -AutoSize;  Get-WindowsFeature | Where-Object {$_.InstallState -eq 'Installed'} | Format-Table -AutoSize"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "WPAW-00-001050 - Device Guard Code Integrity Policy must be used on the Windows PAW to restrict applications that can run on the system (Device Guard Code Integrity Policy)."
+      info            : "A main security architectural construct of a PAW is to restrict non-administrative applications and functions from the PAW workstation. Many standard user applications and functions, including email processing, Internet browsing, and using business applications, can increase the security risk to the workstation. These apps and functions are susceptible to many security vulnerabilities, including phishing attacks and embedded malware. This increased risk is not acceptable for the highly privileged activities of a PAW."
+      solution        : "Implement a whitelist of authorized PAW applications using Device Guard. See the Device Guard Deployment Guide (https://docs.microsoft.com/en-us/windows/device-security/device-guard/device-guard-deployment-guide) for deployment information and hardware requirements and the IAD Device Guard document 'Implementing a Secure Administrative Workstation using Device Guard' at https://github.com/iadgov/Secure-Host-Baseline/tree/master/Device%20Guard."
+      reference       : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243450r991589_rule,STIG-ID|WPAW-00-001050,STIG-Legacy|SV-92863,STIG-Legacy|V-78157,SWIFT-CSCv1|2.3,Vuln-ID|V-243450"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : "CodeIntegrityPolicyEnforcementStatus : 2"
+      powershell_args : "Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard | Format-List CodeIntegrityPolicyEnforcementStatus"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : GROUP_MEMBERS_POLICY
+          description : "Backup Operators"
+          value_type  : POLICY_MULTI_TEXT
+          value_data  : ""
+          group_name  : "Backup Operators"
+        </custom_item>
+
+        <custom_item>
+          type        : GROUP_MEMBERS_POLICY
+          description : "Cryptographic Operators"
+          value_type  : POLICY_MULTI_TEXT
+          value_data  : ""
+          group_name  : "Cryptographic Operators"
+        </custom_item>
+
+        <custom_item>
+          type        : GROUP_MEMBERS_POLICY
+          description : "Hyper-V Administrators"
+          value_type  : POLICY_MULTI_TEXT
+          value_data  : ""
+          group_name  : "Hyper-V Administrators"
+        </custom_item>
+
+        <custom_item>
+          type        : GROUP_MEMBERS_POLICY
+          description : "Network Configuration Operators"
+          value_type  : POLICY_MULTI_TEXT
+          value_data  : ""
+          group_name  : "Network Configuration Operators"
+        </custom_item>
+
+        <custom_item>
+          type        : GROUP_MEMBERS_POLICY
+          description : "excluding Administrators must be restricted to include no members -Power Users"
+          value_type  : POLICY_MULTI_TEXT
+          value_data  : ""
+          group_name  : "Power Users"
+        </custom_item>
+
+        <custom_item>
+          type        : GROUP_MEMBERS_POLICY
+          description : "Remote Desktop Users"
+          value_type  : POLICY_MULTI_TEXT
+          value_data  : ""
+          group_name  : "Remote Desktop Users"
+        </custom_item>
+
+        <custom_item>
+          type        : GROUP_MEMBERS_POLICY
+          description : "Replicator"
+          value_type  : POLICY_MULTI_TEXT
+          value_data  : ""
+          group_name  : "Replicator"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "WPAW-00-002400 - Local privileged groups (excluding Administrators) on the Windows PAW must be restricted to include no members - excluding Administrators on the Windows PAW must be restricted to include no members"
+          info        : "A main security architectural construct of a PAW is to restrict access to the PAW from only specific privileged accounts designated for managing the high-value IT resources the PAW has been designated to manage. If unauthorized standard user accounts or unauthorized high-value administrative accounts are able to access a specific PAW, high-value IT resources and critical DoD information could be compromised."
+          solution    : "Complete the following configuration procedures to restrict access to privileged accounts on the PAW (see the instructions for use of group policy to define membership, PAW Installation instructions in the Microsoft PAW paper).
+
+Configure membership of all local privileged groups (except for 'Administrators (built-in)' group) so it is empty*. This procedure applies to the following local privileged groups:
+
+- Backup Operators (built-in)
+- Hyper-V Administrators
+- Network Configuration Operators
+- Power Users
+- Remote Desktop Users
+- Replicator
+
+Link the PAW group policy object (GPO) to the appropriate Tier devices Organizational Unit (OU).
+
+*Allowed exception: If a Hyper-V environment is used, the Hyper-V Administrators group may include members."
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243463r991589_rule,STIG-ID|WPAW-00-002400,STIG-Legacy|SV-92865,STIG-Legacy|V-78159,SWIFT-CSCv1|2.3,Vuln-ID|V-243463"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "DisableRestrictedAdmin"
+          value_type  : POLICY_DWORD
+          value_data  : "0"
+          reg_key     : "HKLM\System\CurrentControlSet\Control\Lsa"
+          reg_item    : "DisableRestrictedAdmin"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "RestrictedRemoteAdministration"
+          value_type  : POLICY_DWORD
+          value_data  : "1"
+          reg_key     : "HKLM\Software\Policies\Microsoft\Windows\CredentialsDelegation"
+          reg_item    : "RestrictedRemoteAdministration"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "WPAW-00-002500 - Restricted remote administration must be enabled for high-value systems."
+          info        : "Restricted remote administration features, RestrictedAdmin mode, and Remote Credential Guard for Remote Desktop Protocol (RDP), are an additional safeguard against 'pass the hash' attacks, where hackers attempt to gain higher administrative privileges from a single compromised machine. Restricted remote administration protects administrator accounts by ensuring that reusable credentials are not stored in memory on remote devices that could potentially be compromised. When restricted remote administration is implemented, the local RDP service tries to log on to the remote device using a network logon, so the user's credentials are not sent across the network. Therefore, if the high-value IT resource is compromised, the credentials of the administrator connecting to the IT resource from the PAW are not compromised."
+          solution    : "Enable RestrictedAdmin mode or Remote Credential Guard on high-value systems.
+
+On target systems (high-value assets), configure the following registry value:
+
+- HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa
+- Name: DisableRestrictedAdmin
+- Type: REG_DWORD
+- Value: 0
+
+On PAW systems:
+
+Configure the policy value for Computer Configuration >> Administrative Templates >> System >> Credentials Delegation 'Restrict delegation of credentials to remote servers' to 'Enabled'.
+
+Require Remote Credential Guard
+Require Restricted Admin
+Restrict Credential Delegation"
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243464r991589_rule,STIG-ID|WPAW-00-002500,STIG-Legacy|SV-92867,STIG-Legacy|V-78161,SWIFT-CSCv1|2.3,Vuln-ID|V-243464"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "WPAW-00-001060 - Device Guard Code Integrity Policy must be used on the Windows PAW to restrict applications that can run on the system (Device Guard User Mode Code Integrity)."
+      info            : "A main security architectural construct of a PAW is to restrict non-administrative applications and functions from the PAW workstation. Many standard user applications and functions, including email processing, Internet browsing, and using business applications, can increase the security risk to the workstation. These apps and functions are susceptible to many security vulnerabilities, including phishing attacks and embedded malware. This increased risk is not acceptable for the highly privileged activities of a PAW."
+      solution        : "Implement a whitelist of authorized PAW applications using Device Guard. See the Device Guard Deployment Guide (https://docs.microsoft.com/en-us/windows/device-security/device-guard/device-guard-deployment-guide) for deployment information and hardware requirements and the IAD Device Guard document 'Implementing a Secure Administrative Workstation using Device Guard' at https://github.com/iadgov/Secure-Host-Baseline/tree/master/Device%20Guard."
+      reference       : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243451r991589_rule,STIG-ID|WPAW-00-001060,STIG-Legacy|SV-92869,STIG-Legacy|V-78163,SWIFT-CSCv1|2.3,Vuln-ID|V-243451"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : "UsermodeCodeIntegrityPolicyEnforcementStatus : 2"
+      powershell_args : "Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard | Format-List UsermodeCodeIntegrityPolicyEnforcementStatus"
+    </custom_item>
+
+    <custom_item>
+      type        : USER_RIGHTS_POLICY
+      description : "WPAW-00-001100 - Windows PAWs must be restricted to only allow groups used to manage high-value IT resources and members of the local Administrators group to log on locally."
+      info        : "A main security architectural construct of a PAW is to limit users of the PAW to only administrators of high-value IT resources. This will mitigate some of the risk of attack on administrators of high-value IT resources."
+      solution    : "Configure the policy value for Computer Configuration >> Windows Settings >> Security Settings >> Local Policies >> User Rights Assignment >> 'Allow log on locally' to only include the following groups or accounts:
+
+- Administrators
+- Groups specifically designated to manage high-value IT resources"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243452r991589_rule,STIG-ID|WPAW-00-001100,STIG-Legacy|SV-92871,STIG-Legacy|V-78165,SWIFT-CSCv1|2.3,Vuln-ID|V-243452"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type  : USER_RIGHT
+      value_data  : @LOG_ON_LOCALLY_USERS@
+      right_type  : SeInteractiveLogonRight
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : USER_RIGHTS_POLICY
+          description : "Deny log on as a service"
+          value_type  : USER_RIGHT
+          value_data  : @DENY_SERV_LOGON@
+          right_type  : SeDenyServiceLogonRight
+          check_type  : CHECK_SUPERSET
+        </custom_item>
+
+        <custom_item>
+          type        : USER_RIGHTS_POLICY
+          description : "Deny log on as a batch job"
+          value_type  : USER_RIGHT
+          value_data  : @DENY_BATCH_LOGON@
+          right_type  : SeDenyBatchLogonRight
+          check_type  : CHECK_SUPERSET
+        </custom_item>
+
+        <custom_item>
+          type        : USER_RIGHTS_POLICY
+          description : "Deny log on locally"
+          value_type  : USER_RIGHT
+          value_data  : @DENY_INTERACTIVE_LOGON@
+          right_type  : SeDenyInteractiveLogonRight
+          check_type  : CHECK_SUPERSET
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "WPAW-00-001200 - The domain must be configured to restrict privileged administrator accounts from logging on to lower-tier hosts."
+          info        : "If the domain is not configured to restrict privileged administrator accounts from logging on to lower-tier hosts, it would be impossible to isolate administrative accounts to specific trust zones and protect IT resources from threats from high-risk trust zones. Blocking logon to lower-tier assets helps protect IT resources in a tier from being attacked from a lower tier."
+          solution    : "Configure domain systems to prevent higher-tier administrative accounts from logging on to lower-tier hosts.
+
+Assign higher-tier administrative groups to the Deny log on user rights of lower-tier hosts. This includes the following user rights:
+
+Deny log on as a batch job
+Deny log on as a service
+Deny log on locally
+
+Domain and Enterprise Admins are currently required to be included in the appropriate deny user rights in the Windows STIGs for member servers and workstations."
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243453r991589_rule,STIG-ID|WPAW-00-001200,STIG-Legacy|SV-92873,STIG-Legacy|V-78167,SWIFT-CSCv1|2.3,Vuln-ID|V-243453"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <report type:"WARNING">
+      description : "WPAW-00-001300 - A Windows PAW used to manage domain controllers and directory services must not be used to manage any other type of high-value IT resource."
+      info        : "Domain controllers (DC) are usually the most sensitive, high-value IT resources in a domain. Dedicating a PAW to be used solely for managing domain controllers will aid in protecting privileged domain accounts from being compromised.
+
+For Windows, this includes the management of Active Directory itself and the DCs that run Active Directory, including such activities as domain-level user and computer management, administering trusts, replication, schema changes, site topology, domain-wide group policy, the addition of new DCs, DC software installation, and DC backup and restore operations.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set aside one or more PAWs for remote management of Active Directory.
+
+Ensure they are used only for the purpose of managing directory services. Otherwise, use the local domain controller console to manage Active Directory."
+      reference   : "800-171|3.13.3,800-53|SC-2,800-53r5|SC-2,CAT|I,CCI|CCI-001082,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-2,ITSG-33|SC-2a.,NESA|T3.4.1,NIAv2|SS15b,Rule-ID|SV-243454r958514_rule,STIG-ID|WPAW-00-001300,STIG-Legacy|SV-92875,STIG-Legacy|V-78169,Vuln-ID|V-243454"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type        : USER_RIGHTS_POLICY
+      description : "WPAW-00-001400 - PAWs used to manage Active Directory must only allow groups specifically designated to manage Active Directory, such as Enterprise and Domain Admins and members of the local Administrators group, to log on locally."
+      info        : "PAW platforms are used for highly privileged activities. The accounts that have administrative privileges on domain-level PAW platforms must not be used on or used to manage any non-domain-level PAW platforms. Otherwise, there would be a clear path for privilege escalation to Enterprise Admin (EA)/Domain Admin (DA) privileges.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure the group policy that applies to the PAW.
+
+Install only administrative accounts designated to be used to manage domain controllers and Active Directory remotely in the PAW User group on PAWs designated for the management of domain controllers and Active Directory.
+
+Configure the policy value for Computer Configuration >> Windows Settings >> Security Settings >> Local Policies >> User Rights Assignment >> 'Allow log on locally' to only include the following groups or accounts:
+
+- Administrators
+- Groups specifically designated to manage domain controllers and Active Directory"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243455r991589_rule,STIG-ID|WPAW-00-001400,STIG-Legacy|SV-92877,STIG-Legacy|V-78171,SWIFT-CSCv1|2.3,Vuln-ID|V-243455"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type  : USER_RIGHT
+      value_data  : @LOG_ON_LOCALLY_USERS_DOM_ADMIN@
+      right_type  : SeInteractiveLogonRight
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "WPAW-00-001500 - In a Windows PAW, administrator accounts used for maintaining the PAW must be separate from administrative accounts used to manage high-value IT resources."
+      info        : "Note: PAW accounts used to manage high-value IT resources have privileged rights on managed systems but no administrative or maintenance rights on the PAW. They only have user rights on the PAW. PAW administrative/maintenance accounts only have administrative rights on a PAW and are used only to perform administrative functions on the PAW.  PAW administrative/maintenance accounts are the only admin accounts that have admin rights on a PAW.  It is not required that PAW administrative/maintenance accounts be organized by tier.
+
+The PAW platform should be protected from high-value IT resource administrators accidently or deliberately modifying the security settings of the PAW. Therefore, high-value IT resource administrators must not have the ability to perform maintenance functions on the PAW platform. Separate PAW admin accounts must be set up that only have rights to manage PAW platforms.
+
+PAW administrators have the capability to compromise Domain Admin accounts; therefore, personnel assigned as PAW administrators must be the most trusted and experienced administrators within an organization, at least equal to personnel assigned as domain administrators.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set up separate domain administrative accounts to manage PAWs from domain administrative accounts used to manage high-value IT resources. Each of these accounts is not to be used for any other purpose.
+
+Note: Personnel assigned as PAW administrators should be the most trusted and experienced administrators within an organization."
+      reference   : "800-171|3.13.3,800-53|SC-2,800-53r5|SC-2,CAT|II,CCI|CCI-001082,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-2,ITSG-33|SC-2a.,NESA|T3.4.1,NIAv2|SS15b,Rule-ID|SV-243456r958514_rule,STIG-ID|WPAW-00-001500,STIG-Legacy|SV-92879,STIG-Legacy|V-78173,Vuln-ID|V-243456"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "WPAW-00-001600 - The Windows PAW must be configured to enforce two-factor authentication and use Active Directory for authentication management."
+      info        : "Due to the highly privileged functions of a PAW, a high level of trust must be implemented for access to the PAW, including nonrepudiation of the user session. One-factor authentication, including username and password and shared administrator accounts, does not provide adequate assurance."
+      solution    : "In Active Directory, configure group policy to enable either smart card or another DOD-approved two-factor authentication method for all PAWs.
+
+- Go to Computer Configuration >> Windows Settings >> Security Settings >> Local Policies >> Security Options.
+- Set 'Interactive logon: Require Windows Hello for Business or smart card' to 'Enabled'."
+      reference   : "800-171|3.5.3,800-171r3|03.05.03,800-53|IA-2(1),800-53|IA-2(3),800-53r5|IA-2(1),CAT|II,CCI|CCI-000765,CCI|CCI-000767,CN-L3|7.1.2.7(b),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(1),ITSG-33|IA-2(3),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM36,NIAv2|VL3c,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-243457r1015765_rule,STIG-ID|WPAW-00-001600,STIG-Legacy|SV-92881,STIG-Legacy|V-78175,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-243457"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Microsoft\Windows\Currentversion\Policies\System"
+      reg_item    : "scforceoption"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "WPAW-00-001700 - The Windows PAW must use a trusted channel for all connections between a PAW and IT resources managed from the PAW."
+      info        : "Note: The Common Criteria Security Functional Requirement (SFR) FTP_ITC.1.1(1) defines 'trusted channel' as 'a channel that uses IPsec, SSH, TLS, or TLS/HTTPS to provide a trusted communications channel between itself and authorized IT entity that is logically distinct from other communication channels and provides assured identification of its end points and protection of the channel data from modification or disclosure.' The trusted channel uses IPsec, TLS, DTLS, or HTTPS as the protocol that preserves the confidentiality and integrity of PAW communications.
+
+The confidentiality and integrity of the communications between the PAW and high-value IT resources being managed from the PAW must be protected due to the highly sensitive nature of the administrative functions being performed. A trusted channel provides the requisite assured identification of its end points and protection of the channel data from modification or disclosure."
+      solution    : "Configure the PAWs to use IPsec, SSH, TLS, or TLS/HTTPS for all connections between the PAW and managed IT resources on the intranet.
+
+Configure the policy value for Computer Configuration >> Windows Settings >> Security Settings >> Local Policies >> Security Options >> 'System cryptography: Use FIPS compliant algorithms for encryption, hashing, and signing' to 'Enabled'."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53|SC-11,800-53|SC-11(1),800-53r5|CM-6b.,800-53r5|SC-11a.,800-53r5|SC-11(1)(a),CAT|I,CCI|CCI-000366,CCI|CCI-001135,CCI|CCI-002426,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,ITSG-33|SC-11,ITSG-33|SC-11a.,NESA|T3.2.1,NIAv2|NS6a,NIAv2|NS7,NIAv2|NS8,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-243458r991589_rule,STIG-ID|WPAW-00-001700,STIG-Legacy|SV-92883,STIG-Legacy|V-78177,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.6,Vuln-ID|V-243458"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\System\Currentcontrolset\Control\Lsa\Fipsalgorithmpolicy"
+      reg_item    : "Enabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "WPAW-00-001800 - If several Windows PAWs are set up in virtual machines (VMs) on a host server, the host server must only contain PAW VMs. If the PAW is hosted, the hosting system must be separated either physically or logically from other servers. The server is restricted to only PAW hosting functions - VMs on a host server, the host server must only contain PAW VMs."
+      info        : "A main security architectural construct of a PAW is to remove nonadministrative functions from the PAW. Many standard user functions, including email processing, internet browsing, and using business applications, can increase the security risk of the workstation. These apps and functions are susceptible to many security vulnerabilities, including phishing attacks and embedded malware. This increased risk is not acceptable for the highly privileged activities of a PAW. This requirement enforces this security concept in an environment where multiple PAW VMs are installed on a host server.
+
+Note: Relationship between the exception in WPAW-00-000500 and WPAW-00-001000 and requirement WPAW-00-001800: WPAW-00-000500 and WPAW-00-001000 allow an exception to the requirement for sites constrained in the number of available workstations. Lower-tier, high-value admin accounts can operate in a VM if the higher-tier, high-value admin accounts operate in the VM host-OS, but WPAW-00-001800 is more appropriate for a multiple PAW VM environment.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Install only PAW VMs on a host server designated for PAWs."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243459r1107644_rule,STIG-ID|WPAW-00-001800,STIG-Legacy|SV-92885,STIG-Legacy|V-78179,SWIFT-CSCv1|2.3,Vuln-ID|V-243459"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "WPAW-00-002100 - The Windows PAW must be configured so that all inbound ports and services to a PAW are blocked except as needed for monitoring, scanning, and management tools or when the inbound communication is a response to an outbound connection request."
+      info            : "A main security architectural construct of a PAW is that the workstation is isolated from most Internet threats, including phishing, impersonation, and credential theft attacks. This isolation is partially implemented by blocking unsolicited inbound traffic to the PAW.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Determine which inbound ports, services, addresses, or subnets are needed on the PAW for the organization's monitoring, scanning, and management tools.
+
+Configure the host-based firewall on the PAW to block all inbound connection requests except for organizational monitoring, scanning, and management tools or for inbound connections that are responses to outbound connection requests.
+
+Configure the host-based firewall on the PAW to block users with local administrative access from creating or modifying local firewall rules.
+
+Note: The exact configuration procedure will depend on which host-based firewall (for example, ESS) is used on the PAW. DoD sites should refer to DoD policies and firewall STIGs to determine acceptable firewalls products."
+      reference       : "800-171|3.4.2,800-171|3.13.1,800-171r3|03.04.02a.,800-171r3|03.13.01,800-53|CM-6b.,800-53|SC-7(11),800-53r5|CM-6b.,800-53r5|SC-7(11),CAT|II,CCI|CCI-000366,CCI|CCI-002403,CN-L3|8.1.10.6(d),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.IP-1,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-6b.,ITSG-33|SC-7(11),NESA|T3.2.1,NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-243460r991589_rule,STIG-ID|WPAW-00-002100,STIG-Legacy|SV-92887,STIG-Legacy|V-78181,SWIFT-CSCv1|2.3,TBA-FIISB|31.3,Vuln-ID|V-243460"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : ".*"
+      powershell_args : "netstat.exe -ano;netsh advfirewall show domain;netsh advfirewall show public;netsh advfirewall show private"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "WPAW-00-002200 - The Windows PAW must be configured so that all outbound connections to the Internet from a PAW are blocked."
+      info            : "Note: Internal domain connections from a PAW to communicate with IT resources being managed via the PAW with domain controllers or with a digital credential verification service (for example, Online Certificate Status Protocol [OCSP]) are allowed.
+
+A main security architectural construct of a PAW is that the workstation is isolated from most internet threats, including phishing, impersonation, and credential theft attacks. This isolation is partially implemented by blocking all outbound connections to the internet.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Configure the PAW host-based firewall to block outbound connection requests to the internet gateway or configure the PAW with an internet proxy address with a loopback address. Allowed exceptions include connections to communicate with IT resources being managed via the PAW, including the management console of authorized public cloud services, with domain controllers, or with a digital credential verification service (for example, OCSP).
+
+If the PAW host-based firewall method is used, configure the firewall to block outbound connection requests to the internet gateway. The exact configuration procedure will depend on which host-based firewall (for example, Endpoint Security Solution [ESS]) is used on the PAW. DoD sites should refer to DoD policies and firewall STIGs to determine acceptable firewalls products.
+
+If the internet proxy address with a loopback address method is used, consider using the configuration instructions listed in the Microsoft Privileged Access Workstation paper.
+
+In addition, disable the capability of the administrator to manually override the proxy settings on each PAW."
+      reference       : "800-171|3.4.2,800-171|3.13.1,800-171r3|03.04.02a.,800-171r3|03.13.01,800-53|CM-6b.,800-53|SC-7(9)(a),800-53r5|CM-6b.,800-53r5|SC-7(9)(a),CAT|II,CCI|CCI-000366,CCI|CCI-002399,CN-L3|8.1.10.6(d),CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.IP-1,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-6b.,ITSG-33|SC-7(9),NESA|T3.2.1,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-243461r991589_rule,STIG-ID|WPAW-00-002200,STIG-Legacy|SV-92889,STIG-Legacy|V-78183,SWIFT-CSCv1|2.3,TBA-FIISB|43.1,Vuln-ID|V-243461"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : ".*"
+      powershell_args : "netstat.exe -ano;netsh advfirewall show domain;netsh advfirewall show public;netsh advfirewall show private"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : GROUP_MEMBERS_POLICY
+      description : "WPAW-00-002300 - The local Administrators group on the Windows PAW must only include groups with accounts specifically designated to administer the PAW."
+      info        : "A main security architectural construct of a PAW is to restrict access to the PAW from only specific privileged accounts designated for managing the high-value IT resources the PAW has been designated to manage. If unauthorized standard user accounts or unauthorized high-value administrative accounts are able to access a specific PAW, high-value IT resources and critical DoD information could be compromised.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Restrict membership of the local Administrators group to only include members of the group specifically designated to manage the PAW and local administrator(s).
+
+See the Microsoft PAW paper (https://docs.microsoft.com/en-us/windows-server/identity/securing-privileged-access/privileged-access-workstations) for more information (go to PAW Installation instructions)."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243462r991589_rule,STIG-ID|WPAW-00-002300,STIG-Legacy|SV-92891,STIG-Legacy|V-78185,SWIFT-CSCv1|2.3,Vuln-ID|V-243462"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      value_type  : POLICY_MULTI_TEXT
+      value_data  : ""
+      group_name  : "Administrators"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "WPAW-00-002600 - If several PAWs are set up in virtual machines (VMs) on a host server, domain administrative accounts used to manage high-value IT resources must not have access to the VM host operating system (OS) (only domain administrative accounts designated to manage PAWs should be able to access the VM host OS)."
+      info        : "The VM host OS should be protected from high-value IT resource administrators accidently or deliberately modifying the security settings of the host OS. Therefore, high-value IT resource administrators must not have the ability to perform maintenance functions on the VM host OS platform.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure the VM host OS so only domain administrative accounts designated to manage PAWs have administrative rights on the VM host OS."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Windows_PAW_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-243465r991589_rule,STIG-ID|WPAW-00-002600,STIG-Legacy|SV-92893,STIG-Legacy|V-78187,SWIFT-CSCv1|2.3,Vuln-ID|V-243465"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+    </report>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_MS_Windows_Privileged_Access_Workstation_v3r2.audit from DISA Microsoft Windows PAW v3r2 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device. Check Windows version and verify that Remote Registry service is enabled on the target."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Windows_PAW_V3R2_STIG.zip"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

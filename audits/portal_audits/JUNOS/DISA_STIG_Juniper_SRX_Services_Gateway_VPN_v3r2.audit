@@ -1,0 +1,747 @@
+#TRUSTED 6ac0bca33b551596be6a4651841ebbfee7797f9c7e55763e29ca7ececccd8b3ef6b4f8ebd50d980f816f34b89871772f002d8e814120f4723584afe9b28bf3cb91af06034250775863ba37138841d1425e1f1282fde274c674c7646f4f281c55c6e7d60d49ae8675733a75d0530a5f1a95bdae68852582f3af0a2cf83b9930f6980965485c6e724ba2b258e4153bbcdd44b5cc4999d8dabbb476d3c5cd8fd67e80f444f9d195d834a184c3a5950ce2dace60a9b9c8042f0f237f6c9b1f9bfc31ff16f35d332c06821b7b81b8a13094f0695f9522f9374719cde9767eae6770abf821b617c39c81dcba458ae30fb09af59172d72d2f12b27304a8500f2e8de1199e9a381191cefe1ff8adaf4cdab0c30929992f5ebd737afa706753b14c2069a054952ba0c5290ed017447a1a1629a6dffd4668286b4d017eac35a3bcbf472d9ee23e39836a9ed728f9d9fa667a8d51c27b1ca60802c6ad5ed843ad8d14f816d8bdc5e98166fc00c5e3040f7856c5b2ba419a0de38d2987a7b2aa983cf4c1c0caa0a2f270195e9ec184042912e0ebecc484f5990d5a13dab1e091336de597cf336282b796d5e4092e27f28849cfc4d1cd5290c2a93e0411dc9955c4c40aa71ddb2692c8a0fb4300bd99ff179d97a04f54abb7a34a57197c760a480f5c4373b1a0976d47c6f543c0e8d90d275afc70cdfd0aafbc4623d14cf31165358380a340fa
+#TRUST-RSA-SHA256 907673d7c08fbda6cea41d8f2359a9eedcb32e8c787fc3f28fd993515b3ac5a991e18e065fac8f6695b23ded9bd84bd1dce4faade14cc470f17f9f49a4e7276c9bfbb86a6b3703619e3c585be510b6c44583ce4c22c485de79fe52b370ff65b448ea36e0d198bb68b6e2aa5666d736d592c960d9d7b153ff5440b4e4ff807c6c139274347323288c6c248028e235826e9ea7129ea13b6fae2aac4bb650ef8c81074fd1561cc6d37dffe642612864b2f72cd5c0d96b4ae4ec4fd17422aa21f06fc647862c04eccd12a91b8be918de6b4c68cea2c99ca102b23f09244840bda015342dbdbd6678d8f596c90d61b4be9cc3c0cdb885f1facf7a9325ab3a115757b9e180dc7d24be7675192040c7e03db956ac1ad471ed85d9f998fda73957675af66a46a981849ee3186cd4781ddfa80c634fbae47a961050c2550808b4d849b7f719eef02aeb28b33c2982f838cedbb8dd806f6c17a0333368252b1a97e4cc33d8f20ff92c5cb6516ee7749785b14d1dd53ce8cb887003136ce9aedd9dd19e72ed9c4916a4c23d729f45e197dc0fb5c76d127e71e4c6cc6583b53841324e94ad1e59f42129dd2c668a25d7c881756e917994cdba6a95dca3a5e59a5a6e65fac3411413f7c45eb2ac541a8f26fea07673b788dc89be727eb97bc58c3ec46922f9f3e58df014b9aa9cf0c66d991411ecbae25e7abd9118558571855ee9b1f049e422
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2025/09/16 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Juniper SRX Services Gateway VPN v3r2 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA Juniper SRX Services Gateway VPN v3r2</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Juniper SRX Services Gateway VPN</name>
+#  <version>3.2.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip</link>
+#</spec>
+#<labels>juniper,disa,junos,srx,vpn</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>CONCURRENT_SESSION_LIMIT</name>
+#    <default>1</default>
+#    <description>VPN IKE Concurrent Sessions</description>
+#    <info>Concurrent sessions for access</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Juniper">
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000001 - The Juniper SRX Services Gateway VPN must limit the number of concurrent sessions for user accounts to one (1) and administrative accounts to three (3), or set to an organization-defined number."
+  info        : "Network element management includes the ability to control the number of users and user sessions that utilize a network element. Limiting the number of allowed users and sessions per user is helpful in limiting risks related to DoS attacks.
+
+This requirement addresses concurrent sessions for information system accounts and does not address concurrent sessions by single users via multiple system accounts. The maximum number of concurrent sessions should be defined based upon mission needs and the operational environment for each system.
+
+The intent of this policy is to ensure the number of concurrent sessions is deliberately set to a number based on the site's mission and not left unlimited."
+  solution    : "Configure the VPN IKE gateway to limit concurrent sessions. The following is an example.
+
+[edit]
+set security ike gateway <VPN-GATEWAY> dynamic connections-limit 1
+
+[edit]
+set security ike gateway <VPN-GATEWAY> dynamic connections-limit 3"
+  reference   : "800-53|AC-10,800-53r5|AC-10,800-53r5|SC-5b.,CAT|II,CCI|CCI-000054,CCI|CCI-004866,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-10,NESA|T5.5.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-214668r997551_rule,STIG-ID|JUSX-VN-000001,STIG-Legacy|SV-81119,STIG-Legacy|V-66629,Vuln-ID|V-214668"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike gateway .+"
+  expect      : "set security ike gateway .+ dynamic connections-limit @CONCURRENT_SESSION_LIMIT@\s*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000002 - The Juniper SRX Services Gateway VPN must renegotiate the IPsec security association after 8 hours or less."
+  info        : "The IPsec SA and its corresponding key will expire either after the number of seconds or amount of traffic volume has exceeded the configured limit. A new SA is negotiated before the lifetime threshold of the existing SA is reached to ensure that a new SA is ready for use when the old one expires. The longer the lifetime of the IPsec SA, the longer the lifetime of the session key used to protect IP traffic. The SA is less secure with a longer lifetime because an attacker has a greater opportunity to collect traffic encrypted by the same key and subject it to cryptanalysis. However, a shorter lifetime causes IPsec peers to renegotiate Phase II more often resulting in the expenditure of additional resources."
+  solution    : "Set the lifetime (in seconds) of the IPsec proposal to 8 hours or less.
+
+Example:
+
+[edit]
+set security ipsec proposal <P2-PROPOSAL-NAME> lifetime-seconds 28800"
+  reference   : "800-171|3.1.11,800-171r3|03.01.11,800-53|AC-12,800-53r5|AC-12,CAT|II,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49,Rule-ID|SV-214669r856572_rule,STIG-ID|JUSX-VN-000002,STIG-Legacy|SV-81121,STIG-Legacy|V-66631,Vuln-ID|V-214669"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ipsec proposal .+"
+  expect      : "set security ipsec proposal .+ lifetime-seconds ([1-9]|[1-9][0-9]{1,3}|1[0-9]{4}|2[0-7][0-9]{3}|28[0-7][0-9]{2}|28800)\s*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000003 - The Juniper SRX Services Gateway VPN must renegotiate the IKE security association after 24 hours or less."
+  info        : "When a VPN gateway creates an IPsec Security Association (SA), resources must be allocated to maintain the SA. These resources are wasted during periods of IPsec endpoint inactivity, which could result in the gateway's inability to create new SAs for other endpoints, thereby preventing new sessions from connecting. The Internet Key Exchange (IKE) idle timeout may also be set to allow SAs associated with inactive endpoints to be deleted before the SA lifetime has expired, although this setting is not recommended at this time. The value of one hour or less is a common best practice."
+  solution    : "Specify the lifetime (in seconds) of an IKE security association (SA). When the SA expires, it is replaced by a new SA, the security parameter index (SPI), or terminated if the peer cannot be contacted for renegotiation.
+
+Example:
+
+[edit]
+set security ike proposal <P1-PROPOSAL-NAME> lifetime-seconds 86400"
+  reference   : "800-171|3.1.11,800-171r3|03.01.11,800-53|AC-12,800-53r5|AC-12,CAT|II,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49,Rule-ID|SV-214670r856574_rule,STIG-ID|JUSX-VN-000003,STIG-Legacy|SV-81133,STIG-Legacy|V-66643,Vuln-ID|V-214670"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike proposal .+"
+  expect      : "set security ike proposal .+ lifetime-seconds ([1-9]|[1-9][0-9]{1,3}|[1-7][0-9]{4}|8[0-5][0-9]{3}|86[0-3][0-9]{2}|86400)\s*$"
+</custom_item>
+
+<report type:"WARNING">
+  description : "JUSX-VN-000004 - The Juniper SRX Services Gateway VPN device also fulfills the role of IDPS in the architecture, the device must inspect the VPN traffic in compliance with DoD IDPS requirements."
+  info        : "Remote access devices, such as those providing remote access to network devices and information systems, which lack automated, capabilities increase risk and makes remote user access management difficult at best.
+
+Remote access is access to DoD non-public information systems by an authorized user (or an information system) communicating through an external, non-organization-controlled network.
+
+Automated monitoring of remote access sessions allows organizations to detect cyber attacks and also ensure ongoing compliance with remote access policies by auditing connection activities of remote access capabilities, from a variety of information system components (e.g., servers, workstations, notebook computers, smart phones, and tablets).
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Perform a security review using the Juniper SRX Services Gateway IDPS STIG."
+  reference   : "800-171|3.1.12,800-171r3|03.01.12,800-53|AC-17(1),800-53r5|AC-17(1),CAT|II,CCI|CCI-000067,CN-L3|8.1.4.4(c),CN-L3|8.1.10.6(i),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.8.16,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(1),NESA|T5.4.4,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-214671r382780_rule,STIG-ID|JUSX-VN-000004,STIG-Legacy|SV-81135,STIG-Legacy|V-66645,SWIFT-CSCv1|2.6,Vuln-ID|V-214671"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+</report>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000005 - The Juniper SRX Services Gateway VPN must use AES256 for the IPsec proposal to protect the confidentiality of remote access sessions."
+  info        : "Without confidentiality protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session. The Advance Encryption Standard (AES) encryption is critical to ensuring the privacy of the IPsec session; it is imperative that AES is used for encryption operations.
+
+The CNSSP 15 compliant algorithms recommended by the NSA for IPsec are AES 256 with SHA384 and cbc or gsm confidentiality mode.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network. Remote access methods include broadband and wireless connections."
+  solution    : "The following example commands configure the IPsec (phase 2) proposals.
+
+[edit]
+set security ipsec proposal <IPSEC-PROPOSAL-NAME> encryption-algorithm aes-256-cbc"
+  reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),800-53r5|SC-7(29),CAT|I,CCI|CCI-000068,CCI|CCI-004891,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-214672r1056079_rule,STIG-ID|JUSX-VN-000005,STIG-Legacy|SV-80511,STIG-Legacy|V-66021,SWIFT-CSCv1|2.6,Vuln-ID|V-214672"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ipsec proposal .+"
+  expect      : "set security ipsec proposal .+ encryption-algorithm (aes-256-cbc|aes-192-cbc|aes-128-cbc)"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000006 - The Juniper SRX Services Gateway VPN must use AES256 encryption for the Internet Key Exchange (IKE) proposal to protect the confidentiality of remote access sessions - IKE proposal to protect the confidentiality of remote access sessions."
+  info        : "Without confidentiality protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session. The Advance Encryption Standard (AES) algorithm is critical to ensuring the privacy of the IKE session responsible for establishing the security association and key exchange for an IPsec tunnel. AES is used for encryption operations.
+
+The CNSSP 15 compliant algorithms recommended by the NSA for IKE are AES256 with SHA384 and DH-16 or higher.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network. Remote access methods include broadband and wireless connections."
+  solution    : "The following example commands configure the IKE (phase 1) proposals.
+
+[edit]
+set security ike proposal <IKE-PROPOSAL-NAME> encryption-algorithm aes-256-cbc"
+  reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),800-53r5|SC-7(29),CAT|I,CCI|CCI-000068,CCI|CCI-004891,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-214673r1056082_rule,STIG-ID|JUSX-VN-000006,STIG-Legacy|SV-81107,STIG-Legacy|V-66617,SWIFT-CSCv1|2.6,Vuln-ID|V-214673"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike proposal .+"
+  expect      : "set security ike proposal .+ encryption-algorithm (aes-256-cbc|aes-192-cbc|aes-128-cbc)"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000007 - The Juniper SRX Services Gateway VPN must be configured to use Diffie-Hellman (DH) group 15 or higher - DH group."
+  info        : "Use of an approved DH algorithm ensures the Internet Key Exchange (IKE) (phase 1) proposal uses FIPS-validated key management techniques and processes in the production, storage, and control of private/secret cryptographic keys. The security of the DH key exchange is based on the difficulty of solving the discrete logarithm from which the key was derived. Hence, the larger the modulus, the more secure the generated key is considered to be.
+
+The DH group selected must have a minimum of a 3072-bit modulus to protect up to TOP SECRET."
+  solution    : "The following command is an example of how to configure the IKE (phase 1) proposals.
+
+Example:
+[edit]
+set security ike proposal <P1-PROPOSAL-NAME> dh-group group19"
+  reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),800-53r5|SC-7(29),CAT|I,CCI|CCI-000068,CCI|CCI-004891,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-214674r1056179_rule,STIG-ID|JUSX-VN-000007,STIG-Legacy|SV-81137,STIG-Legacy|V-66647,SWIFT-CSCv1|2.6,Vuln-ID|V-214674"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike proposal .+"
+  expect      : "set security ike proposal .+ dh-group group(5|14|19|20|24)\s*$"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000008 - The Juniper SRX Services Gateway VPN must be configured to use IPsec with SHA256 or greater to negotiate hashing to protect the integrity of remote access sessions."
+  info        : "Without strong cryptographic integrity protections, information can be altered by unauthorized users without detection.
+
+Remote access VPN provides access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network."
+  solution    : "The following example commands configure the IPSec proposal.
+
+set security ipsec proposal <IPSEC-PROPOSAL-NAME> authentication-algorithm hmac-sha-256-128"
+  reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-7,800-53r5|AC-17(2),800-53r5|IA-7,CAT|II,CCI|CCI-000803,CCI|CCI-001453,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(d),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),ITSG-33|IA-7,ITSG-33|IA-7a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T5.4.2,NESA|T7.4.1,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-214675r1056088_rule,STIG-ID|JUSX-VN-000008,STIG-Legacy|SV-81139,STIG-Legacy|V-66649,SWIFT-CSCv1|2.6,Vuln-ID|V-214675"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ipsec proposal .+"
+  expect      : "set security ipsec proposal .+ authentication-algorithm (hmac-sha-256-128|hmac-sha-256-96|hmac-sha1-96)"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000009 - The Juniper SRX Services Gateway VPN must ensure inbound and outbound traffic is configured with a security policy in compliance with information flow control policies."
+  info        : "Remote access devices, such as those providing remote access to network devices and information systems, which lack automated, capabilities increase risk and makes remote user access management difficult at best.
+
+Remote access is access to DoD non-public information systems by an authorized user (or an information system) communicating through an external, non-organization-controlled network.
+
+Automated monitoring of remote access sessions allows organizations to detect cyber attacks and also ensure ongoing compliance with remote access policies by auditing connection activities of remote access capabilities, from a variety of information system components (e.g., servers, workstations, notebook computers, smart phones, and tablets).
+
+In phase-2, another negotiation is performed, detailing the parameters for the IPsec connection. New keying material using the Diffie-Hellman key exchange established in phase-1 is used to provide session keys used to protecting the VPN data flow. If Perfect-Forwarding-Secrecy (PFS) is used, a new Diffie-Hellman exchange is performed for each phase-2 negotiation. While this is slower, it makes sure that no keys are dependent on any other previously used keys; no keys are extracted from the same initial keying material. This is to make sure that, in the unlikely event that some key was compromised; no subsequent keys can be derived.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "The following example command is an example of an IPsec policy.
+
+[edit]
+set security ipsec policy <IPSEC-POLICY> perfect-forward-secrecy keys group14
+set security ipsec policy <IPSEC-POLICY> proposals <IPSEC-PROPOSAL>
+
+The following command is an example of how to define an IPsec VPN using the IPsec policy and a secure tunnel interface. Alternatively, administrators can configure on-traffic tunnel establishment.
+
+[edit]
+set security ipsec vpn <VPN> bind-interface st0.0
+set security ipsec vpn <VPN> ike gateway <IKE-PEER>
+set security ipsec vpn <VPN> ike ipsec-policy <IPSEC-POLICY>
+set security ipsec vpn <VPN> establish-tunnels immediately
+
+For site-to-site VPN implementation, the SRX device is configured to route traffic over the IPsec VPN's secure tunnel interface by establishing a route with the next-hop specified as the secure tunnel interface. The following commands configure an IPv4 and IPv6 static route for their respective secure tunnels.
+
+set routing-options static route <IPv4 network/netmask> next-hop st0.0
+set routing-options rib inet6.0 static route <IPv6 network/netmask> next-hop st0.1"
+  reference   : "800-171|3.1.3,800-171r3|03.01.03,800-53|AC-4,800-53r5|AC-4,CAT|II,CCI|CCI-001414,CN-L3|8.1.10.2(c),CSF|DE.AE-1,CSF|ID.AM-3,CSF|PR.AC-4,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.22,ITSG-33|AC-4,NESA|T4.2.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.6,NESA|T5.7.2,NESA|T7.5.2,NESA|T7.6.4,NIAv2|GS11a,NIAv2|GS12a,NIAv2|GS14a,NIAv2|GS15a,NIAv2|GS16a,NIAv2|NS13a,NIAv2|NS13b,NIAv2|NS13c,NIAv2|NS14,NIAv2|SS23,NIAv2|SS27a,NIAv2|SS27b,NIAv2|SS32,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,Rule-ID|SV-214676r382735_rule,STIG-ID|JUSX-VN-000009,STIG-Legacy|SV-81141,STIG-Legacy|V-66651,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.4,Vuln-ID|V-214676"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set (security ipsec (policy|vpn) .+|routing-options (static|rib) .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000010 - The Juniper SRX Services Gateway VPN must use Internet Key Exchange (IKE) for IPsec VPN Security Associations (SAs)."
+  info        : "Without IKE, the SPI is manually specified for each security association. IKE peers will negotiate the encryption algorithm and authentication or hashing methods as well as generate the encryption keys.
+
+An IPsec SA is established using either Internet Key Exchange (IKE) or manual configuration. When using IKE, the security associations are established when needed and expire after a period of time or volume of traffic threshold. If manually configured, they are established as soon as the configuration is complete at both end points and they do not expire. When using IKE, the Security Parameter Index (SPI) for each security association is a pseudo-randomly derived number.
+
+With manual configuration of the IPsec security association, both the cipher key and authentication key are static. Hence, if the keys are compromised, the traffic being protected by the current IPsec tunnel can be decrypted as well as traffic in any future tunnels established by this SA. Furthermore, the peers are not authenticated prior to establishing the SA, which could result in a rogue device establishing an IPsec SA with either of the VPN end points.
+
+IKE provides primary authentication to verify the identity of the remote system before negotiation begins. This feature is lost when the IPsec security associations are manually configured, which results in a non-terminating session using static pre-shared keys."
+  solution    : "The following example commands configure an IPsec VPN to use the IKE gateway information.
+
+[edit]
+set security ipsec vpn <VPN-GWY-NAME> ike gateway <IKE-PEER-NAME>"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214677r385561_rule,STIG-ID|JUSX-VN-000010,STIG-Legacy|SV-81109,STIG-Legacy|V-66619,SWIFT-CSCv1|2.3,Vuln-ID|V-214677"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ipsec vpn .+"
+  expect      : "set security ipsec vpn .+ ike gateway .+"
+</custom_item>
+
+<report type:"WARNING">
+  description : "JUSX-VN-000011 - If IDPS inspection is performed separately from the Juniper SRX Services Gateway VPN device, the VPN must route sessions to an IDPS for inspection."
+  info        : "Remote access devices, such as those providing remote access to network devices and information systems, which lack automated, capabilities increase risk and makes remote user access management difficult at best.
+
+Remote access is access to DoD non-public information systems by an authorized user (or an information system) communicating through an external, non-organization-controlled network.
+
+Automated monitoring of remote access sessions allows organizations to detect cyber attacks and also ensure ongoing compliance with remote access policies by auditing connection activities of remote access capabilities, from a variety of information system components (e.g., servers, workstations, notebook computers, smart phones, and tablets).
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Juniper SRX to route traffic to the port attached to intrusion detection system or configure to route all inbound traffic to the sites intrusion detection system using the IP address of the IPS/IDS."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214678r864169_rule,STIG-ID|JUSX-VN-000011,STIG-Legacy|SV-81143,STIG-Legacy|V-66653,SWIFT-CSCv1|2.3,Vuln-ID|V-214678"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "JUSX-VN-000012 - The Juniper SRX Services Gateway VPN must not accept certificates that have been revoked when using PKI for authentication."
+  info        : "Situations may arise in which the certificate issued by a Certificate Authority (CA) may need to be revoked before the lifetime of the certificate expires. For example, the certificate is known to have been compromised.
+
+To achieve this, a list of certificates that have been revoked, known as a Certificate Revocation List (CRL), is sent periodically from the CA to the IPsec gateway. When an incoming Internet Key Exchange (IKE) session is initiated for a remote client or peer whose certificate is revoked, the CRL will be checked to see if the certificate is valid; if the certificate is revoked, IKE will fail and an IPsec security association will not be established for the remote endpoint.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the CA trust point to enable certificate revocation check by referencing a CRL or via OCSP."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214679r385561_rule,STIG-ID|JUSX-VN-000012,STIG-Legacy|SV-81111,STIG-Legacy|V-66621,SWIFT-CSCv1|2.3,Vuln-ID|V-214679"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+</report>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000013 - The Juniper SRX Services Gateway VPN must specify Perfect Forward Secrecy (PFS)."
+  info        : "PFS generates each new encryption key independently from the previous key. Without PFS, compromise of one key will compromise all communications.
+
+The phase 2 (Quick Mode) Security Association (SA) is used to create an IPsec session key. Hence, its rekey or key regeneration procedure is very important. The phase 2 rekey can be performed with or without Perfect Forward Secrecy (PFS). With PFS, every time a new IPsec Security Association is negotiated during the Quick Mode, a new Diffie-Hellman (DH) exchange occurs. The new DH shared secret will be included with original keying material (SYKEID_d, initiator nonce, and responder nonce from phase 1) for generating a new IPsec session key. If PFS is not used, the IPsec session key will always be completely dependent on the original keying material from the Phase-1. Hence, if an older key is compromised at any time, it is possible that all new keys may be compromised.
+
+The DH exchange is performed in the same manner as was done in phase 1 (Main or Aggressive Mode). However, the phase 2 exchange is protected by encrypting the phase 2 packets with the key derived from the phase 1 negotiation. Because DH negotiations during phase 2 are encrypted, the new IPsec session key has an added element of secrecy."
+  solution    : "Configure the VPN gateway to ensure PFS is enabled. The following commands configure an IPsec policy, enabling PFS using Diffie-Hellman group 14 and associates the IPsec proposal configured in the previous example.
+
+[edit]
+set security ipsec policy <IPSEC-POLICY> perfect-forward-secrecy keys group14
+set security ipsec policy <IPSEC-POLICY> proposals <IPSEC-PROPOSAL>"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214680r385561_rule,STIG-ID|JUSX-VN-000013,STIG-Legacy|SV-81145,STIG-Legacy|V-66655,SWIFT-CSCv1|2.3,Vuln-ID|V-214680"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ipsec policy .+"
+  expect      : "set security ipsec policy .+ perfect-forward-secrecy keys group14"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000014 - The Juniper SRX Services Gateway VPN must use Encapsulating Security Payload (ESP) in tunnel mode."
+  info        : "ESP provides confidentiality, data origin authentication, integrity, and anti-replay services within the IPsec suite of protocols. ESP in tunnel mode ensures a secure path for communications for site-to-site VPNs and gateway to endpoints, including header information.
+
+ESP can be deployed in either transport or tunnel mode. Transport mode is used to create a secured session between two hosts. It can also be used when two hosts simply want to authenticate each IP packet with IPsec authentication header (AH). With ESP transport mode, only the payload (transport layer) is encrypted, whereas with tunnel mode, the entire IP packet is encrypted and encapsulated with a new IP header. Tunnel mode is used to encrypt traffic between secure IPsec gateways or between an IPsec gateway and an end-station running IPsec software. Hence, it is the only method to provide a secured path to transport traffic between remote sites or end-stations and the central site.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure Phase 2 for ESP and allow IKE as a host-inbound service within the security zone associated with the IKE gateway's external interface configuration. Any traffic that you wish to encrypt is routed to this tunnel interface.
+
+Example:
+
+[edit
+set security ipsec proposal IPSEC-PROPOSAL protocol esp
+
+Assumes the external interface is associated with the 'untrust' zone.
+
+[edit]
+set security ike gateway <IKE-PEER> external-interface <EXTERNAL-INTERFACE-NAME>
+set security zones security-zone untrust host-inbound-traffic system-services ike"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214681r385561_rule,STIG-ID|JUSX-VN-000014,STIG-Legacy|SV-81147,STIG-Legacy|V-66657,SWIFT-CSCv1|2.3,Vuln-ID|V-214681"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security (ipsec proposal .+ protocol .+|ike gateway .+ external-interface .+)"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000015 - The Juniper SRX Services Gateway must disable or remove unnecessary network services and functions that are not used as part of its role in the architecture."
+  info        : "Network devices are capable of providing a wide variety of functions (capabilities or processes) and services. Some of these functions and services are installed and enabled by default. The organization must determine which functions and services are required to perform the content filtering and other necessary core functionality for each component of the SRX. These unnecessary capabilities or services are often overlooked and therefore may remain unsecured. They increase the risk to the platform by providing additional attack vectors.
+
+Services that may be related security-related, but based on the role of the device in the architecture do not need to be installed. For example, the Juniper SRX can have an Antivirus, Web filter, IDS, or ALG license. However, if these functions are not part of the documented role of the SRX in the enterprise or branch architecture, then these the software and licenses should not be installed on the device. This mitigates the risk of exploitation of unconfigured services or services that are not kept updated with security fixes. If left unsecured, these services may provide a threat vector.
+
+Only remove unauthorized services. This control is not intended to restrict the use of Juniper SRX devices with multiple authorized roles.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Remove unnecessary services and functions. From operational mode, display the licenses available to be deleted and enter the following commands.
+
+request system license delete license-identifier-list ?
+
+request system license delete <license-identifier>
+
+Note: Only remove unauthorized services. This control is not intended to restrict the use of Juniper SRX devices with multiple authorized roles."
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214682r382903_rule,STIG-ID|JUSX-VN-000015,STIG-Legacy|SV-81149,STIG-Legacy|V-66659,SWIFT-CSCv1|2.3,Vuln-ID|V-214682"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  cmd         : "show system license"
+  regex       : ".*"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000016 - The Juniper SRX Services Gateway VPN must use IKEv2 for IPsec VPN security associations."
+  info        : "Use of IKEv2 leverages DoS protections because of improved bandwidth management and leverages more secure encryption algorithms."
+  solution    : "For site-to-site VPNs, configure the Juniper SRX to use IKEv2 only.
+
+[edit]
+set security ike gateway <VPN-GATEWAY> address <GW-IP-ADDRESS>
+set security ike gateway <VPN-GATEWAY> version v2-only"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,800-53r5|SC-5b.,CAT|II,CCI|CCI-000382,CCI|CCI-004866,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-214683r997555_rule,STIG-ID|JUSX-VN-000016,STIG-Legacy|SV-81151,STIG-Legacy|V-66661,SWIFT-CSCv1|2.3,Vuln-ID|V-214683"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike gateway .+ version .+"
+  expect      : "set security ike gateway .+ version v2-only"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000017 - The Juniper SRX Services Gateway VPN must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments."
+  info        : "In order to prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types); organizations must disable or restrict unused or unnecessary physical and logical ports/protocols on information systems.
+
+DoD continually assesses the ports, protocols, and services that can be used for network communications. Some ports, protocols or services have known exploits or security weaknesses. Network traffic using these ports, protocols, and services must be prohibited or restricted in accordance with DoD policy. The PPSM CAL and vulnerability assessments provide an authoritative source for ports, protocols, and services that are unauthorized or restricted across boundaries on DoD networks.
+
+The Juniper SRX must be configured to prevent or restrict the use of prohibited ports, protocols, and services throughout the network by filtering the network traffic and disallowing or redirecting traffic as necessary. Default and updated policy filters from the vendors will disallow older version of protocols and applications and will address most known non-secure ports, protocols, and/or services.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Ensure functions, ports, protocols, and services identified on the PPSM CAL are not used for system services configuration.
+
+[edit]
+show security services
+
+Compare the services that are enabled, including the port, services, protocols, and functions.
+
+Consult the Juniper knowledge base and configuration guides to determine the commands for disabling each port, protocols, services, or functions that is not in compliance with the PPSM CAL and vulnerability assessments."
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CAT|II,CCI|CCI-000382,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-214684r385486_rule,STIG-ID|JUSX-VN-000017,STIG-Legacy|SV-81153,STIG-Legacy|V-66663,SWIFT-CSCv1|2.3,Vuln-ID|V-214684"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security (services|policies) .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000018 - The Juniper SRX Services Gateway VPN must uniquely identify and authenticate organizational users (or processes acting on behalf of organizational users)."
+  info        : "To assure accountability and prevent unauthenticated access, organizational users must be identified and authenticated to prevent potential misuse and compromise of the system.
+
+Organizational users include organizational employees or individuals the organization deems to have equivalent status of employees (e.g., contractors). Organizational users (and any processes acting on behalf of users) must be uniquely identified and authenticated for all accesses except the following.
+
+(i) Accesses explicitly identified and documented by the organization. Organizations document specific user actions that can be performed on the information system without identification or authentication; and
+
+(ii) Accesses that occur through authorized use of group authenticators without individual authentication. Organizations may require unique identification of individuals in group accounts (e.g., shared privilege accounts) or for detailed accountability of individual activity.
+
+This requirement only applies to components where this is specific to the function of the device or has the concept of an organizational user (e.g., VPN or proxy capability). This does not apply to authentication for the purpose of configuring the device itself (i.e., device management).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the LDAP access profile. The LDAP server must use DoD PKI for authentication of users.
+
+[edit]
+set access profile <VPN-LDAP-PROFILE-NAME> authentication-order ldap
+set access profile <VPN-LDAP-PROFILE-NAME> address-assignment pool dyn-vpn-pool
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options base-distinguished-name CN=Users, DC=firewall, DC=com (Location from where LDAP will start searching for users)
+
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options search search-filter sAMAccountName=
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options search admin-search distinguished-name CN=Administrator, CN=Users, DC=firewall, DC=com (User who is authorized to search the ldap tree)
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options search admin-search password <Administrator Password>
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-server <AD Server IP address> port 389/636
+set access firewall-authentication pass-through default-profile <VPN-LDAP-PROFILE-NAME>
+set access firewall-authentication web-authentication default-profile <VPN-LDAP-PROFILE-NAME>
+
+Note: To find the user or administrator base DN, use any LDAP browser. On an Internet search engine, search for ldp.exe, which is a very basic LDAP browser.
+
+When using LDAP groups to authenticate a user, or a user belonging to a group in the active directory, include the following statement:
+
+set access profile <VPN-LDAP-PROFILE-NAME> session-options client-group <group-name>
+
+Note: Without the above statement, users are not searched based on the group name or group string.
+
+The IP address pool configuration is as follows (the user will be assigned the IP from this pool):
+
+set access address-assignment pool dyn-vpn-pool family inet network <IP Network for Dynamic-VPN User> (e.g.. 192.168.100.0/24)
+set access address-assignment pool dyn-vpn-pool family inet range dyn-vpn-pool-range low <Starting IP address for Dynamic-VPN User> (e.g.. 192.168.100.1)
+set access address-assignment pool dyn-vpn-pool family inet range dyn-vpn-pool-range high <ending IP address for Dynamic-VPN User> (e.g.. 192.168.100.100)
+
+Note: The IP network used for dynamic VPN users should be different from the IP network of the external interface used in the IKE configuration.
+
+The access profile is linked to the xauth of the gateway for dynamic VPN.
+
+set security ike gateway <VPN-GATEWAY> xauth access-profile <VPN-LDAP-PROFILE-NAME>
+
+Under security >> dynamic-vpn, add all the users that are going to use the dynamic VPN. The command is as follows:
+
+set security dynamic-vpn clients all user
+
+Note: For users who are going to use dynamic VPN, this will be the AD user logon name for each user."
+  reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2,800-53r5|IA-2,CAT|II,CCI|CCI-000764,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-214685r385489_rule,STIG-ID|JUSX-VN-000018,STIG-Legacy|SV-81155,STIG-Legacy|V-66665,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-214685"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set access (profile|firewall-authentication|address-assignment) .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000019 - The Juniper SRX Services Gateway VPN must use multifactor authentication (e.g., DoD PKI) for network access to non-privileged accounts."
+  info        : "To assure accountability and prevent unauthenticated access, non-privileged users must utilize multifactor authentication to prevent potential misuse and compromise of the system.
+
+Multifactor authentication uses two or more factors to achieve authentication. Use of password for user remote access for non-privileged account is not authorized.
+
+Factors include:
+(i) Something you know (e.g., password/PIN);
+(ii) Something you have (e.g., cryptographic identification device, token); or
+(iii) Something you are (e.g., biometric).
+
+A non-privileged account is any information system account with authorizations of a non-privileged user.
+
+Network access is any access to an application by a user (or process acting on behalf of a user) where said access is obtained through a network connection.
+
+The DoD CAC with DoD-approved PKI is an example of multifactor authentication.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure multifactor authentication by configuring an access profile for an authentication server or services to authenticate VPN users upon logon using DoD PKI.
+
+Example:
+[edit]
+set access profile dyn-vpn-ldap-xauth authentication-order ldap
+set access profile dyn-vpn-ldap-xauth address-assignment pool dyn-vpn-pool
+set access profile dyn-vpn-ldap-xauth ldap-options base-distinguished-name CN=Users, DC=firewall, DC=com (Location from where LDAP will start searching for users)
+
+set access profile dyn-vpn-ldap-xauth ldap-options search search-filter sAMAccountName=
+set access profile dyn-vpn-ldap-xauth ldap-options search admin-search distinguished-name CN=Administrator, CN=Users, DC=firewall, DC=com (User who is authorized to search the ldap tree)
+set access profile dyn-vpn-ldap-xauth ldap-options search admin-search password <Administrator Password>
+set access profile dyn-vpn-ldap-xauth ldap-server <AD Server IP address> port 389/636
+set access firewall-authentication pass-through default-profile dyn-vpn-ldap-xauth
+set access firewall-authentication web-authentication default-profile dyn-vpn-ldap-xauth
+
+The access profile is linked to the xauth of the gateway for dynamic VPN.
+
+set security ike gateway dyn-vpn-local-gw xauth access-profile dyn-vpn-ldap-xauth
+
+Note: Under security >> dynamic-vpn, add all the users that are going to use the dynamic VPN. The command is as follows:
+
+set security dynamic-vpn clients all user
+
+Note: For users who are going to use dynamic VPN, this will be the AD user logon name for each user."
+  reference   : "800-171|3.5.3,800-171r3|03.05.03,800-53|IA-2(2),800-53r5|IA-2(2),CAT|I,CCI|CCI-000766,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(2),NESA|T5.4.2,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-214686r954210_rule,STIG-ID|JUSX-VN-000019,STIG-Legacy|SV-81113,STIG-Legacy|V-66623,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-214686"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security access profile .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000021 - The Juniper SRX Services Gateway VPN must uniquely identify and authenticate non-organizational users (or processes acting on behalf of non-organizational users)."
+  info        : "Lack of authentication and identification enables non-organizational users to gain access to the network or possibly a network element that provides opportunity for intruders to compromise resources within the network infrastructure.
+
+This requirement only applies to components where this is specific to the function of the device or has the concept of a non-organizational user.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the LDAP access profile. The LDAP server must use DoD PKI for authentication of users.
+
+[edit]
+set access profile <VPN-LDAP-PROFILE-NAME> authentication-order ldap
+set access profile <VPN-LDAP-PROFILE-NAME> address-assignment pool dyn-vpn-pool
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options base-distinguished-name CN=Users, DC=firewall, DC=com (Location from where LDAP will start searching for users)
+
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options search search-filter sAMAccountName=
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options search admin-search distinguished-name CN=Administrator, CN=Users, DC=firewall, DC=com (User who is authorized to search the ldap tree)
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-options search admin-search password <Administrator Password>
+set access profile <VPN-LDAP-PROFILE-NAME> ldap-server <AD Server IP address> port 389/636
+set access firewall-authentication pass-through default-profile <VPN-LDAP-PROFILE-NAME>
+set access firewall-authentication web-authentication default-profile <VPN-LDAP-PROFILE-NAME>
+
+Note: To find the user or administrator base DN, use any LDAP browser. On an Internet search engine, search for ldp.exe, which is a very basic LDAP browser.
+
+When using LDAP groups to authenticate a user, or a user belonging to a group in the active directory, include the following statement:
+
+set access profile <VPN-LDAP-PROFILE-NAME> session-options client-group <group-name>
+
+Note: Without the above statement, users are not searched based on the group name or group string.
+
+The IP address pool configuration is as follows (the user will be assigned the IP from this pool):
+
+set access address-assignment pool dyn-vpn-pool family inet network <IP Network for Dynamic-VPN User> (e.g.. 192.168.100.0/24)
+set access address-assignment pool dyn-vpn-pool family inet range dyn-vpn-pool-range low <Starting IP address for Dynamic-VPN User> (e.g.. 192.168.100.1)
+set access address-assignment pool dyn-vpn-pool family inet range dyn-vpn-pool-range high <ending IP address for Dynamic-VPN User> (e.g.. 192.168.100.100)
+
+Note: The IP network used for dynamic VPN users should be different from the IP network of the external interface used in the IKE configuration.
+
+The access profile is linked to the xauth of the gateway for dynamic VPN.
+
+set security ike gateway <VPN-GATEWAY> xauth access-profile <VPN-LDAP-PROFILE-NAME>
+
+Under security >> dynamic-vpn, add all the users that are going to use the dynamic VPN. The command is as follows:
+
+set security dynamic-vpn clients all user
+
+Note: Users who are going to use dynamic VPN. This will be the AD user logon name for each user."
+  reference   : "800-53|IA-8,800-53r5|IA-8,CAT|II,CCI|CCI-000804,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-8,ITSG-33|IA-8a.,NESA|T4.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-214688r385519_rule,STIG-ID|JUSX-VN-000021,STIG-Legacy|SV-81159,STIG-Legacy|V-66669,SWIFT-CSCv1|2.8,Vuln-ID|V-214688"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security access profile .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000022 - The Juniper SRX Services Gateway VPN must terminate all network connections associated with a communications session at the end of the session."
+  info        : "Idle TCP sessions can be susceptible to unauthorized access and hijacking attacks. IKE Dead Peer Detection (DPD) is a protocol that verifies the availability of IPsec peer devices by sending encrypted IKE Phase 1 notification payloads to peers.
+
+Note: For dynamic (remote access) VPN, the TCP keep-alive for remote access is implemented in the Juniper SRX Firewall STIG.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "For site-to-site VPN, configure an Internet Key Exchange (IKE) gateway that includes DPD parameters such as in the following example.
+
+set security ike gateway IKE-PEER ike-policy IKE-POLICY
+set security ike gateway IKE-PEER address <Peer IP Address>
+set security ike gateway IKE-PEER dead-peer-detection always-send
+set security ike gateway IKE-PEER dead-peer-detection interval 10
+set security ike gateway IKE-PEER dead-peer-detection threshold 2
+set security ike gateway IKE-PEER local-identity inet <IPv4 Address in Certificate>
+set security ike gateway IKE-PEER remote-identity inet <IPv4 Address in Remote
+Certificate>
+set security ike gateway IKE-PEER external-interface <interface name>
+set security ike gateway IKE-PEER version v2-only"
+  reference   : "800-171|3.13.9,800-171r3|03.13.09,800-53|SC-10,800-53r5|SC-10,CAT|II,CCI|CCI-001133,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.20,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.5.1,Rule-ID|SV-214689r1056184_rule,STIG-ID|JUSX-VN-000022,STIG-Legacy|SV-81171,STIG-Legacy|V-66681,SWIFT-CSCv1|2.6,Vuln-ID|V-214689"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike gateway .+ dead-peer-detection .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000023 - The Juniper SRX Services Gateway VPN Internet Key Exchange (IKE) must be configured to use an approved Commercial Solution for Classified (CSfC) when transporting classified traffic across an unclassified network - IKE must use cryptography that is compliant with Suite B parameters when transporting classified traffic across an unclassified network."
+  info        : "Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data.
+
+The National Security Agency/Central Security Service's (NSA/CSS) CSfC Program enables commercial products to be used in layered solutions to protect classified National Security Systems (NSS) data. Currently, Suite B cryptographic algorithms are specified by NIST and are used by NSA's Information Assurance Directorate in solutions approved for protecting classified and unclassified NSS. However, quantum resistant algorithms will be required for future required Suite B implementations.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Navigate to the IKE proposal stanza.
+
+Example stanza.
+[edit]
+set security ike proposal <name-proposal>
+set ike proposal <name-proposal> authentication-method ecdsa-signatures-384
+set ike proposal <name-proposal> dh-group group20
+set ike proposal <name-proposal> authentication-algorithm sha-384
+set ike proposal <name-proposal> encryption-algorithm aes-256-cbc"
+  reference   : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CAT|I,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2,Rule-ID|SV-214690r1056094_rule,STIG-ID|JUSX-VN-000023,STIG-Legacy|SV-81115,STIG-Legacy|V-66625,Vuln-ID|V-214690"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set ike proposal .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "ike authentication-method"
+      regex       : "set security ike proposal .+"
+      expect      : "set security ike proposal .+ authentication-method rsa-signatures"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "ike authentication-algorithm"
+      regex       : "set security ike proposal .+"
+      expect      : "set security ike proposal .+ authentication-algorithm (sha1|sha-256|sha-384)"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "ike dh-group"
+      regex       : "set security ike proposal .+"
+      expect      : "set security ike proposal .+ dh-group group(5|14|19|20|24)\s*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "ike encryption-algorithm"
+      regex       : "set security ike proposal .+"
+      expect      : "set security ike proposal .+ encryption-algorithm (aes-256-cbc|aes-192-cbc|aes-128-cbc)"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "ike lifetime-seconds"
+      regex       : "set security ike proposal .+"
+      expect      : "set security ike proposal .+ lifetime-seconds ([1-9]|[1-9][0-9]{1,3}|[1-7][0-9]{4}|8[0-5][0-9]{3}|86[0-3][0-9]{2}|86400)\s*$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "JUSX-VN-000024 - The Juniper SRX Services Gateway VPN IKE must use NIST FIPS-validated cryptography to implement encryption services for unclassified VPN traffic."
+      info        : "Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data. The network element must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated."
+      solution    : "The following example commands configure the IKE (phase 1) proposal.
+
+[edit]
+set security ike proposal <P1-PROPOSAL> authentication-method rsa-signatures
+set security ike proposal p1-proposal dh-group group19
+set security ike proposal p1-proposal authentication-algorithm sha-384
+set security ike proposal p1-proposal encryption-algorithm aes-256-cbc
+set security ike proposal p1-proposal lifetime-seconds 86400"
+      reference   : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CAT|II,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2,Rule-ID|SV-214691r1056097_rule,STIG-ID|JUSX-VN-000024,STIG-Legacy|SV-81161,STIG-Legacy|V-66671,Vuln-ID|V-214691"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000025 - The Juniper SRX Services Gateway VPN must configure Internet Key Exchange (IKE) with SHA1 or greater to protect the authenticity of communications sessions."
+  info        : "Authenticity protection provides protection against man-in-the-middle attacks/session hijacking and the insertion of false information into sessions.
+
+This requirement focuses on communications protection for the application session rather than for the network packet and establishes grounds for confidence at both ends of communications sessions in ongoing identities of other parties and in the validity of information transmitted. Depending on the required degree of confidentiality and integrity, web services/SOA will require the use of mutual authentication (two-way/bidirectional).
+
+An IPsec Security Associations (SA) is established using either IKE or manual configuration."
+  solution    : "Include the SHA1 or higher authentication algorithm in the IKE proposal. The following is an example command.
+
+[edit]
+set security ike proposal <P1-PROPOSAL-NAME> authentication-algorithm sha-256"
+  reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23,800-53r5|SC-23,CAT|I,CCI|CCI-001184,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-214692r383107_rule,STIG-ID|JUSX-VN-000025,STIG-Legacy|SV-81131,STIG-Legacy|V-66641,Vuln-ID|V-214692"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike proposal .+"
+  expect      : "set security ike proposal .+ authentication-algorithm (sha1|sha-256|sha-384)"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000026 - The Juniper SRX Services Gateway VPN must only allow the use of DoD PKI established certificate authorities for verification of the establishment of protected sessions."
+  info        : "Untrusted certificate authorities (CA) can issue certificates, but they may be issued by organizations or individuals that seek to compromise DoD systems or by organizations with insufficient security controls. If the CA used for verifying the certificate is not a DoD-approved CA, trust of this CA has not been established.
+
+The DoD will only accept PKI certificates obtained from a DoD-approved internal or external certificate authority. Reliance on CAs for the establishment of secure sessions includes, for example, the use of Internet Key Exchange (IKE) authentication certificates.
+
+This requirement focuses on communications protection for the application session rather than for the network packet. Network elements that perform these functions must be able to identify which session identifiers were generated when the sessions were established."
+  solution    : "The following example commands configure the IKE (phase 1) proposals. Use certificates instead of pre-shared keys to establish the IKE phase 1 tunnel.
+
+This proposal requires AES 256-bit encryption
+
+set security ike proposal p1-proposal authentication-method rsa-signatures"
+  reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23(5),800-53r5|SC-23(5),CAT|II,CCI|CCI-002470,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-214693r856577_rule,STIG-ID|JUSX-VN-000026,STIG-Legacy|SV-81163,STIG-Legacy|V-66673,Vuln-ID|V-214693"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security ike proposal .+"
+  expect      : "set security ike proposal .+ authentication-method rsa-signatures"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000027 - The Juniper SRX Services Gateway VPN must only allow incoming VPN communications from organization-defined authorized sources routed to organization-defined authorized destinations."
+  info        : "Unrestricted traffic may contain malicious traffic which poses a threat to an enclave or to other connected networks. Additionally, unrestricted traffic may transit a network, which uses bandwidth and other resources.
+
+Access control policies and access control lists implemented on devices, such as firewalls, that control the flow of network traffic, ensure the flow of traffic is only allowed from authorized sources to authorized destinations. Networks with different levels of trust (e.g., the Internet) must be kept separated.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "The SRX device will route traffic over the IPsec VPN's secure tunnel interface if there is a route with the next-hop specified as the secure tunnel interface. The following example commands configure an IPv4 and IPv6 static route for their respective secure tunnels.
+
+set routing-options static route <IPv4 network/netmask> next-hop st0.0
+set routing-options rib inet6.0 static route <IPv6 network/mask> next-hop st0.1
+set security policies from-zone untrust to-zone trust policy group-sec-policy then permit tunnel ipsec-vpn groupvpn
+
+Note: For the SRX device to transmit traffic over the IPsec tunnel, you must configure the secure tunnel interface (st0 in this case), associate it with a security zone, and create a static route entry for the remote network's address space."
+  reference   : "800-171|3.13.1,800-171r3|03.13.01,800-53|SC-7(11),800-53r5|SC-7(11),CAT|II,CCI|CCI-002403,CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-214694r856578_rule,STIG-ID|JUSX-VN-000027,STIG-Legacy|SV-81165,STIG-Legacy|V-66675,TBA-FIISB|31.3,Vuln-ID|V-214694"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set (routing-options|security policies) .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000028 - The Juniper SRX Services Gateway VPN must disable split-tunneling for remote clients VPNs."
+  info        : "Split tunneling would in effect allow unauthorized external connections, making the system more vulnerable to attack and to exfiltration of organizational information.
+
+A VPN hardware or software client with split tunneling enabled provides an unsecured backdoor to the enclave from the Internet. With split tunneling enabled, a remote client has access to the Internet while at the same time has established a secured path to the enclave via an IPsec tunnel. A remote client connected to the Internet that has been compromised by an attacker in the Internet, provides an attack base to the enclave's private network via the IPsec tunnel. Hence, it is imperative that the VPN gateway enforces a no split-tunneling policy to all remote clients.
+
+Traffic to the protected resource will go through the specified dynamic VPN tunnel and will therefore be protected by the Juniper SRX firewall's security policies.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the VPN tunnel to control what is sent out in clear text. The 'remote-protected-resources' command defines what is routed through the tunnel. The 'remote-exceptions' command defines what traffic is sent out in clear text. The following is an example.
+
+[edit]
+set security dynamic-vpn access-profile <dynamic-vpn-access-profile>
+set security dynamic-vpn clients all ipsec-vpn <ipsec-vpn-name>
+set security dynamic-vpn clients all remote-protected-resources <IP-address/mask>
+set security dynamic-vpn clients all remote-exceptions 0.0.0.0/0"
+  reference   : "800-171|3.13.2,800-171|3.13.5,800-171|3.13.7,800-171r3|03.13.01,800-53|SC-7(7),800-53r5|SC-7(7),CAT|II,CCI|CCI-002397,CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(7),NESA|T4.5.4,NIAv2|NS50,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-214695r856579_rule,STIG-ID|JUSX-VN-000028,STIG-Legacy|SV-81167,STIG-Legacy|V-66677,TBA-FIISB|43.1,Vuln-ID|V-214695"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security dynamic-vpn .+"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "JUSX-VN-000031 - The Juniper SRX Services Gateway VPN must use anti-replay mechanisms for security associations."
+  info        : "Anti-replay is an IPsec security mechanism at a packet level which helps to avoid unwanted users from intercepting and modifying an ESP packet.
+
+The SRX adds a sequence number to the ESP encapsulation which is verified by the VPN peer so packets are received within a correct sequence. This will cause issues if packets are not received in the order in which they were sent out.
+
+By default the SRX has a replay window of 64 or 32, depending on the platform. The SRX drops packets received out of order that are not received within this window. However, this default may be overridden by setting the option no-anti-replay as follows: set security vpn name ike no-anti-replay."
+  solution    : "Remove the no-anti-replay Internet Key Exchange (IKE) option from the VPN configuration. By default the SRX has a replay window of 64 or 32, depending on the platform.
+
+Example:
+[edit]
+delete security vpn name ike no-anti-replay"
+  reference   : "800-171|3.5.4,800-171r3|03.05.04,800-53|IA-2(8),800-53|IA-2(9),800-53r5|IA-2(8),CAT|II,CCI|CCI-001941,CCI|CCI-001942,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Juniper_SRX_SG_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(8),ITSG-33|IA-2(9),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-214696r1015749_rule,STIG-ID|JUSX-VN-000031,STIG-Legacy|SV-81169,STIG-Legacy|V-66679,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-214696"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Juniper_SRX_SG_Y25M01_STIG.zip"
+  regex       : "set security vpn .+"
+  not_expect  : "set security vpn .+ ike no-anti-replay"
+</custom_item>
+
+</check_type>

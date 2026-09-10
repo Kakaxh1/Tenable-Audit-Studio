@@ -1,0 +1,297 @@
+#TRUSTED 5df63be7bf43c91e753b691e13e53a4dfce76fcbfb1dd13aabdd56f010ee63c1b02f35aafcd200f3aa92b2b45dc44cca507caf58b5461fea5ce80fbaf932c6c03310273f6e0ce495e1ad63ee12b42226f9de08ff9595ef915a4a20756d65390fff45d966849574370f632024fea7f6293871eb6f6fcbaf3fbeb3fcf477ead6ba3130e5991481e3077d87e4767c0bb4b2b18e5996a59269d07182d9fb4e90d0439860f47d80663346562a692f05488609c1dfeccb8b13b0f4fd4a0dc5bb0342cef1deb45dff7493757ce998c99cd1986ab1b266a97c74461b8c3a274cc440a6f18d91266c5e0fdd961a62b424ebf08ce3b4e534d744fb852157a016f04b6d3ec81e5a4549d666fb233bdad68c13abbc89e6d0d0478eba36c359f2164d795de0db4084e73bc34676549c7b2f9aab88f03bd262875d17bd0f4b0bd9b708bad9ee994dca1f0537bbca093aa1ff6d6895211902d23d46d0f026349337fcd395fcc0f97b1538577a312473de569e1f66c78a592d5c71c865f09f49ca4b779d32bf0465cd407ae0c3052b2d4767f082af1223ea5e70bdf75da11881bca6a88eaa8c83c8f5dcdc2e132e9847e830729ac20ca9e9a1dd69f9566656485843d322e7c366c3cd0daa27bfc523da7a7ece5e2e2828e1a2d3fd04db2c1f477cfc335b394b7c33110a58b8c2e764002f060ea297b55a1d6a9c63e8353f5c2763728eb2660099f4
+#TRUST-RSA-SHA256 2211d088fd15db2d53fdc0635f55683e412a27132d9127a0655ed1f97b716c29c471008c7ce528680674cbc6e931e49ecf395186698d7974c350c7c8155efb385120708be3b021be7b36860670805a457cb82efb67426c2b70e269c38c8063924b84a34715a267f46ff234c3ce031b7b50acfd328a88351f1e3a4ae850b33b18ebb6128e1044f7508eec30151477aebbe6eeba1c71e95535b1296870938385d16dedad6efd07c69890739c841758d5e56a099d8a1aaaf9d8fa2dc596be42efa5d54e28c21e2d5d07f506a3cf08cbc18d95cff2a9a6f1e1f923416a422a9248c4def2385263c0514e38bccbcc923241d9dda9fa4f8d27e3cafa58745730faf48d1a439e79f82b4dc91ee4dd7f723700a494b52f23f22f97d749f86ff1e526f1d62d180ddc2cf8de1833b818e7feed114e6281f83e1d180d1b996d8d769730b5c31fd4f184434b39c59b215c02a031e483ef2ce69a3552fedb3f9c4c207a051a3f0a067427bbbb23fbbe28d9b683038582e88ea62f0ddc70f65b1994e58dccafe75ad0551922756f76b9dd7740f5dad4a7bfd17a849969d7c88852952b0935e8b136810f42425d87a6fc35bde93b1c4312023af1383872f451f27171f5d54ddb3be62acf4cc6cd5aa65d049b8b0d53c3de34f43abd6f97ed8700c1f14860a380376c5b72718427b555529a48f2748b2b78edcc9d1a0f6c5e04b8e85c5d1ef8453f
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2026/06/30 $
+#
+# description : This .audit is designed against the CIS PostgreSQL 18 Benchmark v1.0.0
+#
+#<ui_metadata>
+#<display_name>CIS PostgreSQL 18 v1.0.0 L1 Database Unix</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>PostgreSQL 18</name>
+#  <profile>L1 Database</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/24868</link>
+#</spec>
+#<labels>agent,cis,linux_host_os,postgres</labels>
+#<benchmark_refs>800-53,800-53r5,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Linux found"
+      cmd         : "uname -a"
+      expect      : "Linux"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_PostgreSQL_18_v1.0.0_L1_Database_Unix.audit from CIS PostgreSQL 18 v1.0.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+      show_output : YES
+    </report>
+
+    <if>
+      <condition auto:"WARNING" type:"OR">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check rpm"
+          cmd         : "dnf list installed \"postgres*\""
+          expect      : "^Manual Review Required$"
+          severity    : MEDIUM
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check deb"
+          cmd         : "apt list --installed \"postgres*\""
+          expect      : "^Manual Review Required$"
+          severity    : MEDIUM
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.2 Install only required packages"
+          info        : "Depending on the distribution, several other packages next to the mandatory postgresql might have been installed upon a system.
+Typical add-on packages are:
+
+ - postgresql-doc : PostgreSQL documentation.
+ - phppgadmin : PostgreSQL web-based administration tool.
+ - ...
+
+Unused packages can increase the potential attack surface of the system.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "Examine the installed packages:
+
+Debian:
+
+dpkg -l $(apt-cache search postgresql --names-only| awk '{print $1}') 2>&1 | grep -v 'no packages found'
+
+RHEL:
+
+rpm -q $(dnf search postgresql | cut -d: -f1 | cut -d. -f1) 2>&1 | grep -Ev 'package.*is not installed'
+
+Remove any identified packages that are undesired:
+
+Debian:
+
+apt purge <pkg>
+
+RHEL:
+
+dnf erase <pkg>"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : FILE_CONTENT_CHECK_NOT
+          description : "check user homes"
+          file        : "~/.bashrc ~/.bash_profile ~/.profile"
+          regex       : "^[\\s]*PGPASSWORD=.*$"
+          expect      : "^[\\s]*PGPASSWORD=.*$"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CONTENT_CHECK_NOT
+          description : "check /etc/environment"
+          file        : "/etc/environment"
+          regex       : "^[\\s]*PGPASSWORD=.*$"
+          expect      : "^[\\s]*PGPASSWORD=.*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.6 Verify That 'PGPASSWORD' is Not Set in Users' Profiles"
+          info        : "PostgreSQL can read a default database password from an environment variable called PGPASSWORD.
+
+Use of the PGPASSWORD environment variable implies PostgreSQL credentials are stored as clear text. Avoiding this may increase assurance that the confidentiality of PostgreSQL credentials is preserved."
+          solution    : "Check which users and/or scripts are setting PGPASSWORD and change them to use a more secure method."
+          reference   : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.7 Verify That the 'PGPASSWORD' Environment Variable is Not in Use"
+      info        : "PostgreSQL can read a default database password from an environment variable
+called PGPASSWORD.
+
+Using the PGPASSWORD environment variable implies PostgreSQL credentials are stored as clear text.
+Avoiding use of this environment variable can better safeguard the confidentiality of PostgreSQL credentials."
+      solution    : "Check which users and/or scripts are setting PGPASSWORD and change them
+to use a more secure method."
+      reference   : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+      cmd         : "grep PGPASSWORD /proc/*/environ 2>&1 | awk '{print} END {if (NR == 0) print \"pass\" ; else print \"fail\"}'"
+      expect      : "^pass$"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "2.2 Ensure extension directory has appropriate ownership and permissions"
+      info        : "The extension directory is the location of the PostgreSQL extensions. Extensions are storage engines or user defined functions (UDFs).
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the PostgreSQL database. If someone can modify extensions, then these extensions can be used to execute illicit instructions.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If needed, correct the permissions on the extension dir by eecuting:
+
+sudo chown root:root $ext_dir
+sudo chmod 0755 $ext_dir
+
+If the permissions needed correct, it is imperative that all extensions found in $ext_dir are evaluated to ensure they have not been modified!"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+    </report>
+
+    <custom_item>
+      type        : FIND_CMD
+      description : "2.3 Disable PostgreSQL Command History"
+      info        : "On Linux/UNIX, the PostgreSQL client logs most interactive statements to a history file.
+The default PostgreSQL history file is named .psql_history in the user's home directory.
+
+The PostgreSQL command history should be disabled.
+
+Disabling the PostgreSQL command history reduces the probability of exposing
+sensitive information, such as passwords, encryption keys, or sensitive data."
+      solution    : "For each OS user on the PostgreSQL server, perform the following steps to implement this setting:
+
+ -
+
+Remove .psql_history if it exists.
+
+rm -f ~<user>/.psql_history || true
+
+ -
+
+Use either of the techniques below to prevent it from being created again:
+
+ - Set the HISTFILE variable to /dev/null in ~<user>/.psqlrc
+cat << EOF >> ~<user>/.psqlrc
+\\set HISTFILE /dev/null
+EOF
+
+ - Create ~<user>/.psql_history as a symbolic to /dev/null.
+ln -s /dev/null $HOME/.psql_history
+
+ -
+
+Set the PSQL_HISTORY variable for all users:
+
+sudo echo 'PSQL_HISTORY=/dev/null' >> /etc/environment"
+      reference   : "800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.08.03,800-53|MP-6,800-53r5|MP-6,800-53r5|SR-12,CSCv8|3.5,CSF|PR.DS-3,CSF|PR.IP-6,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.10,ISO-27001-2022|A.7.10,ISO-27001-2022|A.7.14,ISO-27001-2022|A.8.10,ISO/IEC-27001|A.8.3.2,ITSG-33|MP-6,LEVEL|1A,NESA|T1.4.1,NESA|T1.4.2,NIAv2|MS5b,NIAv2|MS6,NIAv2|MS9,NIAv2|MS10a,NIAv2|MS10b,NIAv2|MS10c,NIAv2|MS10d,NIAv2|MS10e,NIAv2|MS10f,NIAv2|MS11a,NIAv2|MS11b,NIAv2|MS12a,NIAv2|MS12b,NIAv2|MS12c,NIAv2|MS13,NIAv2|MS14,NIAv2|MS17,NIAv2|MS18a,NIAv2|MS18b,NIAv2|MS18c,NIAv2|MS20,NIAv2|MS21,NIAv2|NS16,QCSC-v1|3.2,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+      not_expect  : "\.psql_history$"
+      exec        : "ls -la '{}' \\;"
+      find_name   : ".psql_history"
+      target      : "~"
+      verbose     : YES
+    </custom_item>
+
+    <if>
+      <condition auto:"WARNING" type:"AND">
+        <custom_item>
+          type        : FIND_CMD
+          description : "look for .pg_service.conf files"
+          not_expect  : ".+"
+          find_name   : ".pg_service.conf"
+          find_type   : "f"
+          target      : "/"
+          severity    : MEDIUM
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CONTENT_CHECK_NOT
+          description : "check for system-wide pg_service.conf file"
+          file        : "/etc/sysconfig/pgsql/pg_service.conf"
+          regex       : "^[\\s]*password"
+          expect      : "^[\\s]*password"
+          required    : NO
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.4 Ensure Passwords are Not Stored in the service file"
+          info        : "One can set a password in a PostgreSQL connection service file. Verify the password option is not used in a connection service file.
+
+Using the password parameter may negatively impact the confidentiality of the user's password.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "Delete every password entry in the file(s) previously identified.
+
+Impact:
+
+The global configuration is by default readable for all users on the system.
+This is needed for global defaults (prompt, port, socket, etc.).
+If a password is present in this file then all users on the system may be able to access it."
+          reference   : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1M,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1 Ensure Interactive Login is Disabled"
+      info        : "When created, the PostgreSQL user may have interactive access to the operating system, which means that the PostgreSQL user could login to the host as any other user would.
+
+Preventing the PostgreSQL user from logging in interactively may reduce the impact of a compromised PostgreSQL account.
+There is also more accountability, as accessing the operating system where the PostgreSQL server lies will require the user's own account and the apprpriate sudo configuration.
+Interactive access by the PostgreSQL user is unnecessary and should be disabled."
+      solution    : "Execute the following command:
+
+sudo passwd -l postgres
+
+Impact:
+
+This setting will prevent the PostgreSQL administrator from interactively logging into the operating system using the PostgreSQL user.
+Instead, the administrator will need to log in using one's own account and then sudo to the PostgreSQL administrator account."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+      cmd         : "grep postgres /etc/shadow | cut -d: -f1-2"
+      expect      : "^postgres:!.+$"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_PostgreSQL_18_v1.0.0_L1_Database_Unix.audit from CIS PostgreSQL 18 v1.0.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24868"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

@@ -1,0 +1,427 @@
+#TRUSTED 06e3c083f3073d7c174e9117af53721f5ad1a65d54cdc9d652a3643e26851e65d231c4ff02e7ce50954c5daf21853f7d436e30a5a6cebe47213ec935db6d27ee2f70e149f0ba036832c1086a97556728418bcc177a6f74ea1fb3908d7f5c1326afac8f926ba5be0e4b832f81348b88910725f4384b6192847ace93b3ee125f360c3d253d8eaf23a4fe27eb5c084cf059668ca3e887a5488b52f845b6f561fd0b219e0166260c18bca45f0d7e15282efb6612b7cf5642ca2e6386c56162b8f6473e598b2e5c8ec9a1c20e81fb6e6b4f2b9ab4c14f16b81746077453b51f08140c87e718858332d97774bd67d326758a01dc191c407eb2aa53d06cecf52353f07da47b10ced1f368309f029bc44ef3ea6351cf960912766d6d945397b73bebd4fdb5979b2f4b48e30ef7858751257a4fff8a65beef5c974fff94829cf5a8e72424c2cff74034e659f27b28731e17a5e683f3a8f166396cecfb64da510021662809594f10915abe5a398cc1d2b1e1fb3df180902709d2903c89301ac370881d85fa5fe412ba26f3b7d4cf91b560dfd36ccb174f00b860a847c3bb152a853128a3b0ce8c910b1381ea72d1fbbf047ae797a663cd1f0ceeca6daeceb829b8687066033e7adb79fe5b7f6f2c4744c94871927ea077d153aabcc070c559a10a89b1e60b1e86f5b040106472309e3ecbf3097febf52d7dd32ad9587558bcede50a7017e5
+#TRUST-RSA-SHA256 1025b4d85db98b5088f3746482bd68b9a8ecca71c69dbd6c65a8c4f5cfb63f0848698cecee2784797c3b7ecaaafe4719fdfdbbafa697ff62792e9db543d2cca1ec2e987f29c3e79a4c1f41e0c445c75e786481a5429656a553079369b4cf325b0102ff355f2afb355c4beb9c15ad2632782d30129e73b7d03a9947147a5e6ad9fa3b83812946def32eaec259df8606070c724d395b839453d7e0ec981cf29f5eff81e73fb955d4acd7176f076a2de1581b9afb9f09d7c972f1619f93509ca3143534fce57c9205174cb2bf2398abaa99138c827d9307d8e143f353e46c0886f695677d668669f80de112e4bbfb66107fb7a4d367ab65b0a0dc32ff98ff44393be1844dd439a6b603257923f1d095b040fbac53fd95085bbd4138e2fb4c477eb7a96dc1467f687838fd84274ae8f2e85283fd9a27dd574ae387e89b22e56ee0ba985ea7d535a49ed95e30680936965f362a6363b8d6cc0dbfb8ccd746324d4f1f9345c5b4a47420b43b9afde8485c055a5de11a089c497a0370d4abe2d858288cf62463af5833095206b0fc8d5c15673c198658da11639225fdec479d930fa2516267e68d6cd5cd47f21c4c525fbcd318e649bbddbe29c215aafd4d5454bbce294501ce3769fa1927b59e3321b2b5dd88ee997be7f09aa02ac1214dbf582d977b1ac7f3967d976896c72492a9d4eb662d6abcf046d1d6653cb6268227679933ba
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2025/06/02 $
+#
+# Description : This .audit is designed to VM configurations from either a vCenter or vSphere server
+#               and validate their settings against the settings defined in the VMware vSphere Security Configuration and Hardening Guide
+#
+#               https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/
+#
+#<ui_metadata>
+#<display_name>VMware vSphere Security Configuration and Hardening Guide 8.0 - Bare Metal Host</display_name>
+#<spec>
+#  <type>VMWare</type>
+#  <name>vSphere Security Configuration and Hardening Guide</name>
+#  <version>8.0.0</version>
+#  <link>https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/</link>
+#</spec>
+#<labels>vmware_esxi_8.0_bare_metal,unix</labels>
+#<benchmark_refs>CCI</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "VMkernel found"
+      cmd         : "uname -a"
+      expect      : "VMkernel"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "VMware_vSphere_Security_Configuration_Guide_8.0_Bare_Metal_Host.audit from VMware vSphere Security Configuration and Hardening Guide 8.0"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.account-dcui"
+      info        : "The ESXi host must deny shell access for the dcui account. The dcui user is used for process isolation for the DCUI itself. The account has shell access which can be deactivated to reduce attack surface."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.account.set.CreateArgs()
+$arguments.id = \"dcui\"
+$arguments.shellaccess = \"false\"
+$ESXcli.system.account.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/bin/esxcli system account list"
+      expect      : "^[\\s]*dcui[\\s]+DCUI[\\s]+User[\\s]+false[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Check disableHwrng"
+          cmd         : "/bin/esxcli system settings kernel list -o disableHwrng"
+          expect      : "^[\\s]*disableHwrng[\\s]+Bool[\\s]+FALSE.*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Check entropySources"
+          cmd         : "/bin/esxcli system settings kernel list -o entropySources"
+          expect      : "^[\\s]*entropySources[\\s]+uint32[\\s]+0.*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "ESXi: esxi-8.entropy"
+          info        : "The ESXi host must use sufficient entropy for cryptographic operations. Starting in vSphere 8.0, the ESXi Entropy implementation supports the FIPS 140-3 and EAL4 certifications. Kernel boot options control which entropy sources to activate on an ESXi host. In computing, the term \"entropy\" refers to random characters and data that are collected for use in cryptography, such as generating encryption keys to secure data transmitted over a network. Entropy is required by security for generating keys and communicating securely over the network. Entropy is often collected from a variety of sources on a system. FIPS entropy handling is the default behavior if the following conditions are true:
+
+-The hardware supports RDSEED.
+-The disableHwrng VMkernel boot option is not present or is FALSE.
+-The entropySources VMkernel boot option is not present or is 0 (zero)."
+          solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.settings.kernel.set.CreateArgs()
+$arguments.setting = \"disableHwrng\"
+$arguments.value = \"FALSE\"
+$ESXcli.system.settings.kernel.set.invoke($arguments)
+$arguments.setting = \"entropySources\"
+$arguments.value = \"0\"
+$ESXcli.system.settings.kernel.set.invoke($arguments)"
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.key-persistence"
+      info        : "The ESXi host must not store encryption keys on ESXi hosts without securing physical access to the hosts. Key Persistence is a mechanism that uses a local Trusted Platform Module (TPM) to store Standard Key Provider keys, usually found only in an external Key Management System (KMS). While this setup can improve management of dependencies, using Key Persistence changes the encryption risks. If an attacker steals the host, they will have access to the encryption keys for data on that host, bypassing the access controls of the external KMS. Therefore, Key Persistence should be used only when the physical security of the hosts is assured. If the physical hosts are not secure and an attacker can steal the host, they will also have the means to access and use encrypted workloads. Key Persistence and Native Key Provider are often conflated because both store encryption data on hosts. However, the Native Key Provider does not use Key Persistence, so turning off Key Persistence won't affect it. Like Key Persistence, the Native Key Provider also requires careful consideration of physical security, as outlined in the 'design-8.native-key-provider' and 'design-8.hardware-physical-security' controls."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.security.keypersistence.disable.CreateArgs()
+$arguments.removeallstoredkeys = $true
+$ESXcli.system.security.keypersistence.disable.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/bin/esxcli system security keypersistence get"
+      expect      : "^[\\s]*Enabled[\\s]*:[\\s]+false[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.logs-filter"
+      info        : "The ESXi host must not enable log filtering. You can create log filters to reduce the number of repetitive entries, and to deny specific log events entirely."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $esxcli.system.syslog.config.logfilter.set.CreateArgs()
+$arguments.logfilteringenabled = $false
+$ESXcli.system.syslog.config.logfilter.set.invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/bin/esxcli system syslog config logfilter get"
+      expect      : "(?i)^[\\s]*Log[\\s]+Filtering[\\s]+Enabled:[\\s]+false[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.secureboot"
+      info        : "The ESXi host must enable Secure Boot. Secure Boot is part of the UEFI firmware standard. With UEFI Secure Boot enabled, a host refuses to load any UEFI driver or app unless the operating system bootloader has a valid digital signature. Secure Boot for ESXi requires support from the firmware and it requires that all ESXi kernel modules, drivers, and VIBs be signed by VMware or a partner subordinate. Secure Boot is enabled in the BIOS of the ESXi physical server and supported by the hypervisor boot loader."
+      solution    : "N/A (Enable in hardware firmware settings)"
+      reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9(3),800-53r5|AU-9(3),CCI|CCI-001496,CN-L3|8.1.4.3(d),CSF|PR.PT-1,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(3),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SM5,NIAv2|SM6,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|10.3.2,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.3.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/usr/lib/vmware/secureboot/bin/secureBoot.py -s"
+      expect      : "(?i)Enabled$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.secureboot-enforcement"
+      info        : "The ESXi host must enable TPM-based Secure Boot enforcement. The TPM-based nature of VMware ESXi Secure Boot Enforcement enhances security beyond standard Secure Boot. It uses a hardware TPM chip to store and verify cryptographic measurements of the entire boot process, from UEFI firmware to the ESXi kernel. This creates a hardware-backed root of trust, making it much harder for attackers to tamper with the boot sequence undetected. Unlike normal Secure Boot, which only checks digital signatures, TPM-based enforcement ensures the integrity of the complete boot chain and enables advanced features like remote attestation for verifying host trustworthiness. This control flips ESXi from merely supporting Secure Boot to requiring it. Without this setting enabled, and configuration encryption, an ESXi host could be subject to offline attacks. An attacker could simply transfer the ESXi install drive to a non-Secure Boot host and boot it up without ESXi complaining."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.settings.encryption.set.CreateArgs()
+$arguments.requiresecureboot = $true
+$ESXcli.system.settings.encryption.set.Invoke($arguments)"
+      reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9(3),800-53r5|AU-9(3),CCI|CCI-001496,CN-L3|8.1.4.3(d),CSF|PR.PT-1,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(3),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SM5,NIAv2|SM6,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|10.3.2,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.3.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/bin/esxcli system settings encryption get"
+      expect      : "(?i)^[\\s]*Require[\\s]+Secure[\\s]+Boot[\\s]*:[\\s]+true[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-fips"
+      info        : "The ESXi host SSH daemon must use FIPS 140-2/140-3 validated cryptographic modules. OpenSSH on the ESXi host ships with a FIPS 140-2/140-3 validated cryptographic module, and it is enabled by default. For backward compatibility reasons, this can be deactivated. Therefore, this setting must be audited and corrected if necessary."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.security.fips140.ssh.set.CreateArgs()
+$arguments.enable = $true
+$ESXcli.system.security.fips140.ssh.set.Invoke($arguments)"
+      reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),CCI|CCI-000068,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.6"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)FipsMode(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)FipsMode(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-fips-ciphers"
+      info        : "The ESXi host Secure Shell (SSH) daemon must be configured to only use FIPS 140-2/140-3 validated ciphers. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'ciphers'
+$arguments.value = 'aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)Ciphers(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)Ciphers(?-i)[\\s]+aes256-gcm@openssh\\.com,aes128-gcm@openssh\\.com,aes256-ctr,aes192-ctr,aes128-ctr[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-gateway-ports"
+      info        : "The ESXi host Secure Shell (SSH) daemon must be configured to not allow gateway ports. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'gatewayports'
+$arguments.value = 'no'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)GatewayPorts(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)GatewayPorts(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-host-based-auth"
+      info        : "The ESXi host Secure Shell (SSH) daemon must not allow host-based authentication. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'hostbasedauthentication'
+$arguments.value = 'no'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)HostbasedAuthentication(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)HostbasedAuthentication(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-idle-timeout-count"
+      info        : "The ESXi host Secure Shell (SSH) daemon must set a timeout count on idle sessions. System services must be hardened and secured when enabled. The timeout count, multiplied by the idle timeout interval, is the total number of seconds the session may be idle until it is disconnected."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'clientalivecountmax'
+$arguments.value = '3'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)ClientAliveCountMax(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)ClientAliveCountMax(?-i)[\\s]+3[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-idle-timeout-interval"
+      info        : "The ESXi host Secure Shell (SSH) daemon must set a timeout interval on idle sessions. System services must be hardened and secured when enabled. The timeout count, multiplied by the idle timeout interval, is the total number of seconds the session may be idle until it is disconnected."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'clientaliveinterval'
+$arguments.value = '200'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)ClientAliveInterval(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)ClientAliveInterval(?-i)[\\s]+200[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-login-banner"
+      info        : "The ESXi host Secure Shell (SSH) daemon must display the system login banner before granting access to the system. System services must be hardened and secured when enabled. You must set the host's Config.Etc.Issue advanced parameter as well, to provide text to this banner."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'banner'
+$arguments.value = '/etc/issue'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,CCI|CCI-000048,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,TBA-FIISB|45.2.4"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)Banner(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)Banner(?-i)[\\s]+/etc/issue[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-rhosts"
+      info        : "The ESXi host Secure Shell (SSH) daemon must ignore .rhosts files. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'ignorerhosts'
+$arguments.value = 'yes'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.5.3,800-171r3|03.05.03,800-53|IA-2(1),800-53|IA-2(3),800-53r5|IA-2(1),CCI|CCI-000765,CCI|CCI-000767,CN-L3|7.1.2.7(b),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(1),ITSG-33|IA-2(3),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM36,NIAv2|VL3c,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)IgnoreRhosts(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)IgnoreRhosts(?-i)[\\s]+yes[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-stream-local-forwarding"
+      info        : "The ESXi host Secure Shell (SSH) daemon must disable stream local forwarding. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'allowstreamlocalforwarding'
+$arguments.value = 'no'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)AllowStreamLocalForwarding(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)AllowStreamLocalForwarding(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-tcp-forwarding"
+      info        : "The ESXi host Secure Shell (SSH) daemon must disable TCP forwarding. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'allowtcpforwarding'
+$arguments.value = 'no'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)AllowTcpForwarding(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)AllowTcpForwarding(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-tunnels"
+      info        : "The ESXi host Secure Shell (SSH) daemon must not permit tunnels. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'permittunnel'
+$arguments.value = 'no'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)PermitTunnel(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)PermitTunnel(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "ESXi: esxi-8.ssh-user-environment"
+      info        : "The ESXi host Secure Shell (SSH) daemon must not permit user environment settings. System services must be hardened and secured when enabled."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.ssh.server.config.set.CreateArgs()
+$arguments.keyword = 'permituserenvironment'
+$arguments.value = 'no'
+$ESXcli.system.ssh.server.config.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      file        : "/etc/ssh/sshd_config"
+      regex       : "^[\\s]*(?i)PermitUserEnvironment(?-i)[\\s]"
+      expect      : "^[\\s]*(?i)PermitUserEnvironment(?-i)[\\s]+no[\\s]*$"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "ESXi: esxi-8.supported"
+      info        : "ESXi host is running software that has not reached End of General Support status. Ensure that ESXi is a version that has not reached the End of General Support status.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "N/A"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.tls-profile"
+      info        : "The ESXi host must maintain confidentiality and integrity of transmissions by enabling modern TLS ciphers. In ESXi 8.0.3 and newer, TLS profiles are available to configure client and server TLS settings to use only strong ciphers. You can view the entire cipher list and suites using:
+
+$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.tls.server.get.CreateArgs()
+$arguments.showprofiledefaults = $true
+$arguments.showcurrentbootprofile = $true
+$ESXcli.system.tls.server.get.invoke($arguments)
+
+The host will require a reboot after setting this parameter (and will display in the vSphere Client with the suffix of \"(Reboot Required)\").
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.tls.server.set.CreateArgs()
+$arguments.profile = \"NIST_2024\"
+$ESXcli.system.tls.server.set.invoke($arguments)"
+      reference   : "800-171|3.1.13,800-171|3.13.8,800-171r3|03.13.08,800-53|AC-17(2),800-53|SC-8(2),800-53r5|AC-17(2),800-53r5|SC-8(2),CCI|CCI-000068,CCI|CCI-002420,CCI|CCI-002422,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),ITSG-33|SC-8(2),ITSG-33|SC-9(2),NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/bin/esxcli system tls server get --show-current-boot-profile"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.tpm-configuration"
+      info        : "The ESXi host must require TPM-based configuration encryption. An ESXi host's configuration consists of configuration files for each service that runs on the host. The configuration files typically reside in the /etc/ directory, but they can also reside in other namespaces. The configuration files contain run-time information about the state of the services. Over time, the default values in the configuration files might change, for example, when settings on the ESXi host are changed. A cron job backs up the ESXi configuration files periodically, when ESXi shuts down gracefully or on demand, and creates an archived configuration file in the boot bank. When ESXi reboots, it reads the archived configuration file and recreates the state that ESXi was in when the backup was taken. Before vSphere 7.0 Update 2, the archived ESXi configuration file is not encrypted. In vSphere 7.0 Update 2 and later, the archived configuration file is encrypted. When the ESXi host is configured with a Trusted Platform Module (TPM), the TPM is used to \"seal\" the configuration to the host, providing a strong security guarantee and additional protection from offline attacks. Configuration encryption uses the physical TPM when it is available and supported at install or upgrade time. If the TPM was added or enabled later, the ESXi host must be told to reconfigure to use the newly available TPM. Once the TPM configuration encryption is enabled, it cannot be deactivated."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.system.settings.encryption.set.CreateArgs()
+$arguments.mode = \"TPM\"
+$ESXcli.system.settings.encryption.set.Invoke($arguments)"
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/bin/esxcli system settings encryption get"
+      expect      : "(?i)^[\\s]*Mode[\\s]*:[\\s]+TPM[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "ESXi: esxi-8.vib-acceptance-level-supported"
+      info        : "The ESXi host image profile acceptance level must be PartnerSupported or higher. The acceptance level in ESXi controls what can be installed on the system. There are four levels: VMwareCertified, VMwareAccepted, PartnerSupported, and CommunitySupported. It is important to note that CommunitySupported VIBs (vSphere Installation Bundles) have not undergone testing by VMware or a VMware partner, and they do not have a digital signature. It is considered risky to install CommunitySupported VIBs as their reliability and security cannot be guaranteed."
+      solution    : "$ESXcli = Get-EsxCli -VMHost $ESXi -V2
+$arguments = $ESXcli.software.acceptance.set.CreateArgs()
+$arguments.level = \"PartnerSupported\" # VMwareCertified, VMwareAccepted, PartnerSupported, CommunitySupported
+$ESXcli.software.acceptance.set.Invoke($arguments)"
+      reference   : "800-171|3.4.5,800-171|3.4.8,800-171r3|03.04.05,800-171r3|03.04.08b.,800-53|CM-5(3),800-53|CM-7(5)(b),800-53r5|CM-7(5)(b),800-53r5|CM-14,CCI|CCI-001749,CCI|CCI-001774,CCI|CCI-003992,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ISO/IEC-27001|A.12.5.1,ISO/IEC-27001|A.12.6.2,ITSG-33|CM-5(3),ITSG-33|CM-7,NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3,TBA-FIISB|44.2.2,TBA-FIISB|49.2.3"
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      cmd         : "/bin/esxcli software acceptance get"
+      expect      : "(?i)^[\\s]*(PartnerSupported|VMwareCertified|VMwareAccepted)[\\s]*$"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "VMware_vSphere_Security_Configuration_Guide_8.0_Bare_Metal_Host.audit from VMware vSphere Security Configuration and Hardening Guide 8.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://github.com/vmware/vcf-security-and-compliance-guidelines/raw/refs/heads/main/security-configuration-hardening-guide/vsphere/8.0/"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

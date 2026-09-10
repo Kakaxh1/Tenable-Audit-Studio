@@ -1,0 +1,1455 @@
+#TRUSTED 1fe2c6d79a969e296040eaa85a2607935500beb277c82209d54c6944cf35221f2b8c48a2f89a1609ba477189e70dce0a288ff0c38dcee5ec159b5c898a2a9971388a3add11023dd05cae9be29b621255d4fbc736774a88505b5bca66b86f68f9d8ee92654841220431e1c28edc6f47be67fcfb778f7f12d7bbe66284a23f61b12875e2fecedcf38a899c5f6f3d7d14c93253c027fc4416217af06893f39e7b967524aafa781899928a19ed1cdc76f81aad3c5b6781356b1e82f221917d3804fe4e9fbb61ce1022cdb045bca58d03017490b4ca7628b2fd81c2d4edaf9d1da176402792dff6226b9915bf2794b1ce9d41353534ba60b9b22309ef1d794e708c6671e017dbe0f8546aa63b5e4e2e34040619f24b05e35364c67d17418786ab52539611de5ef023fede6e460cf286273e2b1f5b9ca98aef4a45c431d095821c1993992ef6fd4f0d776162f39cee521c5643b54bd3c572d20295586d7e8370ba05ff14e1d9df8b5eab919eadb1ef760b934eaddb01f74656a97874bb45017066054388dda226ef247bb734724000400c4e81e9684e4a9794afbfc83b23ba157822926c5da58f2a9f461279edc23ec0af6d26fe3ab36c3eb0d1777afd2617c68eac2499dd21edf23be7b0c260d2b395630143e2cab9fa2f76d174a8ad59b2dc922bb4f061c76dafe3d5cf08fc64d5c17f641cef582486d508c70d0bc30b00c483889b
+#TRUST-RSA-SHA256 29d66e07ade57af27d3b53f3ec6dba651deb34485524ef2e4f0cdaebad47779ebd54c95e931b8329a42ee862120b405d277708d65896382cd4f338094a0ecc9a942b6d4e82862421fa039cbfe6dc87f0566e5f68ac33a451d027acb9a23ffe75d35c41324306e6fce1a7fe5d215f7bfefc71690303bd0170485a917f52281ff7307b2d2fe24664a6435ae42e32668bc6303e12d690cc91b1a01951c66841475c486409b88510e4ecfb5b19fafe9073bffc53935bd50fd978772e548d218797cb8f58245ff3bc3794091f28b787e588f819029bfb4057c50adde0ffd9600c88011f75f9895257aef8f5cc7eca30df176da617fa1cbc24df360910237f07aee7ce7214764b435418f99a9ef4e270ff1fb6ed7df6e1617dc0648c764147c6cffed67e79647c978581ed05cc29f6f63b707727ebd0c385ec429fae7865d47893b61d9a94fe629d6a75b673e8e0ebd734f9f5900d3bcd7c8f0b6d397d0784e15a854a979a5ad3fad0096b5ebc6b1a47718e6651aef0ceb7a5ad907002d2a82ad57c5bcb1eb12584c3fb2d8e97d76a7d742bdf6f983d644f99bbb344533fb7017e92ab1210e6a2b243a9d03a09017f05e8c673b5cf571b897bad7586463debe7c1a33f36591cc11a5cd514b0a28d9e8877aae49108f06c91b9c558dee2ddba46f0f3b0da24a479b2df08111b364335a1c29b9bd483592bc0e146265ecba22ac46159a9
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/03/23 $
+#
+# description : This .audit is designed against the CIS NGINX Benchmark 3.0.0
+#
+#<ui_metadata>
+#<display_name>CIS NGINX v3.0.0 L1 Loadbalancer</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>NGINX</name>
+#  <profile>L1 Loadbalancer</profile>
+#  <version>3.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/18528</link>
+#</spec>
+#<labels>agent,nginx</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>NGINX_USER</name>
+#    <default>nginx</default>
+#    <description>NGINX user account</description>
+#    <info>The user which the NGINX process runs as.</info>
+#    <value_type>UNIX_ACCT</value_type>
+#  </variable>
+#  <variable>
+#    <name>NGINX_CONFIG_DIR</name>
+#    <default>/etc/nginx</default>
+#    <description>NGINX configuration directory</description>
+#    <info>The location of NGINX configuration files.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Check if NGINX is installed"
+      cmd         : "nginx -v"
+      expect      : "nginx[\\s]+version[\\s]*:"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_NGINX_v3.0.0_L1_Loadbalancer.audit from CIS NGINX 3.0.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.1 Ensure NGINX is installed"
+      info        : "An NGINX installation must be present on the system. To ensure support for modern security standards (such as TLS 1.3 and HTTP/3) and to mitigate known vulnerabilities, the installed version must be 1.28.0 or later and compiled with the necessary modules.
+
+NGINX must be installed and operational to serve as the target for this benchmark's security controls. Enforcing a minimum version and feature set ensures the platform is capable of supporting the required security configurations."
+      solution    : "Install or upgrade NGINX to version 1.28.0 or later.
+
+Note: Official packages from nginx.org https://nginx.org/en/linux_packages.html (see recommendation 1.2.1) typically include these modules by default. Custom builds must explicitly enable them.
+
+Impact:
+
+Upgrading NGINX to a newer version may introduce configuration syntax changes or deprecated directives. Administrators should test the configuration syntax nginx -t before restarting the service."
+      reference   : "800-171r3|03.16.02,800-53|SA-22,800-53r5|SA-22,CSCv7|2.2,CSCv8|2.2,CSF2.0|ID.AM-08,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|1M"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -v"
+      expect      : "nginx[\\s]+version[\\s]*:[\\s]*nginx/1\\.(2[89]|[3-9][0-9])"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "1.2.1 Ensure package manager repositories are properly configured"
+      info        : "Package repositories must be trustworthy, properly configured, and maintained to ensure the system receives timely security patches, bug fixes, and support for modern protocols. While Operating System (OS) vendors provide NGINX packages, these versions are often frozen at older release points (\\\"stable\\\" but stale). Access to critical modern features like HTTP/3 (QUIC) and the latest TLS updates typically requires using the official repositories maintained by NGINX/F5.
+
+If a system's package manager repositories are misconfigured or outdated, critical security patches may not be applied in a timely manner. Furthermore, relying solely on default OS repositories often restricts the web server to legacy versions that lack support for modern security standards (e.g., HTTP/3). Using the official nginx.org repositories ensures access to the latest stable and mainline versions directly from the source, reducing the risk of running obsolete software. Conversely, adding untrusted third-party repositories can introduce compromised software or dependency conflicts.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure your package manager to use a trusted repository that meets your version requirements.
+
+To enable the official NGINX repository (Recommended for HTTP/3 support):Follow the instructions at nginx.org/en/linux_packages.html https://nginx.org/en/linux_packages.html for your specific distribution. This typically involves adding the NGINX signing key and creating a repository configuration file.
+
+Impact:
+
+Switching from OS-provided packages to upstream (nginx.org) packages alters the update lifecycle. Administrators become responsible for tracking upstream changes rather than relying on the OS vendor's backporting policy. However, this is often necessary to meet modern security and performance requirements."
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-171r3|03.11.02,800-171r3|03.14.01,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.4,CSCv7|3.5,CSCv8|7.3,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.8,ISO-27001-2022|A.8.32,ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1M,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+    </report>
+
+    <report type:"WARNING">
+      description : "1.2.2 Ensure the latest software package is installed"
+      info        : "As new security vulnerabilities are discovered, the corresponding fixes are implemented by your NGINX software package provider. Installing the latest software version ensures these fixes are available on your system.
+
+Up-to-date software provides the best possible protection against exploitation of security vulnerabilities, such as the execution of malicious code.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "To install the latest NGINX package, run the following command (example):
+
+Redhat:
+
+dnf update nginx -y
+
+Impact:
+
+Updating the NGINX package requires a service reload or restart to apply the changes. This may cause a brief interruption or configuration errors if the new version deprecates existing syntax."
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-171r3|03.11.02,800-171r3|03.14.01,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.4,CSCv7|3.5,CSCv8|7.3,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.8,ISO-27001-2022|A.8.32,ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1M,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.1.1 Ensure only required dynamic modules are loaded"
+      info        : "NGINX functionality is provided by modules. These modules are either compiled statically into the NGINX binary or loaded dynamically at runtime via the load_module directive.
+
+ - Static Modules: These are fixed at compile time. When using official pre-built packages (e.g., from nginx.org or OS vendors), a standard set of modules is included and cannot be removed without recompiling NGINX.
+ - Dynamic Modules: These are separate .so files that can be loaded on demand. To reduce the attack surface and complexity, only strictly required dynamic modules should be loaded. Additionally, administrators should be aware of the active static modules to avoid configuring unused features unintentionally.
+
+Minimizing the loaded code reduces the potential attack surface. While static modules in pre-built packages cannot be removed, ensuring that no unnecessary dynamic modules are loaded prevents the execution of unneeded code. Furthermore, understanding which static modules are present helps administrators avoid enabling risky features (like autoindex or stub_status ) in the configuration if they are not needed.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "For Dynamic Modules:
+
+Open the main configuration file ( /etc/nginx/nginx.conf ) or the relevant include file (e.g., in /etc/nginx/modules-enabled/ ). Comment out or remove the load_module directive for any module that is not strictly necessary.
+
+For Static Modules:
+
+Since static modules cannot be removed from pre-built packages, ensure their directives are not used in your configuration. If a specific static module poses a critical risk to your environment, you must switch to a custom build or a different package flavor that excludes it.
+
+Impact:
+
+Removing a required dynamic module or misinterpreting the availability of a static module can cause the NGINX service to fail on restart or break specific application features."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06,800-53|CM-7,800-53|CM-7(1),800-53r5|CM-7,800-53r5|CM-7(1),CSCv7|2.8,CSCv8|2.6,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|CM-7(1),LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*load_module' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^(Manual Review Required|none)$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "id"
+          cmd         : "id @NGINX_USER@"
+          expect      : "^(?!.*(root|wheel|sudo)).*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "sudo"
+          cmd         : "sudo -l -U @NGINX_USER@ 2>&1"
+          expect      : "(not allowed to run sudo|not found)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.2.1 Ensure that NGINX is run using a non-privileged, dedicated service account"
+          info        : "The NGINX master process typically runs as root to bind to privileged ports and manage resources, but it spawns worker processes to handle the actual client traffic. The user directive in the main configuration designates the operating system account under which these worker processes run.
+
+Running worker processes under a non-privileged, dedicated service account limits the damage an attacker can cause in the event the NGINX process is compromised. This account should be exclusively dedicated to NGINX, have no login capabilities, and possess no elevated system privileges.
+
+If an attacker successfully exploits a vulnerability in a worker process (e.g., via a buffer overflow or Remote Code Execution), they inherit the permissions of the user account running that process. Using a privileged account like root significantly increases the risk of lateral movement. A dedicated, locked-down service account ensures that an attacker cannot access other services, modify sensitive system files, or easily escalate privileges, effectively reducing the impact of the compromise."
+          solution    : "1. Create/Harden User (if missing):
+
+If no user exists, create a system user with a no login shell:
+
+useradd -r -d /var/cache/nginx -s /sbin/nologin nginx
+
+2. Configure NGINX:
+
+Set the user directive in the main context of nginx.conf :
+
+user nginx;
+
+3. Lock User Account:
+
+Ensure the account cannot be used for login:
+
+usermod -s /sbin/nologin nginx
+usermod -L nginx
+
+Impact:
+
+Changing the NGINX user requires that ownership and permissions for all runtime directories (logs, caches, PID files) are updated to match the new account. Incorrect permissions will prevent NGINX from starting or writing necessary logs. Additionally, the dedicated user must remain strictly unprivileged; adding it to groups like sudo or wheel would negate the security benefit."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.2.2 Ensure the NGINX service account is locked"
+      info        : "The NGINX service account must not have a usable password and should be explicitly locked in the system's shadow file to prevent direct login or password-based privilege escalation.
+
+As a defense-in-depth measure, the NGINX service account should be explicitly locked. This prevents password-based logins and blocks adversaries from using the account for lateral movement, even if they manage to change the account's shell configuration.
+
+In a properly hardened environment, there is no operational need for any user to log in as nginx . Administrative tasks requiring the NGINX identity should be performed using sudo (e.g., sudo -u nginx ), which utilizes the administrator's credentials rather than the service account's password."
+      solution    : "Lock the account using the passwd command:
+
+passwd -l nginx
+
+(Replace nginx with the actual service user found in step 1)
+
+Impact:
+
+Locking the service account has minimal operational impact. The account is not intended for human interaction, and all administrative tasks requiring the NGINX user context should already be performed using sudo -u nginx rather than password-based authentication."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "passwd -S @NGINX_USER@"
+      expect      : "@NGINX_USER@[\\s]+(L|LK)[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.2.3 Ensure the NGINX service account has an invalid shell"
+      info        : "The NGINX service account must be configured with an invalid login shell to prevent interactive access.
+
+The NGINX service account is strictly for running daemon processes. Assigning it a valid login shell (like /bin/bash ) unnecessarily expands the attack surface. If an attacker compromises the account credentials (or adds an SSH key), a valid shell facilitates interactive system access. Setting the shell to /sbin/nologin or /bin/false ensures that even with valid credentials, the system immediately rejects a login attempt."
+      solution    : "Change the login shell for the identified user to /sbin/nologin :
+
+usermod -s /sbin/nologin nginx
+
+(Replace nginx with the actual user)
+
+Impact:
+
+None. Service accounts do not require interactive login capabilities for normal operation."
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.16.01,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-09,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO-27001-2022|A.8.30,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "getent passwd @NGINX_USER@"
+      expect      : ":(\/usr)?\/s?bin\/(nologin|false)$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : FIND_CMD
+          description : "Directories user"
+          not_expect  : ".+"
+          exec        : "ls -ld '{}' \\;"
+          find_type   : "d"
+          not_user    : "root"
+          target      : "@NGINX_CONFIG_DIR@"
+        </custom_item>
+
+        <custom_item>
+          type        : FIND_CMD
+          description : "Directories group"
+          not_expect  : ".+"
+          exec        : "ls -ld '{}' \\;"
+          find_type   : "d"
+          not_group   : "root"
+          target      : "@NGINX_CONFIG_DIR@"
+        </custom_item>
+
+        <custom_item>
+          type        : FIND_CMD
+          description : "Files user"
+          not_expect  : ".+"
+          exec        : "ls -ld '{}' \\;"
+          find_type   : "f"
+          not_user    : "root"
+          target      : "@NGINX_CONFIG_DIR@"
+        </custom_item>
+
+        <custom_item>
+          type        : FIND_CMD
+          description : "Files group"
+          not_expect  : ".+"
+          exec        : "ls -ld '{}' \\;"
+          find_type   : "f"
+          not_group   : "root"
+          not_user    : "root"
+          target      : "@NGINX_CONFIG_DIR@"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.3.1 Ensure NGINX directories and files are owned by root"
+          info        : "The NGINX configuration directory and all contained files must be owned by the root user and group to prevent unauthorized modification.
+
+The NGINX configuration controls the security posture of the web server. If a non-privileged user (including the nginx worker user) can modify these files, they can trivially escalate privileges (e.g., by loading a malicious module or changing the user directive to root ). Ensuring that only root owns these files guarantees that configuration changes require administrative privileges."
+          solution    : "Set the ownership of the NGINX configuration directory and files to root :
+
+chown -R root:root /etc/nginx
+
+(Replace /etc/nginx with the actual configuration path in case it is different)
+
+Note: Ensure that this does not break access to specific files if you have a custom setup where external processes need write access.
+
+Impact:
+
+None. The NGINX master process runs as root and can read these files. The worker processes (running as nginx ) do not need write access to the configuration."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : FIND_CMD
+          description : "Files"
+          not_expect  : ".+"
+          exec        : "/bin/stat -c \"%n %a\" '{}' \\;"
+          find_type   : "f"
+          perm        : "/137"
+          target      : "@NGINX_CONFIG_DIR@"
+        </custom_item>
+
+        <custom_item>
+          type        : FIND_CMD
+          description : "Directories"
+          not_expect  : ".+"
+          exec        : "/bin/stat -c \"%n %a\" '{}' \\;"
+          find_type   : "d"
+          perm        : "/027"
+          target      : "@NGINX_CONFIG_DIR@"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.3.2 Ensure access to NGINX directories and files is restricted"
+          info        : "The NGINX configuration directory ( /etc/nginx or equivalent) and its contents should have restrictive permissions to enforce the principle of least privilege.
+
+ - Directories should be accessible only by the root user and the root group (and potentially read/execute by the group), but not by others.
+ - Files should be readable/writable by root and readable by the group, but inaccessible to others.
+
+Restrictive file permissions prevent unauthorized users on the system from viewing sensitive configuration details, such as backend IP addresses, routing logic, or loaded module paths. By removing \\\"world\\\" access (permissions for \\\"other\\\"), we ensure that only administrators (via sudo ) can interact with the web server configuration. This is a fundamental defense against information disclosure."
+          solution    : "To restrict access to the NGINX configuration directory and files, execute the following commands:
+
+1. Restrict Directories ( 750 ):
+
+Allow owner ( root ) full access, group read/execute, deny others.
+
+find /etc/nginx -type d -exec chmod 750 {} +
+
+2. Restrict Files ( 640 ): Allow owner ( root ) read/write, group read, deny others.
+
+find /etc/nginx -type f -exec chmod 640 {} +
+
+Note: Private keys (e.g., .key files) require even stricter permissions ( 400 or 600 ) and should be addressed separately or manually verified here.
+
+Impact:
+
+Setting permissions to 640 (files) and 750 (directories) prevents non-privileged users from listing the configuration directory or reading configuration files."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"OR">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "/run/nginx.pid"
+          file        : "/run/nginx.pid"
+          owner       : "root"
+          mask        : "133"
+          group       : "root"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CHECK
+          description : "/var/run/nginx.pid"
+          file        : "/var/run/nginx.pid"
+          owner       : "root"
+          mask        : "133"
+          group       : "root"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.3.3 Ensure the NGINX process ID (PID) file is secured"
+          info        : "The PID file stores the main process ID of the nginx process. This file should be protected from unauthorized modification.
+
+The PID file should be owned by root and the group root . It should also be readable to everyone, but only writable by root (permissions 644 ). This will prevent unauthorized modification of the PID file, which could cause a denial of service."
+          solution    : "Set the correct ownership and permissions for the PID file (replace path as needed):
+
+chown root:root /run/nginx.pid
+chmod 644 /run/nginx.pid
+
+Impact:
+
+None. The PID file is managed by the master process ( root ). Restricting write access prevents other users from tampering with the file, but read access is generally safe and required for monitoring."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"WARNING" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Loaded Configuration"
+          cmd         : "nginx -T 2>/dev/null | grep 'listen' | awk '{print} END {if (NR == 0) print \"none\"}'"
+          expect      : "^Manual Review Required$"
+          severity    : MEDIUM
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "System Listening Ports"
+          cmd         : "netstat -tulpen | grep -i nginx"
+          expect      : "^Manual Review Required$"
+          severity    : MEDIUM
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.4.1 Ensure NGINX only listens for network connections on authorized ports"
+          info        : "NGINX should be configured to listen only on authorized ports and protocols. While traditional HTTP/1.1 and HTTP/2 use TCP ports 80 and 443, modern HTTP/3 (QUIC) utilizes UDP port 443 . Ensuring that NGINX binds only to approved interfaces and ports minimizes the attack surface.
+
+Limiting listening ports to authorized values ensures that no hidden or unintended services are exposed via NGINX. It also enforces strict control over which protocols (TCP vs. UDP) are accessible, which is particularly important with the introduction of UDP-based HTTP/3 traffic alongside traditional TCP traffic.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "Remove or comment out any listen directives that bind to unauthorized ports.
+
+For HTTP/3 (QUIC) Support: Ensure that you explicitly authorize and configure UDP port 443 in addition to TCP port 443.
+
+server {
+
+    # Standard HTTPS (TCP)
+    listen 443 ssl;
+
+    # HTTP/3 (UDP)
+    listen 443 quic reuseport;
+
+    # ... SSL/TLS configuration ...
+}
+
+Impact:
+
+Disabling unused ports reduces the risk of unauthorized access. However, administrators must be aware that disabling UDP port 443 will break HTTP/3 connectivity, forcing clients to fall back to slower TCP-based HTTP/2 or HTTP/1.1."
+          reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv7|9.2,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|1M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.4.2 Ensure requests for unknown host names are rejected"
+      info        : "NGINX routes incoming requests to the appropriate virtual host by matching the Host header (HTTP/1.1) or :authority pseudo-header (HTTP/2, HTTP/3) against the server_name directives in your configuration. If no explicit match is found, NGINX falls back to the first defined server block or the one marked as default_server . Without a properly configured catch-all block that rejects unknown hostnames, your server will respond to arbitrary domain names that happen to point to your IP address, potentially exposing internal applications or enabling Host Header attacks.
+
+When NGINX receives a request, it selects the virtual host based on the Host header (or :authority in HTTP/2/3). If requests for unknown host names are not explicitly rejected, your applications may be served for arbitrary domains that simply point to your IP. This behavior can be abused in Host Header attacks and makes it harder to distinguish legitimate traffic from automated scans or misrouted requests in your logs.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure a \\\"Catch-All\\\" default server block as the first block in your configuration (or explicitly marked with default_server ).
+
+Configuration Example (Modern Standard with TLS/HTTP3):
+
+server {
+
+    # Listen on standard ports for IPv4 and IPv6
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # Listen for HTTPS (TCP) and QUIC (UDP)
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    listen 443 quic default_server;
+    listen [::]:443 quic default_server;
+
+    # Reject SSL Handshake for unknown domains (Prevents cert leakage)
+    ssl_reject_handshake on;
+
+    # Catch-all name
+    server_name _;
+
+    # Close connection without response (Non-standard code 444)
+    return 444;
+
+}
+
+After adding this block, ensure all your valid applications have their own server blocks with explicit server_name directives.
+
+Impact:
+
+Clients accessing the server directly via IP address or an unconfigured CNAME will be rejected. This is intended behavior but requires that all valid domains are explicitly defined in their own server blocks."
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.16.01,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-09,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO-27001-2022|A.8.30,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -Ei \"listen.*default_server|ssl_reject_handshake\" | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.4.3 Ensure keepalive_timeout is 10 seconds or less, but not 0"
+      info        : "Persistent connections are leveraged by all modern browsers to facilitate greater web performance. The keep-alive timeout limits the time a persistent connection may remain open. Setting the keep-alive timeout allows this timeout to be controlled on the server side.
+
+Setting a keep-alive timeout on the server side helps mitigate denial of service attacks that establish too many persistent connections, exhausting server resources."
+      solution    : "Find the HTTP or server block of your nginx configuration, and add the keepalive_timeout directive. Set it to 10 seconds or less, but not 0 . This example command sets it to 10 seconds:
+
+keepalive_timeout 10;"
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*keepalive_timeout'"
+      expect      : "^[\\s]*keepalive_timeout[\\s]+(10|[1-9]);"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.4.4 Ensure send_timeout is set to 10 seconds or less, but not 0"
+      info        : "The send_timeout directive sets a timeout for transmitting a response to the client between two successive write operations.
+
+Setting the send_timeout directive on the server side helps mitigate slow HTTP denial of service attacks by ensuring write operations taking up large amounts of time are closed."
+      solution    : "Find the HTTP or server block of your nginx configuration, and add the send_timeout directive. Set it to 10 seconds or less, but not 0.
+
+send_timeout 10;"
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*send_timeout'"
+      expect      : "^[\\s]*send_timeout[\\s]+(10|[1-9]);"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.5.1 Ensure server_tokens directive is set to `off`"
+      info        : "The server_tokens directive is responsible for displaying the NGINX version number and operating system version on error pages and in the Server HTTP response header field. This information should not be displayed.
+
+Attackers can conduct reconnaissance on a website using these response headers, then target attacks for specific known vulnerabilities associated with the underlying technologies. Hiding the version will slow down and deter some potential attackers."
+      solution    : "Disable version disclosure globally by adding the directive to the http block in /etc/nginx/nginx.conf :
+
+http {
+    ...
+    server_tokens off;
+    ...
+}
+
+Impact:
+
+None. Disabling server tokens does not affect functionality. It merely removes the version string from error pages and headers. Note that determined attackers can still fingerprint NGINX via other methods, but removing the banner raises the bar for opportunistic scanners."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*server_tokens' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^[\\s]*server_tokens[\\s]+off[\\s]*;"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.5.2 Ensure default error and index.html pages do not reference NGINX"
+      info        : "Default error pages (e.g., 404, 500 ) and the default welcome page often contain NGINX branding or signatures. These pages should be removed or replaced with generic or custom-branded pages that do not disclose the underlying server technology.
+
+Standard NGINX error pages visually identify the server software, even if headers are suppressed. By gathering information about the underlying technology stack, attackers can tailor their exploits to known vulnerabilities of NGINX. Replacing default pages with generic or branded content removes this information leakage vector and increases the effort required for successful reconnaissance.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Instead of editing the default files (which may be overwritten by package updates), configure NGINX to use custom error pages.
+
+1. Create Custom Error Pages:
+
+Create a directory (e.g., /var/www/html/errors ) and place generic HTML files there (e.g., 404.html, 50x.html ) without NGINX branding.
+
+2. Configure NGINX:
+
+Add the error_page directive to your http or server blocks:
+
+error_page 404 /404.html;
+error_page 500 502 503 504 /50x.html;
+
+location = /50x.html {
+    root /var/www/html/errors;
+    internal;
+}
+
+Impact:
+
+Creating and maintaining custom error pages requires additional administrative effort. Ensure that custom error pages are simple and do not themselves introduce vulnerabilities."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -i 'error_page' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "2.5.3 Ensure hidden file serving is disabled"
+      info        : "Hidden files and directories (starting with a dot, e.g., .git, .env ) often contain sensitive metadata, version control history, or environment configurations. Serving these files should be globally disabled.
+
+Version control systems (Git, SVN) and editors create hidden files that may unintentionally be deployed to the web root. If accessible, files like .git/config or .env can leak database credentials, source code, and infrastructure details, leading to full system compromise. Blocking requests to any path starting with a dot ( . ) neutralizes this risk.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "To restrict access to hidden files, add the configuration block below inside each server block.
+
+Option A: Direct Configuration
+
+Place this block directly into your server contexts:
+
+# Allow Let's Encrypt validation (must be before the deny rule)
+location ^~ /.well-known/acme-challenge/ {
+    allow all;
+    default_type \\\"text/plain\\\";
+}
+
+# Deny access to all other hidden files
+location ~ /\\. {
+    deny all;
+    return 404;
+}
+
+Option B: Using a Shared Snippet (Recommended)
+
+Create a reusable snippet file (e.g., /etc/nginx/snippets/deny-hidden.conf ) containing the rules above, and include it in your server blocks:
+
+ - Create /etc/nginx/snippets/deny-hidden.conf with the content from Option A.
+ - Security Check: Ensure the new file has restrictive permissions (Owner: root:root, Mode: 640 ) as described in Recommendation 2.3.2.
+ - Add the include directive to your server blocks:
+
+server {
+    # Modern HTTP/3 (QUIC) and HTTP/2 Setup
+
+    listen 443 ssl; # TCP for HTTP/1.1 & HTTP/2
+    listen 443 quic reuseport; # UDP for HTTP/3
+    http2 on; # Explicitly enable HTTP/2 (since NGINX 1.25.1)
+
+    server_name example.com;
+
+    include /etc/nginx/snippets/deny-hidden.conf;
+
+    # ... rest of configuration
+}
+
+Impact:
+
+Blocking all dot-files will break Let's Encrypt / Certbot validation ( .well-known/acme-challenge ) unless explicitly allowed. Ensure the exception rule is placed before the deny rule or is more specific."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+    </report>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "X-Powered-By"
+          cmd         : "nginx -T 2>/dev/null | grep -Ei '^\\s*(proxy|fastcgi)_hide_header' | awk '{print} END {if (NR == 0) print \"none\"}'"
+          expect      : "^[\\s]*(proxy|fastcgi)_hide_header[\\s]+X-Powered-By[\\s]*;"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Server"
+          cmd         : "nginx -T 2>/dev/null | grep -Ei '^\\s*(proxy|fastcgi)_hide_header' | awk '{print} END {if (NR == 0) print \"none\"}'"
+          expect      : "^[\\s]*(proxy|fastcgi)_hide_header[\\s]+Server[\\s]*;"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.5.4 Ensure the NGINX reverse proxy does not enable information disclosure"
+          info        : "When NGINX acts as a reverse proxy, it forwards headers sent by the upstream application (e.g., \\\" X-Powered-By: Custom_APP \\\" or \\\" Server: Apache/2.4 \\\"). These headers should be stripped before the response reaches the client to prevent information disclosure about the backend infrastructure.
+
+Attackers conduct reconnaissance by inspecting response headers to identify the technologies used in the backend (e.g., specific versions of PHP, Java/Tomcat, or Python frameworks). Knowing the exact version allows attackers to target specific CVEs associated with that software stack. Removing these headers reduces the information available for targeted attacks."
+          solution    : "Configure NGINX to strip the sensitive headers. The directive depends on the upstream protocol (HTTP Proxy vs. FastCGI).
+
+For Standard Reverse Proxy ( proxy_pass ):
+
+Add the following directives to your http, server, or location block:
+
+proxy_hide_header X-Powered-By;
+proxy_hide_header Server;
+
+For PHP/FastCGI ( fastcgi_pass ):
+
+If you are using FastCGI (e.g., for PHP-FPM), use the fastcgi_hide_header directive instead:
+
+fastcgi_hide_header X-Powered-By;"
+          reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "3.1 Ensure detailed logging is enabled"
+      info        : "System logging must be configured to meet organizational security and privacy policies. Detailed logs provide the necessary context (event source, timestamp, user, network data) for incident response and forensic analysis. Modern logging strategies favor structured formats (JSON) over unstructured text to facilitate parsing by SIEM solutions.
+
+Note: Sensitive information (e.g., session tokens, PII in query strings) should be excluded or masked in logs to prevent data leaks.
+
+Detailed logs are the foundation of effective incident response. CIS Control 8.5 (\\\"Collect Detailed Audit Logs\\\") recommends capturing event sources, dates, users, timestamps, and network addresses. Traditional text logs require complex, fragile Regex parsing that breaks easily when formats change. Structured logging (JSON) solves this by providing a self-describing format that is natively ingested by modern analysis tools (SIEM), ensuring that critical forensic data is always indexable and searchable.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Define a detailed log format in the http block of /etc/nginx/nginx.conf . It is highly recommended to use JSON format for compatibility with modern SIEM tools.
+
+Recommended Configuration (JSON):
+
+http {
+    log_format main_access_json escape=json '{'
+      '\\\"timestamp\\\": \\\"$time_iso8601\\\",'
+      '\\\"remote_addr\\\": \\\"$remote_addr\\\",'
+      '\\\"remote_user\\\": \\\"$remote_user\\\",'
+      '\\\"server_name\\\": \\\"$server_name\\\",'
+      '\\\"request_method\\\": \\\"$request_method\\\",'
+      '\\\"request_uri\\\": \\\"$request_uri\\\",'
+      '\\\"status\\\": $status,'
+      '\\\"body_bytes_sent\\\": $body_bytes_sent,'
+      '\\\"http_referer\\\": \\\"$http_referer\\\",'
+      '\\\"http_user_agent\\\": \\\"$http_user_agent\\\",'
+      '\\\"x_forwarded_for\\\": \\\"$http_x_forwarded_for\\\",'
+      '\\\"request_id\\\": \\\"$request_id\\\"'
+    '}';
+
+    # Apply the format globally or per server
+    access_log /var/log/nginx/access.json main_access_json;
+}
+
+Legacy Configuration (Text-based):
+
+If JSON is not feasible, ensure the text format captures all necessary fields:
+
+log_format main_detailed '$remote_addr - $remote_user [$time_local] '
+                         '\\\"$request\\\" $status $body_bytes_sent '
+                         '\\\"$http_referer\\\" \\\"$http_user_agent\\\" '
+                         '\\\"$http_x_forwarded_for\\\"';
+
+Impact:
+
+Enabling detailed JSON logging increases the volume of log data. Ensure that your log rotation policies ( logrotate ) and disk space monitoring are adjusted to handle the increased storage requirements."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1M,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -Ei '(log_format|access_log)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "3.2 Ensure access logging is enabled"
+      info        : "The access_log directive enables the logging of client requests. While NGINX enables this by default, it allows granular control per server or location context. Based on enterprise requirements, the log should be enriched with relevant variables or converted to structured JSON format for modern SIEM integration. Refer to Recommendation 3.1 for detailed configuration of log formats and variables. Ensure that access logging is active for all critical services.
+
+Access logs are the primary record of system usage, detailing who accessed what resources and when and general troubleshooting. Without active access logs, incident responders are blind to web-based attacks (such as SQL injection, XSS probing, or Brute Force attempts) and auditors cannot verify compliance or user activity. Disabling logs globally ( access_log off; ) effectively destroys the forensic chain of custody for security events.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Enable access logging in the http block to set a secure global default, or configure it explicitly within specific server blocks. It is recommended to use the detailed log format defined in Recommendation 3.1.
+
+Configuration Example:
+
+http {
+
+    # Enable global logging using the detailed JSON format from Rec 3.1
+    access_log /var/log/nginx/access.json main_access_json;
+
+    server {
+
+        # Inherits the global log setting, or can be overridden:
+        access_log /var/log/nginx/example.com.access.json main_access_json;
+
+        location / {
+            # ...
+        }
+
+        # Exception: Disable logging for favicon to reduce noise (Optional)
+        location = /favicon.ico {
+            access_log off;
+            log_not_found off;
+        }
+    }
+}
+
+Impact:
+
+Enabling detailed access logging increases disk space usage significantly. Without proper log rotation (e.g., logrotate ) and monitoring, log files can rapidly consume available disk space, potentially causing the server to stop processing requests or crash. Ensure sufficient storage capacity and retention policies are in place."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1M,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -i 'access_log' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "3.3 Ensure error logging is enabled and set to the info logging level"
+      info        : "The error_log directive configures logging for server errors and operational messages. Unlike access logs, error logs capture diagnostic information about failed requests, upstream connection issues, and configuration errors. The log level determines the verbosity of these messages and should be set to capture sufficient detail (typically notice or info ) without overwhelming the storage system.
+
+While access logs capture incoming request patterns, error logs provide the internal system context required to diagnose why a request failed. They are essential for identifying:
+
+1. Upstream Failures: Connection timeouts or refused connections to backend servers (e.g., application server is down).
+
+2. Process Anomalies: Unexpected worker process terminations or restarts, which may indicate resource exhaustion or exploitation attempts.
+
+3. Configuration Errors: Invalid request handling that NGINX rejects before logging to access logs (e.g., header size limits exceeded).
+
+Without error logs, an administrator sees a \\\" 500 Internal Server Error \\\" in the access log but has no way to determine the root cause.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure the error_log directive in the main context (at the top of nginx.conf ) to capture operational events.
+
+Configuration Example:
+
+# Log errors to a specific file with the 'notice' level
+error_log /var/log/nginx/error.log notice;
+
+http {
+    # ...
+}
+
+Note: The specific logging level should be aligned with the organization's \\\"Monitoring and Logging\\\" Policy, balancing the need for forensic detail against storage and processing costs. Typically, info or notice is recommended.
+
+Impact:
+
+Setting the log level to info (or even debug ) can generate a significant volume of log data, especially on busy servers or during denial-of-service attacks. This increases disk I/O and storage requirements. Ensure that log rotation (e.g., via logrotate ) is configured and storage usage is monitored to prevent disk exhaustion."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1M,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -i 'error_log' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "3.4 Ensure proxies pass source IP information"
+      info        : "When NGINX acts as a reverse proxy or load balancer, it terminates the client connection and opens a new connection to the upstream application server. By default, the upstream server sees the NGINX server's internal IP address as the source, obscuring the original client IP. Standard HTTP headers like X-Forwarded-For and X-Real-IP must be explicitly configured to pass the original client's IP address and protocol information to the backend application.
+
+Visibility of the true client IP address is essential for security auditing, incident response, and access control within the backend application. Without forwarding this information:
+
+ - Forensics: Application logs will show all traffic coming from the NGINX proxy IP, making it impossible to trace malicious activity to a specific attacker.
+ - Access Control: Application-level IP allow/deny lists or rate limits will fail or mistakenly block the entire proxy.
+ - Compliance: Accurate logging of the user origin is often a regulatory requirement.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure NGINX to forward client IP information in your server or location blocks where proxy_pass is used.
+
+Configuration Example:
+
+location / {
+
+    # Use 'https' for Zero Trust environments (requires proxy_ssl_verify configuration)
+    # Use 'http' for standard TLS offloading (upstream traffic is unencrypted)
+    proxy_pass <protocol>://example_backend_application;
+
+    # Standard header: Appends the client IP to the list of proxies
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    # NGINX-specific header: Sets the direct client IP (useful for apps expecting a single value)
+    proxy_set_header X-Real-IP $remote_addr;
+
+    # Recommended: Forward the protocol (http vs https)
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+Impact:
+
+Enabling these headers allows the backend application to see the original client IP. However, if NGINX simply appends to an existing X-Forwarded-For header sent by a malicious client, the backend might be tricked into trusting a spoofed IP at the beginning of the list."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.05,800-171r3|03.03.06a.,800-53|AU-6,800-53|AU-6(1),800-53|AU-7(1),800-53r5|AU-6,800-53r5|AU-6(1),800-53r5|AU-7(1),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(d),CSCv7|6.7,CSCv8|8.11,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.DP-4,CSF|PR.PT-1,CSF|RS.AN-1,CSF|RS.AN-3,CSF|RS.CO-2,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.25,ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.15,ITSG-33|AU-6,ITSG-33|AU-6(1),ITSG-33|AU-7(1),LEVEL|1M,NESA|M5.2.5,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E 'proxy_set_header (X-Real-IP|X-Forwarded-For)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.1 Ensure HTTP is redirected to HTTPS"
+      info        : "Browsers and clients establish encrypted connections with servers by leveraging HTTPS. Requests leveraging HTTP are unencrypted. Unencrypted requests should be redirected so they are encrypted. Any listening HTTP port on your web server should redirect to a server profile that uses encryption. The default HTTP (unencrypted) port is 80.
+
+Redirecting user agent traffic to HTTPS helps to ensure all user traffic is encrypted. Modern browsers alert users that your website is insecure when HTTPS is not used. This can decrease user trust in your website and ultimately result in decreased use of your web services. Redirection from HTTP to HTTPS couples security with usability; users are able to access your website even if they lack the security awareness to use HTTPS over HTTP when requesting your website."
+      solution    : "Edit your web server or proxy configuration file to redirect all unencrypted listening ports, such as port 80, using a redirection through the return directive (cisecurity.org is used as an example server name).
+
+server {
+    listen 80;
+
+    server_name cisecurity.org;
+
+    return 301 https://$host$request_uri;
+}
+
+Impact:
+
+Use of HTTPS does result in a performance reduction in traffic to your website, however, due to the increased value of the security, many businesses consider this to be a cost of doing business."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*return' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^[\\s]*return[\\s]+[0-9]+[\\s]+https://.*;"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.11 Ensure Secure Session Resumption is Enabled"
+      info        : "TLS 1.3 introduces a secure session resumption mechanism using P re- S hared K eys (PSKs) that significantly improves performance for returning clients by reducing the handshake latency. This modern mechanism should be enabled to enhance user experience without compromising security.
+
+Unlike older TLS versions, the TLS 1.3 resumption mechanism preserves P erfect F orward S ecrecy (PFS). It accomplishes this by combining the PSK with a fresh Ephemeral Diffie-Hellman key exchange (ECDHE) for every resumed session. This ensures that a compromise of the resumption key does not compromise any past or future session keys. Disabling this feature provides no security benefit and negatively impacts performance."
+      solution    : "Ensure that ssl_session_tickets is not set to off . The recommended approach is to remove the directive entirely, as the default value is on.
+
+If the directive is present, either remove it or set it to on :
+
+# REMOVE this line from your configuration:
+# ssl_session_tickets off;
+
+# OR, if you want to be explicit, ensure it is set to ON (optional):
+ssl_session_tickets on;
+
+Impact:
+
+Enabling session resumption has a positive performance impact. There are no significant negative security implications when using a TLS 1.3-only configuration."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*ssl_session_tickets' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "(^[\\s]*ssl_session_tickets[\\s]+on[\\s]*;|^none$)"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.2 Ensure a trusted certificate and trust chain is installed"
+      info        : "Certificates and their trust chains are needed to establish the identity of a web server as legitimate and trusted. Certificate authorities validate a web server's identity and that you are the owner of that web server domain name.
+
+Without a certificate and full trust chain installed on your web server, modern browsers will flag your web server as untrusted.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Use the following procedure to install a certificate and its signing certificate chain onto your web server, load balancer, or proxy.
+
+Step 1: Create the server's private key and a certificate signing request.
+
+The following command will create your certificate's private key with 4096-bit key strength. It will also output your certificate signing request to the nginx.csr file in your present working directory.
+
+openssl req -new -newkey rsa:4096 -keyout nginx.key -out nginx.csr
+
+Enter the below information about your private key:
+
+Country Name (2 letter code) [XX]: Your Country
+State or Province Name (full name) []: Your State
+Locality Name (eg, city) [Default City]: Your City
+Organization Name (eg, company) [Default Company Ltd]: Your City
+Organizational Unit Name (eg, section) []: Your Organizational Unit
+Common Name (eg, your name or your server's hostname) []: Your server's DNS name
+Email Address []: Your email address
+
+Step 2: Obtain a signed certificate from your certificate authority.
+
+Provide your chosen certificate authority with your certificate signing request. Follow your certificate authority's signing procedures in order to obtain a certificate and the certificate's trust chain. A full trust chain is typically delivered in .pem format.
+
+Step 3: Install certificate and signing certificate chain on your web server.
+
+Place the .pem file from your certificate authority into the directory of your choice. Locate your created key file from the command you used to generate your certificate signing request. Open your website configuration file and edit your encrypted listener to leverage the ssl_certificate and ssl_certificate_key directives for a web server as shown below. You should also inspect include files inside your nginx.conf . This should be part of the server block.
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    ssl_certificate /etc/nginx/cert.crt;
+    ssl_certificate_key /etc/nginx/nginx.key;
+    ...
+    }
+
+After editing this file, you must restart the nginx systemd service for these changes to take effect. This can be done with the following command:
+
+sudo systemctl restart nginx"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*ssl_certificate' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : FIND_CMD
+      description : "4.1.3 Ensure private key permissions are restricted"
+      info        : "The server's and potentially its vhost's private keys should be protected from unauthorized access by limiting access based on the principle of least privilege.
+
+A server's private key file should be restricted to 400 permissions. This ensures only the owner of the private key file can access it. This is the minimum necessary permissions for the server to operate. If the private key file is not protected, an unauthorized user with access to the server may be able to find the private key file and use it to decrypt traffic sent to your server."
+      solution    : "Run the following command to remove excessive permissions on key files in the /etc/nginx/ directory.
+
+Note: The directory /etc/nginx/ should be replaced with the location of your key file.
+
+find /etc/nginx/ -name '*.key' -exec chmod u-wx,go-rwx {} +"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      not_expect  : ".+"
+      exec        : "/bin/stat -c \"%n %a\" '{}' \\;"
+      find_name   : "*.key"
+      perm        : "/377"
+      target      : "@NGINX_CONFIG_DIR@"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.4 Ensure only modern TLS protocols are used"
+      info        : "Only modern TLS protocols should be enabled in NGINX for all client connections and upstream connections. Removing legacy TLS and SSL protocols (SSL 3.0, TLS 1.0, 1.1 and 1.2), and enable stable TLS protocols (TLS 1.3), ensures users are able to take advantage of strong security capabilities and protects them from insecure legacy protocols.
+
+Why disable SSL 3.0: The POODLE Vulnerability https://nvd.nist.gov/vuln/detail/CVE-2014-3566 allowed attackers to exploit SSL 3.0 to obtain cleartext information by exploiting weaknesses in CBC in 2014. SSL 3.0 is also no longer FIPS 140-2 compliant.
+
+Why disable TLS 1.0: TLS 1.0 was deprecated from use when PCI DSS Compliance mandated that it not be used for any applications processing credit card numbers in June 2018. TLS 1.0 does not make use of modern protections, and almost all user agents that do not support TLS 1.2 or higher are no longer supported by their vendor.
+
+Why disable TLS 1.1: Because of the increased security associated with higher versions of TLS, TLS 1.0 should be disabled. Modern browsers will begin to flag TLS 1.1 as deprecated in early 2019.
+
+Why disable TLS 1.2: While robust for its time, TLS 1.2's complexity allows for weak configurations, including cipher suites that lack Perfect Forward Secrecy. TLS 1.3 eliminates this risk by mandating PFS and removing outdated cryptographic primitives. Acknowledging this, NIST SP 800-52 Rev. 2 allows for TLS 1.2 to be disabled if it is not required for interoperability, positioning TLS 1.3 as the sole recommended protocol for modern, secure environments.
+
+Why enable TLS 1.3: TLS 1.3 improves security by removing several insecure cipher suites by default and adding several more secure algorithms. All public-key exchange mechanisms support perfect forward secrecy in this version of TLS. Additionally, TLS 1.3 makes drastic performance improvements by removing a full round trip in the TLS handshake.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Run the following commands to change your ssl_protocols if they are already configured. This remediation advice assumes your nginx configuration file does not include server configuration outside of /etc/nginx/nginx.conf . You may have to also inspect the include files in your nginx.conf to ensure this is properly implemented.
+
+Web Server:
+
+sed -i \\\"s/ssl_protocols[^;]*;/ssl_protocols TLSv1.3;/\\\" /etc/nginx/nginx.conf
+
+Proxy:
+
+sed -i \\\"s/proxy_ssl_protocols[^;]*;/proxy_ssl_protocols TLSv1.3;/\\\" /etc/nginx/nginx.conf
+
+If your ssl_protocols are not already configured, this can be accomplished manually by opening your web server or proxy server configuration file and manually adding the directives.
+
+Web Server:
+
+server {
+    ssl_protocols TLSv1.3;
+}
+
+Proxy:
+
+location / {
+      proxy_pass cisecurity.org;
+      proxy_ssl_protocols TLSv1.3;
+    }
+
+Impact:
+
+Disabling certain TLS may not allow legacy user agents to connect to your server. Disabling negotiation of specific protocols with your backend server may also limit your ability to connect with legacy servers. You should always consider if you need to support legacy user agents or servers when selecting your TLS protocols."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(proxy_)?ssl_protocols' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.5 Disable weak ciphers"
+      info        : "The ssl_protocols directive must be used to disable weak protocols and exclusively enable TLS 1.3. In a TLS 1.3-only configuration, the ssl_ciphers directive is no longer necessary, as the protocol itself mandates a small, non-negotiable set of highly secure AEAD ciphers ( A uthenticated E ncryption with A ssociated D ata). This approach simplifies configuration and eliminates the risk of choosing weak or insecure cipher suites.
+
+The ssl_prefer_server_ciphers directive should be set to off for TLS 1.3. Since all available ciphers are secure, allowing the client (user agent) to choose the most performant cipher for its hardware provides a performance benefit without compromising security.
+
+In a reverse proxy setup, it is critical to ensure that any upstream services also support TLS 1.3. If an upstream server requires an older protocol, the proxy_ssl_protocols and proxy_ssl_ciphers directives must be configured to match the upstream's requirements, but this should be treated as a temporary exception to be remediated.
+
+Weak cryptographic ciphers can lead to the compromise of sensitive data. In modern TLS configurations, the most effective way to disable all weak ciphers is to exclusively enable the TLS 1.3 protocol. The TLS 1.3 specification removes all previously known weak and legacy cipher suites, mandating the use of a small set of highly secure Authenticated Encryption (AEAD) ciphers. This approach is simpler and less error-prone than maintaining a complex denylist or allowlist of ciphers for older protocols.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Set ssl_protocols TLSv1.3; . The ssl_ciphers directive is not required for a TLS 1.3-only configuration, as the secure defaults of the underlying crypto library (e.g., OpenSSL) will be used.
+
+Impact:
+
+Impact of Mandating TLS 1.3:
+
+Enforcing an exclusive TLS 1.3 configuration enhances security but will intentionally cause connection failures for legacy clients. This primarily affects:
+
+ - Unsupported User Agents: Clients on outdated operating systems (e.g., Android < 10, iOS < 12.2, Windows < 10 without updates) and very old browsers (e.g., Internet Explorer) that do not support TLS 1.3 will be unable to connect. These clients are typically outside their vendor's security lifecycle and pose an independent risk.
+
+- Legacy Upstream Services: In a reverse proxy scenario, if NGINX is configured for TLS 1.3 exclusively, it will be unable to establish a connection to an upstream (backend) server that only supports TLS 1.2 or older. This will cause service disruptions. A thorough assessment of backend compatibility is required before enforcement."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*ssl_protocols' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "4.1.6 Ensure awareness of TLS 1.3 new Diffie-Hellman parameters"
+      info        : "This control is not applicable to environments exclusively using TLS 1.3.
+
+The TLS 1.3 protocol (RFC 8446) deprecates the use of custom finite-field Diffie-Hellman (DHE) groups, which were configured via the ssl_dhparam directive in NGINX. Instead, TLS 1.3 exclusively uses a set of pre-defined, standardized, and secure elliptic curve (ECDHE) and finite-field (FFDHE) groups for its key exchange mechanism. This design eliminates the risk associated with weak or misconfigured custom DH parameters. As such, the ssl_dhparam directive has no effect in a TLS 1.3-only configuration.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "No remediation is necessary. Ensure ssl_protocols TLSv1.3; is set. The ssl_dhparam directive should be removed as it is obsolete.
+
+Impact:
+
+None for a TLS 1.3-only configuration."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+    </report>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "ssl_stapling"
+          cmd         : "nginx -T 2>/dev/null | grep '^\\s*ssl_stapling' | awk '{print} END {if (NR == 0) print \"none\"}'"
+          expect      : "^[\\s]*ssl_stapling[\\s]+on[\\s]*;"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "ssl_stapling_verify"
+          cmd         : "nginx -T 2>/dev/null | grep '^\\s*ssl_stapling_verify' | awk '{print} END {if (NR == 0) print \"none\"}'"
+          expect      : "^[\\s]*ssl_stapling_verify[\\s]+on[\\s]*;"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "ssl_trusted_certificate"
+          cmd         : "nginx -T 2>/dev/null | grep '^\\s*ssl_trusted_certificate' | awk '{print} END {if (NR == 0) print \"none\"}'"
+          expect      : "^[\\s]*ssl_trusted_certificate[\\s]+.*;"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "resolver"
+          cmd         : "nginx -T 2>/dev/null | grep '^\\s*resolver' | awk '{print} END {if (NR == 0) print \"none\"}'"
+          expect      : "^[\\s]*resolver[\\s]+.*;"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "4.1.7 Ensure Online Certificate Status Protocol (OCSP) stapling is enabled"
+          info        : "OCSP stapling allows a server to efficiently deliver certificate revocation information to the client, improving performance and privacy. The server caches the OCSP response from the Certificate Authority (CA), eliminating the need for the client to make a separate connection. For robust security, certificates should be issued with the OCSP Must-Staple extension, which transforms the traditional \\\"soft-fail\\\" behavior into a \\\"hard-fail,\\\" ensuring clients always receive and validate a current revocation status.
+
+OCSP stapling is a critical mechanism for distributing certificate revocation status. Without it, clients might not be aware that a server's certificate has been compromised, allowing for potential man-in-the-middle attacks. The OCSP Must-Staple extension is essential as it mitigates the inherent weakness of optional OCSP (\\\"soft-fail\\\"), where a browser might proceed with a connection if it doesn't receive a staple. By enforcing a \\\"hard-fail\\\", Must-Staple ensures that a compromised certificate can be reliably blocked."
+          solution    : "Follow this procedure to enable a robust OCSP stapling configuration:
+
+ - When issuing a certificate, request that the OCSP Must-Staple extension be included.
+ - Edit your NGINX configuration to include all four necessary directives. The ssl_trusted_certificate must point to a file containing your root and intermediate certificates. The resolver must be set to one or more trusted DNS resolvers.
+
+# Example for a server block
+server {
+    # ... other directives ...
+
+    # OCSP Stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    # Path to the certificate chain (Root CA + Intermediates) for verification
+    ssl_trusted_certificate /etc/nginx/ssl/full_chain.pem;
+
+    # DNS resolver for NGINX to query the CA's OCSP server
+    resolver 8.8.8.8 1.1.1.1 valid=300s;
+}
+
+Impact:
+
+If OCSP Must-Staple is used, a misconfiguration on the server (e.g., a firewall blocking outbound OCSP queries, an incorrect DNS resolver) will cause clients to reject the certificate and refuse to connect, leading to a service outage. This \\\"hard-fail\\\" behavior is intentional for security but requires diligent configuration and monitoring of the OCSP stapling mechanism."
+          reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.8 Ensure HTTP Strict Transport Security (HSTS) is enabled"
+      info        : "HTTP Strict Transport Security (HSTS) is a critical security header that instructs browsers to communicate with a domain exclusively over HTTPS. A comprehensive HSTS policy must include the includeSubDomains directive to apply the policy to all current and future subdomains. For maximum protection, the policy should also contain the preload directive, allowing the domain to be submitted to browser-pre-load lists. This ensures that even the very first connection to the domain is made securely. The max-age should be set to a long duration, typically two years ( 63072000 seconds), to ensure browsers enforce this policy persistently.
+
+HSTS is the primary mechanism to mitigate protocol downgrade attacks and cookie hijacking. By enforcing HTTPS, it prevents attackers from intercepting requests and manipulating them. The includeSubDomains directive is vital as it closes a significant gap where an attacker could otherwise target a non-secure subdomain. The preload directive provides protection by removing the initial window of opportunity for an attack on a user's first visit, as the browser already knows to use HTTPS before making any connection."
+      solution    : "It is critical to deploy HSTS incrementally to avoid locking users out.
+
+Step 1: Initial Rollout (Low max-age )
+
+Add the HSTS header with a very short max-age to test for any issues. Verify that all parts of your site, including all subdomains, function correctly over HTTPS.
+
+# Test with 5 minutes
+add_header Strict-Transport-Security \\\"max-age=300; includeSubDomains\\\" always;
+
+Step 2: Increase max-age
+
+Once confident, gradually increase the max-age.
+
+# Increase to 1 week
+add_header Strict-Transport-Security \\\"max-age=604800; includeSubDomains\\\" always;
+
+Step 3: Full Deployment (Long max-age and Preload)
+
+After thorough testing (e.g., one month), set the max-age to the recommended final value of two years. Add the preload directive if you intend to submit your site to the HSTS preload list.
+
+# Final configuration (2 years)
+add_header Strict-Transport-Security \\\"max-age=63072000; includeSubDomains; preload\\\" always;
+
+If preloading is desired, submit your domain at hstspreload.org https://hstspreload.org.
+
+Impact:
+
+Once an HSTS policy with a long max-age is set, there is effectively \\\"no going back.\\\" If any part of your site or any subdomain cannot be served over HTTPS, users with a cached HSTS policy will be unable to access it. Enabling includeSubDomains requires a commitment that all subdomains of the domain will support HTTPS. Submitting a domain to the HSTS preload list is a long-term commitment and removal is a slow, manual process. Careful planning and testing with short max-age values are essential before full deployment."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '\\s*Strict-Transport-Security' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^[\\s]*add_header[\\s]+Strict-Transport-Security[\\s]+[\"']max-age=(1576[8-9][0-9]{3}|157[6-9][0-9]{4}|15[7-9][0-9]{5}|1[5-9][0-9]{6}|[2-9][0-9]{7,})[\\s]*;[\\s]+includeSubDomains[\\s]*[\"'][\\s]+always[\\s]*;"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "4.1.9 Ensure upstream server traffic is authenticated with a client certificate"
+      info        : "In a reverse proxy configuration, NGINX acts as a client when communicating with an upstream server. To secure this server-to-server connection based on a Zero Trust principle, m utual TLS (mTLS) must be used. This is achieved by configuring NGINX to present its own client certificate to the upstream server. The upstream server then authenticates NGINX based on this certificate, ensuring that only trusted proxies can access backend services.
+
+Authenticating the proxy's connection to the upstream server via a client certificate provides strong, cryptographic proof of identity. This is vastly superior to weaker authentication methods like IP whitelisting, which can be spoofed. In a modern microservices or cloud environment, mTLS is a cornerstone of network security, as it prevents unauthorized services from making requests to sensitive backends, thereby mitigating lateral movement attacks.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Implementing mTLS requires configuration on both the NGINX proxy (the client) and the upstream server (the server). This example assumes you have a simple internal CA.
+
+Prerequisite: Create a CA
+
+# Create CA Key
+openssl genrsa -out my-ca.key 4096
+# Create CA Certificate
+openssl req -x509 -new -nodes -key my-ca.key -sha256 -days 3650 -out my-ca.crt
+
+Step 1: Configure the Upstream Server to Require Client Certificates
+
+The upstream server must be configured to request and verify client certificates against your CA. (If your upstream is also NGINX, the config would look like this):
+
+# On the Upstream Server's configuration
+server {
+    listen 443 ssl;
+    # ... other ssl directives ...
+
+    ssl_client_certificate /path/to/my-ca.crt; # The CA to verify against
+    ssl_verify_client on; # Require a valid client cert
+}
+
+Step 2: Create and Sign a Client Certificate for NGINX
+
+On your NGINX proxy, create a key and a certificate signing request (CSR).
+
+# Create a key for the NGINX proxy
+openssl genrsa -out nginx-client.key 4096
+# Create CSR
+openssl req -new -key nginx-client.key -out nginx-client.csr
+
+Sign this CSR with your CA to create the client certificate:
+
+openssl x509 -req -in nginx-client.csr -CA my-ca.crt -CAkey my-ca.key -CAcreateserial -out nginx-client.crt -days 365
+
+Step 3: Configure NGINX to Present its Client Certificate
+
+In your NGINX reverse proxy configuration, use the generated client certificate and key.
+
+# In your reverse proxy's location block
+location /api/ {
+    proxy_pass https://your-upstream-server;
+
+    # Present this client cert to the upstream
+    proxy_ssl_certificate /etc/nginx/ssl/nginx-client.crt;
+    proxy_ssl_certificate_key /etc/nginx/ssl/nginx-client.key;
+}
+
+Impact:
+
+Implementing mTLS introduces operational overhead for certificate management. You must have a process (often an internal P ublic K ey I nfrastructure, or PKI) for issuing, renewing, and revoking these client certificates. If the client certificate used by NGINX expires, or if the CA certificate on the upstream server expires, the connection between NGINX and the upstream will fail, leading to a service outage."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(proxy_ssl_certificate|proxy_ssl_certificate_key)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.1.2 Ensure only approved HTTP methods are allowed"
+      info        : "Following the principle of least functionality, an NGINX server should be configured to reject any HTTP methods that are not explicitly required by the application. While standard web browsing typically only needs GET, POST, and HEAD, modern RESTful APIs might require methods like PUT, PATCH, or DELETE . Any method not essential for the application's functionality should be blocked at the web server level.
+
+Disabling unused HTTP methods mitigates the risk of unintended server interaction and can prevent certain classes of web application attacks. For example, if an attacker finds a way to bypass application-layer authentication, an enabled but unused PUT or DELETE method on the web server could potentially lead to unauthorized file modification or deletion. By explicitly denying such methods, NGINX ensures that requests never even reach the backend application and therefore significantly reducing the attack surface.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "There are two recommended methods to restrict HTTP verbs.
+
+Method 1 (Preferred): Using limit_except This directive is designed for this purpose and is considered the cleanest approach. It restricts all methods except for the ones listed.
+
+location /api_login/ {
+
+    # Only allow GET, HEAD, and POST methods for this location.
+    limit_except GET HEAD POST {
+        deny all;
+    }
+
+    # ... other directives ...
+}
+
+Method 2 (Alternative): Using an if conditionThis method offers more flexibility, such as returning a non-standard status code like 444, which simply closes the connection without sending a response header.
+
+location / {
+
+    # If the request method is NOT one of GET, HEAD, or POST
+    if ($request_method !~ ^(GET|HEAD|POST)$) {
+        # --> close the connection immediately.
+        return 444;
+    }
+
+    # ... other directives ...
+}
+
+Impact:
+
+An overly restrictive filter can block legitimate application functionality. Before implementing these restrictions, it is crucial to coordinate with application developers to get a definitive list of all required HTTP methods for every application endpoint. Incorrectly blocking a required method (e.g., PUT for a file upload feature) will cause parts of the application to fail."
+      reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv7|9.2,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|1M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(\$request_method|limit_except)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.2.1 Ensure timeout values for reading the client header and body are set correctly"
+      info        : "To protect against slow clients holding connections open indefinitely, NGINX supports several timeout directives. The most important ones for client-facing connections are:
+
+ - client_header_timeout : Sets the maximum time the server will wait for a client to send the request header.
+ - client_body_timeout : Sets the maximum time allowed between sequential read operations when receiving the request body. This timer does not apply to the total time of the transfer.
+ - send_timeout : Sets the maximum time allowed between sequential write operations when sending a response to the client.
+
+If any of these timeouts are reached, the server closes the connection, freeing up resources.
+
+Aggressively low timeout values are a primary defense against slow-read Denial of Service (DoS) attacks. These attacks attempt to exhaust server resources by opening many connections and keeping them alive for as long as possible by sending data extremely slowly. By setting low timeouts, NGINX efficiently closes these malicious connections, preserving resources for legitimate users.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Set reasonably low timeout values globally in your http block. If specific locations require longer timeouts (e.g., for file uploads), override them within that location block.
+
+Example Configuration:
+
+http {
+
+    # Set a global default of 15 seconds, which overrides the default of 60s.
+
+    client_header_timeout 15s;
+    client_body_timeout 15s;
+    send_timeout 15s;
+
+    server {
+        # ... other settings ...
+
+        # This location handles large file uploads and needs a longer timeout.
+        location /upload {
+
+            client_body_timeout 300s; # Allow 5 minutes between read operations for uploads
+            # ...
+        }
+    }
+}
+
+Impact:
+
+Setting these values too low can terminate legitimate connections too early. For example, a user uploading a large file over a slow mobile connection could be cut off if client_body_timeout is too aggressive. The values must be carefully evaluated to achieve a balance between security (low values) and functionality (higher values for specific use cases such as file uploads)."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(client_header_timeout|client_body_timeout|send_timeout)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.2.2 Ensure the maximum request body size is set correctly"
+      info        : "The client_max_body_size directive defines the maximum permissible size for a client request body, as indicated by the Content-Length header. If a request exceeds this size, NGINX will immediately reject it with a 413 Request Entity Too Large error, preventing the oversized request from being processed further or passed to a backend application.
+
+Limiting the request body size is a crucial defense against resource exhaustion DoS attacks and prevents oversized, potentially malicious payloads from reaching application backends. By setting a logical default limit and only increasing it for specific application endpoints that require it (e.g., file uploads), the principle of least functionality is enforced, significantly reducing the attack surface.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Define a restrictive global limit in the http block. For specific application endpoints that need to accept larger request bodies, override this directive within the corresponding location block.
+
+Example Configuration:
+
+http {
+
+    # Set a restrictive global default of 2 Megabytes. This prevents unexpected large requests on most endpoints.
+    client_max_body_size 2M;
+
+    server {
+        # ...
+
+        # This location handles API requests with potentially large JSON payloads.
+        location /api/v1/data {
+            client_max_body_size 10M; # Allow up to 10MB
+            # ...
+        }
+
+        # This location is for large file uploads.
+        location /uploads {
+            client_max_body_size 50M; # Allow up to 50MB
+            # ...
+        }
+    }
+}
+
+Impact:
+
+Setting this value too low is a common cause of application failure. Legitimate user actions, such as uploading files or submitting large forms, will be blocked with a 413 error if they exceed the configured limit. It is essential that this value is determined based on application requirements and not set to an arbitrary low number."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep -E '^\\s*(client_max_body_size)' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.2.3 Ensure the maximum buffer size for URIs is defined"
+      info        : "The large_client_header_buffers directive allocates the maximum number and size of buffers for reading the entire client request header, which includes both the request line (e.g., GET /path HTTP/1.1 ) and all subsequent header fields (e.g., Host:, Cookie:, Authorization: ). If a client's request header exceeds the total allocated buffer space, NGINX immediately rejects the request with a 400 Bad Request error. Also, the client's request line cannot exceed the size of one buffer, otherwise the 414 Request-URI Too Large error will be returned to the client.
+
+While NGINX itself is not vulnerable to buffer overflows from large headers, this directive serves two critical purposes:
+
+1. Denial of Service (DoS) Mitigation: It prevents malicious clients from attempting to exhaust server memory by sending excessively large headers.
+
+2. Downstream Protection: It acts as a gatekeeper, ensuring that malformed or oversized headers do not reach backend applications that might be more fragile or could exhibit undefined behavior when processing them.
+
+The default value is intentionally generous to handle legitimate modern web traffic, and lowering it without reason can be counterproductive.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Unless you have a specific, documented requirement to restrict header sizes further, the recommended action is to rely on the secure default value. If your configuration has an overly restrictive value set without a clear reason, remove the large_client_header_buffers directive from your http or server blocks to allow NGINX to fall back to its default.
+
+Remediation Action:
+
+Remove any custom, overly restrictive large_client_header_buffers lines from your configuration files.
+
+# REMOVE THIS LINE if it exists without good reason:
+large_client_header_buffers 2 1k;
+
+Impact:
+
+Setting this value too low is a common cause of difficult-to-diagnose application failures. Legitimate requests from modern web applications, especially those using complex authentication (OAuth/SAML), or analytics, can easily generate headers larger than a few kilobytes. An overly restrictive value will cause these legitimate requests to fail with a generic 400 Bad Request error, which is often mistakenly attributed to the application itself rather than the NGINX configuration."
+      reference   : "800-53|SA-3,800-53r5|SA-3,CSCv7|18.1,CSCv8|16.1,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.31,ITSG-33|SA-3,LEVEL|1M,NESA|T7.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      cmd         : "nginx -T 2>/dev/null | grep '^\\s*large_client_header_buffers' | awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "^(Manual Review Required|none|[\\s]*large_client_header_buffers[\\s]+4[\\s]+8k;)$"
+      severity    : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_NGINX_v3.0.0_L1_Loadbalancer.audit from CIS NGINX 3.0.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18528"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

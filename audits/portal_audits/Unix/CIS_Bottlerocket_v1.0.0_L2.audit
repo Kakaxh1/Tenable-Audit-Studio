@@ -1,0 +1,679 @@
+#TRUSTED 78040bb972fde789bad7d16fc4e82dae570622536be0477decd184d36575eacaa2b7f4e63b3025a31cccff5280dd46675da6c735dc269cbac3bc104bc430f9da10a17480b072c57880ef3270447bfc206e9553947bebeb6109fc35a638887be57b3102c5902aede28767b8b5306279f7ef237bb4cb913bb8f85a28627ab158c3f184efd8c199a806fe9aebcad4e5610fddbf69b1a10265163f53dedf455944817604b352bd2d2e5b4be336645b478998fde932986f969fb5e3da8145a4e4445893918e5598df56ebcec91d278ccd12af6467f2bcd3211b91118593ce4fdac9add7919eb30f63a15784a91887a35f441c4372788f00f6add095f2b30a331850a49a9ad3dff15004eb1b3f43f992450b2b468b7a3a62cecf60fc7e46e02522f7c3eec10b1a4299de77e8cc3d40b76245754f66f3e78adf9b4c4267426328116a8425d92d9536139bb2d9ce3301d8c1257300469cd62999497ed176dcb16ea09cf7286cfc6767033c6308b52b142878512543233435d177465c350f113899c0c3bb02b44ad426119e156e26b6644cdf735b09fcf8c9854021db34e38726abc1b45b11d9e2fe466ce3d82c048c754d51f160c5a5ebc257ed31b06ec949c08caf7ecb12639948a31393d74df2b1d6c8b81c8175fb30cb27c606701b112807dec81eff306d69bd129db6bea0e6ad67c4806a3417ffcc0861f76c978e84b228574825c2
+#TRUST-RSA-SHA256 2bd375808132e584ec09da860c723c3c95ad0c555a90b28e1947d60749eaa61f47ac77faede946149238655ec1eb004c3eb96a9c693526913563bb62f084be7fd12df045a72801c2df74339470d78c77b4ae0bd304459e29d9c6bdb1619b672353f10a7b8bf6e7fec4bfc2d3014c58475ccf2563fcc942ec089684cf2318301875d3c6dbd43d45c6c9153bd6b0e7c99b625b193632a96b9f94eeead28f621980920a82f28f1dac7d29254010f57d2cab78c996cc7af63bd42846b8eeedea953e328e4b147d9c1c4c38444201908cedc49ee542029f86627c6d3a0078b719860e967974378c80843a1c40acde0a01c0fa390ed8609811ed0754362b0913fcb3b5385dbd72a598b3707f3f35e1f747b2449d493a7430b1976de27970a6c2e3d57dd1ea8e715f99b7514fdd0e8b5f36c6d999ca80232ae913b98c19751c8e0e4f92ebfa5ef09310ed7e57265ba37ef66e563c2b2c5be0971aa84d7625d33bd3cd216609dbc4de909d084c0916f716572e89b38c0a56762e197115ba25f7a54d974c348b44af4879a56fd3dc7ff66c0db08b3b963f9476dcc91ffb02cebdb6b90bc5c8d382f73175e4e0a48fd7e6df974ba70efe5161e3299905d584429e1cf11ff285dd99a4b920eb8546588bcc3a870217e37a118cfaeaeecbb6b5594f88656df02d2000dd666e305223e6ae302ae1402358416cc33dcbced1a654e19a437eae4d
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2024/06/17 $
+#
+# Description   : This .audit is designed against the CIS Bottlerocket Benchmark v1.0.0
+#         https://workbench.cisecurity.org/benchmarks/6709
+#
+#<ui_metadata>
+#<display_name>CIS Bottlerocket L2</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Bottlerocket</name>
+#  <profile>L2</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/6709</link>
+#</spec>
+#<labels>cis,bottlerocket,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "Bottlerocket is installed"
+      file        : "/.bottlerocket/rootfs/etc/os-release"
+      regex       : "^PRETTY_NAME=\"Bottlerocket[\\s]+OS"
+      expect      : "^PRETTY_NAME=\"Bottlerocket[\\s]+OS"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Bottlerocket_v1.0.0_L2.audit from CIS Bottlerocket Benchmark Level 2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+    </report>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure mounting of UDF filesystems is disabled - modprobe"
+          cmd         : "/bin/sheltie modprobe -n -v udf | /bin/grep -E '(udf|install)'"
+          expect      : "install /bin/(true|false)"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CONTENT_CHECK_NOT
+          description : "Ensure mounting of UDF filesystems is disabled - /proc/modules"
+          file        : "/proc/modules"
+          regex       : "^[\\s]*udf[\\s]*"
+          expect      : "^[\\s]*udf[\\s]*"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.1.1.1 Ensure mounting of UDF filesystems is disabled"
+          info        : "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+          solution    : "Run the following command to disable the udf module:
+
+# apiclient set kernel.modules.udf.allowed=false
+
+Run the following command to unload the udf module:
+
+# rmmod udf"
+          reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|2A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.4.4 Ensure user namespaces are disabled"
+      info        : "User namespaces should be disabled unless required.
+
+Note that user namespaces can be necessary in environments where containers running as unprivileged users are meant to run other containers. These are often referred to as 'rootless' containers.
+
+Rationale:
+
+
+If user namespaces are enabled, then an unprivileged user can create a new user namespace where their processes have capabilities such as CAP_SYS_ADMIN. This opens a large attack surface within the kernel that would otherwise be unreachable."
+      solution    : "Run the following command to set the active kernel parameter and persist the setting:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"user.max_user_namespaces\" = \"0\"
+EOF"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|2A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/sbin/sysctl user.max_user_namespaces"
+      expect      : "^[\\s]*user\\.max_user_namespaces[\\s]*=[\\s]*0[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.5.2 Ensure Lockdown is configured"
+      info        : "Lockdown must be enabled in integrity mode.
+
+Note that this prevents unsigned kernel modules from being loaded. This could interfere with the operation of hardware or third-party software that depends on these modules.
+
+Rationale:
+
+Many security mechanisms ultimately depend on the kernel for enforcement. This includes access controls such as capabilities and SELinux, and integrity checks such as dm-verity. Modifications to the running kernel could bypass or subvert these mechanisms."
+      solution    : "Run the following command to enable Lockdown in integrity mode:
+
+# apiclient set kernel.lockdown=integrity"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|2A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      file        : "/.bottlerocket/rootfs/sys/kernel/security/lockdown"
+      regex       : "^[\\s]*none[\\s]+\\[integrity\\][\\s]+confidentiality[\\s]*$"
+      expect      : "^[\\s]*none[\\s]+\\[integrity\\][\\s]+confidentiality[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure packet redirect sending is disabled - net.ipv4.conf.all.send_redirects"
+          cmd         : "/sbin/sysctl net.ipv4.conf.all.send_redirects"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.all\\.send_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure packet redirect sending is disabled - net.ipv4.conf.default.send_redirects"
+          cmd         : "/sbin/sysctl net.ipv4.conf.default.send_redirects"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.default\\.send_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.1.1 Ensure packet redirect sending is disabled"
+          info        : "ICMP Redirects are used to send routing information to other hosts. As a host itself does not act as a router (in a host only configuration), there is no need to send redirects.
+
+Rationale:
+
+An attacker could use a compromised host to send invalid ICMP redirects to other router devices in an attempt to corrupt routing and have users access a system set up by the attacker as opposed to a valid system."
+          solution    : "Run the following command to set the active kernel parameters and persist the settings:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.conf.all.send_redirects\" = \"0\"
+\"net.ipv4.conf.default.send_redirects\" = \"0\"
+EOF
+
+Run the following command to flush the routing cache:
+
+# sysctl -w net.ipv4.route.flush=1"
+          reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|2A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure source routed packets are not accepted - net.ipv4.conf.all.accept_source_route"
+          cmd         : "/sbin/sysctl net.ipv4.conf.all.accept_source_route"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.all\\.accept_source_route[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure source routed packets are not accepted - net.ipv4.conf.default.accept_source_route"
+          cmd         : "/sbin/sysctl net.ipv4.conf.default.accept_source_route"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.default\\.accept_source_route[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure source routed packets are not accepted - net.ipv6.conf.all.accept_source_route"
+          cmd         : "/sbin/sysctl net.ipv6.conf.all.accept_source_route"
+          expect      : "^[\\s]*net\\.ipv6\\.conf\\.all\\.accept_source_route[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure source routed packets are not accepted - net.ipv6.conf.default.accept_source_route"
+          cmd         : "/sbin/sysctl net.ipv6.conf.default.accept_source_route"
+          expect      : "^[\\s]*net\\.ipv6\\.conf\\.default\\.accept_source_route[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.2.1 Ensure source routed packets are not accepted"
+          info        : "In networking, source routing allows a sender to partially or fully specify the route packets take through a network. In contrast, non-source routed packets travel a path determined by routers in the network. In some cases, systems may not be routable or reachable from some locations (e.g. private addresses vs. Internet routable), and so source routed packets would need to be used.
+
+Rationale:
+
+Setting net.ipv4.conf.all.accept_source_route, net.ipv4.conf.default.accept_source_route, net.ipv6.conf.all.accept_source_route and net.ipv6.conf.default.accept_source_route to 0 disables the system from accepting source routed packets. Assume this system was capable of routing packets to Internet routable addresses on one interface and private addresses on another interface. Assume that the private addresses were not routable to the Internet routable addresses and vice versa. Under normal routing circumstances, an attacker from the Internet routable addresses could not use the system as a way to reach the private address systems. If, however, source routed packets were allowed, they could be used to gain access to the private address systems as the route could be specified, rather than rely on routing protocols that did not allow this routing."
+          solution    : "Run the following command to set the active kernel parameters and persist the settings:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.conf.all.accept_source_route\" = \"0\"
+\"net.ipv4.conf.default.accept_source_route\" = \"0\"
+\"net.ipv6.conf.all.accept_source_route\" = \"0\"
+\"net.ipv6.conf.default.accept_source_route\" = \"0\"
+EOF
+Run the following command to flush the routing caches:
+
+# sysctl -w net.ipv4.route.flush=1
+# sysctl -w net.ipv6.route.flush=1"
+          reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure ICMP redirects are not accepted - sysctl net.ipv4.conf.all.accept_redirects=0"
+          cmd         : "/sbin/sysctl net.ipv4.conf.all.accept_redirects"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.all\\.accept_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure ICMP redirects are not accepted - sysctl net.ipv4.conf.default.accept_redirects=0"
+          cmd         : "/sbin/sysctl net.ipv4.conf.default.accept_redirects"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.default\\.accept_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure ICMP redirects are not accepted - sysctl net.ipv6.conf.all.accept_redirects=0"
+          cmd         : "/sbin/sysctl net.ipv6.conf.all.accept_redirects"
+          expect      : "^[\\s]*net\\.ipv6\\.conf\\.all\\.accept_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure ICMP redirects are not accepted - sysctl net.ipv6.conf.default.accept_redirects=0"
+          cmd         : "/sbin/sysctl net.ipv6.conf.default.accept_redirects"
+          expect      : "^[\\s]*net\\.ipv6\\.conf\\.default\\.accept_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.2.2 Ensure ICMP redirects are not accepted"
+          info        : "ICMP redirect messages are packets that convey routing information and tell your host (acting as a router) to send packets via an alternate path. It is a way of allowing an outside routing device to update your system routing tables. By setting net.ipv4.conf.all.accept_redirects and net.ipv6.conf.all.accept_redirects to 0, the system will not accept any ICMP redirect messages, and therefore, won't allow outsiders to update the system's routing tables.
+
+Rationale:
+
+Attackers could use bogus ICMP redirect messages to maliciously alter the system routing tables and get them to send packets to incorrect networks and allow your system packets to be captured."
+          solution    : "Run the following command to set the active kernel parameters and persist the settings:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.conf.all.accept_redirects\" = \"0\"
+\"net.ipv4.conf.default.accept_redirects\" = \"0\"
+\"net.ipv6.conf.all.accept_redirects\" = \"0\"
+\"net.ipv6.conf.default.accept_redirects\" = \"0\"
+EOF
+
+Run the following commands to flush the routing caches:
+
+# sysctl -w net.ipv4.route.flush=1
+# sysctl -w net.ipv6.route.flush=1"
+          reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure secure ICMP redirects are not accepted - sysctl net.ipv4.conf.all.secure_redirects=0"
+          cmd         : "/sbin/sysctl net.ipv4.conf.all.secure_redirects"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.all\\.secure_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure secure ICMP redirects are not accepted - sysctl net.ipv4.conf.default.secure_redirects=0"
+          cmd         : "/sbin/sysctl net.ipv4.conf.default.secure_redirects"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.default\\.secure_redirects[\\s]*=[\\s]*0[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.2.3 Ensure secure ICMP redirects are not accepted"
+          info        : "Secure ICMP redirects are the same as ICMP redirects, except they come from gateways listed on the default gateway list. It is assumed that these gateways are known to your system, and that they are likely to be secure.
+
+Rationale:
+
+It is still possible for even known gateways to be compromised. Setting net.ipv4.conf.all.secure_redirects to 0 protects the system from routing table updates by possibly compromised known gateways."
+          solution    : "Run the following command to set the active kernel parameters and persist the settings:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.conf.all.secure_redirects\" = \"0\"
+\"net.ipv4.conf.default.secure_redirects\" = \"0\"
+EOF
+
+Run the following command to flush the routing cache:
+
+# sysctl -w net.ipv4.route.flush=1"
+          reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure suspicious packets are logged - sysctl net.ipv4.conf.all.log_martians=1"
+          cmd         : "/sbin/sysctl net.ipv4.conf.all.log_martians"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.all\\.log_martians[\\s]*=[\\s]*1[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure suspicious packets are logged - sysctl net.ipv4.conf.default.log_martians=1"
+          cmd         : "/sbin/sysctl net.ipv4.conf.default.log_martians"
+          expect      : "^[\\s]*net\\.ipv4\\.conf\\.default\\.log_martians[\\s]*=[\\s]*1[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.2.4 Ensure suspicious packets are logged"
+          info        : "When enabled, this feature logs packets with un-routable source addresses to the kernel log.
+
+      Rationale:
+
+      Enabling this feature and logging these packets allows an administrator to investigate the possibility that an
+      attacker is sending spoofed packets to their system."
+          solution    : "Run the following command to set the active kernel parameters and persist the settings:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.conf.all.log_martians\" = \"1\"
+\"net.ipv4.conf.default.log_martians\" = \"1\"
+EOF
+
+Run the following command to flush the routing cache:
+
+# sysctl -w net.ipv4.route.flush=1"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure SCTP is disabled - modprobe"
+          cmd         : "/bin/sheltie modprobe -n -v sctp | /bin/grep -E '(sctp|install)'"
+          expect      : "install /bin/(true|false)"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CONTENT_CHECK_NOT
+          description : "Ensure SCTP is disabled - /proc/modules"
+          file        : "/proc/modules"
+          regex       : "^[\\s]*sctp[\\s]*"
+          expect      : "^[\\s]*sctp[\\s]*"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.3.1 Ensure SCTP is disabled"
+          info        : "The Stream Control Transmission Protocol (SCTP) is a transport layer protocol used to support message oriented communication, with several streams of messages in one connection. It serves a similar function as TCP and UDP, incorporating features of both. It is message-oriented like UDP, and ensures reliable in-sequence transport of messages with congestion control like TCP.
+
+Rationale:
+
+If the protocol is not being used, it is recommended that kernel module not be loaded, disabling the service to reduce the potential attack surface."
+          solution    : "Run the following command to disable the sctp module:
+
+# apiclient set kernel.modules.sctp.allowed=false"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|9.2,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv4 default deny firewall policy - Chain INPUT"
+          cmd         : "/bin/sheltie iptables -L | grep 'Chain INPUT'"
+          expect      : "^[\\s]*Chain[\\s]+INPUT[\\s]+\\(policy[\\s]+(?:DROP|REJECT)\\)[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv4 default deny firewall policy - Chain FORWARD"
+          cmd         : "/bin/sheltie iptables -L | grep 'Chain FORWARD'"
+          expect      : "^[\\s]*Chain[\\s]+FORWARD[\\s]+\\(policy[\\s]+(?:DROP|REJECT)\\)[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv4 default deny firewall policy - Chain OUTPUT"
+          cmd         : "/bin/sheltie iptables -L | grep 'Chain OUTPUT'"
+          expect      : "^[\\s]*Chain[\\s]+OUTPUT[\\s]+\\(policy[\\s]+(?:DROP|REJECT)\\)[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.4.1.1 Ensure IPv4 default deny firewall policy"
+          info        : "A default deny all policy on connections ensures that any unconfigured network usage will be rejected.
+
+Rationale:
+
+With a default accept policy the firewall will accept any packet that is not configured to be denied. It is easier to allow list acceptable usage than to deny list unacceptable usage."
+          solution    : "Run the following commands to implement a default DROP policy:
+
+# iptables -P INPUT DROP
+
+# iptables -P OUTPUT DROP
+
+# iptables -P FORWARD DROP"
+          reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv4 loopback traffic is configured - Chain INPUT (lo)"
+          cmd         : "/bin/sheltie iptables -L INPUT -v -n"
+          expect      : "^[\\s]*[\\S]+[\\s]+[\\S]+[\\s]+ACCEPT[\\s]+0[\\s]+--[\\s]+lo[\\s]+\\*[\\s]+0\\.0\\.0\\.0\\/0[\\s]+0\\.0\\.0\\.0\\/0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv4 loopback traffic is configured - Chain INPUT (127.0.0.0/8)"
+          cmd         : "/bin/sheltie iptables -L INPUT -v -n"
+          expect      : "^[\\s]*[\\S]+[\\s]+[\\S]+[\\s]+DROP[\\s]+0[\\s]+--[\\s]+\\*[\\s]+\\*[\\s]+127\\.0\\.0\\.0\\/8[\\s]+0\\.0\\.0\\.0\\/0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv4 loopback traffic is configured - Chain OUTPUT"
+          cmd         : "/bin/sheltie iptables -L OUTPUT -v -n"
+          expect      : "^[\\s]*[\\S]+[\\s]+[\\S]+[\\s]+ACCEPT[\\s]+0[\\s]+--[\\s]+\\*[\\s]+lo[\\s]+0\\.0\\.0\\.0\\/0[\\s]+0\\.0\\.0\\.0\\/0[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.4.1.2 Ensure IPv4 loopback traffic is configured"
+          info        : "Configure the loopback interface to accept traffic. Configure all other interfaces to deny traffic to the loopback network (127.0.0.0/8).
+
+Rationale:
+
+Loopback traffic is generated between processes on machine and is typically critical to operation of the system. The loopback interface is the only place that loopback network (127.0.0.0/8) traffic should be seen, all other interfaces should ignore traffic on this network as an anti-spoofing measure."
+          solution    : "Run the following commands to implement the loopback rules:
+
+# iptables -A INPUT -i lo -j ACCEPT
+
+# iptables -A OUTPUT -o lo -j ACCEPT
+
+# iptables -A INPUT -s 127.0.0.0/8 -j DROP"
+          reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "3.4.1.3 Ensure IPv4 outbound and established connections are configured"
+      info        : "Configure the firewall rules for new outbound, and established connections.
+
+Rationale:
+
+If rules are not in place for new outbound, and established connections all packets will be dropped by the default policy preventing network usage.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure iptables in accordance with site policy. The following commands will implement a policy to allow all outbound connections and all established connections:
+
+# iptables -A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# iptables -A OUTPUT -p udp -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# iptables -A OUTPUT -p icmp -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# iptables -A INPUT -p tcp -m state --state ESTABLISHED -j ACCEPT
+
+# iptables -A INPUT -p udp -m state --state ESTABLISHED -j ACCEPT
+
+# iptables -A INPUT -p icmp -m state --state ESTABLISHED -j ACCEPT"
+      reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/bin/sheltie iptables -L -v -n"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv6 default deny firewall policy - Chain INPUT"
+          cmd         : "/bin/sheltie ip6tables -L | grep 'Chain INPUT'"
+          expect      : "^[\\s]*Chain[\\s]+INPUT[\\s]+\\(policy[\\s]+DROP\\)[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv6 default deny firewall policy - Chain FORWARD"
+          cmd         : "/bin/sheltie ip6tables -L | grep 'Chain FORWARD'"
+          expect      : "^[\\s]*Chain[\\s]+FORWARD[\\s]+\\(policy[\\s]+DROP\\)[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv6 default deny firewall policy - Chain OUTPUT"
+          cmd         : "/bin/sheltie ip6tables -L | grep 'Chain OUTPUT'"
+          expect      : "^[\\s]*Chain[\\s]+OUTPUT[\\s]+\\(policy[\\s]+DROP\\)[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.4.2.1 Ensure IPv6 default deny firewall policy"
+          info        : "A default deny all policy on connections ensures that any unconfigured network usage will be rejected.
+
+Rationale:
+
+With a default accept policy the firewall will accept any packet that is not configured to be denied. It is easier to allow list acceptable usage than to deny list unacceptable usage."
+          solution    : "Run the following commands to implement a default DROP policy:
+
+# ip6tables -P INPUT DROP
+
+# ip6tables -P OUTPUT DROP
+
+# ip6tables -P FORWARD DROP"
+          reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv6 loopback traffic is configured - Chain INPUT (lo)"
+          cmd         : "/bin/sheltie ip6tables -L INPUT -v -n"
+          expect      : "^[\\s]*[\\S]+[\\s]+[\\S]+[\\s]+ACCEPT[\\s]+0[\\s]+--[\\s]+lo[\\s]+\\*[\\s]+\\:\\:\\/0[\\s]+\\:\\:\\/0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv6 loopback traffic is configured - Chain INPUT (::1)"
+          cmd         : "/bin/sheltie ip6tables -L INPUT -v -n"
+          expect      : "^[\\s]*[\\S]+[\\s]+[\\S]+[\\s]+DROP[\\s]+0[\\s]+--[\\s]+\\*[\\s]+\\*[\\s]+\\:\\:1[\\s]+\\:\\:\\/0[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure IPv6 loopback traffic is configured - Chain OUTPUT (lo)"
+          cmd         : "/bin/sheltie ip6tables -L OUTPUT -v -n"
+          expect      : "^[\\s]*[\\S]+[\\s]+[\\S]+[\\s]+ACCEPT[\\s]+0[\\s]+--[\\s]+\\*[\\s]+lo[\\s]+\\:\\:\\/0[\\s]+\\:\\:\\/0[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.4.2.2 Ensure IPv6 loopback traffic is configured"
+          info        : "Configure the loopback interface to accept traffic. Configure all other interfaces to deny traffic to the loopback network (::1).
+
+Rationale:
+
+Loopback traffic is generated between processes on machine and is typically critical to operation of the system. The loopback interface is the only place that loopback network (::1) traffic should be seen, all other interfaces should ignore traffic on this network as an anti-spoofing measure."
+          solution    : "Run the following commands to implement the loopback rules:
+
+# ip6tables -A INPUT -i lo -j ACCEPT
+
+# ip6tables -A OUTPUT -o lo -j ACCEPT
+
+# ip6tables -A INPUT -s ::1 -j DROP"
+          reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "3.4.2.3 Ensure IPv6 outbound and established connections are configured"
+      info        : "Configure the firewall rules for new outbound, and established connections.
+
+Rationale:
+
+If rules are not in place for new outbound, and established connections all packets will be dropped by the default policy preventing network usage.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure ip6tables in accordance with site policy. The following commands will implement a policy to allow all outbound connections and all established connections:
+
+# ip6tables -A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# ip6tables -A OUTPUT -p udp -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# ip6tables -A OUTPUT -p icmp -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# ip6tables -A INPUT -p tcp -m state --state ESTABLISHED -j ACCEPT
+
+# ip6tables -A INPUT -p udp -m state --state ESTABLISHED -j ACCEPT
+
+# ip6tables -A INPUT -p icmp -m state --state ESTABLISHED -j ACCEPT"
+      reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/bin/sheltie ip6tables -L -v -n"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Bottlerocket_v1.0.0_L2.audit from CIS Bottlerocket Benchmark Level 2"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+    </report>
+  </else>
+</if>
+
+</check_type>

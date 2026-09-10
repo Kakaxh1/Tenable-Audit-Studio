@@ -1,0 +1,630 @@
+#TRUSTED 4fb142a0de867303a94ebdadcc9e21eaf617f06a7b4ac97d3004e20d35d626ebfc0e0c5efd88e377d70a8197c45c92cdde875925e38a08b13dc512f174ab00ca88ec74a025e6cff03b3da3dfdd3780985b1a93c295406e8564342470e5d36daa9488af0bbcc1583473755f031e4fb8b175959679d13c45ef5a56947fb2146de09190fab7c074431293458e7fc83a7e672e961c37398b936d24c3fc2c0b2a707e34d3dadc97a9038eab4d567d5a68866542cd89699e0f12226d697966d40d827cf2690ee4f91d945a7da8d5a82da3f20ff38a2a7887f9e8ade486db7a7573129225942c15226e7c2a35ea384aae9d7d107304b8bcb8333f8e7bf2455fa238dc7ec6d4bd3ad48e00188851dbd82bcc9914b4199844f9d6f57c4fd879079a3becc5c57c03e8bdf7b6a3d09a0e82f63544513992346217c2c3c33ee139260fe653d8934ce531e9f6e62b0d83629a79dafcdb0028f93437e219b0ec3c31c3ebf793d9d06863a128a9f2e22ce2a68104d519f6c928d77c26ce8aaa969886d655b340d78efebabc9b76f2e908a360dfb2032261c37ff109a6d4a87c44d6ec39c9d733e86d62ba2a6f054d8648c1bb6f9c4df2fd749a9c5aa5075925eba121c61f2d9dcc88a29e5186bc473f76f03beccd1376a6ee6722b48ce1e71b6e395cf0dbf1f534d9be4d842d3f4c1f9cf6e67cdf9d9ac63b86cbf67793a31797877b61d538afc7
+#TRUST-RSA-SHA256 4a45939d4b9d9cab490188d9636dcc3eb11b247feb288975a7dfd57f683ad70119534c46694b1fa13db2ea852a9c8c950482aae866cbf7ca76a94b9a43af08fb3cd6a65701938d0995c23f26b20941c44a3853665e90e035e876fec01abc68ca94ca0d90078809946e8073e6e82f99b73d1ecb12381d1fd1b2e9d2f8292c6aceef9695f023e6a915900deebf57ab4dee08bbbea1f6b0c7cf55bfa8115e6cfb22b61bd0323bca80d7740703b001ddff360141ebe62429ae5f0e6ac233382fb970f4f781c3b246b1d0c3e5b1194cd0494306d6e5ad0597b9db2b069a803bfea5ea07c4d05891e4cc12bcf3166390c79526100f5eb8d715eaee7cf8714954904c4396ec1ab9cc416797fbfa3aec4fcf0df4eaf527fa974c53476b03c9262b0f85e5b3995e81fc0900b4deeed536b33148ec4611b2f180c629d51c856c6f925e5458a0935eb7c7c4af7d29908e74750bbf2cc26e756361c7e7cd3feeb7499d9d7b77dcd4ba74b686d1de6b0cd95980baba215436e8273374be4f9d15c971e453fa8dde064caa61662e55d4ba6d6705edcd0163f490aaa478113d6f0b555ceea55d2fc005cb380593665fc4f35b33d51307c7383aea8e6695a997f3928e89e0c0f9890d5ee90503f49d7bfdbeb285898091bab8b73241bde5b95d929a87ac584ed494849650ee22c8518aea5a8e247325cef727b3701d23d84dbedca40656480c25a0
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/04/08 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Microsoft Word 2016 v2r1 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Microsoft Word 2016 v2r1</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Microsoft Word 2016</name>
+#  <version>2.1.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip</link>
+#</spec>
+#<labels>ms_word_2016,agent</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>APPLICATION_PATH</name>
+#    <default>%ProgramFiles%\Microsoft Office\root\Office16\WINWORD.EXE</default>
+#    <description>Application path</description>
+#    <info>Path to the MS Word executable (change if 32-bit install)</info>
+#    <value_type>WIN_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>OFFICE_VERSION</name>
+#    <default>Microsoft Office.*2016.*</default>
+#    <description>Version of Microsoft Office</description>
+#    <info>This regex should match what is listed under Settings &gt; Apps and Features</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"MS Word 2016">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "Check for Office"
+      value_type      : POLICY_TEXT
+      value_data      : "@OFFICE_VERSION@"
+      powershell_args : "$(Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName) + $(Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName)"
+      check_type      : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "Check if Word is installed"
+      value_type  : POLICY_TEXT
+      value_data  : "@APPLICATION_PATH@"
+      file_option : MUST_EXIST
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_Microsoft_Word_2016_v2r1.audit from DISA Microsoft Word 2016 v2r1 STIG"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+    </report>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO104 - Disabling of user name and password syntax from being used in URLs must be enforced."
+      info        : "The Uniform Resource Locator (URL) standard allows user authentication to be included in URL strings in the form http://username:password@example.com. A malicious user might use this URL syntax to create a hyperlink that appears to open a legitimate website but actually opens a deceptive (spoofed) website. For example, the URL http://www.wingtiptoys.com@example.com appears to open http://www.wingtiptoys.com but actually opens http://example.com. To protect users from such attacks, Internet Explorer usually blocks any URLs using this syntax.
+
+This functionality can be controlled separately for instances of Internet Explorer spawned by Office applications (for example, if a user clicks a link in an Office document or selects a menu option that loads a website). If user names and passwords in URLs are allowed, users could be diverted to dangerous Web pages, which could pose a security risk."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Disable user name and password' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238121r961092_rule,STIG-ID|DTOO104,STIG-Legacy|SV-85665,STIG-Legacy|V-71041,Vuln-ID|V-238121"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_HTTP_USERNAME_PASSWORD_DISABLE"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO110 - Blocking as default file block opening behavior must be enforced."
+      info                 : "This policy setting allows you to determine if users can open, view, or edit Word files. If you enable this policy setting, you can set one of these options:- Blocked files are not opened- Blocked files open in Protected View and can not be edited- Blocked files open in Protected View and can be edited. If you disable or do not configure this policy setting, the behavior is the same as the 'Blocked files are not opened' setting.  Users will not be able to open blocked files."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> File Block Settings 'Set default file block behavior' to 'Enabled: Blocked files are not opened'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238122r961086_rule,STIG-ID|DTOO110,STIG-Legacy|SV-85667,STIG-Legacy|V-71043,Vuln-ID|V-238122"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\fileblock"
+      reg_item             : "OpenInProtectedView"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO111 - The Internet Explorer Bind to Object functionality must be enabled."
+      info        : "Internet Explorer performs a number of safety checks before initializing an ActiveX control. It will not initialize a control if the kill bit for the control is set in the registry, or if the security settings for the zone in which the control is located do not allow it to be initialized.
+This functionality can be controlled separately for instances of Internet Explorer spawned by Office applications (for example, if a user clicks a link in an Office document or selects a menu option that loads a web page). A security risk could occur if potentially dangerous controls are allowed to load."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Bind to Object' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(3),800-53r5|SC-18(3),CAT|II,CCI|CCI-001695,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(3),NIAv2|NS26f,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238123r960921_rule,STIG-ID|DTOO111,STIG-Legacy|SV-85669,STIG-Legacy|V-71045,Vuln-ID|V-238123"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : "1"
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\Feature_Safe_BindToObject"
+      reg_item    : "Winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO117 - Saved from URL mark to assure Internet zone processing must be enforced."
+      info        : "Typically, when Internet Explorer loads a web page from a Universal Naming Convention (UNC) share that contains a Mark of the Web (MOTW) comment, indicating the page was saved from a site on the Internet, Internet Explorer runs the page in the Internet security zone instead of the less restrictive Local Intranet security zone. This functionality can be controlled separately for instances of Internet Explorer spawned by Office applications (for example, if a user clicks a link in an Office document or selects a menu option that loads a web page). If Internet Explorer does not evaluate the page for a MOTW, potentially dangerous code could be allowed to run."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Saved from URL' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238124r961092_rule,STIG-ID|DTOO117,STIG-Legacy|SV-85671,STIG-Legacy|V-71047,Vuln-ID|V-238124"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_UNC_SAVEDFILECHECK"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO119 - Configuration for file validation must be enforced."
+      info                 : "This policy setting allows you to turn off the file validation feature. If you enable this policy setting, file validation will be turned off. If you disable or do not configure this policy setting, file validation will be turned on.  Office Binary Documents (97-2003) are checked to see if they conform against the file format schema before they are opened."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security 'Turn off file validation' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(3),800-53r5|SC-18(3),CAT|II,CCI|CCI-001695,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(3),NIAv2|NS26f,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238125r960921_rule,STIG-ID|DTOO119,STIG-Legacy|SV-85673,STIG-Legacy|V-71049,Vuln-ID|V-238125"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\filevalidation"
+      reg_item             : "EnableOnLoad"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO121 - Files from the Internet zone must be opened in Protected View."
+      info                 : "This policy setting allows for determining if files downloaded from the Internet zone open in Protected View. If enabling this policy setting, files downloaded from the Internet zone do not open in Protected View. If disabling or not configuring this policy setting, files downloaded from the Internet zone open in Protected View."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Protected View 'Do not open files from the Internet zone in Protected View' to 'Not Configured' or 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238126r961086_rule,STIG-ID|DTOO121,STIG-Legacy|SV-85675,STIG-Legacy|V-71051,Vuln-ID|V-238126"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\protectedview"
+      reg_item             : "DisableInternetFilesInPV"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO123 - Navigation to URLs embedded in Office products must be blocked."
+      info        : "To protect users from attacks, Internet Explorer usually does not attempt to load malformed URLs. This functionality can be controlled separately for instances of Internet Explorer spawned by Office applications (for example, if a user clicks a link in an Office document or selects a menu option that loads a web page). If Internet Explorer attempts to load a malformed URL, a security risk could occur."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Navigate URL' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238127r961092_rule,STIG-ID|DTOO123,STIG-Legacy|SV-85677,STIG-Legacy|V-71053,Vuln-ID|V-238127"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_VALIDATE_NAVIGATE_URL"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO124 - Scripted Window Security must be enforced."
+      info        : "Malicious websites often try to confuse or trick users into giving a site permission to perform an action allowing the site to take control of the users' computers in some manner. Disabling or not configuring this setting allows unknown websites to:
+-Create browser windows appearing to be from the local operating system.
+-Draw active windows displaying outside of the viewable areas of the screen capturing keyboard input.
+-Overlay parent windows with their own browser windows to hide important system information, choices or prompts."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Scripted Window Security Restrictions' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(3),800-53r5|SC-18(3),CAT|II,CCI|CCI-001695,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(3),NIAv2|NS26f,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238128r960921_rule,STIG-ID|DTOO124,STIG-Legacy|SV-85679,STIG-Legacy|V-71055,Vuln-ID|V-238128"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_WINDOW_RESTRICTIONS"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO126 - Add-on Management functionality must be allowed."
+      info        : "Internet Explorer add-ons are pieces of code, run in Internet Explorer, to provide additional functionality. Rogue add-ons may contain viruses or other malicious code. Disabling or not configuring this setting could allow malicious code or users to become active on user computers or the network. For example, a malicious user can monitor and then use keystrokes users type into Internet Explorer. Even legitimate add-ons may demand resources, compromising the performance of Internet Explorer, and the operating systems for user computers."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Add-on Management' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238129r961086_rule,STIG-ID|DTOO126,STIG-Legacy|SV-85681,STIG-Legacy|V-71057,Vuln-ID|V-238129"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_ADDON_MANAGEMENT"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO127 - Add-ins to Office applications must be signed by a Trusted Publisher."
+      info                 : "This policy setting controls whether add-ins for this applications must be digitally signed by a trusted publisher. If you enable this policy setting, this application checks the digital signature for each add-in before loading it. If an add-in does not have a digital signature, or if the signature did not come from a trusted publisher, this application disables the add-in and notifies the user. Certificates must be added to the Trusted Publishers list if you require that all add-ins be signed by a trusted publisher. For detail on about obtaining and distributing certificates, see http://go.microsoft.com/fwlink/?LinkId=294922. Office 2016 stores certificates for trusted publishers in the Internet Explorer trusted publisher store. Earlier versions of Microsoft Office stored trusted publisher certificate information (specifically, the certificate thumbprint) in a special Office trusted publisher store.  Office 2016 still reads trusted publisher certificate information from the Office trusted publisher store, but it does not write information to this store. Therefore, if you created a list of trusted publishers in a previous version of Office and you upgrade to Office 2016, your trusted publisher list will still be recognized. However, any trusted publisher certificates that you add to the list will be stored in the Internet Explorer trusted publisher store. For more information about trusted publishers, see the Office Resource Kit. If you disable or do not configure this policy setting, this application does not check the digital signature on application add-ins before opening them. If a dangerous add-in is loaded, it could harm users' computers or compromise data security."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center 'Require that application add-ins are signed by Trusted Publisher' to 'Enabled'."
+      reference            : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(3),800-53r5|CM-14,CAT|II,CCI|CCI-001749,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(3),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-238130r960954_rule,STIG-ID|DTOO127,STIG-Legacy|SV-85683,STIG-Legacy|V-71059,Vuln-ID|V-238130"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security"
+      reg_item             : "RequireAddinSig"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO129 - Links that invoke instances of Internet Explorer from within an Office product must be blocked."
+      info        : "The Pop-up Blocker feature in Internet Explorer can be used to block most unwanted pop-up and pop-under windows from appearing. This functionality can be controlled separately for instances of Internet Explorer spawned by Office applications (for example, if a user clicks a link in an Office document or selects a menu option that loads a web page). If the Pop-up Blocker is disabled, disruptive and potentially dangerous pop-up windows could load and present a security risk."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Block popups' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238131r961086_rule,STIG-ID|DTOO129,STIG-Legacy|SV-85685,STIG-Legacy|V-71061,Vuln-ID|V-238131"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_WEBOC_POPUPMANAGEMENT"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO131 - Trust Bar Notifications for unsigned application add-ins must be blocked."
+      info                 : "This policy setting controls whether the specified Office application notifies users when unsigned application add-ins are loaded or silently disable such add-ins without notification. This policy setting only applies if you enable the 'Require that application add-ins are signed by Trusted Publisher' policy setting, which prevents users from changing this policy setting. If you enable this policy setting, applications automatically disable unsigned add-ins without informing users. If you disable this policy setting, if this application is configured to require that all add-ins be signed by a trusted publisher, any unsigned add-ins the application loads will be disabled and the application will display the Trust Bar at the top of the active window. The Trust Bar contains a message that informs users about the unsigned add-in. If you do not configure this policy setting, the disable behavior applies, and in addition, users can configure this requirement themselves in the 'Add-ins' category of the Trust Center for the application."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center 'Disable Trust Bar Notification for unsigned application add-ins and block them' to 'Enabled'."
+      reference            : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(3),800-53r5|CM-14,CAT|II,CCI|CCI-001749,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(3),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-238132r960954_rule,STIG-ID|DTOO131,STIG-Legacy|SV-85687,STIG-Legacy|V-71063,Vuln-ID|V-238132"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security"
+      reg_item             : "NoTBPromptUnsignedAddin"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO132 - File Downloads must be configured for proper restrictions."
+      info        : "Disabling this setting allows websites to present file download prompts via code without the user specifically initiating the download. User preferences may also allow the download to occur without prompting or interaction with the user. Even if Internet Explorer prompts the user to accept the download, some websites abuse this functionality. Malicious websites may continually prompt users to download a file or present confusing dialog boxes to trick users into downloading or running a file. If the download occurs and it contains malicious code, the code could become active on user computers or the network."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Restrict File Download' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(3),800-53r5|SC-18(3),CAT|II,CCI|CCI-001169,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(3),NIAv2|NS26f,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238133r961089_rule,STIG-ID|DTOO132,STIG-Legacy|SV-85689,STIG-Legacy|V-71065,Vuln-ID|V-238133"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_RESTRICT_FILEDOWNLOAD"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO133 - All automatic loading from trusted locations must be disabled."
+      info                 : "This policy setting allows administrators to disable all trusted locations in the specified applications. Trusted locations specified in the Trust Center are used to define file locations that are assumed to be safe. Content, code, and add-ins are allowed to load from trusted locations with a minimal amount of security, without prompting the users for permission. If a dangerous file is opened from a trusted location, it will not be subject to standard security measures and could harm users' computers or data. If you enable this policy setting, all trusted locations (those specified in the Trust Center) in the specified applications are ignored, including any trusted locations established by Office 2016 during setup, deployed to users using Group Policy, or added by users themselves.  Users will be prompted again when opening files from trusted locations. If you disable or do not configure this policy setting, all trusted locations (those specified in the Trust Center) in the specified applications are assumed to be safe."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Trusted Locations 'Disable all trusted locations' to 'Enabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238134r961092_rule,STIG-ID|DTOO133,STIG-Legacy|SV-85691,STIG-Legacy|V-71067,Vuln-ID|V-238134"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\trusted locations"
+      reg_item             : "AllLocationsDisabled"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO134 - Disallowance of trusted locations on the network must be enforced."
+      info                 : "This policy setting controls whether trusted locations on the network can be used. If you enable this policy setting, users can specify trusted locations on network shares or in other remote locations that are not under their direct control by clicking the 'Add new location' button in the Trusted Locations section of the Trust Center. Content, code, and add-ins are allowed to load from trusted locations with minimal security and without prompting the user for permission. If you disable this policy setting, the selected application ignores any network locations listed in the Trusted Locations section of the Trust Center. If you also deploy Trusted Locations via Group Policy, you should verify whether any of them are remote locations. If any of them are remote locations and you do not allow remote locations via this policy setting, those policy keys that point to remote locations will be ignored on client computers. Disabling this policy setting does not delete any network locations from the Trusted Locations list, but causes disruption for users who add network locations to the Trusted Locations list. Users are also prevented from adding new network locations to the Trusted Locations list in the Trust Center.  We recommended that you do not enable this policy setting (as the 'Allow Trusted Locations on my network (not recommended)' check box also states). Therefore, in practice, it should be possible to disable this policy setting in most situations without causing significant usability issues for most users. If you do not enable this policy setting, users can select the 'Allow Trusted Locations on my network (not recommended)' check box if desired and then specify trusted locations by clicking the 'Add new location' button."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Trusted Locations 'Allow Trusted Locations on the network' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238135r961092_rule,STIG-ID|DTOO134,STIG-Legacy|SV-85693,STIG-Legacy|V-71069,Vuln-ID|V-238135"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\trusted locations"
+      reg_item             : "AllowNetworkLocations"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO139 - The Save commands default file format must be configured."
+      info                 : "This policy setting determines the default file format for saving files in Word. If you enable this policy setting, you can set the default file format from among the following options: - Word Document (*.docx): This option is the default configuration in Word.- Single Files Web Page (*.mht)- Web Page (*.htm; *.html)- Web Page, Filtered (*.htm, *.html)- Rich Text Format (*.rtf)- Plain Text  (*.txt)- Word 6.0/95 (*.doc)- Word 6.0/95 - Chinese (Simplified) (*.doc)- Word 6.0/95 - Chinese (Traditional) (*.doc)- Word 6.0/95 - Japanese (*.doc)- Word 6.0/95 - Korean (*.doc)- Word 97-2002 and 6.0/95 - RTF- Word 5.1 for Macintosh (*.mcw)- Word 5.0 for Macintosh (*.mcw)- Word 2.x for Windows (*.doc)- Works 4.0 for Windows (*.wps)- WordPerfect 5.x for Windows (*.doc)- WordPerfect 5.1 for DOS (*.doc)- Word Macro-Enabled Document (*.docm)- Word Template (*.dotx)- Word Macro-Enabled Template (*.dotm)- Word 97 - 2003 Document (*.doc)- Word 97 - 2003 Template (*.dot)- Word XML Document (*.xml)- Strict Open XML Document (*.docx)- OpenDocument Text (*.odt). Users can choose to save presentations or documents in a different file format than the default. If you disable or do not configure this policy setting, Word saves new files in the Office Open XML format: Word files have a .docx extension. For users who run recent versions of Word, Microsoft offers the Microsoft Office Compatibility Pack, which enables them to open and save Office Open XML files. If some users in your organization cannot install the Compatibility Pack, or are running versions of Word older than Microsoft Office 2000 with Service Pack 3, they might not be able to access Office Open XML files. This policy setting is often set in combination with the 'Save As Open XML in Compatibility Mode' policy setting."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Save 'default file format' to 'Enabled: Word Document (.docx)'."
+      reference            : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-238136r960963_rule,STIG-ID|DTOO139,STIG-Legacy|SV-85695,STIG-Legacy|V-71071,SWIFT-CSCv1|2.3,Vuln-ID|V-238136"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_TEXT
+      value_data           : "              "
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\options"
+      reg_item             : "DefaultFormat"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+      check_type           : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO142 - Force encrypted macros to be scanned in open XML documents must be determined and configured."
+      info                 : "This policy setting controls whether encrypted macros in Open XML documents be are required to be scanned with anti-virus software before being opened. If you enable this policy setting, you may choose one of these options:- Scan encrypted macros: encrypted macros are disabled unless anti-virus software is installed.  Encrypted macros are scanned by your anti-virus software when you attempt to open an encrypted workbook that contains macros.- Scan if anti-virus software available: if anti-virus software is installed, scan the encrypted macros first before allowing them to load.  If anti-virus software is not available, allow encrypted macros to load.- Load macros without scanning: do not check for anti-virus software and allow macros to be loaded in an encrypted file. If you disable or do not configure this policy setting, the behavior will be similar to the 'Scan encrypted macros' option."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center 'Scan encrypted macros in Word Open XML documents' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238137r961092_rule,STIG-ID|DTOO142,STIG-Legacy|SV-85697,STIG-Legacy|V-71073,Vuln-ID|V-238137"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security"
+      reg_item             : "WordBypassEncryptedMacroScan"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO146 - Trust access for VBA must be disallowed."
+      info                 : "This policy setting controls whether automation clients such as Microsoft Visual Studio 2005 Tools for Microsoft Office (VSTO) can access the Visual Basic for Applications project system in the specified applications. VSTO projects require access to the Visual Basic for Applications project system in Excel, PowerPoint, and Word, even though the projects do not use Visual Basic for Applications. Design-time support of controls in both Visual Basic and C# projects depends on the Visual Basic for Applications project system in Word and Excel. If you enable this policy setting, VSTO and other automation clients can access the Visual Basic for Applications project system in the specified applications. Users will not be able to change this behavior through the 'Trust access to the VBA project object model' user interface option under the Macro Settings section of the Trust Center. If you disable this policy setting, VSTO does not have programmatic access to VBA projects. In addition, the 'Trust access to the VBA project object model' check box is cleared and users cannot change it.  Note: Disabling this policy setting prevents VSTO projects from interacting properly with the VBA project system in the selected application. If you do not configure this policy setting, automation clients do not have programmatic access to VBA projects. Users can enable this by selecting the 'Trust access to the VBA project object model' in the 'Macro Settings' section of the Trust Center. However, doing so allows macros in any documents the user opens to access the core Visual Basic objects, methods, and properties, which represents a potential security hazard."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center 'Trust access to Visual Basic Project' to 'Disabled'."
+      reference            : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-238138r960963_rule,STIG-ID|DTOO146,STIG-Legacy|SV-85699,STIG-Legacy|V-71075,SWIFT-CSCv1|2.3,Vuln-ID|V-238138"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security"
+      reg_item             : "AccessVBOM"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO209 - Protection from zone elevation must be enforced."
+      info        : "Internet Explorer places restrictions on each web page users can use the browser to open. Web pages on a user's local computer have the fewest security restrictions and reside in the Local Machine zone, making this security zone a prime target for malicious users and code. Disabling or not configuring this setting could allow pages in the Internet zone to navigate to pages in the Local Machine zone to then run code to elevate privileges. This could allow malicious code or users to become active on user computers or the network."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Protection From Zone Elevation' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(3),800-53r5|SC-18(3),CAT|II,CCI|CCI-001695,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(3),NIAv2|NS26f,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238139r960921_rule,STIG-ID|DTOO209,STIG-Legacy|SV-85701,STIG-Legacy|V-71077,Vuln-ID|V-238139"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_ZONE_ELEVATION"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "DTOO211 - ActiveX Installs must be configured for proper restriction."
+      info        : "Microsoft ActiveX controls allow unmanaged, unprotected code to run on the user computers. ActiveX controls do not run within a protected container in the browser like the other types of HTML or Microsoft Silverlight-based controls. Disabling or not configuring this setting does not block prompts for ActiveX control installations, and these prompts display to users. This could allow malicious code to become active on user computers or the network."
+      solution    : "Set the policy value for Computer Configuration -> Administrative Templates -> Microsoft Office 2016 (Machine) -> Security Settings -> IE Security 'Restrict ActiveX Install' to 'Enabled' and place a check in the 'winword.exe' check box."
+      reference   : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-002460,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238140r961779_rule,STIG-ID|DTOO211,STIG-Legacy|SV-85703,STIG-Legacy|V-71079,Vuln-ID|V-238140"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_RESTRICT_ACTIVEXINSTALL"
+      reg_item    : "winword.exe"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO288 - Files in unsafe locations must be opened in Protected View."
+      info                 : "This policy setting determines whether files located in unsafe locations will open in Protected View. If unsafe locations have not been specified, only the 'Downloaded Program Files' and 'Temporary Internet Files' folders are considered unsafe locations. If enabling this policy setting, files located in unsafe locations do not open in Protected View. If disabling or not configuring this policy setting, files located in unsafe locations open in Protected View."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Protected View 'Do not open files in unsafe locations in Protected View' to 'Not Configured' or 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238141r961092_rule,STIG-ID|DTOO288,STIG-Legacy|SV-85705,STIG-Legacy|V-71081,Vuln-ID|V-238141"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\protectedview"
+      reg_item             : "DisableUnsafeLocationsInPV"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO292 - Document behavior if file validation fails must be set - openinprotectedview"
+      info                 : "This policy setting controls how Office handles documents when they fail file validation. If you enable this policy setting, you can configure the following options for files that fail file validation:- Block files completely. Users cannot open the files.- Open files in Protected View and disallow edit. Users cannot edit the files. This is also how Office handles the files if you disable this policy setting.- Open files in Protected View and allow edit. Users can edit the files. This is also how Office handles the files if you do not configure this policy setting.If you disable this policy setting, Office follows the 'Open files in Protected View and disallow edit' behavior. If you do not configure this policy setting, Office follows the 'Open files in Protected View and allow edit' behavior."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Protected View 'Set document behavior if file validation fails' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238142r961092_rule,STIG-ID|DTOO292,STIG-Legacy|SV-85707,STIG-Legacy|V-71083,Vuln-ID|V-238142"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\Word\security\filevalidation"
+      reg_item             : "openinprotectedview"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO292 - Document behavior if file validation fails must be set - DisableEditFromPV"
+      info                 : "This policy setting controls how Office handles documents when they fail file validation. If you enable this policy setting, you can configure the following options for files that fail file validation:- Block files completely. Users cannot open the files.- Open files in Protected View and disallow edit. Users cannot edit the files. This is also how Office handles the files if you disable this policy setting.- Open files in Protected View and allow edit. Users can edit the files. This is also how Office handles the files if you do not configure this policy setting.If you disable this policy setting, Office follows the 'Open files in Protected View and disallow edit' behavior. If you do not configure this policy setting, Office follows the 'Open files in Protected View and allow edit' behavior."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Protected View 'Set document behavior if file validation fails' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238142r961092_rule,STIG-ID|DTOO292,STIG-Legacy|SV-85707,STIG-Legacy|V-71083,Vuln-ID|V-238142"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\Word\security\filevalidation"
+      reg_item             : "DisableEditFromPV"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO293 - Attachments opened from Outlook must be in Protected View."
+      info                 : "This policy setting allows for determining whether Word files in Outlook attachments open in Protected View. If enabling this policy setting, Outlook attachments do not open in Protected View. If disabling or not configuring this policy setting, Outlook attachments open in Protected View."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Protected View 'Turn off Protected View for attachments opened from Outlook' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238143r961092_rule,STIG-ID|DTOO293,STIG-Legacy|SV-85709,STIG-Legacy|V-71085,Vuln-ID|V-238143"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\protectedview"
+      reg_item             : "DisableAttachmentsInPV"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO302 - The automatically update links feature must be disabled."
+      info                 : "When users open documents Word automatically updates any links to external content, such as graphics, Excel worksheets, and PowerPoint slides. To disable automatic updating, the user can click the Office Button, click Word Options, click Advanced, scroll to the General section, and then clear the Update automatic links at open check box.
+If Word is configured to automatically update links when documents are open, document content can change without the user's knowledge, which could put important information at risk."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Advanced 'Update automatic links at Open' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238144r961092_rule,STIG-ID|DTOO302,STIG-Legacy|SV-85711,STIG-Legacy|V-71087,Vuln-ID|V-238144"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\options"
+      reg_item             : "DontUpdateLinks"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO304 - Warning Bar settings for VBA macros must be configured."
+      info                 : "This policy setting controls how the specified applications warn users when Visual Basic for Applications (VBA) macros are present. If you enable this policy setting, you can choose from four options for determining how the specified applications will warn the user about macros: - Disable all with notification:  The application displays the Trust Bar for all macros, whether signed or unsigned. This option enforces the default configuration in Office. - Disable all except digitally signed macros: The application displays the Trust Bar for digitally signed macros, allowing users to enable them or leave them disabled. Any unsigned macros are disabled, and users are not notified. - Disable all without notification: The application disables all macros, whether signed or unsigned, and does not notify users. - Enable all macros (not recommended):  All macros are enabled, whether signed or unsigned. This option can significantly reduce security by allowing dangerous code to run undetected. If you disable this policy setting, 'Disable all with notification' will be the default setting. If you do not configure this policy setting, when users open files in the specified applications that contain VBA macros, the applications open the files with the macros disabled and display the Trust Bar with a warning that macros are present and have been disabled. Users can inspect and edit the files if appropriate, but cannot use any disabled functionality until they enable it by clicking 'Enable Content' on the Trust Bar.  If the user clicks 'Enable Content', then the document is added as a trusted document. Important: If 'Disable all except digitally signed macros' is selected, users will not be able to open unsigned Access databases. Also, note that Microsoft Office stores certificates for trusted publishers in the Internet Explorer trusted publisher store. Earlier versions of Microsoft Office stored trusted publisher certificate information (specifically, the certificate thumbprint) in a special Office trusted publisher store. Microsoft Office still reads trusted publisher certificate information from the Office trusted publisher store, but it does not write information to this store. Therefore, if you created a list of trusted publishers in a previous version of Microsoft Office and you upgrade to Office, your trusted publisher list will still be recognized. However, any trusted publisher certificates that you add to the list will be stored in the Internet Explorer trusted publisher store."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center 'VBA Macro Notification Settings'  to 'Enabled (Disable all with notification)'."
+      reference            : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-238145r960963_rule,STIG-ID|DTOO304,STIG-Legacy|SV-85713,STIG-Legacy|V-71089,SWIFT-CSCv1|2.3,Vuln-ID|V-238145"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : [2..4]
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security"
+      reg_item             : "VBAWarnings"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO328 - Online translation dictionaries must not be used."
+      info                 : "This policy setting allows you to prevent online dictionaries from being used for the translation of text through the Research pane. If you enable or do not configure this policy setting, the online dictionaries can be used to translate text through the Research pane. If you disable this policy setting, the online dictionaries cannot be used to translate text through the Research pane."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Miscellaneous -> 'Use online translation dictionaries' to 'Disabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238146r961092_rule,STIG-ID|DTOO328,STIG-Legacy|SV-85715,STIG-Legacy|V-71091,Vuln-ID|V-238146"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\software\policies\Microsoft\office\16.0\common\research\translation"
+      reg_item             : "useonline"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO333 - Word 2 and earlier binary documents and templates must be blocked for open/save."
+      info                 : "This policy setting allows you to determine whether users can open, view, edit, or save Word files with the format specified by the title of this policy setting. If you enable this policy setting, you can specify whether users can open, view, edit, or save files.The options that can be selected are below.  Note: Not all options may be available for this policy setting.- Do not block: The file type will not be blocked.- Save blocked: Saving of the file type will be blocked.- Open/Save blocked, use open policy: Both opening and saving of the file type will be blocked. The file will open based on the policy setting configured in the 'default file block behavior' key.- Block: Both opening and saving of the file type will be blocked, and the file will not open.- Open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit the file type will not be enabled.- Allow editing and open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit will be enabled. If you disable or do not configure this policy setting, the file type will be blocked."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> File Block Settings 'Word 2 and earlier binary documents and templates' to 'Enabled: Open/Save blocked, use open policy'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238147r961086_rule,STIG-ID|DTOO333,STIG-Legacy|SV-85717,STIG-Legacy|V-71093,Vuln-ID|V-238147"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 2
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\fileblock"
+      reg_item             : "Word2Files"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO334 - Word 2000 binary documents and templates must be configured to edit in protected view."
+      info                 : "This policy setting allows you to determine whether users can open, view, edit, or save Word files with the format specified by the title of this policy setting. If you enable this policy setting, you can specify whether users can open, view, edit, or save files.The options that can be selected are below.  Note: Not all options may be available for this policy setting.- Do not block: The file type will not be blocked.- Save blocked: Saving of the file type will be blocked.- Open/Save blocked, use open policy: Both opening and saving of the file type will be blocked. The file will open based on the policy setting configured in the 'default file block behavior' key.- Block: Both opening and saving of the file type will be blocked, and the file will not open.- Open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit the file type will not be enabled.- Allow editing and open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit will be enabled. If you disable or do not configure this policy setting, the file type will not be blocked."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> File Block Settings 'Word 2000 binary documents and templates' to 'Enabled: Allow editing and open in Protected View'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238148r961086_rule,STIG-ID|DTOO334,STIG-Legacy|SV-85719,STIG-Legacy|V-71095,Vuln-ID|V-238148"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 5
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\fileblock"
+      reg_item             : "Word2000Files"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO336 - Word 6.0 binary documents and templates must be configured for block open/save actions."
+      info                 : "This policy setting allows you to determine whether users can open, view, edit, or save Word files with the format specified by the title of this policy setting. If you enable this policy setting, you can specify whether users can open, view, edit, or save files.The options that can be selected are below.  Note: Not all options may be available for this policy setting.- Do not block: The file type will not be blocked.- Save blocked: Saving of the file type will be blocked.- Open/Save blocked, use open policy: Both opening and saving of the file type will be blocked. The file will open based on the policy setting configured in the 'default file block behavior' key.- Block: Both opening and saving of the file type will be blocked, and the file will not open.- Open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit the file type will not be enabled.- Allow editing and open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit will be enabled. If you disable or do not configure this policy setting, the file type will be blocked."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> File Block Settings 'Word 6.0 binary documents and templates' to 'Enabled: Open/Save blocked, use open policy'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238149r961086_rule,STIG-ID|DTOO336,STIG-Legacy|SV-85721,STIG-Legacy|V-71097,Vuln-ID|V-238149"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 2
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\fileblock"
+      reg_item             : "Word60Files"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO337 - Word 95 binary documents and templates must be configured to edit in protected view."
+      info                 : "This policy setting allows you to determine whether users can open, view, edit, or save Word files with the format specified by the title of this policy setting. If you enable this policy setting, you can specify whether users can open, view, edit, or save files.The options that can be selected are below.  Note: Not all options may be available for this policy setting.- Do not block: The file type will not be blocked.- Save blocked: Saving of the file type will be blocked.- Open/Save blocked, use open policy: Both opening and saving of the file type will be blocked. The file will open based on the policy setting configured in the 'default file block behavior' key.- Block: Both opening and saving of the file type will be blocked, and the file will not open.- Open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit the file type will not be enabled.- Allow editing and open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit will be enabled. If you disable or do not configure this policy setting, the file type will be blocked."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> File Block Settings 'Word 95 binary documents and templates' to 'Enabled: Allow editing and open in Protected View'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238150r961086_rule,STIG-ID|DTOO337,STIG-Legacy|SV-85723,STIG-Legacy|V-71099,Vuln-ID|V-238150"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 5
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\fileblock"
+      reg_item             : "Word95Files"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO338 - Word 97 binary documents and templates must be configured to edit in protected view."
+      info                 : "This policy setting allows you to determine whether users can open, view, edit, or save Word files with the format specified by the title of this policy setting. If you enable this policy setting, you can specify whether users can open, view, edit, or save files.The options that can be selected are below.  Note: Not all options may be available for this policy setting.- Do not block: The file type will not be blocked.- Save blocked: Saving of the file type will be blocked.- Open/Save blocked, use open policy: Both opening and saving of the file type will be blocked. The file will open based on the policy setting configured in the 'default file block behavior' key.- Block: Both opening and saving of the file type will be blocked, and the file will not open.- Open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit the file type will not be enabled.- Allow editing and open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit will be enabled. If you disable or do not configure this policy setting, the file type will not be blocked."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> File Block Settings 'Word 97 binary documents and templates' to 'Enabled: Allow editing and open in Protected View'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238151r961086_rule,STIG-ID|DTOO338,STIG-Legacy|SV-85725,STIG-Legacy|V-71101,Vuln-ID|V-238151"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 5
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\fileblock"
+      reg_item             : "Word97Files"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO339 - Word XP binary documents and templates must be configured to edit in protected view."
+      info                 : "This policy setting allows you to determine whether users can open, view, edit, or save Word files with the format specified by the title of this policy setting. If you enable this policy setting, you can specify whether users can open, view, edit, or save files.The options that can be selected are below.  Note: Not all options may be available for this policy setting.- Do not block: The file type will not be blocked.- Save blocked: Saving of the file type will be blocked.- Open/Save blocked, use open policy: Both opening and saving of the file type will be blocked. The file will open based on the policy setting configured in the 'default file block behavior' key.- Block: Both opening and saving of the file type will be blocked, and the file will not open.- Open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit the file type will not be enabled.- Allow editing and open in Protected View: Both opening and saving of the file type will be blocked, and the option to edit will be enabled. If you disable or do not configure this policy setting, the file type will not be blocked."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> File Block Settings 'Word XP binary documents and templates' to 'Enabled: Allow editing and open in Protected View'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001662,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238152r961086_rule,STIG-ID|DTOO339,STIG-Legacy|SV-85727,STIG-Legacy|V-71103,Vuln-ID|V-238152"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 5
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security\fileblock"
+      reg_item             : "WordXPFiles"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO600 - Macros must be blocked from running in Office files from the Internet."
+      info                 : "This policy setting allows you to block macros from running in Office files that come from the Internet.  If you enable this policy setting, macros are blocked from running, even if 'Enable all macro's is selected in the Macro Settings section of the Trust Center. Also, instead of having the choice to 'Enable Content', users will receive a notification that macros are blocked from running. If the Office file is saved to a trusted location or was previously trusted by the user, macros will be allowed to run.  If you disable or don't configure this policy setting, the settings configured in the Macro Settings section of the Trust Center determine whether macros run in Office files that come from the Internet."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center 'Block macros from running in Office files from the Internet' to 'Enabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238153r961092_rule,STIG-ID|DTOO600,STIG-Legacy|SV-85731,STIG-Legacy|V-71107,Vuln-ID|V-238153"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 1
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\word\security"
+      reg_item             : "blockcontentexecutionfrominternet"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type                 : REGISTRY_SETTING
+      description          : "DTOO605 - Files on local Intranet UNC must be opened in Protected View."
+      info                 : "This policy setting lets you determine if files on local Intranet UNC file shares open in Protected View. If you enable this policy setting, files on local Intranet UNC file shares open in Protected View if their UNC paths appear to be within the Internet zone. If you disable or do not configure this policy setting, files on Intranet UNC file shares do not open in Protected View if their UNC paths appear to be within the Internet zone."
+      solution             : "Set the policy value for User Configuration -> Administrative Templates -> Microsoft Word 2016 -> Word Options -> Security -> Trust Center -> Protected View 'Open files on local Intranet UNC in Protected View' is set to 'Enabled'."
+      reference            : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(4),800-53r5|SC-18(4),CAT|II,CCI|CCI-001170,CSF|DE.CM-5,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(4),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-238154r961092_rule,STIG-ID|DTOO605,STIG-Legacy|SV-86267,STIG-Legacy|V-71643,Vuln-ID|V-238154"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+      value_type           : POLICY_DWORD
+      value_data           : 0
+      reg_key              : "HKU\Software\Policies\Microsoft\Office\16.0\Word\security\protectedview"
+      reg_item             : "DisableIntranetCheck"
+      reg_ignore_hku_users : "S-1-5-18,S-1-5-19,S-1-5-20"
+      reg_option           : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "DTO-Word999 - The version of Word running on the system must be a supported version."
+      info        : "Security flaws with software applications are discovered daily. Vendors are constantly updating and patching their products to address newly discovered security vulnerabilities. Organizations (including any contractor to the organization) are required to promptly install security-relevant software updates (e.g., patches, service packs, and hot fixes). Flaws discovered during security assessments, continuous monitoring, incident response activities, or information system error handling must also be addressed expeditiously.
+
+Organization-defined time periods for updating security-relevant software may vary based on a variety of factors including, for example, the security category of the information system or the criticality of the update (i.e., severity of the vulnerability related to the discovered flaw).
+
+This requirement will apply to software patch management solutions that are used to install patches across the enclave and also to applications themselves that are not part of that patch management solution. For example, many browsers today provide the capability to install their own patch software. Patch criticality, as well as system criticality will vary. Therefore, the tactical situations regarding the patch management process will also vary. This means that the time period used must be a configurable parameter. Time frames for application of security-relevant software updates may be dependent upon the Information Assurance Vulnerability Management (IAVM) process.
+
+The application will be configured to check for and install security-relevant software updates within an identified time period from the availability of the update. The specific time period will be defined by an authoritative source (e.g., IAVM, CTOs, DTMs, and STIGs).
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Upgrade to a supported version."
+      reference   : "STIG-ID|DTO-Word999,800-171|3.14.1,800-171r3|03.14.01b.,800-53|SI-2c.,800-53r5|SI-2c.,CAT|I,CCI|CCI-002605,CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSF|ID.RA-1,CSF|PR.IP-12,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-02,DISA_Benchmark|Microsoft_Word_2016,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.8,ISO-27001-2022|A.8.32,ITSG-33|SI-2,NESA|T7.6.2,NESA|T7.7.1,NIAv2|AM38,NIAv2|AM39,NIAv2|SS14b,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.3,QCSC-v1|11.2,Rule-ID|SV-279951r1156602_rule,SWIFT-CSCv1|2.2,Vuln-ID|V-279951"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+    </report>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_Microsoft_Word_2016_v2r1.audit from DISA Microsoft Word 2016 v2r1 STIG"
+      info        : "Microsoft Word 2016 is not installed or remote registry service is disabled.
+
+  NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_Word_2016_V2R1_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

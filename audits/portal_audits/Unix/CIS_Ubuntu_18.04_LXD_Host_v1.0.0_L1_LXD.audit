@@ -1,0 +1,479 @@
+#TRUSTED 021394416a46bef2a68508d4ff0e8493c3f42f32315aaab8e99779fba61a481049f681273382d4e915073ccbdcc8c2861fd1874182265d29210045cd6aaa102e5844a29caa9d51f518193dc349fd07b2e59dd02224b4c1bcf46ab7c2b407457a4f25c90b7c1519db739083134c89b3c2772e946e6f03f1f0e3d568cbae32eb1a49260ea23cbb3789e7b0d82480f1b521e05f2a7fdebbf41fea3049cdc40000f83c3c0376ee7650dc6bf25e41a446bdb1338950321b55010dc8d6505a301fd862f879fcbc4f32d6e3a139a452eafca10493b9b8ee7220c43bb6edb6acd60f37a8d042d4c3ce3e485eeb6e33e5792e81ff9d8288340a0adb35a080256c922385ba3f48753b7210150c018a83065d4949c5a5a66e611b1d3ead8c1a07971189f2a985191a4a41ad01be65e0bc0b3536ba6f4399865eb6c858b5ca9c7a4043214ebb99f4787457d71994cb937346f770b28d5ae431d10c8d228ad508837eedcb99f56a5d634514e1e6552eeb36e6185465c4b0f1edcf2078f2e6f21b3fe384e587ed56c67a4ac8a13cd20e7f211037c631e5c58a6206cfa5a0dd4317e4365b7b6277b5cfc4b1b7111a1b7361637aa7c3993982704c2bcd84f1879ab8fe5956dbe4bcb01ada156271b4bf96fe8135b1b8bc31242239dabb387b0b13c0c628bd2be09120ca1ef9e2ec3a702b7783ffb26575a01c55347c31936d8016372ad8670f2a92
+#TRUST-RSA-SHA256 42ee66fba079c05c9546c535060ab3e2321782aba9b441cef86c23431057ae060815f8d7df27bb674405f7ccea6766b3ada18b6af8f44e0604ffd0b387cbb1d6286b66389c30fde4a567be9598564ced3de1e24aaa23d3d613e55085ca2b8fd1acc8a0d8885cc96f0c3f0ffc6580a575b10a0f9a839b8aa87b029ebb2032b692dffb358b75ff2116d66786963257766ced6d593d5a5a601383937ba14f8b1ebf7a16a6d1b59ec2fe64a62abfd1e1fe8a6711f84e1c41ba0aedd16d00e500d3a79dd1d9c4b5df2195283621b872b513b1b6c6a84b05fde56bc5bae8b5bf2fcce87dd1781b48ec6e04347546d7cf426a29e0a0716e9ff30f214652188911af87baf5e52aa556f38c4cd05f3aa0a80f34fa0831a2a2411d9513b1a42966f3edd890c51c02f2dd9e469bad64c50c8535937cc3ac9e097ce49b6fad1e06b5d0058f362b3e5c0ffc2878924d0b37d36d9fb34f6d4607919510c7d271d892fee220a69f6a3fdc14712d6303bf3dc8981520f4d3a00fbac6caf4f2a2ec5b72c5e235fb521de0e039a48a463d7116a0f65c177722e36f452a6c78d4a8b4ae0712c4895c5df0293658fa81a6b92073a857fa527d30b9f77bb511bdcc622e51c6da480e85f18346364f9a3f1915ccc6c5fd1e2ae302ee65a3541f251b83d667f6c4d0148755c8198db3536b2dce54f01cd329613a09e4f20094c7bc1ceaa7d4d57fabadeac7
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.9 $
+# $Date: 2024/06/17 $
+#
+# description : This document implements the security configuration as recommended by the
+#               CIS Ubuntu Linux 18.04 LXD Host Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS Ubuntu Linux 18.04 LXD Host L1 LXD v1.0.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Ubuntu Linux 18.04 LXD Host</name>
+#  <profile>L1 LXD</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/files/2971</link>
+#</spec>
+#<labels>cis,ubuntu_lxd_host_linux_18.04,agent,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>PLATFORM_VERSION</name>
+#    <default>18.04</default>
+#    <description>Ubuntu Version</description>
+#    <info>Ubuntu Version</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "Ubuntu 18.04 is installed"
+      file        : "/etc/lsb-release"
+      regex       : "^[\\s]*DISTRIB_RELEASE[\\s]*="
+      expect      : "^[\\s]*DISTRIB_RELEASE[\\s]*=[\\s]*@PLATFORM_VERSION@[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "lxd is installed"
+      cmd         : "/usr/bin/dpkg -s sudo sudo-ldap 2>&1"
+      expect      : "install[\\s]+ok[\\s]+installed"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Ubuntu_18.04_LXD_Host_v1.0.0_L1_LXD.audit from CIS Ubuntu Linux 18.04 LXD Host Benchmark"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.1 Ensure mounting of cramfs filesystems is disabled - modprobe"
+      info        : "The cramfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems. A cramfs image can be used without having to first decompress the image.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/cramfs.conf
+and add the following line:
+
+install cramfs /bin/true
+
+Run the following command to unload the cramfs module:
+
+# rmmod cramfs"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/modprobe -n -v cramfs | /bin/grep -v mtd"
+      expect      : "install /bin/true"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.1 Ensure mounting of cramfs filesystems is disabled - lsmod"
+      info        : "The cramfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems. A cramfs image can be used without having to first decompress the image.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/cramfs.conf
+and add the following line:
+
+install cramfs /bin/true
+
+Run the following command to unload the cramfs module:
+
+# rmmod cramfs"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/lsmod | /bin/grep cramfs | /usr/bin/awk \'{print} END {if (NR == 0) print \"pass\"; else print \"fail\"}\'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.2 Ensure mounting of freevxfs filesystems is disabled - modprobe"
+      info        : "The freevxfs filesystem type is a free version of the Veritas type filesystem. This is the primary filesystem type for HP-UX operating systems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/freevxfs.conf
+and add the following line:
+
+install freevxfs /bin/true
+
+Run the following command to unload the freevxfs module:
+
+rmmod freevxfs"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/modprobe -n -v freevxfs"
+      expect      : "install /bin/true"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.2 Ensure mounting of freevxfs filesystems is disabled - lsmod"
+      info        : "The freevxfs filesystem type is a free version of the Veritas type filesystem. This is the primary filesystem type for HP-UX operating systems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/freevxfs.conf
+and add the following line:
+
+install freevxfs /bin/true
+
+Run the following command to unload the freevxfs module:
+
+rmmod freevxfs"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/lsmod | /bin/grep freevxfs | /usr/bin/awk \'{print} END {if (NR == 0) print \"pass\"; else print \"fail\"}\'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.3 Ensure mounting of jffs2 filesystems is disabled - modprobe"
+      info        : "The jffs2 (journaling flash filesystem 2) filesystem type is a log-structured filesystem used in flash memory devices.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/jffs2.conf
+and add the following line:
+
+install jffs2 /bin/true
+
+Run the following command to unload the jffs2 module:
+
+# rmmod jffs2"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/modprobe -n -v jffs2 | /bin/grep -v mtd"
+      expect      : "install /bin/true"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.3 Ensure mounting of jffs2 filesystems is disabled - lsmod"
+      info        : "The jffs2 (journaling flash filesystem 2) filesystem type is a log-structured filesystem used in flash memory devices.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/jffs2.conf
+and add the following line:
+
+install jffs2 /bin/true
+
+Run the following command to unload the jffs2 module:
+
+# rmmod jffs2"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/lsmod | /bin/grep jffs2 | /usr/bin/awk \'{print} END {if (NR == 0) print \"pass\"; else print \"fail\"}\'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.4 Ensure mounting of hfs filesystems is disabled - modprobe"
+      info        : "The hfs filesystem type is a hierarchical filesystem that allows you to mount Mac OS filesystems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/hfs.conf
+and add the following line:
+
+install hfs /bin/true
+
+Run the following command to unload the hfs module:
+
+# rmmod hfs"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/modprobe -n -v hfs"
+      expect      : "install /bin/true"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.4 Ensure mounting of hfs filesystems is disabled - lsmod"
+      info        : "The hfs filesystem type is a hierarchical filesystem that allows you to mount Mac OS filesystems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/hfs.conf
+and add the following line:
+
+install hfs /bin/true
+
+Run the following command to unload the hfs module:
+
+# rmmod hfs"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/lsmod | /bin/grep hfs | /usr/bin/awk \'{print} END {if (NR == 0) print \"pass\"; else print \"fail\"}\'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.5 Ensure mounting of hfsplus filesystems is disabled - modprobe"
+      info        : "The hfsplus filesystem type is a hierarchical filesystem designed to replace hfs that allows you to mount Mac OS filesystems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/hfsplus.conf
+and add the following line:
+
+install hfsplus /bin/true
+
+Run the following command to unload the hfsplus module:
+
+# rmmod hfsplus"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/modprobe -n -v hfsplus"
+      expect      : "install /bin/true"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.5 Ensure mounting of hfsplus filesystems is disabled - lsmod"
+      info        : "The hfsplus filesystem type is a hierarchical filesystem designed to replace hfs that allows you to mount Mac OS filesystems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/hfsplus.conf
+and add the following line:
+
+install hfsplus /bin/true
+
+Run the following command to unload the hfsplus module:
+
+# rmmod hfsplus"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/lsmod | /bin/grep hfsplus | /usr/bin/awk \'{print} END {if (NR == 0) print \"pass\"; else print \"fail\"}\'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.7 Ensure mounting of udf filesystems is disabled - modprobe"
+      info        : "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/udf.conf
+and add the following line:
+
+install udf /bin/true
+
+Run the following command to unload the udf module:
+
+# rmmod udf"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/modprobe -n -v udf | /bin/grep -v crc-itu-t"
+      expect      : "install /bin/true"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.1.7 Ensure mounting of udf filesystems is disabled - lsmod"
+      info        : "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: vi /etc/modprobe.d/udf.conf
+and add the following line:
+
+install udf /bin/true
+
+Run the following command to unload the udf module:
+
+# rmmod udf"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|13,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/sbin/lsmod | /bin/grep udf | /usr/bin/awk \'{print} END {if (NR == 0) print \"pass\"; else print \"fail\"}\'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.2 Ensure /tmp is configured"
+      info        : "The /tmp directory is a world-writable directory used for temporary storage by all users and some applications.
+
+Rationale:
+
+Making /tmp its own file system allows an administrator to set the noexec option on the mount, making /tmp useless for an attacker to install executable code. It would also prevent an attacker from establishing a hardlink to a system setuid program and wait for it to be updated. Once the program was updated, the hardlink would be broken and the attacker would have his own copy of the program. If the program happened to have a security vulnerability, the attacker could continue to exploit the known flaw.
+
+This can be accomplished by either mounting tmpfs to /tmp, or creating a separate partition for /tmp.
+
+Impact:
+
+Since the /tmp directory is intended to be world-writable, there is a risk of resource exhaustion if it is not bound to a separate partition.
+
+Running out of /tmp space is a problem regardless of what kind of filesystem lies under it, but in a default installation a disk-based /tmp will essentially have the whole disk available, as it only creates a single / partition. On the other hand, a RAM-based /tmp as with tmpfs will almost certainly be much smaller, which can lead to applications filling up the filesystem much more easily.
+
+/tmp utalizing tmpfs can be resized using the size={size} parameter on the Options line on the tmp.mount file"
+      solution    : "Configure /etc/fstab as appropriate.
+Example:
+
+tmpfs/tmptmpfs     defaults,rw,nosuid,nodev,noexec,relatime  0 0
+
+OR
+Run the following commands to enable systemd /tmp mounting:
+
+systemctl unmask tmp.mount
+systemctl enable tmp.mount
+
+Edit /etc/systemd/system/local-fs.target.wants/tmp.mount to configure the /tmp mount:
+
+[Mount]
+What=tmpfs
+Where=/tmp
+Type=tmpfs
+Options=mode=1777,strictatime,noexec,nodev,nosuid"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+      cmd         : "/bin/mount | /bin/grep -P 'on[\\s]+/tmp[\\s]'"
+      expect      : "on[\\s]+/tmp[\\s]+"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Check if /tmp partition"
+          cmd         : "/bin/mount | /bin/grep -P 'on[\\s]+/tmp[\\s]'"
+          expect      : "on[\\s]+/tmp[\\s]"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          system      : "Linux"
+          type        : CMD_EXEC
+          description : "1.1.3 Ensure nodev option set on /tmp partition"
+          info        : "The nodev mount option specifies that the filesystem cannot contain special devices.
+
+Rationale:
+
+Since the /tmp filesystem is not intended to support devices, set this option to ensure that users cannot attempt to create block or character special devices in /tmp ."
+          solution    : "Edit the /etc/fstab file and add nodev to the fourth field (mounting options) for the /tmp partition. See the fstab(5) manual page for more information.
+Run the following command to remount /tmp :
+
+# mount -o remount,nodev /tmp
+
+OR If systemd tmp.mount is configured:
+Edit /etc/systemd/system/local-fs.target.wants/tmp.mount to add nodev to the /tmp mount options:
+
+[Mount]
+Options=mode=1777,strictatime,noexec,nodev,nosuid
+
+Run the following command to remount /tmp :
+
+# mount -o remount,nodev /tmp"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/2971"
+          cmd         : "/bin/mount | /bin/grep -P 'on[\\s]+/tmp[\\s]'"
+          expect      : "nodev"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "1.1.3 Ensure nodev option set on /tmp partition"
+          info        : "The nodev mount option specifies that the filesystem cannot contain special devices.
+
+Rationale:
+
+Since the /tmp filesystem is not intended to support devices, set this option to ensure that users cannot attempt to create block or character special devices in /tmp ."
+          solution    : "Edit the /etc/fstab file and add nodev to the fourth field (mounting options) for the /tmp partition. See the fstab(5) manual page for more information.
+Run the following command to remount /tmp :
+
+# mount -o remount,nodev /tmp
+
+OR If systemd tmp.mount is configured:
+Edit /etc/systemd/system/local-fs.target.wants/tmp.mount to add nodev to the /tmp mount options:
+
+[Mount]
+Options=mode=1777,strictatime,noexec,nodev,nosuid
+
+Run the following command to remount /tmp :
+
+# mount -o remount,nodev /tmp"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/2971"
+        </report>
+      </else>
+    </if>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Ubuntu_18.04_LXD_Host_v1.0.0_L1_LXD.audit from CIS Ubuntu Linux 18.04 LXD Host Benchmark"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/2971"
+    </report>
+  </else>
+</if>
+
+</check_type>

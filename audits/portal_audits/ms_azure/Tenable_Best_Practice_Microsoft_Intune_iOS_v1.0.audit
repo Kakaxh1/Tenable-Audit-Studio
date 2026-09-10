@@ -1,0 +1,828 @@
+#TRUSTED 9d536f5eef3424e7310b51d2dc9d4806003d73f929fc7aa47dbc4359f7b55f1d0b8607acdd171e41cf46d83df8ddb2fc809f3cf16abbbe296f4f27a31ff1ff1fae35ce9257b0a367ffc19ccf9dabaa6f2d2b8c5f1e804fd7b20aa207fce0cf59087f3446bb625cf2c801b4b5de89b63418b315ac4ecc54e7f975b63c3abdcff6067d1b13d83c4060f00290d509941146b97f4b07c89b22b6e953d1059fa89da6740ebba3fe85f8371bb67ee358cb5c4eea6c8bbab198cf1f2e65d53dada0c1fac594f98c59f53d179920b2d3acbac7d9a4f386952edb263decf3c83dde0d7db03e3f604028ada3e60284ff52b80fc37366374d20fe12bdd615b66df9e4b97dc699157edd393b97cb7ec3e0401132e27cc0cbf3e616787391e460950323b56d48c6a7d8bf26f0aefa28ec42e2e2fb783b81fb9090647a89d570a23c6be256ab76d4add35906e5692e9bf8d587de73aced98fc55c534e63c49889ab46a294267792ba55fad23fa34b55fb7a990e85b7146817a82bd9408dae04464dfb3d3c9ab899719acb5b553ca0e0ebfe1e1b3d4afe8ad91a93ccdc6e9532bb549b68dd697dab32667442bf70718d47af428a5e2a0468316ea97e1ece94704a75d9778359e9936e7f95d349f8a7e0ed8293ba3af208326b331dce7f2512c19ea9a00f597fcf79a813e0eaa67f7174aaade14ca41c90bc04c9609f69bbc517c9f4e3a38845181
+#TRUST-RSA-SHA256 a1606e2e021b4a92fc8f029403421eac9979ecc0bdcaa300ef3a2e4b43ecb7b97487e72fd3f9e7e83fbc29c8c6f4b3b85dc5e38ca84f3fe2dbf47d3b43eda4a3b2f39b48e19b391eca3a4531e1b0936fd8160324d7c0699888b92b0e857551b1f3cc888ac3e651d896cd80cf64ca6b8901418ac2e80aabca77051d484f4a80ceb3965db555ce1a27ea834709aaf5e7295d73aa3dab519b1898bf22cacee5f5483babf39dd21f9efae0379c32217b84383906e7a2ca95c8561b4b6859f4c6ffb928cbd4eaf54d4c808a1348fa38d9743895275a710f324568c1b06a59a25f7317c32652297b7bed5637549e4578878860912f522b08b6e7758cd1904ee4fddf0ae6fadf84cbf9e6eff77a73dbcd62be169cf926a75792974ea8f7d292e0cb811347edc188299d11776ca792403a187a0f6262c91b92f2e68ae1381698889208fcac6bd8b9d2b3dd89c9051873ccdb967b82d079b02d2879f62db8b46e44c0a980fb96988f6d578d78b3dca421e82fd2f16fbf2248214b870c5b739da9c555d008d8a006de7aaab62446568b919fb8a1cccfaa3f4821b3350ad77b9a5ebb7e1cbfff37e2341583384ef5023a6eb0a9de49177a10028dd260329238bff7ed7fcea8e221c34c4fbcfacb0322e2fe7c8b752de13e0b79122db71deff0f2787e97e3cf0a52b348d0a1cfdc5d909a7378a7a0149aad1363f3e08547f5d9e541ac229fa0
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+#
+# $Revision: 1.5 $
+# $Date: 2024/06/17 $
+#
+# description	: Tenable Best Practices for Microsoft Intune iOS v1.0 audit
+#
+#<ui_metadata>
+#<display_name>Tenable Best Practices for Microsoft Intune iOS v1.0</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>Tenable Best Practices for Microsoft Intune</name>
+#  <profile>iOS</profile>
+#  <version>1.0.0</version>
+#  <link>https://docs.microsoft.com/en-us/mem/intune/</link>
+#</spec>
+#<labels>microsoft,azure,cloud,intune,ios,update_20230227</labels>
+#</ui_metadata>
+
+<check_type:"microsoft_azure">
+
+<custom_item>
+  description    : "iOS Compliance Policy - Managed Email Profile Required"
+  info           : "This control determines whether a managed email profile is required."
+  solution       : "From the Intune console, open the compliance policy. Under 'Email' verify that 'Unable to setup email on the device' is set to 'Require'."
+  reference      : "800-171|3.1.18,800-53|AC-19,800-53r5|AC-19,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Managed Email Profile Required: \(.managedEmailProfileRequired)"'
+  regex          : "Managed Email Profile Required:"
+  expect         : "Managed Email Profile Required: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Jailbroken devices"
+  info           : "This control determines whether jailbroken devices have access."
+  solution       : "From the Intune console, open the compliance policy. Under 'Device Health' verify that 'Jailbroken devices' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Block Jailbroken devices: \(.securityBlockJailbrokenDevices)"'
+  regex          : "Block Jailbroken devices:"
+  expect         : "Block Jailbroken devices: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Device Threat Level"
+  info           : "This control determines what threat level devices must comply with the Threat Defense service to stay in compliance."
+  solution       : "From the Intune console, open the compliance policy. Under 'Device Health' verify that 'Require the device to be at or under the Device Threat Level' is configured appropriately."
+  reference      : "800-171|3.1.18,800-53|AC-19,800-53r5|AC-19,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Device Threat Level: \(.deviceThreatProtectionRequiredSecurityLevel)"'
+  regex          : "Device Threat Level:"
+  expect         : "Device Threat Level: (low|medium|high|secured)"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Block Simple Passwords"
+  info           : "This control determines whether simple passwords such as 1111 or 1234 are allowed."
+  solution       : "From the Intune console, open the compliance policy. Under 'System Security' verify that 'Simple passwords' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Block Simple Passwords: \(.passcodeBlockSimple)"'
+  regex          : "Block Simple Passwords:"
+  expect         : "Block Simple Passwords: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Require a password to unlock mobile devices"
+  info           : "This control determines whether a password is required before allowing access to the device via the touch screen."
+  solution       : "From the Intune console, open the compliance policy. Under 'System Security' verify that 'Require a password to unlock mobile devices' is set to 'Require'."
+  reference      : "800-171|3.1.18,800-171|3.5.2,800-53|AC-19,800-53|IA-5,800-53r5|AC-19,800-53r5|IA-5,CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|IA-5,NESA|T5.2.3,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Require a password to unlock mobile devices: \(.passcodeRequired)"'
+  regex          : "Require a password to unlock mobile devices:"
+  expect         : "Require a password to unlock mobile devices: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Minimum password length"
+  info           : "This control determines whether a minimum length password is required. It is recommended that a passcode of 5 or more be set."
+  solution       : "From the Intune console, open the compliance profile. Under 'System Security' verify that 'Minimum Password Length' is configured correctly."
+  reference      : "800-171|3.1.18,800-171|3.5.7,800-53|AC-19,800-53|IA-5(1)(a),800-53r5|AC-19,800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Minimum password length: \(.passcodeMinimumLength)"'
+  regex          : "Minimum password length:"
+  expect         : "Minimum password length: ([5-9]|[1-9][0-9])$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Required password type"
+  info           : "This control determines whether alphanumeric passcode is required."
+  solution       : "From the Intune console, open the compliance profile. Under 'System Security' verify that 'Required Password Type' is set to 'Alphanumeric'."
+  reference      : "800-171|3.1.18,800-171|3.5.7,800-53|AC-19,800-53|IA-5(1)(a),800-53r5|AC-19,800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Required password type: \(.passcodeRequiredType)"'
+  regex          : "Required password type:"
+  expect         : "Required password type: alphanumeric"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Number of non-alphanumeric characters in password"
+  info           : "This control determines whether non-alphanumeric characters in the password is required."
+  solution       : "From the Intune console, open the compliance profile. Under 'System Security' verify that 'Number of non-alphanumeric characters in password' is set to 1 or more."
+  reference      : "800-171|3.1.18,800-171|3.5.7,800-53|AC-19,800-53|IA-5(1)(a),800-53r5|AC-19,800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Number of non-alphanumeric characters in password: \(.passcodeMinimumCharacterSetCount)"'
+  regex          : "Number of non-alphanumeric characters in password:"
+  expect         : "Number of non-alphanumeric characters in password: [1-4]$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Maximum minutes after screen lock before password is required"
+  info           : "This control determines the amount of idle time before the screen will lock and reentry of the passcode is required."
+  solution       : "From the Intune console, open the compliance profile. Under 'System Security' verify that the 'Maximum Minutes of Inactivity Before Password is Required' is set to 'Immediately'."
+  reference      : "800-171|3.1.10,800-171|3.1.18,800-53|AC-11,800-53|AC-19,800-53r5|AC-11,800-53r5|AC-19,CN-L3|8.1.4.1(b),CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,ITSG-33|AC-19,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Maximum minutes after screen lock before password is required: \(.passcodeMinutesOfInactivityBeforeLock)"'
+  regex          : "Maximum minutes after screen lock before password is required:"
+  expect         : "Maximum minutes after screen lock before password is required: 0$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Password expiration (days)"
+  info           : "This control determines the maximum age of a password."
+  solution       : "From the Intune console, open the compliance profile. Under 'System Security' verify that 'Number of Days Until Password expires' is set to 90 or less."
+  reference      : "800-171|3.1.18,800-171|3.5.2,800-53|AC-19,800-53|IA-5(1)(d),800-53r5|AC-19,800-53r5|IA-5(1)(d),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(d),NESA|T5.2.3,NIAv2|AM20,NIAv2|AM21,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Password expiration: \(.passcodeExpirationDays)"'
+  regex          : "Password expiration:"
+  expect         : "Password expiration: ([1-9]|[1-8][0-9]|90)$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Compliance Policy - Number of previous passwords to prevent reuse"
+  info           : "This control determines the number of allowed previous passwords."
+  solution       : "From the Intune console, open the compliance profile. Under 'System Security' verify that 'Number of previous passwords to prevent reuse' is configured to 5 or more."
+  reference      : "800-171|3.1.18,800-171|3.5.8,800-53|AC-19,800-53|IA-5(1)(e),800-53r5|AC-19,800-53r5|IA-5(1)(e),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(e),NESA|T5.2.3,NIAv2|AM22c,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceCompliancePolicies"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosCompliancePolicy")) | "Display Name: \(.displayName) - Number of previous passwords: \(.passcodePreviousPasscodeBlockCount)"'
+  regex          : "Number of previous passwords:"
+  expect         : "Number of previous passwords: ([5-9]|[1-9][0-9])$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Account modification"
+  info           : "This control determines if a user can make account modifications."
+  solution       : "From the Intune console, open the device configuration profile. Under 'All enrollment types' verify that 'Account modification' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Account modification: \(.accountBlockModification)"'
+  regex          : "Block Account modification:"
+  expect         : "Block Account modification: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Activation Lock"
+  info           : "This control determines if activation lock is enabled."
+  solution       : "From the Intune console, open the device configuration profile. Under 'All enrollment types' verify that 'Activation Lock' is set to 'Allow'."
+  reference      : "800-171|3.1.18,800-53|AC-19,800-53r5|AC-19,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Activation Lock: \(.activationLockAllowWhenSupervised)"'
+  regex          : "Activation Lock:"
+  expect         : "Activation Lock: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - AirDrop"
+  info           : "This control determines if AirDrop is enabled."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Connected Devices' verify that 'AirDrop' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block AirDrop: \(.airDropBlocked)"'
+  regex          : "Block AirDrop:"
+  expect         : "Block AirDrop: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Treat AirDrop as an unmanaged destination"
+  info           : "This control determines if AirDrop is treated as an unmanaged destination."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Treat AirDrop as an unmanaged destination' is set to 'Require'."
+  reference      : "800-171|3.1.18,800-53|AC-19,800-53r5|AC-19,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Treat AirDrop as an unmanaged destination: \(.airDropForceUnmanagedDropTarget)"'
+  regex          : "Treat AirDrop as an unmanaged destination:"
+  expect         : "Treat AirDrop as an unmanaged destination: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Require AirPlay outgoing requests pairing password"
+  info           : "This control determines if outgoing requests over Airplay require a pairing password."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Connected Devices' verify that 'Require AirPlay outgoing requests pairing password' is set to 'Require'."
+  reference      : "800-171|3.1.18,800-171|3.5.2,800-53|AC-19,800-53|IA-5,800-53r5|AC-19,800-53r5|IA-5,CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|IA-5,NESA|T5.2.3,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Require AirPlay outgoing requests pairing password: \(.airPlayForcePairingPasswordForOutgoingRequests)"'
+  regex          : "Require AirPlay outgoing requests pairing password:"
+  expect         : "Require AirPlay outgoing requests pairing password: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Automatic app downloads"
+  info           : "This control determines if apps are automatically downloaded when installed from purchases on other devices."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Automatic app downloads' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Automatic app downloads: \(.appStoreBlockAutomaticDownloads)"'
+  regex          : "Block Automatic app downloads:"
+  expect         : "Block Automatic app downloads: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Bluetooth modification"
+  info           : "This control determines if a user can modify bluetooth settings."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Connected Devices' verify that 'Bluetooth modification' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Bluetooth modification: \(.bluetoothBlockModification)"'
+  regex          : "Block Bluetooth modification:"
+  expect         : "Block Bluetooth modification: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Camera"
+  info           : "This control determines whether the camera is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Built-in Apps' verify that 'Camera' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Camera: \(.cameraBlocked)"'
+  regex          : "Block Camera:"
+  expect         : "Block Camera: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Changes to app cellular data usage settings"
+  info           : "This control determines if a user can modify celluar data settings."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Wireless' verify that 'Changes to app cellular data usage settings' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Changes to app cellular data usage settings: \(.cellularBlockPerAppDataModification)"'
+  regex          : "Block Changes to app cellular data usage settings:"
+  expect         : "Block Changes to app cellular data usage settings: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Personal Hotspot"
+  info           : "This control determines if a user can modify personal hotspot settings."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Wireless' verify that 'Personal Hotspot' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Personal Hotspot: \(.cellularBlockPersonalHotspot)"'
+  regex          : "Block Personal Hotspot:"
+  expect         : "Block Personal Hotspot: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Untrusted TLS certificates"
+  info           : "This control determines whether untrusted TLS certificates are allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Untrusted TLS certificates' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Untrusted TLS certificates: \(.certificatesBlockUntrustedTlsCertificates)"'
+  regex          : "Block Untrusted TLS certificates:"
+  expect         : "Block Untrusted TLS certificates: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Configuration profile changes"
+  info           : "This control determines if a user can modify the device configuration profile."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Configuration profile changes' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Configuration profile changes: \(.configurationProfileBlockChanges)"'
+  regex          : "Block Configuration profile changes:"
+  expect         : "Block Configuration profile changes: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Use of the erase all content and settings option on the device"
+  info           : "This control determines if a user can erase all content and settings options."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Use of the erase all content and settings option on the device' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Use of the erase all content and settings option on the device: \(.deviceBlockEraseContentAndSettings)"'
+  regex          : "Block Use of the erase all content and settings option on the device:"
+  expect         : "Block Use of the erase all content and settings option on the device: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Device name modification"
+  info           : "This control determines if a user can modify the name of the device."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Device name modification' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Device name modification: \(.deviceBlockNameModification)"'
+  regex          : "Block Device name modification:"
+  expect         : "Block Device name modification: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Share usage data"
+  info           : "This control determines whether the device shares usage data."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Share usage data' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Share usage data: \(.diagnosticDataBlockSubmission)"'
+  regex          : "Block Share usage data:"
+  expect         : "Block Share usage data: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Viewing corporate documents in unmanaged apps"
+  info           : "This control determines whether viewing of corporate managed documents are allowed to unmanaged apps."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Viewing corporate documents in unmanaged apps' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Viewing corporate documents in unmanaged apps: \(.documentsBlockManagedDocumentsInUnmanagedApps)"'
+  regex          : "Block Viewing corporate documents in unmanaged apps:"
+  expect         : "Block Viewing corporate documents in unmanaged apps: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Find My Friends"
+  info           : "This control determines whether Find My Friends is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Built-in Apps' verify that 'Find My Friends' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Find My Friends: \(.findMyFriendsBlocked)"'
+  regex          : "Block Find My Friends:"
+  expect         : "Block Find My Friends: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Game Center"
+  info           : "This control determines whether Game Center is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Game Center' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Game Center: \(.gameCenterBlocked)"'
+  regex          : "Block Game Center:"
+  expect         : "Block Game Center: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Adding Game Center friends"
+  info           : "This control determines whether adding Game Center friends is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Adding Game Center friends' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Adding Game Center friends: \(.gamingBlockGameCenterFriends)"'
+  regex          : "Block Adding Game Center friends:"
+  expect         : "Block Adding Game Center friends: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Multiplayer gaming"
+  info           : "This control determines whether multiplayer gaming is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Multiplayer gaming' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Multiplayer gaming: \(.gamingBlockMultiplayer)"'
+  regex          : "Block Multiplayer gaming:"
+  expect         : "Block Multiplayer gaming: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Download content from iBook store flagged as 'Erotica'"
+  info           : "This control determines whether 'erotica' flagged content from the iBook store is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Download content from iBook store flagged as 'Erotica'' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Download content from iBook store flagged as Erotica: \(.iBooksStoreBlockErotica)"'
+  regex          : "Block Download content from iBook store flagged as Erotica:"
+  expect         : "Block Download content from iBook store flagged as Erotica: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Handoff"
+  info           : "This control determines whether handoff of active work from one iOS or MacOS device to another is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'Handoff' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Handoff: \(.iCloudBlockActivityContinuation)"'
+  regex          : "Block Handoff:"
+  expect         : "Block Handoff: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Backup to iCloud"
+  info           : "This control determines whether backup of the device to iCloud is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'Backup to iCloud' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Backup to iCloud: \(.iCloudBlockBackup)"'
+  regex          : "Block Backup to iCloud:"
+  expect         : "Block Backup to iCloud: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Block iCloud Document sync"
+  info           : "This control determines whether syncing of documents to iCloud is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'Block iCloud Document sync' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block iCloud Document sync: \(.iCloudBlockDocumentSync)"'
+  regex          : "Block iCloud Document sync:"
+  expect         : "Block iCloud Document sync: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Managed apps sync to cloud"
+  info           : "This control determines whether managed apps syncing to the cloud is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'Managed apps sync to cloud' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Managed apps sync to cloud: \(.iCloudBlockManagedAppsSync)"'
+  regex          : "Block Managed apps sync to cloud:"
+  expect         : "Block Managed apps sync to cloud: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - iCloud Photo Library"
+  info           : "This control determines whether iCloud Photo Library is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'iCloud Photo Library' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block iCloud Photo Library: \(.iCloudBlockPhotoLibrary)"'
+  regex          : "Block iCloud Photo Library:"
+  expect         : "Block iCloud Photo Library: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Photo stream syncing to iCloud"
+  info           : "This control determines whether syncing of photos to iCloud is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'Photo stream syncing to iCloud' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Photo stream syncing to iCloud: \(.iCloudBlockPhotoStreamSync)"'
+  regex          : "Block Photo stream syncing to iCloud:"
+  expect         : "Block Photo stream syncing to iCloud: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Shared photo stream"
+  info           : "This control determines whether syncing of shared photos to iCloud is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'Shared photo stream' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Shared photo stream: \(.iCloudBlockSharedPhotoStream)"'
+  regex          : "Block Shared photo stream:"
+  expect         : "Block Shared photo stream: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Encrypted backup"
+  info           : "This control determines whether backup encryption is required."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Cloud and Storage' verify that 'Encrypted backup' is set to 'Require'."
+  reference      : "800-171|3.1.19,800-53|AC-19(5),800-53r5|AC-19(5),CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,NIAv2|OS5,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Encrypted backup: \(.iCloudRequireEncryptedBackup)"'
+  regex          : "Encrypted backup:"
+  expect         : "Encrypted backup: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Explicit iTunes music, podcast, or news content"
+  info           : "This control determines whether explicit content is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'App Store, Doc Viewing, Gaming' verify that 'Explicit iTunes music, podcast, or news content' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Explicit iTunes music, podcast, or news content: \(.iTunesBlockExplicitContent)"'
+  regex          : "Block Explicit iTunes music, podcast, or news content:"
+  expect         : "Block Explicit iTunes music, podcast, or news content: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Control Center access while device locked"
+  info           : "This control determines whether control center access is allowed while the device is locked."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Locked Screen Experience' verify that 'Control Center access while device locked' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Control Center access while device locked: \(.lockScreenBlockControlCenter)"'
+  regex          : "Block Control Center access while device locked:"
+  expect         : "Block Control Center access while device locked: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Notification Center access while device locked"
+  info           : "This control determines whether notification center access is allowed while the device is locked."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Locked Screen Experience' verify that 'Notification Center access while device locked' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Notification Center access while device locked: \(.lockScreenBlockNotificationView)"'
+  regex          : "Block Notification Center access while device locked:"
+  expect         : "Block Notification Center access while device locked: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Wallet notifications while device locked"
+  info           : "This control determines whether wallet access is allowed while the device is locked."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Locked Screen Experience' verify that 'Wallet access while device locked' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Wallet notifications while device locked: \(.lockScreenBlockPassbook)"'
+  regex          : "Block Wallet notifications while device locked:"
+  expect         : "Block Wallet notifications while device locked: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Today view while device locked"
+  info           : "This control determines whether Today view is allowed while the device is locked."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Locked Screen Experience' verify that 'Today view while device locked' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Today view while device locked: \(.lockScreenBlockTodayView)"'
+  regex          : "Block Today view while device locked:"
+  expect         : "Block Today view while device locked: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Notification settings modification"
+  info           : "This control determines whether the user is allowed to modify notification settings on the device."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Notification settings modification' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Notification settings modification: \(.notificationsBlockSettingsModification)"'
+  regex          : "Block Notification settings modification:"
+  expect         : "Block Notification settings modification: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Passcode modification"
+  info           : "This control determines whether the user is allowed to modify passcode settings on the device."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Passcode modification' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Passcode modification: \(.passcodeBlockModification)"'
+  regex          : "Block Passcode modification:"
+  expect         : "Block Passcode modification: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Simple passwords"
+  info           : "This control determines whether simple passwords are allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Simple passwords' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Simple passwords: \(.passcodeBlockSimple)"'
+  regex          : "Block Simple passwords:"
+  expect         : "Block Simple passwords: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Password expiration (days)"
+  info           : "This control determines the maximum age of a password."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Password expiration (days)' is set to 90 or less."
+  reference      : "800-171|3.1.18,800-171|3.5.2,800-53|AC-19,800-53|IA-5(1)(d),800-53r5|AC-19,800-53r5|IA-5(1)(d),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(d),NESA|T5.2.3,NIAv2|AM20,NIAv2|AM21,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Password expiration: \(.passcodeExpirationDays)"'
+  regex          : "Password expiration:"
+  expect         : "Password expiration: ([1-9]|[1-8][0-9]|90)$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Number of non-alphanumeric characters in password"
+  info           : "This control determines the number of non-alphanumeric characters in a password."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Number of non-alphanumeric characters in password' is set to 1 or more."
+  reference      : "800-171|3.1.18,800-171|3.5.7,800-53|AC-19,800-53|IA-5(1)(a),800-53r5|AC-19,800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Number of non-alphanumeric characters in password: \(.passcodeMinimumCharacterSetCount)"'
+  regex          : "Number of non-alphanumeric characters in password:"
+  expect         : "Number of non-alphanumeric characters in password: [1-4]$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Maximum minutes after screen lock before password is required"
+  info           : "This control determines the grace period a device can be unlocked without a password after screen lock."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Maximum minutes after screen lock before password is required' is set to 'Immediately'."
+  reference      : "800-171|3.1.10,800-171|3.1.18,800-53|AC-11,800-53|AC-19,800-53r5|AC-11,800-53r5|AC-19,CN-L3|8.1.4.1(b),CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,ITSG-33|AC-19,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Maximum minutes after screen lock before password is required: \(.passcodeMinutesOfInactivityBeforeLock)"'
+  regex          : "Maximum minutes after screen lock before password is required:"
+  expect         : "Maximum minutes after screen lock before password is required: 0$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Maximum minutes of inactivity until screen locks"
+  info           : "This control determines the minutes of inactivity until the screen locks."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Maximum minutes of inactivity until screen locks' is set to 5 or less."
+  reference      : "800-171|3.1.10,800-171|3.1.18,800-53|AC-11,800-53|AC-19,800-53r5|AC-11,800-53r5|AC-19,CN-L3|8.1.4.1(b),CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,ITSG-33|AC-19,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Maximum minutes of inactivity until screen locks: \(.passcodeMinutesOfInactivityBeforeScreenTimeout)"'
+  regex          : "Maximum minutes of inactivity until screen locks:"
+  expect         : "Maximum minutes of inactivity until screen locks: [1-5]$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Prevent reuse of previous passwords"
+  info           : "This control determines the number of reused passwords that are not allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Prevent reuse of previous passwords' is set to 5 or more."
+  reference      : "800-171|3.1.18,800-171|3.5.8,800-53|AC-19,800-53|IA-5(1)(e),800-53r5|AC-19,800-53r5|IA-5(1)(e),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(e),NESA|T5.2.3,NIAv2|AM22c,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Number of previous passwords: \(.passcodePreviousPasscodeBlockCount)"'
+  regex          : "Number of previous passwords:"
+  expect         : "Number of previous passwords: ([5-9]|[1-9][0-9])$"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Password"
+  info           : "This control determines whether a password is required to unlock the device."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Password' is set to 'Require'."
+  reference      : "800-171|3.1.18,800-171|3.5.2,800-53|AC-19,800-53|IA-5,800-53r5|AC-19,800-53r5|IA-5,CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|IA-5,NESA|T5.2.3,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Password Required: \(.passcodeRequired)"'
+  regex          : "Password Required:"
+  expect         : "Password Required: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Required password type"
+  info           : "This control determines what type of password must be used."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Password' verify that 'Required password type' is set to 'Alphanumeric'."
+  reference      : "800-171|3.1.18,800-171|3.5.7,800-53|AC-19,800-53|IA-5(1)(a),800-53r5|AC-19,800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF|PR.AC-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.6.2.1,ISO/IEC-27001|A.9.4.3,ITSG-33|AC-19,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Required password type: \(.passcodeRequiredType)"'
+  regex          : "Required password type:"
+  expect         : "Required password type: alphanumeric"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Safari Autofill"
+  info           : "This control determines whether autofill in Safari is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Built-in Apps' verify that 'Safari Autofill' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Safari Autofill: \(.safariBlockAutofill)"'
+  regex          : "Block Safari Autofill:"
+  expect         : "Block Safari Autofill: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Safari Pop-ups"
+  info           : "This control determines whether pop-ups in Safari is allowed."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Built-in Apps' verify that 'Safari Pop-ups' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Safari Pop-ups: \(.safariBlockPopups)"'
+  regex          : "Block Safari Pop-ups:"
+  expect         : "Block Safari Pop-ups: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Safari fraud warnings"
+  info           : "This control determines whether fraud warnings in Safari is required."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Built-in Apps' verify that 'Safari fraud warnings' is set to 'Require'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Safari fraud warnings: \(.safariRequireFraudWarning)"'
+  regex          : "Block Safari fraud warnings:"
+  expect         : "Block Safari fraud warnings: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Screen capture"
+  info           : "This control determines if a user can take device screenshots."
+  solution       : "From the Intune console, open the device configuration profile. Under 'General' verify that 'Screen capture' is set to 'Block'."
+  reference      : "800-171|3.1.18,800-171|3.4.6,800-171|3.4.7,800-53|AC-19,800-53|CM-7b.,800-53r5|AC-19,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-19,ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Block Screen capture: \(.screenCaptureBlocked)"'
+  regex          : "Block Screen capture:"
+  expect         : "Block Screen capture: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Siri Disabled"
+  info           : "This control determines if Siri is enabled."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Built-in Apps' verify that 'Siri' is set to 'Block'."
+  reference      : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Siri Disabled: \(.siriBlocked)"'
+  regex          : "Siri Disabled:"
+  expect         : "Siri Disabled: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  description    : "iOS Device Management - Join Wi-Fi networks only using configuration profiles"
+  info           : "This control determines whether Wi-Fi can only be joined to preconfigured profiles."
+  solution       : "From the Intune console, open the device configuration profile. Under 'Wireless' verify that 'Join Wi-Fi networks only using configuration profiles' is set to 'Require'."
+  reference      : "800-171|3.1.16,800-171|3.1.18,800-53|AC-18(4),800-53|AC-19,800-53r5|AC-18(4),800-53r5|AC-19,CSF|PR.AC-3,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.2.1,ITSG-33|AC-18(4),ITSG-33|AC-19,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://docs.microsoft.com/en-us/mem/intune/"
+  request        : "listDeviceManagement"
+  json_transform : '.[] | select(.["@odata.type"] | test("iosGeneralDeviceConfiguration")) | "Display Name: \(.displayName) - Join Wi-Fi networks only using configuration profiles: \(.wiFiConnectOnlyToConfiguredNetworks)"'
+  regex          : "Join Wi-Fi networks only using configuration profiles:"
+  expect         : "Join Wi-Fi networks only using configuration profiles: true"
+  match_all      : YES
+</custom_item>
+
+</check_type>

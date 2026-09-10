@@ -1,0 +1,1289 @@
+#TRUSTED acbdc3c1d0e96044fa48133fea7bd6aaf6894f8a9b44875fcaea540d952a9c28d81ebcf768e4d3b1570b916fd1f55e8a4a126249fb0461eeb0c996ded96208a8b507aa2243db0ba403619c885ca6ea2d4e1dad05d72533079f93cd8111a47184caa6d713440d6a14d631f605375b319c3905411002419ff750cd68682e91a46905aa1f97f083bdd27fd5ec6c0dde4e8723f4f57c7ee259a007656baaed9c3f7ede53b7360efb5dadcbcdb454fe4baf2be1cca912ab1372070083a6c285d633e69844f89b2c20febfc3ff6caf38d5815b8e3d01b7729d9fe0760ffabdf186ab16c68dad96372b2646c8d867e8bc95abee7cda0d0c6f6c40c9b51e5354be7a9702262b5780be14daedfe9aeecc1f80f732e7ac6863551542e452b2b15f067ee34cba2da04584cb6dde4f71e32ac4f216dc6ccd41126260c5fa9956475c874522f453ea891260c044c2698ffc966058b5ded4eb88bd6704ff848a25fe2ef267d5a098a57e88a2a0a9fe440214c9bb1459e71f93eee3edcdebd3a3eab22990a6c18035554b9be472cc97536ceabdaa588a9b90cd34541797e60a891c9f69a579513ee46873a5997110a25125749216b4961b561c42d5f9000d29d88ea30d67119527595a1726176a8cd29bf2943963a87cc8ffa71c6498afc24531d7cdad2a416afa782493c078e2ddc70da2aaf3781243bc108485bf2bf8025e1021b3a71b9feead
+#TRUST-RSA-SHA256 b217e182802aea02a4fafcea51eb87c2836bbff905912c5e2dc7392f188059c2488d667f953b8cfb0c0d612f184f7f811c4fb39057cf1c292204589a8309ba450d3d0b54a1920d14f4ed97a4694cc59a3fe0d4f10acd93687c8c498ecb07c763be0cca889a7f8f123a7a88503e82cdcafafcb9bcd296cdfd156f7e6e2db1cfc98aa4517de7c71130951e485fd2f3ce7244a879154a15e0d5dc1e2b34c2cff1f4387d2eb025bf743d02e6ea25ee1e4e34ffcc84cb64e80ff8de4dfbeb1189f65a1bfaf452006f300f0fb596f66f0c57c36497bc14243b5109fa7bd77771319d5f3c998a14948fdc2bb99e684b1a518a69822f19910755122bf6d32e1639af1adf3dab1b2f0c506f9adecb4ec87705f85c4f996212c816662cbfc56268201932fcc0a7360c42bfc2229859f62fd05d2a6cf1d8b70abc18803142df682b3a6675ab6bec0d2b4376bb4e0b626fc75bb40d54b780ad917a07f02587e41db68dd68ed1b892ac6cc0a807bad1a84ae323bc399b56567d9f4475b8460770423e186c14df8f8cfd777d2bb7c4a17ad86ba7d5cb7659cd0be885c761aa00d62597df6fd32ae3a95e42bbb5c63094db07f55961a26ec9010ee41893e89c61eb6bf288f7f7fd1f010236d541fabbd542c02ce0cd77deff931cd58f2bcaa456e26e4b2206bcf3221ae7590077d94e8932a8474540970965ccc38853516200c97fb6bf3f6ec69e
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2025/09/24 $
+#
+# description : This .audit is designed against the CIS Docker Benchmark 1.8.0
+#
+#<ui_metadata>
+#<display_name>CIS Docker v1.8.0 L2 OS Linux</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Docker</name>
+#  <profile>L2 OS Linux</profile>
+#  <version>1.8.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/18749</link>
+#</spec>
+#<labels>agent,cis,docker,docker_linux_1.11,unix</labels>
+#<benchmark_refs>CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>AUTH_PLUGIN_ID</name>
+#    <default>1234</default>
+#    <description>AUTH Plugin ID</description>
+#    <info>ID of authorization plugin.</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOGGING_SYSTEM</name>
+#    <default>syslog</default>
+#    <description>Remote Logging Method</description>
+#    <info>The method of remote logging set for docker logs.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SECCOMP_PROFILE</name>
+#    <default>builtin</default>
+#    <description>Seccomp Profile Path</description>
+#    <info>A profile with a reduced set of system calls reduces the total kernel surface exposed to the application and therefore improves application security.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Check if this is a Docker Vessel/Host"
+      cmd         : "/usr/bin/docker info"
+      expect      : "Containers"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Docker_v1.8.0_L2_OS_Linux.audit from CIS Docker Benchmark v1.8.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.10 Ensure auditing is configured for Docker files and directories - /etc/default/docker"
+      info        : "Audit /etc/default/docker if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories. /etc/default/docker is one such file. It holds various parameters related to the Docker daemon and should therefore be audited."
+      solution    : "You should add a rule for the /etc/default/docker file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /etc/default/docker -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep /etc/default/docker"
+      expect      : "[\\s]+/etc/default/docker[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.11 Ensure auditing is configured for Docker files and directories - /etc/docker/daemon.json"
+      info        : "Audit /etc/docker/daemon.json if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should also audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories. /etc/docker/daemon.json is one such file. This holds various parameters for the Docker daemon, and as such it should be audited."
+      solution    : "You should add a rule for the /etc/docker/daemon.json file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /etc/docker/daemon.json -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep /etc/docker/daemon.json"
+      expect      : "[\\s]+/etc/docker/daemon.json[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.12 Ensure auditing is configured for Docker files and directories - /etc/containerd/config.toml"
+      info        : "Audit /etc/containerd/config.toml if applicable
+
+As well as auditing the normal Linux file system and system calls, you should also audit the Docker daemon. Because this daemon runs with root privileges it is very important to audit its activities and usage. Its behavior depends on some key files and directories and /etc/containerd/config.toml is one such file as it contains various parameters. If present, it is important that it is audited."
+      solution    : "You should add a rule for /etc/containerd/config.toml file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /etc/containerd/config.toml -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep /etc/containerd/config.toml"
+      expect      : "[\\s]+/etc/containerd/config.toml[\\s]+"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check for sysconfig file"
+          file        : "/etc/sysconfig/docker"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : CMD_EXEC
+          description : "1.1.13 Ensure auditing is configured for Docker files and directories - /etc/sysconfig/docker"
+          info        : "Audit /etc/sysconfig/docker if applicable
+
+As well as auditing the normal Linux file system and system calls, you should also audit the Docker daemon. Because this daemon runs with root privileges it is very important to audit its activities and usage. Its behavior depends on some key files and directories and /etc/sysconfig/docker is one such file as it contains various parameters related to the Docker daemon when run on CentOS and RHEL based distributions. If present, it is important that it is audited."
+          solution    : "You should add a rule for /etc/sysconfig/docker file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /etc/sysconfig/docker -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          cmd         : "/sbin/auditctl -l | /bin/grep /etc/sysconfig/docker"
+          expect      : "[\\s]+/etc/sysconfig/docker[\\s]+"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "1.1.13 Ensure auditing is configured for Docker files and directories - /etc/sysconfig/docker"
+          info        : "Audit /etc/sysconfig/docker if applicable
+
+As well as auditing the normal Linux file system and system calls, you should also audit the Docker daemon. Because this daemon runs with root privileges it is very important to audit its activities and usage. Its behavior depends on some key files and directories and /etc/sysconfig/docker is one such file as it contains various parameters related to the Docker daemon when run on CentOS and RHEL based distributions. If present, it is important that it is audited."
+          solution    : "You should add a rule for /etc/sysconfig/docker file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /etc/sysconfig/docker -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.14 Ensure auditing is configured for Docker files and directories - /usr/bin/containerd"
+      info        : "Audit /usr/bin/containerd if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories. /usr/bin/containerd is one such file and as such should be audited."
+      solution    : "You should add a rule for the /usr/bin/containerd file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /usr/bin/containerd -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep -E '/usr/bin/containerd\\s+'"
+      expect      : "[\\s]+/usr/bin/containerd[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.15 Ensure auditing is configured for Docker files and directories - /usr/bin/containerd-shim"
+      info        : "Audit /usr/bin/containerd-shim if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories. /usr/bin/containerd-shim is one such file and as such should be audited."
+      solution    : "You should add a rule for the /usr/bin/containerd-shim file.
+
+For example:
+
+Add the line below to the /etc/audit/rules.d/audit.rules file:
+
+-w /usr/bin/containerd-shim -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep -E '/usr/bin/containerd-shim\\s+'"
+      expect      : "[\\s]+/usr/bin/containerd-shim[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.16 Ensure auditing is configured for Docker files and directories - /usr/bin/containerd-shim-runc-v1"
+      info        : "Audit /usr/bin/containerd-shim-runc-v1 if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories. /usr/bin/containerd-shim-runc-v1 is one such file and as such should be audited."
+      solution    : "You should add a rule for the /usr/bin/containerd-shim-runc-v1 file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /usr/bin/containerd-shim-runc-v1 -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2M,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep /usr/bin/containerd-shim-runc-v1"
+      expect      : "[\\s]+/usr/bin/containerd-shim-runc-v1[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.17 Ensure auditing is configured for Docker files and directories - /usr/bin/containerd-shim-runc-v2"
+      info        : "Audit /usr/bin/containerd-shim-runc-v2 if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories. /usr/bin/containerd-shim-runc-v2 is one such file and as such should be audited."
+      solution    : "You should add a rule for the /usr/bin/containerd-shim-runc-v2 file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /usr/bin/containerd-shim-runc-v2 -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep /usr/bin/containerd-shim-runc-v2"
+      expect      : "[\\s]+/usr/bin/containerd-shim-runc-v2[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1.18 Ensure auditing is configured for Docker files and directories - /usr/bin/runc"
+      info        : "Audit /usr/bin/runc if applicable
+
+As well as auditing the normal Linux file system and system calls, you should also audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories. /usr/bin/runc is one such file, and as such it should be audited."
+      solution    : "You should add a rule for /usr/bin/runc file.
+
+For example:
+
+Add the line below to the /etc/audit/audit.rules file:
+
+-w /usr/bin/runc -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/sbin/auditctl -l | /bin/grep /usr/bin/runc"
+      expect      : "[\\s]+/usr/bin/runc[\\s]+"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check for existence of docker.service"
+          cmd         : "/bin/systemctl show -p FragmentPath docker.service"
+          expect      : "^FragmentPath=/.*/docker.service$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : CMD_EXEC
+          description : "1.1.7 Ensure auditing is configured for Docker files and directories - docker.service"
+          info        : "Audit the docker.service if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should also audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories with docker.service being one such file. The docker.service file might be present if the daemon parameters have been changed by an administrator. If so, it holds various parameters for the Docker daemon and should be audited."
+          solution    : "If the file exists, a rule for it should be added.
+
+For example:
+
+Add the line as below in /etc/audit/rules.d/audit.rules file:
+
+-w /usr/lib/systemd/system/docker.service -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          cmd         : "SERVICE_PATH=$(/bin/systemctl show -p FragmentPath docker.service | cut -c 14-); /sbin/auditctl -l | /bin/grep $SERVICE_PATH"
+          expect      : "[\\s]+/.*/docker.service[\\s]+"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "1.1.7 Ensure auditing is configured for Docker files and directories - docker.service"
+          info        : "Audit the docker.service if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should also audit all Docker related files and directories. The Docker daemon runs with root privileges and its behavior depends on some key files and directories with docker.service being one such file. The docker.service file might be present if the daemon parameters have been changed by an administrator. If so, it holds various parameters for the Docker daemon and should be audited."
+          solution    : "If the file exists, a rule for it should be added.
+
+For example:
+
+Add the line as below in /etc/audit/rules.d/audit.rules file:
+
+-w /usr/lib/systemd/system/docker.service -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check for default path to containerd.sock"
+          file        : "/run/containerd/containerd.sock"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check for custom path to containerd.sock"
+          cmd         : "/bin/grep 'containerd.sock' /etc/container.d/config.toml"
+          expect      : "^address[\\s]*=[\\s]*[\"\']/.*/containerd.sock[\"\']$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : CMD_EXEC
+          description : "1.1.8 Ensure auditing is configured for Docker files and directories - containerd.sock"
+          info        : "Audit containerd.sock if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should also audit the Docker daemon. Because this daemon runs with root privileges, it is very important to audit its activities and usage. Its behavior depends on some key files and directories with containerd.sock being one such file, and as this holds various parameters for the Docker daemon, it should be audited."
+          solution    : "If the file exists, you should add a rule for it.
+
+For example:
+
+Add the line below to the /etc/audit/rules.d/audit.rules file:
+
+-w /run/containerd/containerd.sock -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          cmd         : "/sbin/auditctl -l | /bin/grep containerd.sock"
+          expect      : "[\\s]*.*/containerd.sock[\\s]+"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "1.1.8 Ensure auditing is configured for Docker files and directories - containerd.sock"
+          info        : "Audit containerd.sock if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should also audit the Docker daemon. Because this daemon runs with root privileges, it is very important to audit its activities and usage. Its behavior depends on some key files and directories with containerd.sock being one such file, and as this holds various parameters for the Docker daemon, it should be audited."
+          solution    : "If the file exists, you should add a rule for it.
+
+For example:
+
+Add the line below to the /etc/audit/rules.d/audit.rules file:
+
+-w /run/containerd/containerd.sock -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check for existence of docker.sock"
+          cmd         : "/bin/systemctl show -p FragmentPath docker.sock"
+          expect      : "^[\\s]*FragmentPath=.*/docker.sock[\\s]*"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : CMD_EXEC
+          description : "1.1.9 Ensure auditing is configured for Docker files and directories - docker.sock"
+          info        : "Audit docker.sock if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should also audit the Docker daemon. Because this daemon runs with root privileges, it is very important to audit its activities and usage. Its behavior depends on some key files and directories with docker.socket being one such file, and as this holds various parameters for the Docker daemon, it should be audited."
+          solution    : "If the file exists, you should add a rule for it.
+
+For example:
+
+Add the line below to the /etc/audit/rules.d/audit.rules file:
+
+-w /var/run/docker.sock -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          cmd         : "/sbin/auditctl -l | /bin/grep docker.sock"
+          expect      : "[\\s]*.*/docker.sock[\\s]+"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "1.1.9 Ensure auditing is configured for Docker files and directories - docker.sock"
+          info        : "Audit docker.sock if applicable.
+
+As well as auditing the normal Linux file system and system calls, you should also audit the Docker daemon. Because this daemon runs with root privileges, it is very important to audit its activities and usage. Its behavior depends on some key files and directories with docker.socket being one such file, and as this holds various parameters for the Docker daemon, it should be audited."
+          solution    : "If the file exists, you should add a rule for it.
+
+For example:
+
+Add the line below to the /etc/audit/rules.d/audit.rules file:
+
+-w /var/run/docker.sock -k docker
+
+Then restart the audit daemon.
+
+For example:
+
+systemctl restart auditd
+
+Impact:
+
+Auditing can generate large log files. You should ensure that these are rotated and archived periodically. A separate partition should also be created for audit logs to avoid filling up any other critical partition."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|14.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.10 Enable user namespace support"
+      info        : "You should enable user namespace support in Docker daemon to utilize container user to host user re-mapping. This recommendation is beneficial where the containers you are using do not have an explicit container user defined in the container image. If the container images that you are using have a pre-defined non-root user, this recommendation may be skipped as this feature is still in its infancy, and might result in unpredictable issues or difficulty in configuration.
+
+The Linux kernel \"user namespace\" support within the Docker daemon provides additional security for the Docker host system. It allows a container to have a unique range of user and group IDs which are outside the traditional user and group range utilized by the host system.
+
+For example, the root user can have the expected administrative privileges inside the container but can effectively be mapped to an unprivileged UID on the host system."
+      solution    : "Please consult the Docker documentation for various ways in which this can be configured depending upon your requirements. Your steps might also vary based on platform - For example, on Red Hat, sub-UIDs and sub-GIDs mapping creation do not work automatically. You might have to create your own mapping.
+
+The high-level steps are as below:
+
+Step 1: Ensure that the files /etc/subuid and /etc/subgid exist.
+
+touch /etc/subuid /etc/subgid
+
+Step 2: Start the docker daemon with --userns-remap flag
+
+dockerd --userns-remap=default
+
+Impact:
+
+User namespace remapping is incompatible with a number of Docker features and also currently breaks some of its functionalities. Reference the Docker documentation and included links for details."
+      reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|SA-8,800-53r5|SA-8,CSCv7|18,CSCv8|6,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/bin/docker info --format '{{ .SecurityOptions }}'"
+      expect      : "[\\s]+name=userns[\\s]+"
+    </custom_item>
+
+    <if>
+      <condition auto:"WARNING" type:"OR">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check dockerd for runtime flags"
+          cmd         : "/bin/ps -ef | /bin/grep dockerd | /bin/grep -v /bin/grep"
+          expect      : "^Manual Review Required$"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CONTENT_CHECK
+          description : "check for daemon.json"
+          file        : "/etc/docker/daemon.json"
+          regex       : "['\"]*cgroup-parent['\"]*[\\s]*:"
+          expect      : "^Manual Review Required$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.11 Ensure the default cgroup usage has been confirmed"
+          info        : "The --cgroup-parent option allows you to set the default cgroup parent to use for all containers. If there is no specific usage requirement for this, the setting should be left at its default.
+
+System administrators typically define cgroups under which containers are supposed to run. Even if cgroups are not explicitly defined by the system administrators, containers run under docker cgroup by default.
+
+It is possible to attach to a different cgroup other than the one which is the default, however this type of usage should be monitored and confirmed because attaching to a different cgroup other than the one that is a default, it could be possible to share resources unevenly causing resource utilization problems on the host.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "The default setting is in line with good security practice and can be left in situ. If you wish to specifically set a non-default cgroup, pass the --cgroup-parent parameter to the Docker daemon when starting it.
+
+For example,
+
+dockerd --cgroup-parent=/foobar
+
+Impact:
+
+None."
+          reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|SA-8,800-53r5|SA-8,CSCv7|18,CSCv8|6,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check for dockerd"
+          cmd         : "/bin/ps -ef | /bin/grep dockerd | /bin/grep -v /bin/grep"
+          expect      : "^((?!dm.basesize*).)*$"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CONTENT_CHECK_NOT
+          description : "check for daemon.json"
+          file        : "/etc/docker/daemon.json"
+          regex       : "['\"]*dm.basesize['\"]*"
+          expect      : "['\"]*dm.basesize['\"]*"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.12 Ensure base device size is not changed until needed"
+          info        : "Under certain circumstances, you might need containers larger than 10G. Where this applies you should carefully choose the base device size.
+
+The base device size can be increased on daemon restart. Increasing the base device size allows all future images and containers to be of the new base device size. A user can use this option to expand the base device size, however shrinking is not permitted. This value affects the system wide \"base\" empty filesystem that may already be initialized and therefore inherited by pulled images.
+
+Although the file system does not allocate the increased size as long as it is empty, more space will be allocated for extra images. This may cause a denial of service condition if the allocated partition becomes full."
+          solution    : "Do not set --storage-opt dm.basesize until needed.
+
+Impact:
+
+None."
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"OR">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check for dockerd"
+          cmd         : "/bin/ps -ef | /bin/grep dockerd | /bin/grep -v /bin/grep"
+          expect      : "--authorization-plugin=@AUTH_PLUGIN_ID@"
+        </custom_item>
+
+        <custom_item>
+          type           : FILE_CONTENT_CHECK
+          description    : "check for daemon.json"
+          file           : "/etc/docker/daemon.json"
+          json_transform : ".[\"authorization-plugin\"]"
+          regex          : ".*"
+          expect         : "@AUTH_PLUGIN_ID@"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.13 Ensure that authorization for Docker client commands is enabled"
+          info        : "You should use native Docker authorization plugins or a third party authorization mechanism with the Docker daemon to manage access to Docker client commands.
+
+Docker's out-of-the-box authorization model is currently \"all or nothing\". This means that any user with permission to access the Docker daemon can run any Docker client command. The same is true for remote users accessing Docker's API to contact the daemon. If you require greater access control, you can create authorization plugins and add them to your Docker daemon configuration. Using an authorization plugin, a Docker administrator can configure granular access policies for managing access to the Docker daemon.
+
+Third party integrations of Docker may implement their own authorization models to require authorization with the Docker daemon outside of docker's native authorization plugin (i.e. Kubernetes, Cloud Foundry, Openshift)."
+          solution    : "Step 1 : Install/Create an authorization plugin.
+
+Step 2 : Configure the authorization policy as desired.
+
+Step 3 : Start the docker daemon as below:
+
+dockerd --authorization-plugin=<PLUGIN_ID>
+
+Impact:
+
+Each Docker command needs to pass through the authorization plugin mechanism. This may have a performance impact.
+
+It may be possible to use alternative mechanisms that do not have this performance hit."
+          reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSCv7|16,CSCv8|6,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,LEVEL|2M,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check runtime configuration"
+          cmd         : "/bin/docker info --format '{{ .LoggingDriver }}'"
+          expect      : "^@LOGGING_SYSTEM@$"
+        </custom_item>
+
+        <custom_item>
+          type           : FILE_CONTENT_CHECK
+          description    : "check for daemon.json"
+          file           : "/etc/docker/daemon.json"
+          json_transform : ".[\"log-driver\"]"
+          regex          : ".*"
+          expect         : "@LOGGING_SYSTEM@"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.14 Ensure centralized and remote logging is configured"
+          info        : "Docker supports various logging mechanisms. A preferable method for storing logs is one that supports centralized and remote management.
+
+Centralized and remote logging ensures that all important log records are safe even in the event of a major data availability issue . Docker supports various logging methods and you should use the one that best corresponds to your IT security policy."
+          solution    : "Step 1 : Set up the desired log driver following its documentation.
+
+Step 2 : Start the docker daemon using that logging driver.
+
+For example:
+
+dockerd --log-driver=syslog --log-opt syslog-address=tcp://192.xxx.xxx.xxx
+
+Impact:
+
+None."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.5,800-171r3|03.03.01,800-171r3|03.03.05c.,800-171r3|03.15.01,800-53|AU-1,800-53|AU-2,800-53|AU-6(3),800-53r5|AU-1,800-53r5|AU-2,800-53r5|AU-6(3),CN-L3|7.1.3.3(d),CN-L3|8.1.4.3(a),CSCv7|6.6,CSCv7|6.8,CSCv8|8.1,CSCv8|8.9,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.DP-4,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.PT-1,CSF|RS.AN-1,CSF|RS.CO-2,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|GV.OC-03,CSF2.0|GV.OV-01,CSF2.0|GV.PO-01,CSF2.0|GV.PO-02,CSF2.0|GV.SC-03,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.1,ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.4,ISO-27001-2022|A.5.25,ISO-27001-2022|A.5.31,ISO-27001-2022|A.5.36,ISO-27001-2022|A.5.37,ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.15,ISO-27001-2022|5.2,ISO-27001-2022|5.3,ISO-27001-2022|7.5.1,ISO-27001-2022|7.5.2,ISO-27001-2022|7.5.3,ITSG-33|AU-1,ITSG-33|AU-2,ITSG-33|AU-6(3),LEVEL|2M,NESA|M1.2.2,NESA|M5.2.5,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.8,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.18 Ensure that a daemon-wide custom seccomp profile is applied if appropriate"
+      info        : "You can choose to apply a custom seccomp profile at a daemon-wide level if needed with this overriding Docker's default seccomp profile.
+
+A large number of system calls are exposed to every userland process with many of them not utilized during the entire lifetime of the process. Many applications do not need all these system calls and therefore benefit by having each system call currently in use reviewed in line with organizational security policy. A reduced set of system calls reduces the total kernel surface exposed to the application and therefore improves application security.
+
+A custom seccomp profile can be applied instead of Docker's default seccomp profile. Alternatively, if Docker's default profile is adequate for your environment, you can choose to ignore this recommendation."
+      solution    : "By default, Docker's default seccomp profile is applied. If this is adequate for your environment, no action is necessary. Alternatively, if you choose to apply your own seccomp profile, use the --seccomp-profile flag at daemon start or put it in the daemon runtime parameters file.
+
+dockerd --seccomp-profile </path/to/seccomp/profile>
+
+Impact:
+
+A misconfigured seccomp profile could possibly interrupt your container environment. Docker-default blocked calls have been carefully scrutinized and address some critical vulnerabilities/issues within container environments (for example, kernel key ring calls). You should therefore exercise extreme care if you choose to override the default settings."
+      reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|SA-8,800-53r5|SA-8,CSCv7|18,CSCv8|16,CSF|PR.IP-2,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/bin/docker info --format '{{ .SecurityOptions }}'"
+      expect      : "name=seccomp,profile=@SECCOMP_PROFILE@"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check for existence of daemon.json"
+          file        : "/etc/docker/daemon.json"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : FILE_CHECK
+          description : "3.17 Ensure that the daemon.json file ownership is set to root:root"
+          info        : "You should verify that the daemon.json file individual ownership and group ownership is correctly set to root if it is in use.
+
+The daemon.json file contains sensitive parameters that could alter the behavior of the docker daemon. It should therefore be owned and group owned by root to ensure it can not be modified by less privileged users."
+          solution    : "If the daemon.json file is present, you should execute the command below:
+
+chown root:root /etc/docker/daemon.json
+
+This sets the ownership and group ownership for the file to root
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          file        : "/etc/docker/daemon.json"
+          owner       : "root"
+          group       : "root"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.17 Ensure that the daemon.json file ownership is set to root:root"
+          info        : "You should verify that the daemon.json file individual ownership and group ownership is correctly set to root if it is in use.
+
+The daemon.json file contains sensitive parameters that could alter the behavior of the docker daemon. It should therefore be owned and group owned by root to ensure it can not be modified by less privileged users."
+          solution    : "If the daemon.json file is present, you should execute the command below:
+
+chown root:root /etc/docker/daemon.json
+
+This sets the ownership and group ownership for the file to root
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check for existence of daemon.json"
+          file        : "/etc/docker/daemon.json"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : FILE_CHECK
+          description : "3.18 Ensure that daemon.json file permissions are set to 644 or more restrictive"
+          info        : "You should verify that if the daemon.json is present its file permissions are correctly set to 644 or more restrictively.
+
+The daemon.json file contains sensitive parameters that may alter the behavior of the docker daemon. Therefore it should be writeable only by root to ensure it is not modified by less privileged users."
+          solution    : "If the file is present, you should execute the command below:
+
+chmod 644 /etc/docker/daemon.json
+
+This sets the file permissions for this file to 644
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          file        : "/etc/docker/daemon.json"
+          mask        : "133"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.18 Ensure that daemon.json file permissions are set to 644 or more restrictive"
+          info        : "You should verify that if the daemon.json is present its file permissions are correctly set to 644 or more restrictively.
+
+The daemon.json file contains sensitive parameters that may alter the behavior of the docker daemon. Therefore it should be writeable only by root to ensure it is not modified by less privileged users."
+          solution    : "If the file is present, you should execute the command below:
+
+chmod 644 /etc/docker/daemon.json
+
+This sets the file permissions for this file to 644
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "3.19 Ensure that the /etc/default/docker file ownership is set to root:root"
+      info        : "You should verify that the /etc/default/docker file ownership and group-ownership is correctly set to root
+
+The /etc/default/docker file contains sensitive parameters that may alter the behavior of the Docker daemon. It should therefore be individually owned and group owned by root to ensure that it cannot be modified by less privileged users."
+      solution    : "You should execute the following command
+
+chown root:root /etc/default/docker
+
+This sets the ownership and group ownership of the file to root
+
+Impact:
+
+None."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      file        : "/etc/default/docker"
+      owner       : "root"
+      group       : "root"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "3.20 Ensure that the /etc/default/docker file permissions are set to 644 or more restrictively"
+      info        : "You should verify that the /etc/default/docker file permissions are correctly set to 644 or more restrictively.
+
+The /etc/default/docker file contains sensitive parameters that may alter the behavior of the Docker daemon. It should therefore be writeable only by root in order to ensure that it is not modified by less privileged users."
+      solution    : "You should execute the following command:
+
+chmod 644 /etc/default/docker
+
+This sets the file permissions for this file to 644
+
+Impact:
+
+None."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      file        : "/etc/default/docker"
+      mask        : "133"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check for sysconfig file"
+          file        : "/etc/sysconfig/docker"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : FILE_CHECK
+          description : "3.21 Ensure that the /etc/sysconfig/docker file permissions are set to 644 or more restrictively"
+          info        : "You should verify that the /etc/sysconfig/docker file permissions are correctly set to 644 or more restrictively.
+
+The /etc/sysconfig/docker file contains sensitive parameters that may alter the behavior of the Docker daemon. It should therefore be writeable only by root in order to ensure that it is not modified by less privileged users."
+          solution    : "You should execute the following command:
+
+chmod 644 /etc/sysconfig/docker
+
+This sets the file permissions for this file to 644
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          file        : "/etc/sysconfig/docker"
+          mask        : "133"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.21 Ensure that the /etc/sysconfig/docker file permissions are set to 644 or more restrictively"
+          info        : "You should verify that the /etc/sysconfig/docker file permissions are correctly set to 644 or more restrictively.
+
+The /etc/sysconfig/docker file contains sensitive parameters that may alter the behavior of the Docker daemon. It should therefore be writeable only by root in order to ensure that it is not modified by less privileged users."
+          solution    : "You should execute the following command:
+
+chmod 644 /etc/sysconfig/docker
+
+This sets the file permissions for this file to 644
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check for sysconfig file"
+          file        : "/etc/sysconfig/docker"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : FILE_CHECK
+          description : "3.22 Ensure that the /etc/sysconfig/docker file ownership is set to root:root"
+          info        : "You should verify that the /etc/sysconfig/docker file individual ownership and group ownership is correctly set to root
+
+The /etc/sysconfig/docker file contains sensitive parameters that may alter the behavior of the Docker daemon. It should therefore be individually owned and group owned by root to ensure that it is not modified by less privileged users."
+          solution    : "You should execute the following command:
+
+chown root:root /etc/sysconfig/docker
+
+This sets the ownership and group ownership for the file to root
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          file        : "/etc/sysconfig/docker"
+          owner       : "root"
+          group       : "root"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.22 Ensure that the /etc/sysconfig/docker file ownership is set to root:root"
+          info        : "You should verify that the /etc/sysconfig/docker file individual ownership and group ownership is correctly set to root
+
+The /etc/sysconfig/docker file contains sensitive parameters that may alter the behavior of the Docker daemon. It should therefore be individually owned and group owned by root to ensure that it is not modified by less privileged users."
+          solution    : "You should execute the following command:
+
+chown root:root /etc/sysconfig/docker
+
+This sets the ownership and group ownership for the file to root
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <report type:"WARNING">
+      description : "4.11 Ensure only verified packages are installed"
+      info        : "You should verify the authenticity of packages before installing them into images.
+
+Verifying authenticity of software packages is essential for building a secure container image. Packages with no known provenance could potentially be malicious or have vulnerabilities that could be exploited.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "You should use a secure package distribution mechanism of your choice to ensure the authenticity of software packages.
+
+Impact:
+
+None"
+      reference   : "800-171r3|03.16.02,800-53|SA-22,800-53r5|SA-22,CSCv7|18.3,CSCv8|2.2,CSF2.0|ID.AM-08,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|2M"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+    </report>
+
+    <report type:"WARNING">
+      description : "4.5 Ensure Content trust for Docker is Enabled"
+      info        : "Content trust is disabled by default and should be enabled in line with organizational security policy.
+
+Content trust provides the ability to use digital signatures for data sent to and received from remote Docker registries. These signatures allow client-side verification of the identity and the publisher of specific image tags and ensures the provenance of container images.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "To enable content trust in a bash shell, you should enter the following command:
+
+export DOCKER_CONTENT_TRUST=1
+
+Alternatively, you could set this environment variable in your profile file so that content trust in enabled on every login.
+
+Impact:
+
+In an environment where DOCKER_CONTENT_TRUST is set, you are required to follow trust procedures whilst working with the image related commands - build create pull push and run You can use the --disable-content-trust flag to run individual operations on tagged images without content trust on an as needed basis, but this defeats the purpose of enabling content trust and therefore should be avoided wherever possible.
+
+Note: Content trust is currently only available for users of the public Docker Hub. It is currently not available for the Docker Trusted Registry or for private registries."
+      reference   : "800-171|3.13.1,800-171r3|03.13.01,800-53|SC-7(10),800-53r5|SC-7(10),CN-L3|8.1.10.6(j),CSCv7|13,CSCv8|3,CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.12,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(10),LEVEL|2M,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|33.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+    </report>
+
+    <report type:"WARNING">
+      description : "4.8 Ensure setuid and setgid permissions are removed"
+      info        : "Removing setuid and setgid permissions in the images can prevent privilege escalation attacks within containers.
+
+setuid and setgid permissions can be used for privilege escalation. Whilst these permissions can on occasion be legitimately needed, you should consider removing them from packages which do not need them. This should be reviewed for each image.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "You should allow setuid and setgid permissions only on executables which require them. You could remove these permissions at build time by adding the following command in your Dockerfile, preferably towards the end of the Dockerfile:
+
+RUN find / -perm /6000 -type f -exec chmod a-s {} \\; || true
+
+Impact:
+
+The above command would break all executables that depend on setuid or setgid permissions including legitimate ones. You should therefore be careful to modify the command to suit your requirements so that it does not reduce the permissions of legitimate programs excessively. Because of this, you should exercise a degree of caution and examine all processes carefully before making this type of modification in order to avoid outages."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+    </report>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check for auditctl"
+          cmd         : "/sbin/auditctl -v"
+          expect      : "^auditctl[\\s]+version[\\s]+.*"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : CMD_EXEC
+          description : "5.23 Ensure that  docker exec commands are not used with the privileged option"
+          info        : "You should not use docker exec with the --privileged option.
+
+Using the --privileged option in docker exec commands gives extended Linux capabilities to the command. This could potentially be an insecure practice, particularly when you are running containers with reduced capabilities or with enhanced restrictions."
+          solution    : "You should not use the --privileged option in docker exec commands.
+
+Impact:
+
+If you need enhanced capabilities within a container, then run it with all the permissions it requires. These should be specified individually."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          cmd         : "/sbin/ausearch --input-logs -k docker | /bin/grep exec | /bin/grep privileged | /bin/awk '{print} END {if (NR == 0) print \"pass\" ; else print \"fail\"}'"
+          expect      : "(?i)^[\\s]*\\**[\\s]*pass:?[\\s]*\\**$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"FAILED">
+          description : "5.23 Ensure that  docker exec commands are not used with the privileged option"
+          info        : "You should not use docker exec with the --privileged option.
+
+Using the --privileged option in docker exec commands gives extended Linux capabilities to the command. This could potentially be an insecure practice, particularly when you are running containers with reduced capabilities or with enhanced restrictions."
+          solution    : "You should not use the --privileged option in docker exec commands.
+
+Impact:
+
+If you need enhanced capabilities within a container, then run it with all the permissions it requires. These should be specified individually."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check for auditctl"
+          cmd         : "/sbin/auditctl -v"
+          expect      : "^auditctl[\\s]+version[\\s]+.*"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : CMD_EXEC
+          description : "5.24 Ensure that docker exec commands are not used with the user=root option"
+          info        : "You should not use docker exec with the --user=root option.
+
+Using the --user=root option in a docker exec command, executes it within the container as the root user. This could potentially be insecure, particularly when you are running containers with reduced capabilities or enhanced restrictions.
+
+For example, if your container is running as a tomcat user (or any other non-root user), it would be possible to run a command through docker exec as root with the --user=root option. This could potentially be dangerous."
+          solution    : "You should not use the --user=root option in docker exec commands.
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+          cmd         : "/sbin/ausearch --input-logs -k docker | /bin/grep exec | /bin/grep 'user=root' | /bin/awk '{print} END {if (NR == 0) print \"pass\" ; else print \"fail\"}'"
+          expect      : "(?i)^[\\s]*\\**[\\s]*pass:?[\\s]*\\**$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"FAILED">
+          description : "5.24 Ensure that docker exec commands are not used with the user=root option"
+          info        : "You should not use docker exec with the --user=root option.
+
+Using the --user=root option in a docker exec command, executes it within the container as the root user. This could potentially be insecure, particularly when you are running containers with reduced capabilities or enhanced restrictions.
+
+For example, if your container is running as a tomcat user (or any other non-root user), it would be possible to run a command through docker exec as root with the --user=root option. This could potentially be dangerous."
+          solution    : "You should not use the --user=root option in docker exec commands.
+
+Impact:
+
+None."
+          reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.3 Ensure that, if applicable, SELinux security options are set"
+      info        : "SELinux is an effective and easy-to-use Linux application security system. It is available by default on some distributions such as Red Hat and Fedora.
+
+SELinux provides a Mandatory Access Control (MAC) system that greatly augments the default Discretionary Access Control (DAC) model. You can therefore add an extra layer of safety to your containers by enabling SELinux on your Linux host.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "If SELinux is applicable for your Linux OS, you should use it.
+
+ - Set the SELinux State.
+ - Set the SELinux Policy.
+ - Create or import a SELinux policy template for Docker containers.
+ - Start Docker in daemon mode with SELinux enabled. For example:
+
+docker daemon --selinux-enabled
+
+or by adding the following to the daemon.json configuration file:
+
+{
+  \"selinux-enabled\": true
+} <xhtml:ol start=\"5\"> - Start your Docker container using the security options. For example,
+
+docker run --interactive --tty --security-opt label=level:TopSecret centos /bin/bash
+
+Impact:
+
+Any restrictions defined in the SELinux policy will be applied to your containers. It should be noted that if your SELinux policy is misconfigured, this may have an impact on the correct operation of the affected containers."
+      reference   : "800-53|SI-16,800-53r5|SI-16,CSCv7|5.2,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|2M"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/bin/docker ps --quiet --all | /bin/xargs /bin/docker inspect --format '{{ .Id }}: SecurityOpt={{ .HostConfig.SecurityOpt }} MountLabel={{ .MountLabel }} ProcessLabel={{ .ProcessLabel }}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "5.30 Ensure that Docker's default bridge \"docker0\" is not used"
+      info        : "You should not use Docker's default bridge docker0 Instead you should use Docker's user-defined networks for container networking.
+
+Docker connects virtual interfaces created in bridge mode to a common bridge called docker0 This default networking model is vulnerable to ARP spoofing and MAC flooding attacks as there is no filtering applied to it.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "You should follow the Docker documentation and set up a user-defined network. All the containers should be run in this network.
+
+Impact:
+
+User-defined networks need to be configured and managed in line with organizational security policy."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv6|9,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      cmd         : "/bin/docker network ls --quiet | /bin/xargs /bin/docker network inspect --format '{{ .Name }}: {{ .Options }}'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Docker_v1.8.0_L2_OS_Linux.audit from CIS Docker Benchmark v1.8.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18749"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

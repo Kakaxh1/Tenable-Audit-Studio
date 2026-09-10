@@ -1,0 +1,218 @@
+#TRUSTED 8bc4109e5028071bc1afefcb4eced573bb914e2536837daccf6c8e6c26e5ec73c505d2f71b026a0397d5cf05357746966dad234ff9ca71df48178c513db00e5ddfcb39ab7cbb2e6ab4a80ba2bebf4ce49dfea3eef8021f2b10f876a04d760c81b98a9a65744df158d0f6d2d1796d556d9c1496a5ad70379e01fc3bc29ef040927aabfe44a1c8dbe1e0a9219647aa5674efd81d216023ba394cd5e43598c0443bdb1d3489c81d458d968b5a96cbb6b744f528d86253f3339418779fe5429acee0d4c5a815e6cb1957de858e08efcee8d887040eca6957206902afa2fc99295236171f7a15cf5c76b75bee0b9310b22fc4ba17ade971f3523085d14fae6fb919c9ebdbfdad62e2d1db40ccb92b1f84a1c0fa94de2babe2b137d2b2830ae679ec62dac5c575f3e78842ea4dcece028721d6089b704e945db814bcfe718605e0d2395ec9c671393564b8582f5d774fc16a066cbb0f7af674704e9ef3267ad039a085e4564c2f1abbcc6b8e69b3f167c964a4be41a5fb0750dffefab103761e141c237db7a193dc08b39f25f2f377e59af121e51c61f8fff56af0861f3f2e6732e02de5df9d96d7b1719f4bfe0f646f72deb0b415d5c57d28246adea54d8018f855081762444ea5ec7b1cb2a91caf539f9f3ca969aff13e9fbf145b6f85042390fcb2b4f7e7277b62714557bfaf1b75b44b56450896ae19708c58a820b553fd5fc958
+#TRUST-RSA-SHA256 49114491a4f1d40c0c75ddce11c6fec88c92c3f8918bdf5c4daf2fcadcd70d94245f30f313ec588edf4bf4746cb4c9c9c80b545b63301738b89b53a6001e8df465ed3ccdcfa2b350dd489590e2fab3d92919fa8bc6c2c4b2724fc26b9ff6ec2fe304e2f829b68a97c039aefb408ff33312c46dd3ec91f579151051cd58cf028c37208352800e4caef4613114656d1b2ec7cd2c6f43ad95847f74e90dbff311176b2408de6eed036cc879e6e37001121d7cfb66cc16718f9fa3bf02cafbcb0df43b82678c21a4d1fc2bd3a922826df7427b2b42f5d781f0a6760f20e40117a70183fd2ac7d7783262e90dd1f35fedcad9a3114e823320b88dd66dbd38ec73da93f11815befa441048bdd1704224e1c68bb2cebc493d9612f1bd02a978649fb71f6e163de3d8a158d0e7ba73106f3dc36ae0c2a7cc05b62215680526efdbf542810b1900fe62d4f645df95f19ec488c1f33337c665712ec1638c152fbb7378820d6dfc553e594a133702b500672d22bcd40b143f83782667937c78ac98a828ac9178d9d6d9d379546a43315ebe850d403c5ea4a51aa4385eca22046d529938f84c834ec9b66e731af53940538d9239f52745f3991f10fec91c7577d61edbdf5a9b6c73a07676ca8e68a554a0ad72959f6e6a66deeadf2704c697c2836dbaf11b40c7a698b1630fb33778b7d4e0455922face07c76a27063f4d1fc9fcf637d1db4a
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/06/09 $
+#
+# description : This .audit is designed against the CIS Microsoft SQL Server 2022 Database STIG Benchmark v1.0.0
+#
+#<ui_metadata>
+#<display_name>CIS Microsoft SQL Server 2022 Database STIG v1.0.0 CAT I</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Microsoft SQL Server 2022 Database STIG</name>
+#  <profile>CAT I</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/23871</link>
+#</spec>
+#<labels>cis</labels>
+#<benchmark_refs>800-53,800-53r5,CCI,LEVEL,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"MS_SQLDB">
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check windows auth"
+      sql_request : "SELECT CASE SERVERPROPERTY('IsIntegratedSecurityOnly') WHEN 1 THEN 'Windows Authentication' WHEN 0 THEN 'Windows and SQL Server Authentication' END as [Authentication Mode]"
+      sql_types   : STRING
+      sql_expect  : "Windows Authentication"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check contained database authentication"
+      sql_request : "EXEC sp_configure 'contained database authentication';"
+      sql_types   : STRING, REGEX, REGEX, INTEGER, INTEGER
+      sql_expect  : "contained database authentication", ".+", ".+", 0, 0
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check authorized accounts"
+      sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT name FROM sys.database_principals WHERE type_desc = ''SQL_USER'' AND authentication_type_desc = ''DATABASE'';'"
+      sql_types   : STRING_OR_NULL
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "1.1 SQLD-22-000100"
+      info        : "SQL Server must integrate with an organization-level authentication/access mechanism providing account management and automation for all users, groups, roles, and any other principals.
+
+GROUP ID: V-271118RULE ID: SV-271118r1107970
+
+Enterprise environments make account management for applications and databases challenging and complex. A manual process for account management functions adds the risk of a potential oversight or other error. Managing accounts for the same person in multiple places is inefficient and prone to problems with consistency and synchronization.
+
+A comprehensive application account management process that includes automation helps to ensure that accounts designated as requiring attention are consistently and promptly addressed.
+
+Examples include using automation to act on multiple accounts designated as inactive, suspended, or terminated, or by disabling accounts located in noncentralized account stores, such as multiple servers. Account management functions can also include assignment of group or role membership; identifying account type; specifying user access authorizations (i.e., privileges); account removal, update, or termination; and administrative alerts. Using automated mechanisms can include, for example: using email or text messaging to notify account managers when users are terminated or transferred; using the information system to monitor account usage; and using automated telephone notification to report atypical system account usage.
+
+SQL Server must be configured to automatically use organization-level account management functions, and these functions must immediately enforce the organization's current account policy.
+
+Automation may comprise differing technologies that when placed together contain an overall mechanism supporting an organization's automated account management requirements.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "If mixed mode is required, document the need and justification; describe the measures taken to ensure the use of SQL Server authentication is kept to a minimum; describe the measures taken to safeguard passwords; list or describe the SQL Logins used; and obtain official approval.
+
+If mixed mode is not required, disable it as follows:
+
+In the SSMS Object Explorer, right-click on the server instance, select Properties >> Security page. Click the radio button for \"Windows Authentication Mode\", and then click \"OK\".
+
+Restart the SQL Server instance.
+
+OR
+
+Run the statement:
+
+USE [master]EXEC xp_instance_regwrite N'HKEY_LOCAL_MACHINE', N'Software\\Microsoft\\MSSQLServer\\MSSQLServer', N'LoginMode', REG_DWORD, 2GO
+
+Restart the SQL Server instance.
+
+For each account being managed by SQL Server but not requiring it, drop or disable the SQL Database user. Replace it with an appropriately configured account, as needed.
+
+To drop a User in the SSMS Object Explorer:
+
+Navigate to Databases >> Security Users. Right-click on the username and then click \"Delete\".
+
+To drop a User via a query:
+
+USE database_name;DROP USER <user_name>;"
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53r5|AC-2(1),CCI|CCI-000015,CN-L3|7.1.3.2(d),CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),LEVEL|1M,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-271118r1107970_rule,STIG-ID|SQLD-22-000100,Vuln-ID|V-271118"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/23871"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "1.2 SQLD-22-000300"
+  info        : "SQL Server must enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies.
+
+GROUP ID: V-271119RULE ID: SV-271119r1107973
+
+Authentication with a DOD-approved PKI certificate does not necessarily imply authorization to access the DBMS. To mitigate the risk of unauthorized access to sensitive information by entities that have been issued certificates by DOD-approved PKIs, all DOD systems, including databases, must be properly configured to implement access control policies.
+
+Successful authentication must not automatically give an entity access to an asset or security boundary. Authorization procedures and controls must be implemented to ensure each authenticated entity also has a validated and current authorization. Authorization is the process of determining whether an entity, once authenticated, is permitted to access a specific asset. Information systems use access control policies and enforcement mechanisms to implement this requirement.
+
+Access control policies include identity-based policies, role-based policies, and attribute-based policies. Access enforcement mechanisms include access control lists, access control matrices, and cryptography. These policies and mechanisms must be employed by the application to control access between users (or processes acting on behalf of users) and objects (e.g., devices, files, records, processes, programs, and domains) in the information system.
+
+This requirement is applicable to access control enforcement applications, a category that includes database management systems. If SQL Server does not follow applicable policy when approving access, it may be in conflict with networks or other applications in the information system. This may result in users either gaining or being denied access inappropriately and in conflict with applicable policy.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure SQL Server settings and access controls to permit user access only to objects and data that the user is authorized to view or interact with, and to prevent access to all other objects and data.
+
+Use GRANT, REVOKE, DENY, ALTER ROLE ... ADD MEMBER ... and/or ALTER ROLE .... DROP MEMBER statements to add and remove permissions on database-level securables, bringing them into line with the documented requirements."
+  reference   : "800-171|3.1.1,800-171r3|03.01.02,800-53|AC-3,800-53r5|AC-3,CCI|CCI-000213,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|PR.AC-4,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|1M,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-271119r1107973_rule,STIG-ID|SQLD-22-000300,TBA-FIISB|31.1,Vuln-ID|V-271119"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/23871"
+</report>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "1.21 SQLD-22-003200"
+  info        : "SQL Server must use NSA-approved cryptography to protect classified information in accordance with the data owner's requirements.
+
+GROUP ID: V-271199
+RULE ID: SV-271199r1108919
+
+Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data. The application must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated.
+
+It is the responsibility of the data owner to assess the cryptography requirements in light of applicable federal laws, Executive Orders, directives, policies, regulations, and standards.
+
+NSA-approved cryptography for classified networks is hardware based. This requirement addresses the compatibility of a DBMS with the encryption devices."
+  solution    : "Configure cryptographic functions to use NSA-approved cryptography compliant algorithms.
+
+Use DOD code-signing certificates to create asymmetric keys stored in the database used to encrypt sensitive data stored in the database.
+
+Run the following SQL script to create a certificate:
+
+USE
+CREATE CERTIFICATE
+ ENCRYPTION BY PASSWORD = <'password'>
+ FROM FILE = <'path/file_name'>
+ WITH SUBJECT = 'name of person creating key',
+ EXPIRY_DATE = '<'expiration date: yyyymmdd'>'
+
+Run the following SQL script to create a symmetric key and assign an existing certificate:
+
+USE
+CREATE SYMMETRIC KEY <'key name'>
+ WITH ALGORITHM = AES_256
+ ENCRYPTION BY CERTIFICATE
+
+For Transparent Data Encryption (TDE):
+
+USE master;
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '';
+CREATE CERTIFICATE . . .;
+USE ;
+CREATE DATABASE ENCRYPTION KEY
+WITH ALGORITHM = AES_256
+ENCRYPTION BY SERVER CERTIFICATE ;
+ALTER DATABASE
+SET ENCRYPTION ON;"
+  reference   : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,LEVEL|1M,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2,Rule-ID|SV-271199r1108919_rule,STIG-ID|SQLD-22-003200,Vuln-ID|V-271199"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/23871"
+  sql_request : "SELECT DISTINCT name, algorithm_desc FROM sys.symmetric_keys WHERE key_algorithm NOT IN ('D3','A3') ORDER BY name;"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "1.22 SQLD-22-003300"
+  info        : "SQL Server must implement cryptographic mechanisms to prevent unauthorized modification or disclosure of organization-defined information at rest (to include, at a minimum, PII and classified information) on organization-defined information system components.
+
+GROUP ID: V-271201
+RULE ID: SV-271201r1109210
+
+DBMSs handling data requiring \"data at rest\" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. These cryptographic mechanisms may be native to the DBMS or implemented via additional software or operating system/file system settings, as appropriate to the situation.
+
+Selection of a cryptographic mechanism is based on the need to protect the integrity of organizational information. The strength of the mechanism is commensurate with the security category and/or classification of the information. Organizations have the flexibility to either encrypt all information on storage devices (i.e., full disk encryption) or encrypt specific data structures (e.g., files, records, or fields).
+
+The decision whether and what to encrypt rests with the data owner and is also influenced by the physical measures taken to secure the equipment and media on which the information resides.
+
+Satisfies: SRG-APP-000429-DB-000387
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Where full-disk encryption is required, configure Windows and/or the storage system to provide this.
+
+Where TDE is required, create a master key, obtain a certificate protected by the master key, create a database encryption key and protect it by the certificate, and then set the database to use encryption. For guidance from MSDN on how to do this, refer to: https://msdn.microsoft.com/en-us/library/bb934049.aspx.
+
+Where table/column encryption is required, enable encryption on the tables/columns in question. For guidance from the Microsoft Developer Network on how to do this with Always Encrypted, refer to: https://msdn.microsoft.com/en-us/library/mt163865.aspx."
+  reference   : "800-171|3.13.16,800-171r3|03.13.08,800-53|SC-28(1),800-53r5|SC-28(1),CCI|CCI-002475,CCI|CCI-002476,CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSF|PR.DS-1,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.33,ITSG-33|SC-28(1),LEVEL|1M,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-271201r1109210_rule,STIG-ID|SQLD-22-003300,TBA-FIISB|28.1,Vuln-ID|V-271201"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/23871"
+  sql_request : "SELECT DB_NAME(database_id) AS [Database Name], CASE encryption_state WHEN 0 THEN 'No database encryption key present, no encryption' WHEN 1 THEN 'Unencrypted' WHEN 2 THEN 'Encryption in progress' WHEN 3 THEN 'Encrypted' WHEN 4 THEN 'Key change in progress' WHEN 5 THEN 'Decryption in progress' WHEN 6 THEN 'Protection change in progress' END AS [Encryption State] FROM sys.dm_database_encryption_keys;"
+  sql_types   : STRING
+  sql_expect  : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+</check_type>

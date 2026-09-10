@@ -1,0 +1,2305 @@
+#TRUSTED 0a10f0ac41b6437a0f1ac6386e83442630dc2ead00cb221798d56ea4d8303aa8064fe0e67200da4f08d546398e34d630667c1694524d4c07b81ad4529eadc2722e1591b891fa212e66b2ac047fb6d23b15ed5a8768c3021c94df9dd0d74e9aabfcbc92f63da0d23bbc5577e3d3fc0020670673d9bca5d6330903010c9690575a8108ca8e39d0f2b31eb5fe931752d865fef60ff8c8bbb0b1aab30a3e40c254430af46e06d8cc8249c092d75a93ce17ee4a61640c08a15690a81b61d6c4dd74e843ef3beee121b0b12807f0cd2b5106b628cde766b62ad0ba184d37046459558b8f9790e3add19f19f4352d7d6b7d89897a522e38d533a38634278eb9392b9d000b3d56866d2c0024d39d442b454231eafebcf4c6148506940c0cef4b401e31018f808d9a5fb7a9c86b654fad9e3f0db77bdddc8a9081a896b1ec13dd9a3703b3afe5a46dfacee3fc5896cac11e7de32be9d6fe6d00ec0bd6c389aa26c1e768849e001e8adbcc958b5a2a12400ed839becbd889b9c2d9401a965e0b8d4c95986f30c9d1b97c1745ddca708182882b24b4a77c98e6a8d80f7397fd7ec3fba13731aaa02c695e27d83c8bee43055eed61a61d6f9bd55f134e48b0e57f5508910fe788c0f660d028d3e0885bf63a14e6b1dc2114eea04c393aeb6d7b020627ecf4a2d280d8ba07d43b55717125fe2aeb22883f60c76d9e7eb40b1e93a17b909e0a50
+#TRUST-RSA-SHA256 73ce75a66e29b73da5028202ef5eff038b0697e0dff5f05d46dc83b6b30dd7b26915d0d7b52b1aa1178f947c209a1aee4d1278f407a4953422ecb3de3588766a53cc755273a922a7bfbff2954b0fcaf19fdad44aa0804c43dd86e17781e7bb2bd63873ccecdb90aa114ab9dad694035d9d7c376f085f06c2dac84fdb003abea059948f48812b2ad73cdd47e5183348ebf19625723081ef1c3422a0eb18d9c140b9a783b0d0b5e1ed5685172853022a22cd20057f174c8e1521ff02a2b3bcb837e52683400461bcbecdcc690fb88e9044935f234adf1d2dac88a741a42f6fa2988bddb3784980c69d3af9bcd2e0d6c8b6134a23d29dc96196efa292044f989774fa7d25a64b460039966d1ef7131db75fee186659fa635241f7928ade56bc478b13e32ffc45aa37d668a41cad6bbf6e904583c773f694b93eed5292edfc8052509d31827bfe65435d1f58b96318fc05f7cd8ad996d71a3aaed0f39bcd03f15b15d1add1c63030436c235ae7145ea97c2120ac8474590dbc2c61e6c09458b69468ce9a07f7fc47bd88fa34c656b62c90b34b110c9735e6db1e5666f0568113f8871b2c0feede25c34d6ee999e54deb71e9f17823e2d0812c870e15a0fffdc1faaf09a9b01a4138a2aa9769edc0ef84020dbd2e35b598fcfbbefdc5be9622ec70f5b8aefe717fb1286324d1352ce1d614390bc5d7f297ae2795474b436c734f8200
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.2 $
+# $Date: 2024/06/17 $
+#
+# Description   : This document implements the security configuration as recommended by the
+#                 CIS PostgreSQL 12 Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS PostgreSQL 12 DB v1.1.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>PostgreSQL 12</name>
+#  <profile>L1 DB</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/11861</link>
+#</spec>
+#<labels>cis,postgres,update_20230227</labels>
+#<benchmark_refs>CCE,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>LOG_DEST</name>
+#    <default>stderr</default>
+#    <description>3.1.2</description>
+#    <info>3.1.2 Log Destination</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_DIR</name>
+#    <default>log</default>
+#    <description>3.1.4</description>
+#    <info>3.1.4 Log Dir</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_FILE_NAMES</name>
+#    <default>postgresql-%a.log</default>
+#    <description>3.1.5</description>
+#    <info>3.1.5 Log File Names</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_FILE_PERMS</name>
+#    <default>0600</default>
+#    <description>3.1.6</description>
+#    <info>3.1.6 Log File Perms</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_ROT_AGE</name>
+#    <default>1d</default>
+#    <description>3.1.8</description>
+#    <info>3.1.8 Log Rot Age</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_ROT_SIZE</name>
+#    <default>0</default>
+#    <description>3.1.9</description>
+#    <info>3.1.9 Log Rot Size</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SYSLOG_FACILITY</name>
+#    <default>local0</default>
+#    <description>3.1.10</description>
+#    <info>3.1.10 Syslog Facility</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SYSLOG_IDENT</name>
+#    <default>postgres</default>
+#    <description>3.1.13</description>
+#    <info>3.1.13 Syslog Ident</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_ERR_VERBOSITY</name>
+#    <default>default</default>
+#    <description>3.1.22</description>
+#    <info>3.1.22 Log Err Verbosity</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_HOSTNAME</name>
+#    <default>off</default>
+#    <description>3.1.23</description>
+#    <info>3.1.23 Log Hostname</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_LINE_PREFIX</name>
+#    <default>%m</default>
+#    <description>3.1.24</description>
+#    <info>3.1.24 Log Line Prefix</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_STMT</name>
+#    <default>none</default>
+#    <description>3.1.25</description>
+#    <info>3.1.25 Log Statement</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_TIMEZONE</name>
+#    <default>US/Eastern</default>
+#    <description>3.1.26</description>
+#    <info>3.1.26 Log Timezone</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>ARCHIVE_COMMAND</name>
+#    <default>\'.*ssh</default>
+#    <description>7.4</description>
+#    <info>7.4 Archive Command</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"PostgreSQLDB">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "PostgreSQL version is 12"
+      sql_request : "select version()"
+      sql_types   : REGEX
+      sql_expect  : "^[\\s]*PostgreSQL 12\..*"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_PostgreSQL_12_v1.1.0_L1_DB.audit from CIS PostgreSQL 12 Benchmark v1.1.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+    </report>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.2 Ensure the log destinations are set correctly"
+      info        : "PostgreSQL supports several methods for logging server messages, including stderr, csvlog, syslog, and jsonlog. On Windows, eventlog is also supported. One or more of these destinations should be set for server log output.
+
+Rationale:
+
+If log_destination is not set, then any log messages generated by the core PostgreSQL processes will be lost."
+      solution    : "Execute the following SQL statements to remediate this setting (in this example, setting the log destination to csvlog):
+
+postgres=# alter system set log_destination = 'csvlog';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Note: If more than one log destination is to be used, set this parameter to a list of desired log destinations separated by commas (e.g. 'csvlog, stderr').
+
+Default Value:
+
+stderr"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_destination"
+      sql_types   : STRING
+      sql_expect  : "@LOG_DEST@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.3 Ensure the logging collector is enabled"
+      info        : "The logging collector is a background process that captures log messages sent to stderr and redirects them into log files. The logging_collector setting must be enabled in order for this process to run. It can only be set at the server start.
+
+Rationale:
+
+The logging collector approach is often more useful than logging to syslog, since some types of messages might not appear in syslog output. One common example is dynamic-linker failure message; another may be error messages produced by scripts such as archive_command.
+
+Note: This setting must be enabled when log_destination is either stderr or csvlog or logs will be lost. Certain other logging parameters require it as well."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set logging_collector = 'on';
+ALTER SYSTEM
+
+Unfortunately, this setting can only be changed at the server (re)start. As root, restart the PostgreSQL service for this change to take effect:
+
+# whoami
+root
+# systemctl restart postgresql-12
+# systemctl status postgresql-12|grep 'ago$'
+   Active: active (running) since <date>; <count>s ago
+
+Default Value:
+
+on"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show logging_collector"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.4 Ensure the log file destination directory is set correctly"
+      info        : "The log_directory setting specifies the destination directory for log files when log_destination is stderr or csvlog. It can be specified as relative to the cluster data directory ($PGDATA) or as an absolute path. log_directory should be set according to your organization's logging policy.
+
+Rationale:
+
+If log_directory is not set, it is interpreted as the absolute path '/' and PostgreSQL will attempt to write its logs there (and typically fail due to a lack of permissions to that directory). This parameter should be set to direct the logs into the appropriate directory location as defined by your organization's logging policy."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set log_directory='/var/log/postgres';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+postgres=# show log_directory;
+ log_directory
+---------------
+ /var/log/postgres
+(1 row)
+
+Note: The use of /var/log/postgres, above, is an example. This should be set to an appropriate path as defined by your organization's logging requirements. Having said that, it is a good idea to have the logs outside of your PGDATA directory so that they are not included by things like pg_basebackup or pgBackRest.
+
+Default Value:
+
+log which is relative to the cluster's data directory (e.g. /var/lib/pgsql/<pgmajorversion>/data/log)"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_directory"
+      sql_types   : STRING
+      sql_expect  : "@LOG_DIR@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.5 Ensure the filename pattern for log files is set correctly"
+      info        : "The log_filename setting specifies the filename pattern for log files. The value for log_filename should match your organization's logging policy.
+
+The value is treated as a strftime pattern, so %-escapes can be used to specify time-varying file names. The supported %-escapes are similar to those listed in the Open Group's strftime specification. If you specify a file name without escapes, you should plan to use a log rotation utility to avoid eventually filling the partition that contains log_directory. If there are any time-zone-dependent %-escapes, the computation is done in the zone specified by log_timezone. Also, the system's strftime is not used directly, so platform-specific (nonstandard) extensions do not work.
+
+If CSV-format output is enabled in log_destination, .csv will be appended to the log filename. (If log_filename ends in .log, the suffix is replaced instead.)
+
+Rationale:
+
+If log_filename is not set, then the value of log_directory is prepended to an empty string and PostgreSQL will fail to start as it will try to write to a directory instead of a file."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set log_filename='postgresql-%Y%m%d.log';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+postgres=# show log_filename;
+   log_filename
+-------------------
+ postgresql-%Y%m%d.log
+(1 row)
+
+Note: In this example, a new log file will be created for each day (e.g. postgresql-20200804.log)
+
+Default Value:
+
+The default is postgresql-%a.log, which creates a new log file for each day of the week (e.g. postgresql-Mon.log, postgresql-Tue.log)."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_filename"
+      sql_types   : STRING
+      sql_expect  : "@LOG_FILE_NAMES@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.6 Ensure the log file permissions are set correctly"
+      info        : "The log_file_mode setting determines the file permissions for log files when logging_collector is enabled. The parameter value is expected to be a numeric mode specification in the form accepted by the chmod and umask system calls. (To use the customary octal format, the number must start with a 0 (zero).)
+
+The permissions should be set to allow only the necessary access to authorized personnel. In most cases, the best setting is 0600, so that only the server owner can read or write the log files. The other commonly useful setting is 0640, allowing members of the owner's group to read the files, although to make use of that, you will need to either alter the log_directory setting to store the log files outside the cluster data directory or use PGSETUP_INITDB_OPTIONS='-k -g' when initializing the cluster.
+
+Rationale:
+
+Log files often contain sensitive data. Allowing unnecessary access to log files may inadvertently expose sensitive data to unauthorized personnel."
+      solution    : "Execute the following SQL statement(s) to remediate this setting (with the example assuming the desired value of 0600):
+
+postgres=# alter system set log_file_mode = '0600';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+postgres=# show log_file_mode;
+ log_file_mode
+---------------
+ 0600
+(1 row)
+
+Default Value:
+
+0600"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_file_mode"
+      sql_types   : STRING
+      sql_expect  : "@LOG_FILE_PERMS@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.7 Ensure 'log_truncate_on_rotation' is enabled"
+      info        : "Enabling the log_truncate_on_rotation setting when logging_collector is enabled causes PostgreSQL to truncate (overwrite) existing log files with the same name during log rotation instead of appending to them. For example, using this setting in combination with a log_filename setting value like postgresql-%H.log would result in generating 24 hourly log files and then cyclically overwriting them:
+
+postgresql-00.log
+
+postgresql-01.log
+
+[...]
+
+postgresql-23.log
+
+Note: Truncation will occur only when a new file is being opened due to time-based rotation, not during server startup or size-based rotation (see later in this benchmark for size-based rotation details).
+
+Rationale:
+
+If this setting is disabled, pre-existing log files will be appended to if log_filename is configured in such a way that static or recurring names are generated.
+
+Enabling or disabling the truncation should only be decided when also considering the value of log_filename and log_rotation_age/log_rotation_size. Some examples to illustrate the interaction between these settings:
+
+# truncation is moot, as each rotation gets a unique filename (postgresql-20180605.log)
+
+log_truncate_on_rotation = on
+
+log_filename = 'postgresql-%Y%m%d.log'
+
+log_rotation_age = '1d'
+
+log_rotation_size = 0
+
+# truncation every hour, losing log data every hour until the date changes
+
+log_truncate_on_rotation = on
+
+log_filename = 'postgresql-%Y%m%d.log'
+
+log_rotation_age = '1h'
+
+log_rotation_size = 0
+
+# no truncation if the date changed before generating 100M of log data, truncation otherwise
+
+log_truncate_on_rotation = on
+
+log_filename = 'postgresql-%Y%m%d.log'
+
+log_rotation_age = '0'
+
+log_rotation_size = '100M'"
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set log_truncate_on_rotation = 'on';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+postgres=# show log_truncate_on_rotation;
+ log_truncate_on_rotation
+--------------------------
+ on
+(1 row)
+
+Default Value:
+
+on"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSCv8|8.3,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_truncate_on_rotation"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.8 Ensure the maximum log file lifetime is set correctly"
+      info        : "When logging_collector is enabled, the log_rotation_age parameter determines the maximum lifetime of an individual log file (depending on the value of log_filename). After this many minutes have elapsed, a new log file will be created via automatic log file rotation. Current best practices advise log rotation at least daily, but your organization's logging policy should dictate your rotation schedule.
+
+Rationale:
+
+Log rotation is a standard best practice for log management."
+      solution    : "Execute the following SQL statement(s) to remediate this setting (in this example, setting it to one hour):
+
+postgres=# alter system set log_rotation_age='1h';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+1d (one day)"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSCv8|8.3,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_rotation_age"
+      sql_types   : STRING
+      sql_expect  : "@LOG_ROT_AGE@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.9 Ensure the maximum log file size is set correctly"
+      info        : "The log_rotation_size setting determines the maximum size of an individual log file. Once the maximum size is reached, automatic log file rotation will occur.
+
+Rationale:
+
+If this is set to zero, the size-triggered creation of new log files is disabled. This will prevent automatic log file rotation when files become too large, which could put log data at increased risk of loss (unless age-based rotation is configured)."
+      solution    : "Execute the following SQL statement(s) to remediate this setting (in this example, setting it to 1GB):
+
+postgres=# alter system set log_rotation_size = '1GB';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+0"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSCv8|8.3,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_rotation_size"
+      sql_types   : STRING
+      sql_expect  : "@LOG_ROT_SIZE@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.10 Ensure the correct syslog facility is selected"
+      info        : "The syslog_facility setting specifies the syslog 'facility' to be used when logging to syslog is enabled. You can choose from any of the 'local' facilities:
+
+LOCAL0
+
+LOCAL1
+
+LOCAL2
+
+LOCAL3
+
+LOCAL4
+
+LOCAL5
+
+LOCAL6
+
+LOCAL7
+
+Your organization's logging policy should dictate which facility to use based on the syslog daemon in use.
+
+Rationale:
+
+If not set to the appropriate facility, the PostgreSQL log messages may be intermingled with other applications' log messages, incorrectly routed, or potentially dropped (depending on your syslog configuration)."
+      solution    : "Execute the following SQL statement(s) to remediate this setting (in this example, setting it to the LOCAL1 facility):
+
+postgres=# alter system set syslog_facility = 'LOCAL1';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+LOCAL0"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1M,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show syslog_facility"
+      sql_types   : STRING
+      sql_expect  : "@SYSLOG_FACILITY@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.11 Ensure syslog messages are not suppressed"
+      info        : "When logging to Syslog and syslog_sequence_numbers is on, then each message will be prefixed by an increasing sequence number (such as [2]).
+
+Rationale:
+
+Many modern Syslog implementations perform a log optimization and suppress repeated log entries while emitting '--- last message repeated N times ---'. In more modern Syslog implementations, repeated message suppression can be configured (for example, $RepeatedMsgReduction in rsyslog).
+
+Impact:
+
+If disabled, messages sent to Syslog could be suppressed and not logged. While a message is emitted stating that a given message was repeated and suppressed, the timestamp associated with these suppressed messages is lost, potentially damaging the recreation of an incident timeline."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set syslog_sequence_numbers = 'on';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+on"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show syslog_sequence_numbers"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.12 Ensure syslog messages are not lost due to size"
+      info        : "PostgreSQL log messages can exceed 1024 bytes, which is a typical size limit for traditional Syslog implementations. When syslog_split_messages is off, PostgreSQL server log messages are delivered to the Syslog service as is, and it is up to the Syslog service to cope with the potentially bulky messages. When syslog_split_messages is on, messages are split by lines, and long lines are split so that they will fit into 1024 bytes.
+
+If syslog is ultimately logging to a text file, then the effect will be the same either way, and it is best to leave the setting on, since most syslog implementations either cannot handle large messages or would need to be specially configured to handle them. But if syslog is ultimately writing into some other medium, it might be necessary or more useful to keep messages logically together.
+
+Rationale:
+
+Impact:
+
+Depending on the Syslog server in use, log messages exceeding 1024 bytes may be lost or, potentially, cause the Syslog server processes to abort."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set syslog_split_messages = 'on';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+on"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show syslog_split_messages"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.13 Ensure the program name for PostgreSQL syslog messages is correct"
+      info        : "The syslog_ident setting specifies the program name used to identify PostgreSQL messages in syslog logs. An example of a possible program name is postgres.
+
+Rationale:
+
+If this is not set correctly, it may be difficult or impossible to distinguish PostgreSQL messages from other messages in Syslog logs."
+      solution    : "Execute the following SQL statement(s) to remediate this setting (in this example, assuming a program name of proddb):
+
+postgres=# alter system set syslog_ident = 'proddb';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+postgres=# show syslog_ident;
+ syslog_ident
+--------------
+ proddb
+(1 row)
+
+Default Value:
+
+postgres"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show syslog_ident"
+      sql_types   : STRING
+      sql_expect  : "@SYSLOG_IDENT@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.14 Ensure the correct messages are written to the server log"
+      info        : "The log_min_messages setting specifies the message levels that are written to the server log. Each level includes all the levels that follow it. The lower the level (vertically, below), the fewer messages are logged.
+
+Valid values are:
+
+DEBUG5 <-- exceedingly chatty
+
+DEBUG4
+
+DEBUG3
+
+DEBUG2
+
+DEBUG1
+
+INFO
+
+NOTICE
+
+WARNING <-- default
+
+ERROR
+
+LOG
+
+FATAL
+
+PANIC <-- practically mute
+
+WARNING is considered the best practice unless indicated otherwise by your organization's logging policy.
+
+Rationale:
+
+If this is not set to the correct value, too many or too few messages may be written to the server log."
+      solution    : "Execute the following SQL statement(s) as superuser to remediate this setting (in this example, to set it to warning):
+
+postgres=# alter system set log_min_messages = 'warning';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+WARNING"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSCv8|8.3,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_min_messages"
+      sql_types   : STRING
+      sql_expect  : "warning"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.15 Ensure the correct SQL statements generating errors are recorded"
+      info        : "The log_min_error_statement setting causes all SQL statements generating errors at or above the specified severity level to be recorded in the server log. Each level includes all the levels that follow it. The lower the level (vertically, below), the fewer messages are recorded. Valid values are:
+
+DEBUG5 <-- exceedingly chatty
+
+DEBUG4
+
+DEBUG3
+
+DEBUG2
+
+DEBUG1
+
+INFO
+
+NOTICE
+
+WARNING
+
+ERROR <-- default
+
+LOG
+
+FATAL
+
+PANIC <-- practically mute
+
+ERROR is considered the best practice setting. Changes should only be made in accordance with your organization's logging policy.
+
+Note: To effectively turn off logging of failing statements, set this parameter to PANIC.
+
+Rationale:
+
+If this is not set to the correct value, too many erring or too few erring SQL statements may be written to the server log."
+      solution    : "Execute the following SQL statement(s) as superuser to remediate this setting (in the example, to error):
+
+postgres=# alter system set log_min_error_statement = 'error';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+ERROR"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSCv8|8.3,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_min_error_statement"
+      sql_types   : STRING
+      sql_expect  : "error"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.16 Ensure 'debug_print_parse' is disabled - debug_print_parse is disabled"
+      info        : "The debug_print_parse setting enables printing the resulting parse tree for each executed query. These messages are emitted at the LOG message level. Unless directed otherwise by your organization's logging policy, it is recommended this setting be disabled by setting it to off.
+
+Rationale:
+
+Enabling any of the DEBUG printing variables may cause the logging of sensitive information that would otherwise be omitted based on the configuration of the other logging settings."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set debug_print_parse='off';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+off"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show debug_print_parse"
+      sql_types   : STRING
+      sql_expect  : "off"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.17 Ensure 'debug_print_rewritten' is disabled - debug_print_rewritten is disabled"
+      info        : "The debug_print_rewritten setting enables printing the query rewriter output for each executed query. These messages are emitted at the LOG message level. Unless directed otherwise by your organization's logging policy, it is recommended this setting be disabled by setting it to off.
+
+Rationale:
+
+Enabling any of the DEBUG printing variables may cause the logging of sensitive information that would otherwise be omitted based on the configuration of the other logging settings."
+      solution    : "Execute the following SQL statement(s) to disable this setting:
+
+postgres=# alter system set debug_print_rewritten = 'off';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+off"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show debug_print_rewritten"
+      sql_types   : STRING
+      sql_expect  : "off"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.18 Ensure 'debug_print_plan' is disabled - debug_print_plan is disabled"
+      info        : "The debug_print_plan setting enables printing the execution plan for each executed query. These messages are emitted at the LOG message level. Unless directed otherwise by your organization's logging policy, it is recommended this setting be disabled by setting it to off.
+
+Rationale:
+
+Enabling any of the DEBUG printing variables may cause the logging of sensitive information that would otherwise be omitted based on the configuration of the other logging settings."
+      solution    : "Execute the following SQL statement(s) to disable this setting:
+
+postgres=# alter system set debug_print_plan = 'off';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+off"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show debug_print_plan"
+      sql_types   : STRING
+      sql_expect  : "off"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.19 Ensure 'debug_pretty_print' is enabled - debug_pretty_print is enabled"
+      info        : "Enabling debug_pretty_print indents the messages produced by debug_print_parse, debug_print_rewritten, or debug_print_plan making them significantly easier to read.
+
+Rationale:
+
+If this setting is disabled, the 'compact' format is used instead, significantly reducing the readability of the DEBUG statement log messages.
+
+Impact:
+
+Be advised that the aforementioned DEBUG printing options are disabled, but if your organizational logging policy requires them to be on then this option comes into play."
+      solution    : "Execute the following SQL statement(s) to enable this setting:
+
+postgres=# alter system set debug_pretty_print = 'on';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+on"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show debug_pretty_print"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.20 Ensure 'log_connections' is enabled - log_connections is enabled"
+      info        : "Enabling the log_connections setting causes each attempted connection to the server to be logged, as well as successful completion of client authentication. This parameter cannot be changed after the session start.
+
+Rationale:
+
+PostgreSQL does not maintain an internal record of attempted connections to the database for later auditing. It is only by enabling the logging of these attempts that one can determine if unexpected attempts are being made.
+
+Note that enabling this without also enabling log_disconnections provides little value. Generally, you would enable/disable the pair together."
+      solution    : "Execute the following SQL statement(s) to enable this setting:
+
+postgres=# alter system set log_connections = 'on';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Then, in a new connection to the database, verify the change:
+
+postgres=# show log_connections;
+ log_connections
+-----------------
+ on
+(1 row)
+
+Note that you cannot verify this change in the same connection in which it was changed; a new connection is needed.
+
+Default Value:
+
+off"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_connections"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.21 Ensure 'log_disconnections' is enabled - log_disconnections is enabled"
+      info        : "Enabling the log_disconnections setting logs the end of each session, including session duration. This parameter cannot be changed after the session start.
+
+Rationale:
+
+PostgreSQL does not maintain the beginning or ending of a connection internally for later review. It is only by enabling the logging of these that one can examine connections for failed attempts, 'over long' duration, or other anomalies.
+
+Note that enabling this without also enabling log_connections provides little value. Generally, you would enable/disable the pair together."
+      solution    : "Execute the following SQL statement(s) to enable this setting:
+
+postgres=# alter system set log_disconnections = 'on';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+off"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_disconnections"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.22 Ensure 'log_error_verbosity' is set correctly - log_error_verbosity is set correctly"
+      info        : "The log_error_verbosity setting specifies the verbosity (amount of detail) of logged messages. Valid values are:
+
+TERSE
+
+DEFAULT
+
+VERBOSE
+
+with each containing the fields of the level above it as well as additional fields.
+
+TERSE excludes the logging of DETAIL, HINT, QUERY, and CONTEXT error information.
+
+VERBOSE output includes the SQLSTATE, error code, and the source code file name, function name, and line number that generated the error.
+
+The appropriate value should be set based on your organization's logging policy.
+
+Rationale:
+
+If this is not set to the correct value, too many details or too few details may be logged."
+      solution    : "Execute the following SQL statement(s) as superuser to remediate this setting (in this example, to verbose):
+
+postgres=# alter system set log_error_verbosity = 'verbose';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+DEFAULT"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_error_verbosity"
+      sql_types   : STRING
+      sql_expect  : "@LOG_ERR_VERBOSITY@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.23 Ensure 'log_hostname' is set correctly - log_hostname is set correctly"
+      info        : "Enabling the log_hostname setting causes the hostname of the connecting host to be logged in addition to the host's IP address for connection log messages. Disabling the setting causes only the connecting host's IP address to be logged, and not the hostname. Unless your organization's logging policy requires hostname logging, it is best to disable this setting so as not to incur the overhead of DNS resolution for each statement that is logged.
+
+Rationale:
+
+Depending on your hostname resolution setup, enabling this setting might impose a non-negligible performance penalty. Additionally, the IP addresses that are logged can be resolved to their DNS names when reviewing the logs (unless dynamic hostnames are being used as part of your DHCP setup)."
+      solution    : "Execute the following SQL statement(s) to remediate this setting (in this example, to off):
+
+postgres=# alter system set log_hostname='off';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+off"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_hostname"
+      sql_types   : STRING
+      sql_expect  : "@LOG_HOSTNAME@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.24 Ensure 'log_line_prefix' is set correctly - log_line_prefix is set correctly"
+      info        : "The log_line_prefix setting specifies a printf-style string that is prefixed to each log line. If blank, no prefix is used. You should configure this as recommended by the pgBadger development team unless directed otherwise by your organization's logging policy.
+
+% characters begin 'escape sequences' that are replaced with status information as outlined below. Unrecognized escapes are ignored. Other characters are copied straight to the logline. Some escapes are only recognized by session processes and will be treated as empty by background processes such as the main server process. Status information may be aligned either left or right by specifying a numeric literal after the % and before the option. A negative value will cause the status information to be padded on the right with spaces to give it a minimum width, whereas a positive value will pad on the left. Padding can be useful to aid human readability in log files.
+
+Any of the following escape sequences can be used:
+
+%a = application name
+
+%u = user name
+
+%d = database name
+
+%r = remote host and port
+
+%h = remote host
+
+%b = backend type
+
+%p = process ID
+
+%P = process ID of parallel group leader
+
+%t = timestamp without milliseconds
+
+%m = timestamp with milliseconds
+
+%n = timestamp with milliseconds (as a Unix epoch)
+
+%Q = query ID (0 if none or not computed)
+
+%i = command tag
+
+%e = SQL state
+
+%c = session ID
+
+%l = session line number
+
+%s = session start timestamp
+
+%v = virtual transaction ID
+
+%x = transaction ID (0 if none)
+
+%q = stop here in non-session processes
+
+%% = '%'
+
+Rationale:
+
+Properly setting log_line_prefix allows for adding additional information to each log entry (such as the user, or the database). Said information may then be of use in auditing or security reviews."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set log_line_prefix = '%m [%p]: [%l-1] db=%d,user=%u,app=%a,client=%h ';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+%m [%p]"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_line_prefix"
+      sql_types   : STRING
+      sql_expect  : "@LOG_LINE_PREFIX@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.25 Ensure 'log_statement' is set correctly - log_statement is set correctly"
+      info        : "The log_statement setting specifies the types of SQL statements that are logged. Valid values are:
+
+none (off)
+
+ddl
+
+mod
+
+all (all statements)
+
+It is recommended this be set to ddl unless otherwise directed by your organization's logging policy.
+
+ddl logs all data definition statements:
+
+CREATE
+
+ALTER
+
+DROP
+
+mod logs all ddl statements, plus data-modifying statements:
+
+INSERT
+
+UPDATE
+
+DELETE
+
+TRUNCATE
+
+COPY FROM
+
+(PREPARE, EXECUTE, and EXPLAIN ANALYZE statements are also logged if their contained command is of an appropriate type.)
+
+For clients using extended query protocol, logging occurs when an Execute message is received, and values of the Bind parameters are included (with any embedded single-quote marks doubled).
+
+Rationale:
+
+Setting log_statement to align with your organization's security and logging policies facilitates later auditing and review of database activities."
+      solution    : "Execute the following SQL statement(s) as superuser to remediate this setting:
+
+postgres=# alter system set log_statement='ddl';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+none"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_statement"
+      sql_types   : STRING
+      sql_expect  : "@LOG_STMT@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.1.26 Ensure 'log_timezone' is set correctly - log_timezone is set correctly"
+      info        : "The log_timezone setting specifies the time zone to use in timestamps within log messages. This value is cluster-wide, so that all sessions will report timestamps consistently. Unless directed otherwise by your organization's logging policy, set this to either GMT or UTC.
+
+Rationale:
+
+Log entry timestamps should be configured for an appropriate time zone as defined by your organization's logging policy to ensure a lack of confusion around when a logged event occurred.
+
+Note that this setting affects only the timestamps present in the logs. It does not affect the time zone in use by the database itself (for example, select now()), nor does it affect the host's time zone."
+      solution    : "Execute the following SQL statement(s) to remediate this setting:
+
+postgres=# alter system set log_timezone = 'GMT';
+ALTER SYSTEM
+postgres=# select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+
+Default Value:
+
+By default, the PGDG packages will set this to match the server's timezone in the Operating System."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_timezone"
+      sql_types   : STRING
+      sql_expect  : "@LOG_TIMEZONE@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.2 Ensure the PostgreSQL Audit Extension (pgAudit) is enabled - show pgaudit.log"
+      info        : "The PostgreSQL Audit Extension (pgAudit) provides detailed session and/or object audit logging via the standard PostgreSQL logging facility. The goal of pgAudit is to provide PostgreSQL users with the capability to produce audit logs often required to comply with government, financial, or ISO certifications.
+
+Rationale:
+
+Basic statement logging can be provided by the standard logging facility with log_statement = all. This is acceptable for monitoring and other uses but does not provide the level of detail generally required for an audit. It is not enough to have a list of all the operations performed against the database, it must also be possible to find particular statements that are of interest to an auditor. The standard logging facility shows what the user requested, while pgAudit focuses on the details of what happened while the database was satisfying the request.
+
+When logging SELECT and DML statements, pgAudit can be configured to log a separate entry for each relation referenced in a statement. No parsing is required to find all statements that touch a particular table. In fact, the goal is that the statement text is provided primarily for deep forensics and should not be required for an audit.
+
+Impact:
+
+Depending on settings, it is possible for pgAudit to generate an enormous volume of logging. Be careful to determine exactly what needs to be audit logged in your environment to avoid logging too much."
+      solution    : "To install and enable pgAudit, simply install the appropriate rpm from the PGDG repo:
+
+# whoami
+root
+# dnf -y install pgaudit14_12
+[snip]
+Installed:
+  pgaudit14_12-1.4.3-1.rhel9.x86_64
+
+Complete!
+
+pgAudit is now installed and ready to be configured. Next, we need to alter the postgresql.conf configuration file to:
+
+enable pgAudit as an extension in the shared_preload_libraries parameter
+
+indicate which classes of statements we want to log via the pgaudit.log parameter
+
+and, finally, restart the PostgreSQL service:
+
+$ vi ${PGDATA}/postgresql.conf
+
+Find the shared_preload_libraries entry, and add 'pgaudit' to it (preserving any existing entries):
+
+shared_preload_libraries = 'pgaudit'
+
+OR
+
+shared_preload_libraries = 'pgaudit,somethingelse'
+
+Now, add a new pgaudit-specific entry:
+
+# for this example we are logging the ddl and write operations
+pgaudit.log='ddl,write'
+
+Restart the PostgreSQL server for changes to take affect:
+
+# whoami
+root
+# systemctl restart postgresql-12
+# systemctl status postgresql-12|grep 'ago$'
+   Active: active (running) since [date] 10s ago"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show pgaudit.log"
+      sql_types   : REGEX
+      sql_expect  : "(read|write|function|role|ddl|misc)"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "3.2 Ensure the PostgreSQL Audit Extension (pgAudit) is enabled - pgaudit installed"
+      info        : "The PostgreSQL Audit Extension (pgAudit) provides detailed session and/or object audit logging via the standard PostgreSQL logging facility. The goal of pgAudit is to provide PostgreSQL users with the capability to produce audit logs often required to comply with government, financial, or ISO certifications.
+
+Rationale:
+
+Basic statement logging can be provided by the standard logging facility with log_statement = all. This is acceptable for monitoring and other uses but does not provide the level of detail generally required for an audit. It is not enough to have a list of all the operations performed against the database, it must also be possible to find particular statements that are of interest to an auditor. The standard logging facility shows what the user requested, while pgAudit focuses on the details of what happened while the database was satisfying the request.
+
+When logging SELECT and DML statements, pgAudit can be configured to log a separate entry for each relation referenced in a statement. No parsing is required to find all statements that touch a particular table. In fact, the goal is that the statement text is provided primarily for deep forensics and should not be required for an audit.
+
+Impact:
+
+Depending on settings, it is possible for pgAudit to generate an enormous volume of logging. Be careful to determine exactly what needs to be audit logged in your environment to avoid logging too much."
+      solution    : "To install and enable pgAudit, simply install the appropriate rpm from the PGDG repo:
+
+# whoami
+root
+# dnf -y install pgaudit14_12
+[snip]
+Installed:
+  pgaudit14_12-1.4.3-1.rhel9.x86_64
+
+Complete!
+
+pgAudit is now installed and ready to be configured. Next, we need to alter the postgresql.conf configuration file to:
+
+enable pgAudit as an extension in the shared_preload_libraries parameter
+
+indicate which classes of statements we want to log via the pgaudit.log parameter
+
+and, finally, restart the PostgreSQL service:
+
+$ vi ${PGDATA}/postgresql.conf
+
+Find the shared_preload_libraries entry, and add 'pgaudit' to it (preserving any existing entries):
+
+shared_preload_libraries = 'pgaudit'
+
+OR
+
+shared_preload_libraries = 'pgaudit,somethingelse'
+
+Now, add a new pgaudit-specific entry:
+
+# for this example we are logging the ddl and write operations
+pgaudit.log='ddl,write'
+
+Restart the PostgreSQL server for changes to take affect:
+
+# whoami
+root
+# systemctl restart postgresql-12
+# systemctl status postgresql-12|grep 'ago$'
+   Active: active (running) since [date] 10s ago"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show shared_preload_libraries"
+      sql_types   : REGEX
+      sql_expect  : "pgaudit"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "4.2 Ensure excessive administrative privileges are revoked"
+      info        : "With respect to PostgreSQL administrative SQL commands, only superusers should have elevated privileges. PostgreSQL regular, or application, users should not possess the ability to create roles, create new databases, manage replication, or perform any other action deemed privileged. Typically, regular users should only be granted the minimal set of privileges commensurate with managing the application:
+
+DDL (create table, create view, create index, etc.)
+
+DML (select, insert, update, delete)
+
+Further, it has become best practice to create separate roles for DDL and DML. Given an application called 'payroll', one would create the following users:
+
+payroll_owner
+
+payroll_user
+
+Any DDL privileges would be granted to the payroll_owner account only, while DML privileges would be given to the payroll_user account only. This prevents accidental creation/altering/dropping of database objects by application code that runs as the payroll_user account.
+
+Rationale:
+
+By not restricting global administrative commands to superusers only, regular users granted excessive privileges may execute administrative commands with unintended and undesirable results.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "If any regular or application users have been granted excessive administrative rights, those privileges should be removed immediately via the PostgreSQL ALTER ROLE SQL command. Using the same example above, the following SQL statements revoke all unnecessary elevated administrative privileges from the regular user appuser:
+
+# whoami
+postgres
+# psql -c 'ALTER ROLE appuser NOSUPERUSER;'
+ALTER ROLE
+# psql -c 'ALTER ROLE appuser NOCREATEROLE;'
+ALTER ROLE
+# psql -c 'ALTER ROLE appuser NOCREATEDB;'
+ALTER ROLE
+# psql -c 'ALTER ROLE appuser NOREPLICATION;'
+ALTER ROLE
+# psql -c 'ALTER ROLE appuser NOBYPASSRLS;'
+ALTER ROLE
+# psql -c 'ALTER ROLE appuser NOINHERIT;'
+ALTER ROLE
+
+Verify the appuser now passes your check by having no defined Attributes:
+
+# whoami
+postgres
+# psql -c '\du appuser'
+          List of roles
+Role name | Attributes | Member of
+----------+------------+-----------
+appuser   |            | {}"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1M,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select * from pg_user order by usename;"
+      sql_types   : STRING
+      sql_expect  : "NULL"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "4.3 Ensure excessive function privileges are revoked"
+      info        : "In certain situations, to provide the required functionality, PostgreSQL needs to execute internal logic (stored procedures, functions, triggers, etc.) and/or external code modules with elevated privileges. However, if the privileges required for execution are at a higher level than the privileges assigned to organizational users invoking the functionality applications/programs, those users are indirectly provided with greater privileges than assigned by their organization. This is known as privilege elevation. Privilege elevation must be utilized only where necessary. Execute privileges for application functions should be restricted to authorized users only.
+
+Rationale:
+
+Ideally, all application source code should be vetted to validate interactions between the application and the logic in the database, but this is usually not possible or feasible with available resources even if the source code is available. The DBA should attempt to obtain assurances from the development organization that this issue has been addressed and should document what has been discovered. The DBA should also inspect all application logic stored in the database (in the form of functions, rules, and triggers) for excessive privileges.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Where possible, revoke SECURITY DEFINER on PostgreSQL functions. To change a SECURITY DEFINER function to SECURITY INVOKER, run the following SQL:
+
+# whoami
+root
+# sudo -iu postgres
+# psql -c 'ALTER FUNCTION [functionname] SECURITY INVOKER;'
+
+If it is not possible to revoke SECURITY DEFINER, ensure the function can be executed by only the accounts that absolutely need such functionality:
+
+postgres=# SELECT proname, proacl FROM pg_proc WHERE proname = 'delete_customer';
+     proname     |                         proacl
+-----------------+--------------------------------------------------------
+ delete_customer | {=X/postgres,postgres=X/postgres,appreader=X/postgres}
+(1 row)
+postgres=# REVOKE EXECUTE ON FUNCTION delete_customer(integer,boolean) FROM appreader;
+REVOKE
+postgres=# SELECT proname, proacl FROM pg_proc WHERE proname = 'delete_customer';
+     proname     |                         proacl
+-----------------+--------------------------------------------------------
+ delete_customer | {=X/postgres,postgres=X/postgres}
+(1 row)
+
+Based on the output above, appreader=X/postgres no longer exists in the proacl column results returned from the query and confirms appreader is no longer granted execute privilege on the function."
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "SELECT nspname, proname, proargtypes, prosecdef, rolname, proconfig FROM pg_proc p JOIN pg_namespace n ON p.pronamespace = n.oid JOIN pg_authid a ON a.oid = p.proowner WHERE prosecdef OR NOT proconfig IS NULL;"
+      sql_types   : STRING
+      sql_expect  : "MANUAL_REVIEW"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "4.4 Ensure excessive DML privileges are revoked"
+      info        : "DML (insert, update, delete) operations at the table level should be restricted to only authorized users. PostgreSQL manages table-level DML permissions via the GRANT statement.
+
+Rationale:
+
+Excessive DML grants can lead to unprivileged users changing or deleting information without proper authorization.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If a given database user has been granted excessive DML privileges for a given database table, those privileges should be revoked immediately using the REVOKE SQL command.
+
+Continuing with the example above, remove unauthorized grants for appreader user using the REVOKE statement and verify the Boolean values are now false.
+
+postgres=# REVOKE INSERT, UPDATE, DELETE ON TABLE customer FROM appreader;
+REVOKE
+
+postgres=# select t.tablename, u.usename,
+       has_table_privilege(u.usename, t.tablename, 'select') as select,
+       has_table_privilege(u.usename, t.tablename, 'insert') as insert,
+       has_table_privilege(u.usename, t.tablename, 'update') as update,
+       has_table_privilege(u.usename, t.tablename, 'delete') as delete
+from   pg_tables t, pg_user u
+where  t.tablename = 'customer'
+and    u.usename in ('appwriter','appreader');
+
+tablename |  usename  | select | insert | update | delete
+----------+-----------+--------+--------+--------+--------
+customer  | appwriter | t      | t      | t      | t
+customer  | appreader | t      | f      | f      | f
+(2 rows)
+
+Note: For versions of PostgreSQL prior to version 15, CVE-2018-1058 is applicable and it is recommended that all privileges be revoked from the public schema for all users on all databases. If you have upgraded from one of these earlier releases, this CVE is not fixed for you during an upgrade. You can correct this CVE by issuing:
+
+postgres=# REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+REVOKE
+
+Default Value:
+
+The table owner/creator has full privileges; all other users must be explicitly granted access."
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1M,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+    </report>
+
+    <report type:"WARNING">
+      description : "4.5 Ensure Row Level Security (RLS) is configured correctly - RLS is configured correctly"
+      info        : "In addition to the SQL-standard privilege system available through GRANT, tables can have row security policies that restrict, on a per-user basis, which individual rows can be returned by normal queries or inserted, updated, or deleted by data modification commands. This feature is also known as Row Level Security (RLS).
+
+By default, tables do not have any policies, so if a user has access privileges to a table according to the SQL privilege system, all rows within it are equally available for querying or updating. Row security policies can be specific to commands, to roles, or to both. A policy can be specified to apply to ALL commands, or to any combination of SELECT, INSERT, UPDATE, or DELETE. Multiple roles can be assigned to a given policy, and normal role membership and inheritance rules apply.
+
+If you use RLS and apply restrictive policies to certain users, it is important that the Bypass RLS privilege not be granted to any unauthorized users. This privilege overrides RLS-enabled tables and associated policies. Generally, only superusers and elevated users should possess this privilege.
+
+Rationale:
+
+If RLS policies and privileges are not configured correctly, users could perform actions on tables that they are not authorized to perform, such as inserting, updating, or deleting rows.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Again, we are using the example from the PostgreSQL documentation using the example passwd table. We will create three database roles to illustrate the workings of RLS:
+
+postgres=# CREATE ROLE admin;
+CREATE ROLE
+postgres=# CREATE ROLE bob;
+CREATE ROLE
+postgres=# CREATE ROLE alice;
+CREATE ROLE
+
+Now, we will insert known data into the passwd table:
+
+postgres=# INSERT INTO passwd VALUES
+  ('admin','xxx',0,0,'Admin','111-222-3333',null,'/root','/bin/dash');
+INSERT 0 1
+postgres=# INSERT INTO passwd VALUES
+  ('bob','xxx',1,1,'Bob','123-456-7890',null,'/home/bob','/bin/zsh');
+INSERT 0 1
+postgres=# INSERT INTO passwd VALUES
+  ('alice','xxx',2,1,'Alice','098-765-4321',null,'/home/alice','/bin/zsh');
+INSERT 0 1
+
+And we will enable RLS on the table:
+
+postgres=# ALTER TABLE passwd ENABLE ROW LEVEL SECURITY;
+ALTER TABLE
+
+Now that RLS is enabled, we need to define one or more policies. Create the administrator policy and allow it access to all rows:
+
+postgres=# CREATE POLICY admin_all ON passwd TO admin USING (true) WITH CHECK (true);
+CREATE POLICY
+
+Create a policy for normal users to view all rows:
+
+postgres=# CREATE POLICY all_view ON passwd FOR SELECT USING (true);
+CREATE POLICY
+
+Create a policy for normal users that allows them to update only their own rows and to limit what values can be set for their login shell:
+
+postgres=# CREATE POLICY user_mod ON passwd FOR UPDATE
+  USING (current_user = user_name)
+  WITH CHECK (
+    current_user = user_name AND
+    shell IN ('/bin/bash','/bin/sh','/bin/dash','/bin/zsh','/bin/tcsh')
+  );
+CREATE POLICY
+
+Grant all the normal rights on the table to the admin user:
+
+postgres=# GRANT SELECT, INSERT, UPDATE, DELETE ON passwd TO admin;
+GRANT
+
+Grant only select access on non-sensitive columns to everyone:
+
+postgres=# GRANT SELECT
+  (user_name, uid, gid, real_name, home_phone, extra_info, home_dir, shell)
+  ON passwd TO public;
+GRANT
+
+Grant update to only the sensitive columns:
+
+postgres=# GRANT UPDATE
+  (pwhash, real_name, home_phone, extra_info, shell)
+  ON passwd TO public;
+GRANT
+
+Ensure that no one has been granted Bypass RLS inadvertently, by running the psql display command \du+. If unauthorized users do have Bypass RLS granted then resolve this using the ALTER ROLE <user> NOBYPASSRLS; command.
+
+You can now verify that 'admin', 'bob', and 'alice' are properly restricted by querying the passwd table as each of these roles."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+    </report>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "4.6 Ensure the set_user extension is installed"
+      info        : "PostgreSQL access to the superuser database role must be controlled and audited to prevent unauthorized access.
+
+Note: Prior to performing this audit you must create a roletree view. Here are the procedures to create this view:
+
+postgres=#
+
+CREATE OR REPLACE VIEW roletree AS
+
+WITH RECURSIVE
+
+roltree AS (
+
+  SELECT u.rolname AS rolname,
+
+         u.oid AS roloid,
+
+         u.rolcanlogin,
+
+         u.rolsuper,
+
+         '{}'::name[] AS rolparents,
+
+         NULL::oid AS parent_roloid,
+
+         NULL::name AS parent_rolname
+
+  FROM pg_catalog.pg_authid u
+
+  LEFT JOIN pg_catalog.pg_auth_members m on u.oid = m.member
+
+  LEFT JOIN pg_catalog.pg_authid g on m.roleid = g.oid
+
+  WHERE g.oid IS NULL
+
+  UNION ALL
+
+  SELECT u.rolname AS rolname,
+
+         u.oid AS roloid,
+
+         u.rolcanlogin,
+
+         u.rolsuper,
+
+         t.rolparents || g.rolname AS rolparents,
+
+         g.oid AS parent_roloid,
+
+         g.rolname AS parent_rolname
+
+  FROM pg_catalog.pg_authid u
+
+  JOIN pg_catalog.pg_auth_members m on u.oid = m.member
+
+  JOIN pg_catalog.pg_authid g on m.roleid = g.oid
+
+  JOIN roltree t on t.roloid = g.oid
+
+)
+
+SELECT
+
+  r.rolname,
+
+  r.roloid,
+
+  r.rolcanlogin,
+
+  r.rolsuper,
+
+  r.rolparents
+
+FROM roltree r
+
+ORDER BY 1;
+
+Rationale:
+
+Even when reducing and limiting the access to the superuser role as described earlier in this benchmark, it is still difficult to determine who accessed the superuser role and what actions were taken using that role. As such, it is ideal to prevent anyone from logging in as the superuser and forcing them to escalate their role. This model is used at the OS level by the use of sudo and should be emulated in the database. The set_user extension allows for this setup.
+
+Impact:
+
+Much like the venerable sudo does for the OS, set_user manages superuser access for PostgreSQL. Complete configuration of set_user is documented at the extension's website and should be reviewed to ensure the logging entries that your organization cares about are properly configured.
+
+Note that some external tools assume they can connect as the postgres user by default and this is no longer true when set_user is deployed. You may find some tools need different options, reconfigured, or even abandoned to compensate for this."
+      solution    : "We will install the set_user extension:
+
+# whoami
+root
+# dnf -y install set_user_12
+[snip]
+Installed:
+  set_user_12-4.0.1-2.rhel9.x86_64
+
+Complete!
+
+Now that set_user is installed, we need to tell PostgreSQL to load its library:
+
+# whoami
+root
+# vi ~postgres/12/data/postgresql.conf
+
+Find the shared_preload_libraries entry, and add 'set_user' to it (preserving any existing entries):
+
+shared_preload_libraries = 'set_user'
+
+OR
+
+shared_preload_libraries = 'set_user,pgaudit,somethingelse'
+
+Restart the PostgreSQL server for changes to take effect:
+
+# systemctl restart postgresql-12
+# systemctl status postgresql-12|grep 'ago$'
+   Active: active (running) since [timestamp]; 1s ago
+
+And now, we can install the extension with SQL:
+
+# su - postgres
+# psql
+postgres=# select * from pg_available_extensions where name = 'set_user';
+  name   | default_version | installed_version |                  comment
+---------+-----------------+-------------------+-----------------------------
+set_user | 4.0.1           |                   | similar to SET ROLE but with
+         |                 |                   | added logging
+(1 row)
+
+postgres=# create extension set_user;
+CREATE EXTENSION
+postgres=# select * from pg_available_extensions where name = 'set_user';
+  name   | default_version | installed_version |                  comment
+---------+-----------------+-------------------+-----------------------------
+set_user | 4.0.1           | 4.0.1             | similar to SET ROLE but with
+         |                 |                   | added logging
+(1 row)
+
+Now, we use GRANT to configure each DBA role to allow it to use the set_user functions. In the example below, we will configure my db user doug. (You would do this for each DBA's normal user role.)
+
+postgres=# grant execute on function set_user(text) to doug;
+GRANT
+postgres=# grant execute on function set_user_u(text) to doug;
+GRANT
+
+Connect to PostgreSQL as yourself and verify it works as expected:
+
+# whoami
+psql
+# psql -U doug -d postgres -h 127.0.0.1
+postgres=> select set_user('postgres');
+ERROR:  switching to superuser not allowed
+HINT:  Use 'set_user_u' to escalate.
+postgres=> select set_user_u('postgres');
+ set_user_u
+------------
+ OK
+(1 row)
+postgres=# select current_user, session_user;
+ current_user | session_user
+--------------+--------------
+ postgres     | doug
+(1 row)
+postgres=# select reset_user();
+ reset_user
+------------
+ OK
+(1 row)
+postgres=> select current_user, session_user;
+ current_user | session_user
+--------------+--------------
+ doug         | doug
+(1 row)
+
+Once all DBA's normal user accounts have been GRANTed permission, revoke the ability to login as the postgres (superuser) user:
+
+postgres=# ALTER USER postgres NOLOGIN;
+ALTER ROLE
+
+Which results in:
+
+$ psql
+psql: FATAL:  role 'postgres' is not permitted to log in
+$ psql -U doug -d postgres -h 127.0.0.1
+psql (12.14)
+
+Revoke SUPERUSER and/or LOGIN from any other roles that were previously identified:
+
+postgres=# ALTER USER usera NOSUPERUSER; -- revoke superuser
+ALTER ROLE
+postgres=# ALTER USER usera NOLOGIN; -- revoke login
+ALTER ROLE
+postgres=# ALTER USER usera NOSUPERUSER NOLOGIN; -- revoke both at once
+ALTER ROLE
+
+Note that we show dropping the privileges both individually and as one. Pick an appropriate version based on your application/business needs.
+
+Remove any escalated privileges on users granted indirectly that were previously identified using the roletree view:
+
+postgres=# REVOKE name_of_granting_role FROM bob; -- an example only
+REVOKE ROLE"
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name from pg_available_extensions where name = 'set_user';"
+      sql_types   : STRING
+      sql_expect  : "set_user"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "4.7 Make use of predefined roles"
+      info        : "PostgreSQL provides a set of predefined roles that provide access to certain commonly needed privileged capabilities and information. Administrators can GRANT these roles to users and/or other roles in their environment, providing those users with access to the specified capabilities and information.
+
+Rationale:
+
+In keeping with the principle of least privilege, judicious use of the PostgreSQL predefined roles can greatly limit the access to privileged, or superuser, access.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "If you've determined that one or more of the predefined roles can be used, simply GRANT it:
+
+postgres=# GRANT pg_monitor TO doug;
+GRANT ROLE
+
+And then remove superuser from the account:
+
+postgres=# ALTER ROLE doug NOSUPERUSER;
+ALTER ROLE
+postgres=# select rolname from pg_roles where rolsuper is true;
+ rolname
+----------
+ postgres
+(1 row)
+
+Default Value:
+
+The following predefined roles exist in PostgreSQL 12.x:
+
+pg_read_all_settings
+
+Read all configuration variables, even those normally visible only to superuser.
+
+pg_read_all_stats
+
+Read all pg_stat_* views and use various statistics related extensions, even those normally visible only to superuser.
+
+pg_stat_scan_tables
+
+Execute monitoring functions that may take ACCESS SHARE locks on tables, potentially for a long time.
+
+pg_monitor
+
+Read/execute various monitoring views and functions. This role is a member of pg_read_all_settings, pg_read_all_stats and pg_stat_scan_tables.
+
+pg_signal_backend
+
+Signal another backend to cancel a query or terminate its session.
+
+pg_read_server_files
+
+Allow reading files from any location the database can access on the server with COPY and other file-access functions.
+
+pg_write_server_files
+
+Allow writing to files in any location the database can access on the server with COPY and other file-access functions.
+
+pg_execute_server_program
+
+Allow executing programs on the database server as the user the database runs as with COPY and other functions which allow executing a server-side program.
+
+Administrators can grant access to these roles to users using the GRANT command."
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1M,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select rolname from pg_roles where rolsuper is true;"
+      sql_types   : STRING
+      sql_expect  : "rolname"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "6.1 Understanding attack vectors and runtime parameters"
+      info        : "Understanding the vulnerability of PostgreSQL runtime parameters by the particular delivery method, or attack vector.
+
+Rationale:
+
+There are as many ways of compromising a server as there are runtime parameters. A combination of any one or more of them executed at the right time under the right conditions has the potential to compromise the RDBMS. Mitigating risk is dependent upon one's understanding of the attack vectors and includes:
+
+Via user session: includes those runtime parameters that can be set by a ROLE that persists for the life of a server-client session.
+
+Via attribute: includes those runtime parameters that can be set by a ROLE during a server-client session that can be assigned as an attribute for an entity such as a table, index, database, or role.
+
+Via server reload: includes those runtime parameters that can be set by the superuser using a SIGHUP or configuration file reload command and affects the entire cluster.
+
+Via server restart: includes those runtime parameters that can be set and effected by restarting the server process and affects the entire cluster.
+
+Impact:
+
+It can be difficult to totally eliminate risk. Once changed, detecting a miscreant parameter can become problematic.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "In the case of a changed parameter, the value is returned back to its default value. In the case of a successful exploit of an already set runtime parameter then an analysis must be carried out to determine the best approach in mitigating the risk to prevent future exploitation."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+    </report>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.2 Ensure 'backend' runtime parameters are configured correctly"
+      info        : "In order to serve multiple clients efficiently, the PostgreSQL server launches a new 'backend' process for each client. The runtime parameters in this benchmark section are controlled by the backend process. The server's performance, in the form of slow queries causing a denial of service, and the RDBM's auditing abilities for determining root cause analysis can be potentially compromised via these parameters.
+
+Rationale:
+
+A denial of service is possible by denying the use of indexes and by slowing down client access to an unreasonable level. Unsanctioned behavior can be introduced by introducing rogue libraries which can then be called in a database session. Logging can be altered and obfuscated inhibiting root cause analysis.
+
+Impact:
+
+All changes made on this level will affect the overall behavior of the server. These changes can only be affected by a server restart after the parameters have been altered in the configuration files.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Once detected, the unauthorized/undesired change can be corrected by altering the configuration file and executing a server restart. In the case where the parameter has been specified on the command-line invocation of pg_ctl the restart invocation is insufficient and an explicit stop and start must instead be made.
+
+Query the view pg_settings and compare with previous query outputs for any changes.
+
+Review configuration files postgresql.conf and postgresql.auto.conf and compare them with previously archived file copies for any changes.
+
+Examine the process output and look for parameters that were used at server startup:
+
+ps -few | grep -E -- '[p]ost.*-[D]'
+
+Examine the contents of $PGDATA/postmaster.opts"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting, unit from pg_settings where context like '%backend%' order by 1"
+      sql_types   : NULL, NULL, NULL
+      sql_expect  : NULL, NULL, NULL
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.3 Ensure 'Postmaster' Runtime Parameters are Configured"
+      info        : "PostgreSQL runtime parameters that are executed by the postmaster process.
+
+Rationale:
+
+The postmaster process is the supervisory process that assigns a backend process to an incoming client connection. The postmaster manages key runtime parameters that are either shared by all backend connections or needed by the postmaster process itself to run.
+
+Impact:
+
+All changes made on this level will affect the overall behavior of the server. These changes can be effected by editing the PostgreSQL configuration files and by either executing a server SIGHUP from the command line or, as superuser postgres, executing the SQL command select pg_reload_conf(). A denial of service is possible by the over-allocating of limited resources, such as RAM. Data can be corrupted by allowing damaged pages to load or by changing parameters to reinterpret values in an unexpected fashion, e.g. changing the time zone. Client messages can be altered in such a way as to interfere with the application logic. Logging can be altered and obfuscated inhibiting root cause analysis.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Once detected, the unauthorized/undesired change can be corrected by editing the altered configuration file and executing a server restart. In the case where the parameter has been specified on the command-line invocation of pg_ctl the restart invocation is insufficient and an explicit stop and start must instead be made.
+Detecting a change is possible by one of the following methods:
+
+Query the view pg_settings and compare with previous query outputs for any changes
+
+Review the configuration files postgresql.conf and postgresql.auto.conf and compare with previously archived file copies for any changes
+
+Examine the process output and look for parameters that were used at server startup:
+
+ps -few | grep -E -- '[p]ost.*-[D]'
+
+Examine the contents of $PGDATA/postmaster.opts"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting from pg_settings where context = 'postmaster' order by 1"
+      sql_types   : NULL, NULL
+      sql_expect  : NULL, NULL
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.4 Ensure 'SIGHUP' Runtime Parameters are Configured"
+      info        : "PostgreSQL runtime parameters that are executed by the SIGHUP signal.
+
+Rationale:
+
+In order to define server behavior and optimize server performance, the server's superuser has the privilege of setting these parameters which are found in the configuration files postgresql.conf and pg_hba.conf. Alternatively, those parameters found in postgresql.conf can also be changed using a server login session and executing the SQL command ALTER SYSTEM which writes its changes in the configuration file postgresql.auto.conf.
+
+Impact:
+
+All changes made on this level will affect the overall behavior of the server. These changes can be effected by editing the PostgreSQL configuration files and by either executing a server SIGHUP from the command line or, as superuser postgres, executing the SQL command select pg_reload_conf(). A denial of service is possible by the over-allocating of limited resources, such as RAM. Data can be corrupted by allowing damaged pages to load or by changing parameters to reinterpret values in an unexpected fashion, e.g. changing the time zone. Client messages can be altered in such a way as to interfere with the application logic. Logging can be altered and obfuscated inhibiting root cause analysis.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Restore all values in the PostgreSQL configuration files and invoke the server to reload the configuration files."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting from pg_settings where context = 'sighup' order by 1"
+      sql_types   : NULL, NULL
+      sql_expect  : NULL, NULL
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.5 Ensure 'Superuser' Runtime Parameters are Configured"
+      info        : "PostgreSQL runtime parameters that can only be executed by the server's superuser, postgres.
+
+Rationale:
+
+In order to improve and optimize server performance, the server's superuser has the privilege of setting these parameters which are found in the configuration file postgresql.conf. Alternatively, they can be changed in a PostgreSQL login session via the SQL command ALTER SYSTEM which writes its changes in the configuration file postgresql.auto.conf.
+
+Impact:
+
+All changes made on this level will affect the overall behavior of the server. These changes can only be affected by a server restart after the parameters have been altered in the configuration files. A denial of service is possible by the over-allocating of limited resources, such as RAM. Data can be corrupted by allowing damaged pages to load or by changing parameters to reinterpret values in an unexpected fashion, e.g. changing the time zone. Client messages can be altered in such a way as to interfere with the application logic. Logging can be altered and obfuscated inhibiting root cause analysis.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "The exploit is made in the configuration files. These changes are effected upon server restart. Once detected, the unauthorized/undesired change can be made by editing the altered configuration file and executing a server restart. In the case where the parameter has been set on the command-line invocation of pg_ctl the restart invocation is insufficient and an explicit stop and start must instead be made.
+Detecting a change is possible by one of the following methods:
+
+Query the view pg_settings and compare with previous query outputs for any changes.
+
+Review the configuration files postgreql.conf and postgreql.auto.conf and compare with previously archived file copies for any changes
+
+Examine the process output and look for parameters that were used at server startup:
+
+ps aux | grep -E -- '[p]ost.*-[D]'
+
+Examine the contents of $PGDATA/postmaster.opts"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting from pg_settings where context = 'superuser' order by 1"
+      sql_types   : NULL, NULL
+      sql_expect  : NULL, NULL
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.6 Ensure 'User' Runtime Parameters are Configured"
+      info        : "These PostgreSQL runtime parameters are managed at the user account (ROLE) level.
+
+Rationale:
+
+In order to improve performance and optimize features, a ROLE has the privilege of setting numerous parameters in a transaction, session, or entity attribute. Any ROLE can alter any of these parameters.
+
+Impact:
+
+A denial of service is possible by the over-allocating of limited resources, such as RAM. Changing VACUUM parameters can force a server shutdown which is standard procedure preventing data corruption from transaction ID wraparound. Data can be corrupted by changing parameters to reinterpret values in an unexpected fashion, e.g. changing the time zone. Logging can be altered and obfuscated to inhibit root cause analysis.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "In the matter of a user session, the login sessions must be validated that it is not executing undesired parameter changes. In the matter of attributes that have been changed in entities, they must be manually reverted to their default value(s)."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting from pg_settings where context = 'user' order by 1"
+      sql_types   : NULL, NULL
+      sql_expect  : NULL, NULL
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.8 Ensure TLS is enabled and configured correctly"
+      info        : "TLS on a PostgreSQL server should be enabled and configured to encrypt TCP traffic to and from the server.
+
+Rationale:
+
+If TLS is not enabled and configured correctly, this increases the risk of data being compromised in transit.
+
+Impact:
+
+A self-signed certificate can be used for testing, but a certificate signed by a certificate authority (CA) (either one of the global CAs or a local one) should be used in production so that clients can verify the server's identity. If all the database clients are local to the organization, using a local CA is recommended.
+
+To ultimately enable and enforce TLS authentication for the server, appropriate hostssl records must be added to the pg_hba.conf file. Be sure to reload PostgreSQL after any changes (restart not required).
+
+Note: The hostssl record matches connection attempts made using TCP/IP, but only when the connection is made with TLS encryption. The host record matches attempts made using TCP/IP, but allows both TLS and non-TLS connections. The hostnossl record matches attempts made using TCP/IP, but only those without TLS. Care should be taken to enforce TLS as appropriate."
+      solution    : "For this example, and ease of illustration, we will be using a self-signed certificate (generated via openssl) for the server, and the PostgreSQL defaults for file naming and location in the PostgreSQL $PGDATA directory.
+
+# whoami
+postgres
+# # create new certificate and enter details at prompts
+# openssl req -new -newkey 4096 -text -out server.req
+Generating a 2048 bit RSA private key
+.....................+++
+..................................................................+++
+writing new private key to 'privkey.pem'
+Enter PEM pass phrase:
+Verifying - Enter PEM pass phrase:
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:US
+State or Province Name (full name) []:Ohio
+Locality Name (eg, city) [Default City]:Columbus
+Organization Name (eg, company) [Default Company Ltd]:Me Inc
+Organizational Unit Name (eg, section) []:IT
+Common Name (eg, your name or your server's hostname) []:my.me.inc
+Email Address []:me@meinc.com
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+# # remove passphrase (required for automatic server start up, if not using 'ssl_passphrase_command')
+# openssl rsa -in privkey.pem -out server.key && rm privkey.pem
+Enter pass phrase for privkey.pem:
+writing RSA key
+
+# # modify certificate to self signed, generate .key and .crt files
+# openssl req -x509 -in server.req -text -key server.key -out server.crt
+
+# # copy .key and .crt files to appropriate location, here default $PGDATA
+$ cp server.key server.crt $PGDATA
+
+# # restrict file mode for server.key
+$ chmod og-rwx server.key
+
+Edit the PostgreSQL configuration file postgresql.conf to ensure the following items are set. Again, we are using defaults. Note that altering these parameters will require restarting the cluster.
+
+# (change requires restart)
+ssl = on
+
+# force clients to use TLS v1.3 or newer
+ssl_min_protocol_version = 'TLSv1.3'
+
+# (change requires restart)
+ssl_cert_file = 'server.crt'
+
+# (change requires restart)
+ssl_key_file = 'server.key'
+
+Finally, restart PostgreSQL and confirm ssl using commands outlined in Audit Procedures:
+
+postgres=# show ssl;
+ ssl
+-----
+ on
+(1 row)
+
+Default Value:
+
+Note that server.crt and server.key are the default names used by PostgreSQL. These files can be named otherwise, just ensure you update the postgresql.conf to use these new names. The current names can be found via SQL:
+
+postgres=# select name, setting from pg_settings where name like 'ssl%file';
+
+|--------------------|------------|
+
+|        name        |  setting   |
+
+|--------------------|------------|
+
+| ssl_ca_file        |            |
+
+| ssl_cert_file      | server.crt |
+
+| ssl_crl_file       |            |
+
+| ssl_dh_params_file |            |
+
+| ssl_key_file       | server.key |
+
+|--------------------|------------|
+
+(5 rows)"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show ssl"
+      sql_types   : STRING
+      sql_expect  : "on"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.9 Ensure the pgcrypto extension is installed and configured correctly"
+      info        : "PostgreSQL must implement cryptographic mechanisms to prevent unauthorized disclosure or modification of organization-defined information at rest (to include, at a minimum, PII and classified information) on organization-defined information system components.
+
+Rationale:
+
+PostgreSQL instances handling data that requires 'data at rest' protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. These cryptographic mechanisms may be native to PostgreSQL or implemented via additional software or operating system/file system settings, as appropriate to the situation. Information at rest refers to the state of information when it is located on a secondary storage device (e.g. disk drive, tape drive) within an organizational information system.
+
+The selection of a cryptographic mechanism is based on the need to protect the integrity of organizational information. The strength of the mechanism is commensurate with the security category and/or classification of the information. Organizations have the flexibility to either encrypt all information on storage devices (i.e. full disk encryption) or encrypt specific data structures (e.g. files, records, or fields). Organizations may also optionally choose to implement both to implement layered security.
+
+The decision of whether, and what, to encrypt rests with the data owner and is also influenced by the physical measures taken to secure the equipment and media on which the information resides. Organizations may choose to employ different mechanisms to achieve confidentiality and integrity protection, as appropriate. If the confidentiality and integrity of application data are not protected, the data will be open to compromise and unauthorized modification.
+
+The PostgreSQL pgcrypto extension provides cryptographic functions for PostgreSQL and is intended to address the confidentiality and integrity of user and system information at rest in non-mobile devices.
+
+Impact:
+
+When considering or undertaking any form of encryption, it is critical to understand the state of the encrypted data at all stages of the data lifecycle. The use of pgcrypto ensures that the data at rest in the tables (and therefore on disk) is encrypted, but for the data to be accessed by any users or applications, said users/applications will, by necessity, have access to the encrypt and decrypt keys and the data in question will be encrypted/decrypted in memory and then transferred to/from the user/application in that form."
+      solution    : "The pgcrypto extension is included with the PostgreSQL 'contrib' package. Although included, it needs to be created in the database.
+
+As the database administrator, run the following:
+
+postgres=# CREATE EXTENSION pgcrypto;
+CREATE EXTENSION
+
+Verify pgcrypto is installed:
+
+postgres=# SELECT * FROM pg_available_extensions WHERE name='pgcrypto';
+   name   | default_version | installed_version |         comment
+----------+-----------------+-------------------+-------------------------
+ pgcrypto | 1.3             | 1.3               | cryptographic functions
+(1 row)"
+      reference   : "800-171|3.5.2,800-171|3.13.16,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1M,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "SELECT * FROM pg_available_extensions where name='pgcrypto'"
+      sql_types   : STRING, REGEX, REGEX, REGEX
+      sql_expect  : "pgcrypto", ".*", ".*", ".*"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "7.1 Ensure a replication-only user is created and used for streaming replication"
+      info        : "Create a new user specifically for use by streaming replication instead of using the superuser account.
+
+Rationale:
+
+As it is not necessary to be a superuser to initiate a replication connection, it is proper to create an account specifically for replication. This allows further 'locking down' the uses of the superuser account and follows the general principle of using the least privileges necessary.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "It will be necessary to create a new role for replication purposes:
+
+postgres=# create user replication_user REPLICATION encrypted password 'XXX';
+CREATE ROLE
+postgres=# select rolname from pg_roles where rolreplication is true;
+     rolname
+------------------
+ postgres
+ replication_user
+(2 rows)
+
+When using pg_basebackup (or other replication tools) on your standby server, you would use the replication_user (and its password).
+
+Ensure you allow the new user via your pg_hba.conf file:
+
+# note that 'replication' in the 2nd column is required and is a special
+# keyword, not a real database
+hostssl replication     replication_user    0.0.0.0/0         scram-sha-256"
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select rolname from pg_roles where rolreplication is true;"
+      sql_types   : STRING
+      sql_expect  : "rolname"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "7.2 Ensure logging of replication commands is configured"
+      info        : "Enabling the log_replication_commands setting causes each attempted replication from the server to be logged.
+
+Rationale:
+
+A successful replication connection allows for a complete copy of the data stored within the data cluster to be offloaded to another, potentially insecure, host. As such, it is advisable to log all replication commands that are executed in your database cluster to ensure the data is not off-loaded to an unexpected/undesired location."
+      solution    : "To enable the logging of replication commands, execute the following:
+
+postgres=# ALTER SYSTEM SET log_replication_commands = 'on';
+ALTER SYSTEM
+postgres=# SELECT pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+(1 row)
+postgres=# show log_replication_commands ;
+ log_replication_commands
+--------------------------
+ on
+(1 row)"
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "show log_replication_commands;"
+      sql_types   : STRING
+      sql_expect  : "off"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "7.3 Ensure base backups are configured and functional"
+      info        : "A 'base backup' is a copy of the PRIMARY host's data cluster ($PGDATA) and is used to create STANDBY hosts and for Point In Time Recovery (PITR) mechanisms. Base backups should be copied across networks in a secure manner using an encrypted transport mechanism. The PostgreSQL CLI pg_basebackup can be used, however, TLS encryption should be enabled on the server as per section 6.8 of this benchmark. The pgBackRest tool detailed in section 8.3 of this benchmark can also be used to create a 'base backup'.
+
+Rationale:
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Executing base backups using pg_basebackup requires the following steps on the standby server:
+
+$ whoami
+postgres
+$ pg_basebackup --host=name_or_IP_of_master \
+--port=5432 \
+--username=replication_user \
+--pgdata=~postgres/12/data \
+--progress --verbose --write-recovery-conf --wal-method=stream"
+      reference   : "800-171|3.8.9,800-53|CP-4,800-53|CP-9(1),800-53r5|CP-4,800-53r5|CP-9(1),CSCv7|10.3,CSCv8|11.5,CSF|PR.IP-4,CSF|PR.IP-10,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.3.1,ITSG-33|CP-4,ITSG-33|CP-9(1),LEVEL|1M,NESA|T2.2.4,NESA|T3.5.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+    </report>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "7.4 Ensure WAL archiving is configured and functional - archive_mode"
+      info        : "Write Ahead Log (WAL) Archiving, or Log Shipping, is the process of sending transaction log files from the PRIMARY host either to one or more STANDBY hosts or to be archived on a remote storage device for later use, e.g. PITR. There are several utilities that can copy WALs including, but not limited to, cp, scp, sftp, and rynsc. Basically, the server follows a set of runtime parameters which define when the WAL should be copied using one of the aforementioned utilities.
+
+Rationale:
+
+Unless the server has been correctly configured, one runs the risk of sending WALs in an unsecured, unencrypted fashion."
+      solution    : "Change parameters and restart the server as required."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting from pg_settings where name ~ '^archive' ORDER BY 1;"
+      sql_types   : STRING, STRING
+      sql_expect  : "archive_mode", "on"
+      match_all   : NO
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "7.4 Ensure WAL archiving is configured and functional - archive_command"
+      info        : "Write Ahead Log (WAL) Archiving, or Log Shipping, is the process of sending transaction log files from the PRIMARY host either to one or more STANDBY hosts or to be archived on a remote storage device for later use, e.g. PITR. There are several utilities that can copy WALs including, but not limited to, cp, scp, sftp, and rynsc. Basically, the server follows a set of runtime parameters which define when the WAL should be copied using one of the aforementioned utilities.
+
+Rationale:
+
+Unless the server has been correctly configured, one runs the risk of sending WALs in an unsecured, unencrypted fashion."
+      solution    : "Change parameters and restart the server as required."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting from pg_settings where name ~ '^archive' ORDER BY 1;"
+      sql_types   : STRING, STRING
+      sql_expect  : "archive_command", "@ARCHIVE_COMMAND@"
+      match_all   : NO
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "7.5 Ensure streaming replication parameters are configured correctly"
+      info        : "Streaming replication from a PRIMARY host transmits DDL, DML, passwords, and other potentially sensitive activities and data. These connections should be protected with Secure Sockets Layer (SSL).
+
+Rationale:
+
+Unencrypted transmissions could reveal sensitive information to unauthorized parties. Unauthenticated connections could enable man-in-the-middle attacks.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Review prior sections in this benchmark regarding TLS certificates, replication user, and WAL archiving.
+
+Confirm the file $PGDATA/standby.signal is present on the STANDBY host and $PGDATA/postgresql.auto.conf contains lines similar to the following:
+
+primary_conninfo = 'user=replication_user password=mypassword host=mySrcHost port=5432 sslmode=require sslcompression=1'"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+    </report>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "8.1 Ensure PostgreSQL subdirectory locations are outside the data cluster"
+      info        : "The PostgreSQL cluster is organized to carry out specific tasks in subdirectories. For the purposes of performance, reliability, and security some of these subdirectories should be relocated outside the data cluster.
+
+Rationale:
+
+Some subdirectories contain information, such as logs, which can be of value to others such as developers. Other subdirectories can gain a performance benefit when placed on fast storage devices. Other subdirectories contain temporary files created and used during processing. Finally, relocating a subdirectory to a separate and distinct partition mitigates denial of service and involuntary server shutdown when excessive writes fill the data cluster's partition, e.g. pg_wal, pg_log, and temp_tablespaces.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Perform the following steps to remediate the subdirectory locations and permissions:
+
+Determine appropriate data, log, and tablespace directories and locations based on your organization's security policies. If necessary, relocate all listed directories outside the data cluster.
+
+If not relocating temp_tablespaces, the temp_file_limit parameter must be changed from its default value.
+
+Ensure file permissions are restricted as much as possible, i.e. only superuser read access.
+
+When directories are relocated to other partitions, ensure that they are of sufficient size to mitigate against excessive space utilization.
+
+Lastly, change the settings accordingly in the postgresql.conf configuration file and restart the database cluster for changes to take effect.
+
+To relocate temp_tablespaces to an existing mount point outside the data cluster is accomplished by:
+
+postgres=# CREATE TABLESPACE temp_tablespc LOCATION '/path/to/existing/desired/mount/point';
+postgres=# ALTER SYSTEM SET temp_tablespaces = 'temp_tablespc';
+postgres=# SELECT pg_reload_conf();
+
+Default Value:
+
+The default for data_directory is ConfigDir and the default for log_directory is log (based on absolute path of data_directory). The defaults for tablespace settings are null, or not set, upon cluster creation."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "select name, setting from pg_settings where (name ~ '_directory$' or name ~ '_tablespace')"
+      sql_types   : NULL, NULL
+      sql_expect  : NULL, NULL
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "8.3 Ensure miscellaneous configuration settings are correct"
+      info        : "This recommendation covers non-regular, special files, and dynamic libraries.
+
+PostgreSQL permits local logins via the UNIX DOMAIN SOCKET and, for the most part, anyone with a legitimate Unix login account can make the attempt. Limiting PostgreSQL login attempts can be made by relocating the UNIX DOMAIN SOCKET to a subdirectory with restricted permissions.
+
+The creation and implementation of user-defined dynamic libraries is an extraordinary powerful capability. In the hands of an experienced DBA/programmer, it can significantly enhance the power and flexibility of the RDBMS; but new and unexpected behavior can also be assigned to the RDBMS, resulting in a very dangerous environment in what should otherwise be trusted.
+
+Rationale:
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Follow these steps to remediate the configuration:
+
+Determine permissions based on your organization's security policies.
+
+Relocate all files and ensure their permissions are restricted as much as possible, i.e. only superuser read access.
+
+Ensure all directories where these files are located have restricted permissions such that the superuser can read but not write.
+
+Lastly, change the settings accordingly in the postgresql.conf configuration file and restart the database cluster for changes to take effect.
+
+Default Value:
+
+The dynamic_library_path default is $libdir and unix_socket_directories default is /var/run/postgresql, /tmp. The default for external_pid_file and all library parameters are initially null, or not set, upon cluster creation."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+      sql_request : "SELECT name, setting FROM pg_settings WHERE name IN ('external_pid_file' ,'unix_socket_directories' ,'shared_preload_libraries' ,'dynamic_library_path' ,'local_preload_libraries' ,'session_preload_libraries' )"
+      sql_types   : NULL, NULL
+      sql_expect  : NULL, NULL
+      severity    : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_PostgreSQL_12_v1.1.0_L1_DB.audit from CIS PostgreSQL 12 Benchmark v1.1.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11861"
+    </report>
+  </else>
+</if>
+
+</check_type>

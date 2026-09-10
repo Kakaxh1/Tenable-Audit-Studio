@@ -1,0 +1,115 @@
+#TRUSTED 544c91e4a5cc61e086508f355b3a51f2168720284bc4db2149d1abd6c84200773c49e7f7a9fa88b7b6d38db7fd40a4a0abf2b38f38b4b18e476c3a4c307381ccf228817c1fe76c5200c5f3f0ed2e121030efbffde58bd555cbb5b5e684ab3f343deedddff7ed780ab514f675e9eabfddc6e18ebd24e0e069c2dec2581dfa8f5599c42a975dcec078cace5e1562c1b5a10d62618ce469cc66c10e9df9cc3d3070422b8bba2489cf4959fd72a5874df93d4025d46f907350822721e322d49aafadfc93b6d9e7a0bfbfc79f95dd17e3b0803486c6b0e5c5b1a1886c4eb537f2870ad0d49f231e5b7c6f86b6d4bc5df58985cad56830d41fb8899a7d10e07dc013caee8821e1b6000420a69a4cb4ca78cbe7d99ea424a030cffb9d43891971101057ac056ae4e1b89ec1941135cdfc8ce1ffb5831815a5f3dcec5b9533fba2521ed7e2538e3662ce14800a36afdd5d77faa53eae25141f757af1a8f20171d458066a64e5f68ce854141b0e6244462d550f3037b42106b52c49653b0d74c0b55cb8e10f5c963856cf42e876ac6f9a55dbfe5a33bc983bf09c62c4f4f29db44bffceb4ed7c7c8698b16c6b6dffbd0dbb6ce7a1b68171a7f9f0f672e7a89da7949ac6cabab83b54adedc435eb01c3c84206d93cf93bfaa0c45eaba22fcfc3ae77860cc167fee22e953b94c3df55d4a01f2eef583857d0b6f528e2eb99d8c74192e7085d
+#TRUST-RSA-SHA256 6688e750ec3e7c10ce884bee3c65ade10b04d92c36dccf551b1f8ebcf5da351c4bf3307cf73c69e9aca62100f6cac00a2976c2284f24f037a057c39d5715ecf5d0bd5a7368577da24b39ae83673565b759206f9e814041b91ec8c72f2b501908be2773cde1d79b0ea6c7b7179edd5a0dc91f9767418cca9faead85ca34f8d4bf60aa1b244818d0b5f3b8127b1ed27a200b7be6e1ea9840a7108a2fbb351c9c4765d1f30af45d2b0e7a80562898b245867db9c1c197211b04cd367688eda5cd51fb9af2ec74ba2e7c2af84cf9a0147d4efff699ce6c302f6271b5e790bdd209cefec426c8af4e5e51deba7b19172460af21c0797016e307b9934a4c2c68563625e117339e21f121a91f3019950b98e917629146523bea53610329b021cba42deda71f9403376d88e69f3734470ad8bb7a44ffffbd9258dee0caaba0b81cc5691e72e1e9b330db8f18daa875a56a45f5c554870121ef1dcad39d0c987d4707b72b9c37e80dbb6c927903854be765324d98fb8588745a7485fd7177c9e164ee695f10994b3773daf6f95b73049a799f60b6d2fee2984675acc9b9a285bd1c98ff09bdf9aadc9931ee6546a7913854dc34537f68f1e210ac90c5319101ea86e8d5c84040bcacd14be925b5902bc867332097cde357d76f32900d700f74dd9d0a389fd15497fd02c70c38b8a2b4482adb0cf9b2015d9bba1ec0d77fa74df711e3f5c0
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/06/09 $
+#
+# description : This .audit is designed against the CIS Oracle Database 19c STIG Benchmark v1.1.0
+#
+#<ui_metadata>
+#<display_name>CIS Oracle Database 19c STIG v1.1.0 CAT III</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Oracle Database 19c STIG</name>
+#  <profile>CAT III</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/26166</link>
+#</spec>
+#<labels>cis</labels>
+#<benchmark_refs>800-53,800-53r5,CAT,CCI,LEVEL,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"OracleDB">
+
+<if>
+  <condition auto:"FAILED" type:"OR">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check for traditional auditing"
+      sql_request : "SELECT gp.inst_id, gp.con_id, gp.display_value FROM sys.gv_$parameter gp WHERE gp.name = 'audit_trail' AND gp.display_value != 'NONE';"
+      sql_types   : REGEX, REGEX, REGEX
+      sql_expect  : ".+", ".+", ".+"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check for unified auditing"
+      sql_request : "SELECT go.inst_id, go.con_id, go.value FROM sys.gv_$option go WHERE go.parameter = 'Unified Auditing';"
+      sql_types   : REGEX, REGEX, STRING
+      sql_expect  : ".+", ".+", "TRUE"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "1.7 O19C-00-001700"
+      info        : "Oracle Database must protect against an individual who uses a shared account falsely denying having performed a particular action.
+
+GROUP ID: V-270501
+RULE ID: SV-270501r1167736
+
+Nonrepudiation of actions taken is required to maintain application integrity. Examples of particular actions taken by individuals include creating information, sending a message, approving information (e.g., indicating concurrence or signing a contract), and receiving a message.
+
+Nonrepudiation protects individuals against later claims by an author of not having authored a particular document, a sender of not having transmitted a message, a receiver of not having received a message, or a signatory of not having signed a document.
+
+Authentication via shared accounts does not provide individual accountability for actions taken on the database management system (DBMS) or data. Whenever a single database account is used to connect to the database, a secondary authentication method that provides individual accountability is required. This scenario most frequently occurs when an externally hosted application authenticates individual users to the application and the application uses a single account to retrieve or update database information on behalf of the individual users.
+
+When shared accounts are used without another means of identifying individual users, users may deny having performed a particular action.
+
+This calls for inspection of application source code, which requires collaboration with the application developers. In many cases, the database administrator (DBA) is organizationally separate from the application developers and may have limited, if any, access to source code. Nevertheless, protections of this type are so important to the secure operation of databases that they must not be ignored. At a minimum, the DBA must attempt to obtain assurances from the development organization that this issue has been addressed and must document what has been discovered.
+
+Satisfies: SRG-APP-000080-DB-000063, SRG-APP-000815-DB-000160"
+      solution    : "Use accounts assigned to individual users. Configure DBMS to provide individual accountability at the DBMS level, and in audit logs, for actions performed under a shared database account.
+
+Modify applications and data tables that are not capturing individual user identity to do so.
+
+Create and enforce the use of individual user IDs for logging on to Oracle tools and third-party products.
+
+If Oracle auditing is not already enabled, enable it.
+
+If Standard Auditing is used:
+
+If Oracle (or third-party) auditing is not already enabled, enable it. For Oracle auditing, use this query:
+
+ALTER SYSTEM SET AUDIT_TRAIL=<audit trail type> SID='*' SCOPE=SPFILE;
+
+Audit trail type can be ' OS ', ' DB ', ' DB,EXTENDED ', ' XML ' or ' XML,EXTENDED '.
+
+After executing this statement, it may be necessary to shut down and restart the Oracle database.
+
+If Unified Auditing is used:
+
+Link the oracle binary with uniaud_on, and then restart the database. Oracle Database Upgrade Guide describes how to enable unified auditing.
+
+For more information on the configuration of auditing, refer to the following documents:
+
+\"Auditing Database Activity\" in the Oracle Database 19c Security Guide: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/index.html
+
+\"Monitoring Database Activity with Auditing\" in the Oracle Database Security Guide: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/index.html
+
+\"DBMS_AUDIT_MGMT\" in the Oracle Database PL/SQL Packages and Types Reference: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/
+
+Oracle Database Upgrade Guide: https://docs.oracle.com/en/database/oracle/oracle-database/19/upgrd/index.html
+
+If the site-specific audit requirements are not covered by the default audit options, deploy and configure Fine-Grained Auditing. For details, refer to Oracle documentation at the locations above.
+
+If this level of auditing does not meet site-specific requirements, consider deploying the Oracle Audit Vault. The Audit Vault is a highly configurable option from Oracle made specifically for performing the audit functions. It has reporting capabilities as well as user-defined rules that provide additional flexibility for complex auditing requirements."
+      reference   : "800-53|AU-10,800-53r5|AU-10,800-53r5|IA-2(5),CAT|III,CCI|CCI-000166,CCI|CCI-004045,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,LEVEL|3M,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-270501r1167736_rule,STIG-ID|O19C-00-001700,Vuln-ID|V-270501"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26166"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+</check_type>

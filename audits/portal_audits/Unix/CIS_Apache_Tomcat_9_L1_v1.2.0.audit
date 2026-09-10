@@ -1,0 +1,1805 @@
+#TRUSTED 61e7a6681ca5b40504c93e2b6f71cd81e4ebd5ea8b06675234fb8c4a2ffa57cbb7fd1b734e2312d8c6563557095ad0b1d6e3eabc387dd396c91e70197f1cabb3af55e1563ce051c49eefcbbcaba27f1962cb648b45aa005f3dec8e23cc9f94556079ee68a625310fc0bb8214f6320ada5fd59a82d20de94ebe0f54003502ae2949cf9658e639e699abf530e8b0970cb7d166160579993e31a052cea4eb5dce443a8b32870a2b641bfe023caa2d6ef02fda97251360fe8cd1baa484597ecd01b38e9532c0c62fd93ecb9482bfd8d6dc9267f910bb19697de9c1316729ecc096f930b832ce52753f5586cedb5dddff614ee870ef06f6c8631bbf583d7534dda726b06a23d8ef484a831e04eef8e4d0cb8fb59163231bdbb0ddaabd3fc0c221964381874ba296e7c645e1d90fe03ecbca8fb688a479b02454996f26b0a8fc81debec1521750dfbb9b6aad4436be8f503b35a7c61947608603f5f61f89a132d3359257e70de97d33ededb001e0ba6b3d7aa23962a903130ebc035bb96557166a4524cb8f076e348446dbfd1740727953ff3a586474cb884e17b56064b7d270981de525b353f05cfb7e61e1304a50504a7a556c6bfb2035adc865659ee0c8d5ce7b3ab92f9fd65e64113b900de2f4ec0f06f1bcf5083be760e6177226b096171e29e6f432eaac89ed8a7b7ae1414f9da546df8da4ae9389ec7e54abdbad318cada24c
+#TRUST-RSA-SHA256 000e053352dd2a6d98714e3ca58b9d035c65bf6f464d9704ec1b38edd33fbd28ccdb8d1c38621df9922f2c6a0a41529e25c37e5e30e4d5e60a74f72cfd9d0397f76e42baad41828811e3eaa376f00dbfa3618acf05eafd82066568e15803d6593c695127d6aa1db9385a08fccf472c301692d88fe966ecabfb59cbc4609a8a0a8394248c403aa68a2e792a176e33ad3dd387cfa4e01f9a3fd22799ac47d0ccc25a4f4a0635275cb0fb42c7c977b272d870a5595e3103004f7e6620cc4c8fb25373bb4b924f3ffd198dd3c764c7802a4e1ba24251c1c0d707c0bba39e1b4d5e2d7c35f179be0b1eebffd73399946d364da3f68446a97f9ea5929101799de367173b15b93d430f57a517bde2fd314bb7b52272f38555d22baec3f8dbf531108a9a3d0fa058fb570064bf1923f8d29d2441303cbaeef3bdab611f9770f34242e4a56a4581dcdac0d2dac396e8507837163d925b9deae726e3ece4b6d449c45fbf2c48573fe2a0cc146674e216ff33cd591c7598e84c570bb55edc39a8363a59400baba08574c69a7329e458a82e66abc876c171ebcc8ff41203e703af6be7a86ab0924c8f17e6a39884e9ea5ef1c3b86344ef56e5b229c2281ba588b9c709f1b6b3d30df397bd5dd7c464b983db2b2dd1ca42a25deb170eeee88acf081fc37b4ae0a91a0c146b94bf8233123688f08cf4bc279527d1d816faf0e7958d8e47f4889a
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+#
+# $Revision: 1.4 $
+# $Date: 2024/06/17 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               CIS Apache Tomcat 9 Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS Apache Tomcat 9 L1 v1.2.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Apache Tomcat 9</name>
+#  <profile>L1</profile>
+#  <version>1.2.0</version>
+#  <link>https://workbench.cisecurity.org/files/4107</link>
+#</spec>
+#<labels>cis,apache_tomcat_linux_9,agent,update_20230227</labels>
+#<benchmark_refs>CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>WEBSERVER_NAME</name>
+#    <default>Apache Tomcat</default>
+#    <description>Web server name string</description>
+#    <info>The name given to Tomcat in your configuration information.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>CATALINA_HOME</name>
+#    <default>/usr/share/tomcat9</default>
+#    <description>Catalina home</description>
+#    <info>The absolute path to your Tomcat installation directory. It should not end in a slash.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>CATALINA_BASE</name>
+#    <default>/var/lib/tomcat9/webapps</default>
+#    <description>Catalina base</description>
+#    <info>The absolute path to your Tomcat base directory. If you are running multiple instances of Tomcat you should set CATALINA_BASE to the instance directory and CATALINA_HOME to the common Tomcat installation whose files will be shared between instances.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>CATALINA_CONF</name>
+#    <default>/etc/tomcat9</default>
+#    <description>Catalina configuration directory</description>
+#    <info>The absolute path to the Tomcat configuration files directory. (This is used primarily by Ubuntu and Debian-based installations of Linux).</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>WEB_APP_DIR</name>
+#    <default>yourappname</default>
+#    <description>Web application directory</description>
+#    <info>The name of your web application directory within CATALINA_BASE (e.g., /var/lib/tomcat9/webapps/yourappname)</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>SSL_PORT</name>
+#    <default>443</default>
+#    <description>SSL port number</description>
+#    <info>The SSL port for your Sensitive Connector(s).</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#  <variable>
+#    <name>SECURE_LOG_DIR</name>
+#    <default>/var/log/tomcat9</default>
+#    <description>Log directory</description>
+#    <info>The path to where your logs are kept on the system.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOGGING_LEVEL</name>
+#    <default>WARNING</default>
+#    <description>Configured logging level</description>
+#    <info>The level of verbosity at which Tomcat should record log information.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>TOMCAT_OWNER</name>
+#    <default>tomcat_admin</default>
+#    <description>Tomcat system owner</description>
+#    <info>Unix user that owns the Tomcat installation files</info>
+#    <value_type>UNIX_ACCT</value_type>
+#  </variable>
+#  <variable>
+#    <name>TOMCAT_GROUP</name>
+#    <default>tomcat</default>
+#    <description>Tomcat system group</description>
+#    <info>Unix group that can access the Tomcat installation files</info>
+#    <value_type>UNIX_ACCT</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Tomcat found"
+      cmd         : "java -cp @CATALINA_HOME@/lib/catalina.jar org.apache.catalina.util.ServerInfo | /bin/grep -E 'version'"
+      expect      : "@WEBSERVER_NAME@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Apache_Tomcat_9_L1_v1.2.0.audit from CIS Apache Tomcat 9 Benchmark"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+    </report>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "2.5 Disable client facing Stack Traces - check for defined exception type"
+      info        : "When a runtime error occurs during request processing, Apache Tomcat will display debugging information to the requestor. It is recommended that such debug information be withheld from the requestor.
+
+Rationale:
+
+Debugging information, such as that found in call stacks, often contains sensitive information which may be useful to an attacker. By preventing Tomcat from providing this information, the risk of leaking sensitive information to a potential attacker is reduced."
+      solution    : "Perform the following to prevent Tomcat from providing debug information to the requestor during runtime errors:
+
+Create a web page that contains the logic or message you wish to invoke when encountering a runtime error. For example purposes, assume this page is located at /error.jsp.
+
+Add a child element, <error-page>, to the <web-app> element, in the $CATALINA_HOME/conf/web.xml file.
+
+Add a child element, <exception-type>, to the <error-page> element. Set the value of the <exception-type> element to java.lang.Throwable.
+
+Add a child element <location> to the <error-page> element. Set the value of the <location> element to the location of page created in step 1.
+
+The resulting entry will look as follows:
+
+<error-page>
+ <exception-type>java.lang.Throwable</exception-type>
+ <location>/error.jsp</location>
+</error-page>
+
+Default Value:
+
+Tomcat's default configuration does not include an <error-page> element in $CATALINA_HOME/conf/web.xml. Therefore, Tomcat will provide debug information to the requestor by default."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7,800-53r5|CM-7,CSCv7|13.2,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/web.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"not(//*[local-name() = 'web-app']/*[local-name() = 'error-page'])\">"
+      xsl_stmt    : "<xsl:text>FAIL - Missing error-page element</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"//*[local-name() = 'web-app']/*[local-name() = 'error-page'] and not(//*[local-name() = 'web-app']/*[local-name() = 'error-page']/*[local-name() = 'exception-type'])\">"
+      xsl_stmt    : "<xsl:text>FAIL - Missing exception-type child element</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"//*[local-name() = 'web-app']/*[local-name() = 'error-page'] and (//*[local-name() = 'web-app']/*[local-name() = 'error-page']/*[local-name() = 'exception-type'] != 'java.lang.Throwable')\">"
+      xsl_stmt    : "<xsl:text>FAIL - Wrong exception-type - should be set to java.lang.Throwable</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"//*[local-name() = 'web-app']/*[local-name() = 'error-page'] and not(//*[local-name() = 'web-app']/*[local-name() = 'error-page']/*[local-name() = 'location'])\">"
+      xsl_stmt    : "<xsl:text>FAIL - Missing location child element</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - error-page element correctly added</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "2.6 Turn off TRACE"
+      info        : "The HTTP TRACE verb provides debugging and diagnostics information for a given request.
+
+Rationale:
+
+Diagnostic information, such as that found in the response to a TRACE request, often contains sensitive information which may useful to an attacker. By preventing Tomcat from providing this information, the risk of leaking sensitive information to a potential attacker is reduced."
+      solution    : "Perform the following to prevent Tomcat from accepting a TRACE request:
+
+Set the allowTrace attribute for each Connector specified in $CATALINA_HOME/conf/server.xml to false.
+
+<Connector ... allowTrace='false' />
+
+Alternatively, ensure the allowTrace attribute is absent from each Connector specified in $CATALINA_HOME/conf/server.xml.
+
+Add the following as a child of the web-app root element, if present, in each web applications web.xml:
+
+<security-constraint>
+    <web-resource-collection>
+        <web-resource-name>restricted methods</web-resource-name>
+        ...
+        <http-method>TRACE</http-method>
+        ...
+    </web-resource-collection>
+    ...
+</security-constraint>
+
+Default Value:
+
+Tomcat does not allow the TRACE HTTP verb by default. Tomcat will only allow TRACE if the allowTrace attribute is present and set to true."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7,800-53r5|CM-7,CSCv7|13.2,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"not(@allowTrace)\">"
+      xsl_stmt    : "<xsl:text>PASS - allowTrace not present on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@allowTrace and @allowTrace='false'\">"
+      xsl_stmt    : "<xsl:text>PASS - allowTrace set to false on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - allowTrace set to true on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "3.1 Set a nondeterministic Shutdown command value"
+      info        : "Tomcat listens on TCP port 8005 to accept shutdown requests. By connecting to this port and sending the SHUTDOWN command, all applications within Tomcat are halted. The shutdown port is not exposed to the network as it is bound to the loopback interface. It is recommended that a nondeterministic value be set for the shutdown attribute in $CATALINA_HOME/conf/server.xml.
+
+Rationale:
+
+Setting the shutdown attribute to a nondeterministic value will prevent malicious local users from shutting down Tomcat."
+      solution    : "Perform the following to set a nondeterministic value for the shutdown attribute.
+Update the shutdown attribute in $CATALINA_HOME/conf/server.xml as follows:
+
+<Server port='8005' shutdown='NONDETERMINISTICVALUE'>
+
+Note: NONDETERMINISTICVALUE should be replaced with a sequence of random characters.
+
+Default Value:
+
+The default value for the shutdown attribute is SHUTDOWN."
+      reference   : "800-171|3.1.7,800-53|AC-6(10),800-53r5|AC-6(10),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.7,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ITSG-33|AC-6,LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:if test=\"Server/@shutdown='SHUTDOWN'\">"
+      xsl_stmt    : "<xsl:text>FAIL - Shutdown text is default value</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:if>"
+      xsl_stmt    : "<xsl:if test=\"Server/@shutdown!='SHUTDOWN'\">"
+      xsl_stmt    : "<xsl:text>PASS - Shutdown text is not default value</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:if>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.1 Restrict access to $CATALINA_HOME"
+      info        : "$CATALINA_HOME is the environment variable which holds the path to the root Tomcat directory. It is important to protect access to this in order to protect the Tomcat binaries and libraries from unauthorized modification. It is recommended that the ownership of $CATALINA_HOME be tomcat_admin:tomcat. It is also recommended that the permission on $CATALINA_HOME block read, write, and execute for the world (o-rwx) and block write access to the group (g-w).
+
+Rationale:
+
+The security of processes and data which traverse or depend on Tomcat may become compromised if the $CATALINA_HOME is not secured."
+      solution    : "Perform the following to establish the recommended state:
+
+Set the ownership of the $CATALINA_HOME to tomcat_admin:tomcat.
+
+# chown tomcat_admin.tomcat $CATALINA_HOME
+
+Remove write permissions for the group and read, write, and execute permissions for the world
+
+# chmod g-w,o-rwx $CATALINA_HOME"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "027"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.2 Restrict access to $CATALINA_BASE"
+      info        : "$CATALINA_BASE is the environment variable that specifies the base directory which most relative paths are resolved. $CATALINA_BASE is usually used when there are multiple instances of Tomcat running. It is important to protect access to this in order to protect the Tomcat-related binaries and libraries from unauthorized modification. It is recommended that the ownership of $CATALINA_BASE be tomcat_admin:tomcat. It is also recommended that the permission on $CATALINA_BASE block read, write, and execute for the world (o-rwx) and block write access to the group (g-w).
+
+Rationale:
+
+The security of processes and data which traverse or depend on Tomcat may become compromised if the $CATALINA_BASE is not secured."
+      solution    : "Perform the following to establish the recommended state:
+
+Set the ownership of the $CATALINA_BASE to tomcat_admin:tomcat.
+
+# chown tomcat_admin.tomcat $CATALINA_BASE
+
+Remove write permissions for the group and read, write, and execute permissions for the world
+
+# chmod g-w,o-rwx $CATALINA_BASE"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_BASE@"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "027"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.3 Restrict access to Tomcat configuration directory"
+      info        : "The Tomcat $CATALINA_HOME/conf directory contains Tomcat configuration files. It is recommended that the ownership of this directory be tomcat_admin:tomcat. It is also recommended that the permissions on this directory deny read, write, and execute for the world (o-rwx) and deny write access to the group (g-w).
+
+Rationale:
+
+Restricting access to these directories will prevent local users from maliciously or inadvertently altering Tomcat's configuration."
+      solution    : "Perform the following to restrict access to Tomcat configuration files:
+
+Set the ownership of the $CATALINA_HOME/conf to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf
+
+Remove write permissions for the group and read, write, and execute permissions for the world.
+
+# chmod g-w,o-rwx $CATALINA_HOME/conf
+
+Default Value:
+
+The default permissions of the top-level directories are 770."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "027"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.4 Restrict access to Tomcat logs directory"
+      info        : "The Tomcat $CATALINA_HOME/logs directory contains Tomcat logs. It is recommended that the ownership of this directory be tomcat_admin:tomcat. It is also recommended that the permissions on this directory deny read, write, and execute for the world (o-rwx).
+
+Rationale:
+
+Restricting access to these directories will prevent local users from maliciously or inadvertently altering Tomcat's logs."
+      solution    : "Perform the following to restrict access to Tomcat log files:
+
+Set the ownership of the $CATALINA_HOME/logs to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/logs
+
+Remove read, write, and execute permissions for the world
+
+# chmod o-rwx $CATALINA_HOME/logs
+
+Default Value:
+
+The default permissions of the top-level directories are 770."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@SECURE_LOG_DIR@"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "007"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.5 Restrict access to Tomcat temp directory"
+      info        : "The Tomcat $CATALINA_HOME/temp directory is used by Tomcat to persist temporary information to disk. It is recommended that the ownership of this directory be tomcat_admin:tomcat. It is also recommended that the permissions on this directory deny read, write, and execute for the world (o-rwx).
+
+Rationale:
+
+Restricting access to these directories will prevent local users from maliciously or inadvertently affecting the integrity of Tomcat processes."
+      solution    : "Perform the following to restrict access to Tomcat temp directory:
+
+Set the ownership of the $CATALINA_HOME/temp to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/temp
+
+Remove read, write, and execute permissions for the world
+
+# chmod o-rwx $CATALINA_HOME/temp
+
+Default Value:
+
+The default permissions of the top-level directories are 770."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/temp"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "007"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.6 Restrict access to Tomcat binaries directory"
+      info        : "The Tomcat $CATALINA_HOME/bin directory contains executes that are part of the Tomcat run-time. It is recommended that the ownership of this directory be tomcat_admin:tomcat. It is also recommended that the permission on this directory deny read, write, and execute for the world (o-rwx) and deny write access to the group (g-w).
+
+Rationale:
+
+Restricting access to these directories will prevent local users from maliciously or inadvertently affecting the integrity of Tomcat processes."
+      solution    : "Perform the following to restrict access to Tomcat bin directory:
+
+Set the ownership of the $CATALINA_HOME/bin to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/bin
+
+Remove read, write, and execute permissions for the world
+
+# chmod g-w,o-rwx $CATALINA_HOME/bin
+
+Default Value:
+
+The default permissions of the top-level directories are 770."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/bin"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "027"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.7 Restrict access to Tomcat web application directory"
+      info        : "The Tomcat $CATALINA_HOME/webapps directory contains web applications that are deployed through Tomcat. It is recommended that the ownership of this directory be tomcat_admin:tomcat. It is also recommended that the permission on this directory eny read, write, and execute for the world (o-rwx) and deny write access to the group (g-w).
+
+Rationale:
+
+Restricting access to these directories will prevent local users from maliciously or inadvertently affecting the integrity of web applications."
+      solution    : "Perform the following to restrict access to Tomcat webapps directory:
+
+Set the ownership of the $CATALINA_HOME/webapps to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/webapps
+
+Remove read, write, and execute permissions for the world.
+
+# chmod g-w,o-rwx $CATALINA_HOME/webapps
+
+Default Value:
+
+The default permissions of the top-level directories are 770."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_BASE@"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "027"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.8 Restrict access to Tomcat catalina.properties"
+      info        : "catalina.properties is a Java properties file which contains settings for Tomcat including class loader information, security package lists, and performance properties. It is recommended that access to this file properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to catalina.properties:
+
+Set the ownership of the $CATALINA_HOME/conf/catalina.properties to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/catalina.properties
+
+Set the permissions of the $CATALINA_HOME/conf/catalina.properties to 600
+
+# chmod 600 $CATALINA_HOME/conf/catalina.properties
+
+Default Value:
+
+The default permissions of the top-level directories are 600."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/catalina.properties"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.9 Restrict access to Tomcat catalina.policy"
+      info        : "The catalina.policy file is used to configure security policies for Tomcat. It is recommended that access to this file has the proper permissions to properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to $CATALINA_HOME/conf/catalina.policy.
+
+Set the owner and group owner of the contents of $CATALINA_HOME/conf/catalina.policy to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/catalina.policy
+
+Set the permissions of the $CATALINA_HOME/conf/catalina.policy file to 600.
+
+# chmod 600 $CATALINA_HOME/conf/catalina.policy
+
+Default Value:
+
+The default permissions of catalina.policy are 600."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/catalina.policy"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.10 Restrict access to Tomcat context.xml"
+      info        : "The context.xml file is loaded by all web applications and sets certain configuration options. It is recommended that access to this file properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to context.xml:
+
+Set the ownership of the $CATALINA_HOME/conf/context.xml to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/context.xml
+
+Set the permissions for the $CATALINA_HOME/conf/context.xml to 600.
+
+# chmod 600 $CATALINA_HOME/conf/context.xml
+
+Default Value:
+
+The default permissions of context.xml are 600."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/context.xml"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.11 Restrict access to Tomcat logging.properties"
+      info        : "logging.properties is a Tomcat files which specifies the logging configuration. It is recommended that access to this file properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to logging.properties:
+
+Set the ownership of the $CATALINA_HOME/conf/logging.properties to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/logging.properties
+
+Set the permissions for the $CATALINA_HOME/conf/logging.properties file to 600.
+
+# chmod 600 $CATALINA_HOME/conf/logging.properties
+
+Default Value:
+
+The default permissions are 600."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/logging.properties"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.12 Restrict access to Tomcat server.xml"
+      info        : "server.xml contains Tomcat servlet definitions and configurations. It is recommended that access to this file properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to server.xml:
+
+Set the ownership of the $CATALINA_HOME/conf/server.xml to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/server.xml
+
+Set the permissions of the $CATALINA_HOME/conf/server.xml to 600
+
+# chmod 600 $CATALINA_HOME/conf/server.xml
+
+Default Value:
+
+The default permissions of the top-level directories are 600."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.13 Restrict access to Tomcat tomcat-users.xml"
+      info        : "tomcat-users.xml contains authentication information for Tomcat applications. It is recommended that access to this file properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to tomcat-users.xml:
+
+Set the ownership of the $CATALINA_HOME/conf/tomcat-users.xml to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/tomcat-users.xml
+
+Set the permissions of the $CATALINA_HOME/conf/tomcat-users.xml to 600
+
+# chmod 600 $CATALINA_HOME/conf/tomcat-users.xml
+
+Default Value:
+
+The default permissions of the top-level directories are 600."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/tomcat-users.xml"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.14 Restrict access to Tomcat web.xml"
+      info        : "The Tomcat configuration file web.xml stores application configuration settings. It is recommended that access to this file properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to web.xml:
+
+Set the ownership of the $CATALINA_HOME/conf/web.xml to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/web.xml
+
+Set the permissions for the $CATALINA_HOME/conf/web.xml file to 400.
+
+# chmod 400 $CATALINA_HOME/conf/web.xml
+
+Default Value:
+
+The default permissions of web.xml are 400."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/web.xml"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "4.15 Restrict access to jaspic-providers.xml"
+      info        : "Tomcat implements JASPIC 1.1 Maintenance Release B (JSR 196). The implementation is primarily intended to enable the integration of 3rd party JASPIC authentication implementations with Tomcat.
+
+JASPIC may be configured dynamically by an application or statically via the $CATALINA_BASE/conf/jaspic-providers.xml configuration file. It is recommended that access to this file properly protect from unauthorized changes.
+
+Rationale:
+
+Restricting access to this file will prevent local users from maliciously or inadvertently altering Tomcat's security policy."
+      solution    : "Perform the following to restrict access to $CATALINA_HOME/conf/jaspic-providers.xml.
+
+Set the ownership of the $CATALINA_HOME/conf/jaspic-providers.xml file to tomcat_admin:tomcat.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/conf/jaspic-providers.xml
+
+Set the permissions for the $CATALINA_HOME/conf/jaspic-providers.xml file to 600.
+
+# chmod 600 $CATALINA_HOME/conf/jaspic-providers.xml
+
+Default Value:
+
+The default permissions of jaspic-providers.xml are 600."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/jaspic-providers.xml"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "177"
+      file_type   : "f"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "6.2 Ensure SSLEnabled is set to True for Sensitive Connectors - verify SSLEnabled is set to true"
+      info        : "The SSLEnabled setting determines if SSL is enabled for a specific Connector. It is recommended that SSL be utilized for any Connector that sends or receives sensitive information, such as authentication credentials or personal information.
+
+Rationale:
+
+The SSLEnabled setting ensures SSL is active, which will in-turn ensure the confidentiality and integrity of sensitive information while in transit."
+      solution    : "In server.xml, set the SSLEnabled attribute to true for each Connector that sends or receives sensitive information
+
+<Connector
+ ...
+ SSLEnabled='true'
+ ...
+/>
+
+Default Value:
+
+SSLEnabled is set to false."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='false'\">"
+      xsl_stmt    : "<xsl:text>FAIL - SSLEnabled set to false on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='true'\">"
+      xsl_stmt    : "<xsl:text>PASS - SSLEnabled configured correctly</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - No connectors using SSL</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "6.3 Ensure scheme is set accurately"
+      info        : "The scheme attribute is used to indicate to callers of request.getScheme() which scheme is in use by the Connector. Ensure the scheme attribute is set to http for Connectors operating over HTTP. Ensure the scheme attribute is set to https for Connectors operating over HTTPS.
+
+Rationale:
+
+Maintaining parity between the scheme in use by the Connector and advertised by request.getScheme() will ensure applications built on Tomcat have an accurate depiction of the context and security guarantees provided to them."
+      solution    : "In server.xml, set the Connector's scheme attribute to http for Connectors operating over HTTP. Set the Connector's scheme attribute to https for Connectors operating over HTTPS.
+
+<Connector
+    ...
+    scheme='https'
+    ...
+/>
+
+Default Value:
+
+The scheme attribute is set to http."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='true' and @scheme!='https'\">"
+      xsl_stmt    : "<xsl:text>FAIL - Scheme not set to HTTPS for SSL connector at port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='true' and @scheme='https'\">"
+      xsl_stmt    : "<xsl:text>PASS - Scheme configured correctly</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - No connectors using SSL</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "6.4 Ensure secure is set to true only for SSL-enabled Connectors - verify secure is set to true"
+      info        : "The secure attribute is used to convey Connector security status to applications operating over the Connector. This is typically achieved by calling request.isSecure(). Ensure the secure attribute is only set to true for Connectors operating with the SSLEnabled attribute set to true.
+
+Rationale:
+
+Accurately reporting the security state of the Connector will help ensure that applications built on Tomcat are not unknowingly relying on security controls that are not in place."
+      solution    : "For each Connector defined in server.xml, set the secure attribute to true for those Connectors having SSLEnabled set to true. Set the secure attribute to false for those Connectors having SSLEnabled set to false.
+
+<Connector SSLEnabled='true'
+    ...
+    secure='true'
+    ...
+/>
+...
+<Connector SSLEnabled='false'
+    ...
+    secure='false'
+    ...
+/>
+
+Default Value:
+
+The secure attribute is set to false."
+      reference   : "800-171|3.13.8,800-53|SC-8,800-53r5|SC-8,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|4,CSF|PR.DS-2,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ITSG-33|SC-8,ITSG-33|SC-8a.,LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='true' and @secure!='true'\">"
+      xsl_stmt    : "<xsl:text>FAIL - Secure not set to true for SSL connector at port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='true' and @secure='true'\">"
+      xsl_stmt    : "<xsl:text>PASS - Secure configured correctly</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - No connectors using SSL</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "6.5 Ensure 'sslProtocol' is Configured Correctly for Secure Connectors"
+      info        : "The TLSv1.0 and TLSv1.1 protocols should be disabled via the sslProtocol directive. The TLSv1.0 protocol is vulnerable to information disclosure and both protocols lack support for modern cryptographic algorithms including authenticated encryption. The only SSL/TLS protocols which should be allowed are TLSv1.2 and the newer TLSv1.3 protocol.
+
+Rationale:
+
+The TLSv1.0 protocol is vulnerable to the BEAST attack when used in CBC mode (October 2011). Unfortunately, the TLSv1.0 uses CBC modes for all of the block mode ciphers, which only leaves the RC4 streaming cipher which is also weak and is not recommended. Therefore, it is recommended that the TLSv1.0 protocol be disabled. The TLSv1.1 protocol does not support Authenticated Encryption with Associated Data (AEAD) which is designed to simultaneously provide confidentiality, integrity, and authenticity. All major up-to-date browsers support TLSv1.2, and most recent versions of FireFox and Chrome support the newer TLSv1.3 protocol, since 2017.
+
+The NIST SP 800-52r2 guidelines for TLS configuration require that TLS 1.2 is configured with FIPS-based cipher suites be supported by all government TLS servers and clients and requires support of TLS 1.3 by January 1, 2024. A September 2018 IETF draft also depreciates the usage of TLSv1.0 and TLSv1.1 as shown in the references.
+
+As of March 2020 all major browsers will no longer support TLS 1.0 or TLS 1.1."
+      solution    : "In server.xml, set the sslProtocol attribute to TLSv1.2+TLSv1.3 for Connectors having SSLEnabled set to true.
+
+<Connector
+...
+sslProtocol='TLSv1.2+TLSv1.3'
+...
+/>
+
+Default Value:
+
+If not specified, the default value of TLS will be used."
+      reference   : "800-171|3.13.8,800-171|3.13.10,800-53|SC-8,800-53|SC-12,800-53r5|SC-8,800-53r5|SC-12,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv7|18.5,CSCv8|4,CSF|PR.DS-2,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.10.1.2,ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-12,ITSG-33|SC-12a.,LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NESA|T7.4.2,NIAv2|CY2,NIAv2|CY8,NIAv2|CY9,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='true' and @sslProtocol!='TLS'\">"
+      xsl_stmt    : "<xsl:text>FAIL - sslProtocol not set to TLS for SSL connector at port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@port='@SSL_PORT@' and @SSLEnabled='true' and @sslProtocol='TLS'\">"
+      xsl_stmt    : "<xsl:text>PASS - sslProtocol configured correctly</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - No connectors using SSL</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if org.apache.juli.FileHandler exists in web application"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_BASE@/@WEB_APP_DIR@/WEB-INF/classes/logging.properties"
+      regex       : "handlers[\\s]*=[\\s]*.*org\.apache\.juli\.FileHandler"
+      expect      : "handlers[\\s]*=[\\s]*.*org\.apache\.juli\.FileHandler"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if org.apache.juli.FileHandler logging is enabled in web application"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_BASE@/@WEB_APP_DIR@/WEB-INF/classes/logging.properties"
+      regex       : "org\.apache\.juli\.FileHandler\.level[\\s]*=[\\s]*(@LOGGING_LEVEL@)"
+      expect      : "org\.apache\.juli\.FileHandler\.level[\\s]*=[\\s]*(@LOGGING_LEVEL@)"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if java.util.logging.ConsoleHandler exists in web application"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_BASE@/@WEB_APP_DIR@/WEB-INF/classes/logging.properties"
+      regex       : "handlers[\\s]*=[\\s]*.*java\.util\.logging\.ConsoleHandler"
+      expect      : "handlers[\\s]*=[\\s]*.*java\.util\.logging\.ConsoleHandler"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if java.util.logging.ConsoleHandler logging is enabled in web application"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_BASE@/@WEB_APP_DIR@/WEB-INF/classes/logging.properties"
+      regex       : "java\.util\.logging\.ConsoleHandler\.level\\s=\\s(@LOGGING_LEVEL@)"
+      expect      : "java\.util\.logging\.ConsoleHandler\.level\\s=\\s(@LOGGING_LEVEL@)"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if org.apache.juli.FileHandler exists in default"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/logging.properties"
+      regex       : "handlers[\\s]*=[\\s]*.*org\.apache\.juli\.FileHandler"
+      expect      : "handlers[\\s]*=[\\s]*.*org\.apache\.juli\.FileHandler"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if org.apache.juli.FileHandler logging is enabled in default"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/logging.properties"
+      regex       : "org\.apache\.juli\.FileHandler\.level[\\s]*=[\\s]*(@LOGGING_LEVEL@)"
+      expect      : "org\.apache\.juli\.FileHandler\.level[\\s]*=[\\s]*(@LOGGING_LEVEL@)"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if java.util.logging.ConsoleHandler exists inin default"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/logging.properties"
+      regex       : "handlers[\\s]*=[\\s]*.*java\.util\.logging\.ConsoleHandler"
+      expect      : "handlers[\\s]*=[\\s]*.*java\.util\.logging\.ConsoleHandler"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Specify file handler in logging.properties files - check if java.util.logging.ConsoleHandler logging is enabled in default"
+      info        : "Handlers specify where log messages are sent. Console handlers send log messages to the Java console and File handlers specify logging to a file.
+
+Rationale:
+
+Utilizing file handlers will ensure that security event information is persisted to disk.
+
+Impact:
+
+Configuring logging to debug logging, i.e. FINEST or ALL, can generate large amounts of information which may impact server performance."
+      solution    : "Add the following entries, replacing <file_handler> with either FileHandler or AsyncFileHandler, to your logging.properties file if they do not exist.
+
+handlers=1catalina.org.apache.juli.<file_handler>, 2localhost.org.apache.juli.<file_handler>, 3manager.org.apache.juli.<file_handler>, 4host-manager.org.apache.juli.<file_handler>, java.util.logging.ConsoleHandler
+
+Ensure logging is not off and set the <logging_level> to the desired level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST or ALL), for example:
+
+org.apache.juli.FileHandler.level=<logging_level>
+
+Default Value:
+
+No value for new applications by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/logging.properties"
+      regex       : "java\.util\.logging\.ConsoleHandler\.level[\\s]*=[\\s]*(@LOGGING_LEVEL@)"
+      expect      : "java\.util\.logging\.ConsoleHandler\.level[\\s]*=[\\s]*(@LOGGING_LEVEL@)"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "7.4 Ensure directory in context.xml is a secure location - configuration"
+      info        : "The directory attribute tells Tomcat where to store logs. It is recommended that the location referenced by the directory attribute be secured.
+
+Rationale:
+
+Securing the log location will help ensure the integrity and confidentiality of web application activity."
+      solution    : "Perform the following:
+
+Add the following statement into the $CATALINA_BASE/webapps/<app_name>/META-INF/context.xml file if it does not already exist.
+
+<Valve className='org.apache.catalina.valves.AccessLogValve'
+directory='$CATALINA_HOME/logs/'
+prefix='access_log' fileDateFormat='yyyy-MM-dd.HH' suffix='.log' pattern='%h %t %H cookie:%{SESSIONID}c request:%{SESSIONID}r %m %U %s %q %r'
+/>
+
+Set the location pointed to by the directory attribute to be owned by tomcat_admin:tomcat with permissions of o-rwx.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/logs
+# chmod o-rwx $CATALINA_HOME/logs
+
+Default Value:
+
+Does not exist by default"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/webapps/*/META-INF/context.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"Context/Valve/@className='org.apache.catalina.valves.AccessLogValve' and Context/Valve/@directory='@SECURE_LOG_DIR@'\">"
+      xsl_stmt    : "<xsl:text>PASS - directory set to </xsl:text><xsl:value-of select=\"Context/Valve/@directory\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"Context/Valve/@className='org.apache.catalina.valves.AccessLogValve' and Context/Valve/@pattern!='@SECURE_LOG_DIR@'\">"
+      xsl_stmt    : "<xsl:text>FAIL - directory incorrect </xsl:text><xsl:value-of select=\"Context/Valve/@directory\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - AccessLogValve not set</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "7.4 Ensure directory in context.xml is a secure location - permissions"
+      info        : "The directory attribute tells Tomcat where to store logs. It is recommended that the location referenced by the directory attribute be secured.
+
+Rationale:
+
+Securing the log location will help ensure the integrity and confidentiality of web application activity."
+      solution    : "Perform the following:
+
+Add the following statement into the $CATALINA_BASE/webapps/<app_name>/META-INF/context.xml file if it does not already exist.
+
+<Valve className='org.apache.catalina.valves.AccessLogValve'
+directory='$CATALINA_HOME/logs/'
+prefix='access_log' fileDateFormat='yyyy-MM-dd.HH' suffix='.log' pattern='%h %t %H cookie:%{SESSIONID}c request:%{SESSIONID}r %m %U %s %q %r'
+/>
+
+Set the location pointed to by the directory attribute to be owned by tomcat_admin:tomcat with permissions of o-rwx.
+
+# chown tomcat_admin:tomcat $CATALINA_HOME/logs
+# chmod o-rwx $CATALINA_HOME/logs
+
+Default Value:
+
+Does not exist by default"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@SECURE_LOG_DIR@"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "007"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "7.5 Ensure pattern in context.xml is correct"
+      info        : "The pattern setting informs Tomcat what information should be logged per application. At a minimum, enough information to uniquely identify a request, what was requested, where the requested originated from, and when the request occurred should be logged. The following will log the request date and time (%t), the requested URL (%U), the remote IP address (%a), the local IP address (%A), the request method (%m), the local port (%p), query string, if present, (%q), and the HTTP status code of the response (%s).
+
+pattern='%t %U %a %A %m %p %q %s'
+
+Rationale:
+
+The level of logging detail prescribed will assist in identifying correlating security events or incidents."
+      solution    : "Add the following statement into the $CATALINA_BASE/webapps/<app_name>/META-INF/context.xml file if it does not already exist.
+
+<Valve
+className='org.apache.catalina.valves.AccessLogValve' directory='$CATALINA_HOME/logs/' prefix='access_log' fileDateFormat='yyyy-MM-dd.HH' suffix='.log'
+pattern='%h %t %H cookie:%{SESSIONID}c request:%{SESSIONID}r %m %U %s %q %r'
+/>
+
+Default Value:
+
+Does not exist by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12,800-53r5|AU-12,CSCv7|6.3,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-12,LEVEL|1A,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/webapps/*/META-INF/context.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"Context/Valve/@className='org.apache.catalina.valves.AccessLogValve' and Context/Valve/@pattern='%h %t %H cookie:%{SESSIONID}c request:%{SESSIONID}r %m %U %s %q %r'\">"
+      xsl_stmt    : "<xsl:text>PASS - pattern set to </xsl:text><xsl:value-of select=\"Context/Valve/@pattern\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"Context/Valve/@className='org.apache.catalina.valves.AccessLogValve' and Context/Valve/@pattern!='%h %t %H cookie:%{SESSIONID}c request:%{SESSIONID}r %m %U %s %q %r'\">"
+      xsl_stmt    : "<xsl:text>FAIL - pattern incorrect: </xsl:text><xsl:value-of select=\"Context/Valve/@pattern\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - AccessLogValve not set</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.6 Ensure directory in logging.properties is a secure location - check log directory location"
+      info        : "The directory attribute tells Tomcat where to store logs. The directory value should be a secure location with restricted access.
+
+Rationale:
+
+Securing the log location will help ensure the integrity and confidentiality of web application activity records."
+      solution    : "Perform the following:
+
+Add the following properties into your logging.properties file if they do not exist
+
+<application_name>.org.apache.juli.AsyncFileHandler.directory=<log_location>
+<application_name>.org.apache.juli.AsyncFileHandler.prefix=<application_name>
+
+Set the location pointed to by the directory attribute to be owned by tomcat_admin:tomcat with permissions of o-rwx.
+
+# chown tomcat_admin:tomcat <log_location>
+# chmod o-rwx <log_location>
+
+Default Value:
+
+The directory location is configured to store logs in $CATALINA_BASE/logs."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|1A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/logging.properties"
+      regex       : "@WEB_APP_DIR@\.org\.apache\.juli\.AsyncFileHandler\.directory[\\s]*=[\\s]*@SECURE_LOG_DIR@"
+      expect      : "@WEB_APP_DIR@\.org\.apache\.juli\.AsyncFileHandler\.directory[\\s]*=[\\s]*@SECURE_LOG_DIR@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.6 Ensure directory in logging.properties is a secure location - check prefix application name"
+      info        : "The directory attribute tells Tomcat where to store logs. The directory value should be a secure location with restricted access.
+
+Rationale:
+
+Securing the log location will help ensure the integrity and confidentiality of web application activity records."
+      solution    : "Perform the following:
+
+Add the following properties into your logging.properties file if they do not exist
+
+<application_name>.org.apache.juli.AsyncFileHandler.directory=<log_location>
+<application_name>.org.apache.juli.AsyncFileHandler.prefix=<application_name>
+
+Set the location pointed to by the directory attribute to be owned by tomcat_admin:tomcat with permissions of o-rwx.
+
+# chown tomcat_admin:tomcat <log_location>
+# chmod o-rwx <log_location>
+
+Default Value:
+
+The directory location is configured to store logs in $CATALINA_BASE/logs."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|1A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/logging.properties"
+      regex       : "@WEB_APP_DIR@\.org\.apache\.juli\.AsyncFileHandler\.prefix[\\s]*=[\\s]*@WEB_APP_DIR@"
+      expect      : "@WEB_APP_DIR@\.org\.apache\.juli\.AsyncFileHandler\.prefix[\\s]*=[\\s]*@WEB_APP_DIR@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "7.6 Ensure directory in logging.properties is a secure location - check application log directory is secure"
+      info        : "The directory attribute tells Tomcat where to store logs. The directory value should be a secure location with restricted access.
+
+Rationale:
+
+Securing the log location will help ensure the integrity and confidentiality of web application activity records."
+      solution    : "Perform the following:
+
+Add the following properties into your logging.properties file if they do not exist
+
+<application_name>.org.apache.juli.AsyncFileHandler.directory=<log_location>
+<application_name>.org.apache.juli.AsyncFileHandler.prefix=<application_name>
+
+Set the location pointed to by the directory attribute to be owned by tomcat_admin:tomcat with permissions of o-rwx.
+
+# chown tomcat_admin:tomcat <log_location>
+# chmod o-rwx <log_location>
+
+Default Value:
+
+The directory location is configured to store logs in $CATALINA_BASE/logs."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|1A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@SECURE_LOG_DIR@"
+      owner       : "@TOMCAT_OWNER@"
+      mask        : "077"
+      file_type   : "d"
+      group       : "@TOMCAT_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "8.1 Restrict runtime access to sensitive packages"
+      info        : "package.access grants or revokes access to listed packages during runtime. It is recommended that application access to certain packages be restricted.
+
+Rationale:
+
+Prevent web applications from accessing restricted or unknown packages which may be malicious or dangerous to the application."
+      solution    : "Edit $CATALINA_BASE/conf/catalina.properties by adding allowed packages to the package.access list:
+
+package.access = sun.,org.apache.catalina.,org.apache.coyote.,org.apache.jasper.,org.apache.tomcat.
+
+Default Value:
+
+The default package.access value within $CATALINA_BASE/conf/catalina.properties is:
+
+package.access = sun.,org.apache.catalina.,org.apache.coyote.,org.apache.tomcat., org.apache.jasper."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/catalina.properties"
+      regex       : "^[\\s]*package.access[\\s]*="
+      expect      : "^[\\s]*package.access[\\s]*=[\\s]*sun.,org.apache.catalina.,org.apache.coyote.,org.apache.tomcat.,org.apache.jasper.[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "9.1 Starting Tomcat with Security Manager"
+      info        : "Configure applications to run in a sandbox using the Security Manager. The Security Manager restricts what classes Tomcat can access thus protecting your server from mistakes, Trojans, and malicious code.
+
+Rationale:
+
+By running Tomcat with the Security Manager, applications are run in a sandbox which can prevent untrusted code from accessing files on the file system."
+      solution    : "The security policies implemented by the Java SecurityManager are configured in the $CATALINA_HOME/conf/catalina.policy file. Once you have configured the catalina.policy file for use with a SecurityManager, Tomcat can be started with a SecurityManager in place by using the -security option:
+On Unix:
+
+$ $CATALINA_HOME/bin/catalina.sh start -security
+
+On Windows:
+
+C:\> %CATALINA_HOME%\bin\catalina start -security
+
+Default Value:
+
+By default the -security option is not utilized."
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSCv8|4,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1M,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/bin/startup.sh"
+      regex       : "\-security"
+      expect      : "\-security"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "10.1 Ensure Web content directory is on a separate partition from the Tomcat system files - verify Web content directory"
+      info        : "Store web content on a separate partition from Tomcat system files.
+
+Rationale:
+
+The web document directory is where the files which are served to the end user reside. In the past, directory traversal exploits have allowed malicious users to wreak havoc on a web server including executing code, uploading files, and reading sensitive data. Even if you do not have any directory traversal exploits in your server or code at this time, that doesn't mean they won't be introduced in the future. Moving your web document directory onto a different partition will prevent these kinds of attacks from doing more damage to other parts of the file system."
+      solution    : "Move the web content files to a separate partition from the tomcat system files and update your configuration.
+
+Default Value:
+
+Not Applicable"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|2.10,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|1M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      cmd         : "/bin/df @CATALINA_HOME@ @CATALINA_HOME@/webapps | /bin/sed 1,1d | /usr/bin/sort -u | /usr/bin/wc -l"
+      expect      : "2"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.2 Restrict access to the web administration application"
+      info        : "Limit access to the web administration application to only those with a justified need.
+
+Rationale:
+
+Limiting access to the least privilege will ensure only those people with justified need will have access to a resource. The web administration application should be limited to only administrators."
+      solution    : "For the administration application, edit $CATALINA_HOME/conf/server.xml and uncomment the following:
+
+<Valve className='org.apache.catalina.valves.RemoteAddrValve' allow='127\.0\.0\.1'/>
+
+Note: The RemoteAddrValve property expects a regular expression, therefore periods and other regular expression meta-characters must be escaped.
+
+Default Value:
+
+By default, this configuration is not present."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.7,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Engine/Host\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"Valve/@className='org.apache.catalina.valves.RemoteAddrValve' and Valve/@allow='127\\.0\\.0\\.1'\">"
+      xsl_stmt    : "<xsl:text>PASS - RemoteAddrValve present for Engine </xsl:text><xsl:value-of select=\"@name\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - RemoteAddrValve not present or commented out</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.4 Force SSL when accessing the manager application via HTTP"
+      info        : "Use the transport-guarantee attribute to ensure SSL protection when accessing the manager application.
+
+Rationale:
+
+By default when accessing the manager application via HTTP, login information is sent over the wire in plain text. By setting the transport-guarantee within web.xml, SSL is enforced.
+
+Note: This requires SSL to be configured."
+      solution    : "Set <transport-guarantee> to CONFIDENTIAL in $CATALINA_HOME/webapps/manager/WEB-INF/web.xml:
+
+<security-constraint>
+  <user-data-constraint>
+    <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+  </user-data-constraint>
+</security-constraint>
+
+Default Value:
+
+By default this configuration is not present."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_BASE@/manager/WEB-INF/web.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"//*[local-name() = 'web-app']/*[local-name() = 'security-constraint']/*[local-name() = 'user-data-constraint']/*[local-name() = 'transport-guarantee'] = 'CONFIDENTIAL'\">"
+      xsl_stmt    : "<xsl:text>PASS - SSL forced for manager application</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"//*[local-name() = 'web-app']/*[local-name() = 'security-constraint']/*[local-name() = 'user-data-constraint']/*[local-name() = 'transport-guarantee'] != 'CONFIDENTIAL'\">"
+      xsl_stmt    : "<xsl:text>FAIL - transport-guarantee not set to CONFIDENTIAL</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - security-constraint misconfigured or not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "10.7 Turn off session facade recycling"
+      info        : "The RECYCLE_FACADES can specify if a new facade will be created for each request. If a new facade is not created there is a potential for information leakage from other sessions.
+
+Rationale:
+
+When RECYCLE_FACADES is set to false, Tomcat will recycle the session facade between requests which may result in information leakage."
+      solution    : "Start Tomcat with RECYCLE_FACADES set to true. Add -Dorg.apache.catalina.connector.RECYCLE_FACADES=true to your startup script.
+
+Default Value:
+
+The default value is false."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.1,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/bin/catalina.sh"
+      regex       : "-Dorg\.apache\.catalina\.connector\.RECYCLE_FACADES[\\s]*=[\\s]*[Tt][Rr][Uu][Ee]"
+      expect      : "-Dorg\.apache\.catalina\.connector\.RECYCLE_FACADES[\\s]*=[\\s]*[Tt][Rr][Uu][Ee]"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.12 Do not allow symbolic linking"
+      info        : "Symbolic links permit one application to include the libraries from another. This allows for re-use of code but also allows for potential security issues when applications include libraries from other applications to which they should not have access.
+
+Rationale:
+
+Allowing symbolic links makes Tomcat susceptible to directory traversal vulnerability. Also, there is a potential that an application could link to another application to which it should not be linking. On case-insensitive operating systems there is also the threat of source code disclosure."
+      solution    : "In all context.xml, set the allowLinking attribute to false:
+
+<Context
+...
+    <Resources ... allowLinking='false' />
+...
+</Context>
+
+Default Value:
+
+By default allowLinking has a value of false."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7,800-53|CM-7(1),800-53|SI-7,800-53|SI-7(1),800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|SI-7,800-53r5|SI-7(1),CN-L3|7.1.3.5(b),CSCv7|5.1,CSCv8|2.7,CSF|PR.DS-6,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|SI-7,ITSG-33|SI-7a.,ITSG-33|SI-7(1),LEVEL|1A,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.2"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/context.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"/Context/Resources/@allowLinking = 'false'\">"
+      xsl_stmt    : "<xsl:text>PASS - allowLinking is explicitly disabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"/Context/Resources/@allowLinking = 'true'\">"
+      xsl_stmt    : "<xsl:text>FAIL - allowLinking is enabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - allowLinking attribute not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.13 Do not run applications as privileged"
+      info        : "Setting the privileged attribute for an application changes the class loader to the Server class loader instead of the Shared class loader.
+
+Rationale:
+
+Running an application in privileged mode allows an application to load the manager libraries."
+      solution    : "Set the privileged attribute in all context.xml files to false unless it is required as for the manager application:
+
+<Context ... privileged='false' />
+
+Default Value:
+
+By default, privileged has a value of false."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.7,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/context.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"/Context/@privileged = 'false'\">"
+      xsl_stmt    : "<xsl:text>PASS - privileged attribute is explicitly disabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"/Context/@privileged = 'true'\">"
+      xsl_stmt    : "<xsl:text>FAIL - privileged attribute is enabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - privileged attribute not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.14 Do not allow cross context requests"
+      info        : "Setting crossContext to true allows for an application to call ServletConext.getContext to return a dispatcher for another application.
+
+Rationale:
+
+Allowing crossContext creates the possibility for a malicious application to make requests to a restricted application."
+      solution    : "Set the crossContext attribute in all context.xml files to false:
+
+<Context ... crossContext='false' />
+
+Default Value:
+
+By default crossContext has a value of false."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7,800-53|CM-7(1),800-53|SI-7,800-53|SI-7(1),800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|SI-7,800-53r5|SI-7(1),CN-L3|7.1.3.5(b),CSCv7|4.7,CSCv8|2.7,CSF|PR.DS-6,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|SI-7,ITSG-33|SI-7a.,ITSG-33|SI-7(1),LEVEL|1A,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.2"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/context.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"/Context/@crossContext = 'false'\">"
+      xsl_stmt    : "<xsl:text>PASS - crossContext attribute is explicitly disabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"/Context/@crossContext = 'true'\">"
+      xsl_stmt    : "<xsl:text>FAIL - crossContext attribute is enabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - crossContext attribute not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.16 Enable memory leak listener"
+      info        : "The JRE Memory Leak Prevention Listener provides work-arounds for known places where the Java Runtime environment uses the context class loader to load a singleton as this will cause a memory leak if a web application class loader happens to be the context class loader at the time. The work-around is to initialize these singletons when this listener starts as Tomcat's common class loader is the context class loader at that time. It also provides work-arounds for known issues that can result in locked JAR files.
+
+Rationale:
+
+Enabling the JRE Memory Leak Prevention Listener provides work-arounds for preventing memory leaks."
+      solution    : "Uncomment the JRE Memory Leak Prevention Listener in $CATALINA_HOME/conf/server.xml
+
+<Listener className='org.apache.catalina.core.JreMemoryLeakPreventionListener' />"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSCv8|4,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|1A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"Server/Listener/@className = 'org.apache.catalina.core.JreMemoryLeakPreventionListener'\">"
+      xsl_stmt    : "<xsl:text>PASS - org.apache.catalina.core.JreMemoryLeakPreventionListener enabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - org.apache.catalina.core.JreMemoryLeakPreventionListener commented out or not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.17 Setting Security Lifecycle Listener - check for config component"
+      info        : "The Security Lifecycle Listener performs a number of security checks when Tomcat starts and prevents Tomcat from starting if they fail.
+
+Rationale:
+
+When enabled, the Security Lifecycle Listener can
+
+Enforce a blacklist of OS users that must not be used to start Tomcat.
+
+Set the least restrictive umask before Tomcat start"
+      solution    : "Uncomment the listener in $CATALINA_BASE/conf/server.xml. If the operating system supports umask then the line in $CATALINA_HOME/bin/catalina.sh that obtains the umask also needs to be uncommented.
+Within Server elements add:
+
+checkedOsUsers: A comma separated list of OS users that must not be used to start Tomcat. If not specified, the default value of root is used.
+
+minimumUmask: The least restrictive umask that must be configured before Tomcat will start. If not specified, the default value of 0007 is used.
+
+<Listener className='org.apache.catalina.security.SecurityListener' checkedOsUsers='alex,bob' minimumUmask='0007' />
+
+Default Value:
+
+The Security Lifecycle Listener is not enabled by default. For checkedOsUsers, the default value is root. For minimumUmask, the default value is 0007."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|5.1,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_CONF@/server.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"Server/Listener/@className = 'org.apache.catalina.security.SecurityListener'\">"
+      xsl_stmt    : "<xsl:text>PASS - org.apache.catalina.security.SecurityListener present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - org.apache.catalina.security.SecurityListener commented out or not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "10.17 Setting Security Lifecycle Listener - check for umask uncommented in startup"
+      info        : "The Security Lifecycle Listener performs a number of security checks when Tomcat starts and prevents Tomcat from starting if they fail.
+
+Rationale:
+
+When enabled, the Security Lifecycle Listener can
+
+Enforce a blacklist of OS users that must not be used to start Tomcat.
+
+Set the least restrictive umask before Tomcat start"
+      solution    : "Uncomment the listener in $CATALINA_BASE/conf/server.xml. If the operating system supports umask then the line in $CATALINA_HOME/bin/catalina.sh that obtains the umask also needs to be uncommented.
+Within Server elements add:
+
+checkedOsUsers: A comma separated list of OS users that must not be used to start Tomcat. If not specified, the default value of root is used.
+
+minimumUmask: The least restrictive umask that must be configured before Tomcat will start. If not specified, the default value of 0007 is used.
+
+<Listener className='org.apache.catalina.security.SecurityListener' checkedOsUsers='alex,bob' minimumUmask='0007' />
+
+Default Value:
+
+The Security Lifecycle Listener is not enabled by default. For checkedOsUsers, the default value is root. For minimumUmask, the default value is 0007."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|5.1,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/bin/catalina.sh"
+      regex       : "^\s*#\s*JAVA_OPTS=\"\$JAVA_OPTS -Dorg\.apache\.catalina\.security\.SecurityListener\.UMASK=.*\""
+      expect      : "^\s*#\s*JAVA_OPTS=\"\$JAVA_OPTS -Dorg\.apache\.catalina\.security\.SecurityListener\.UMASK=.*\""
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "10.17 Setting Security Lifecycle Listener - check for umask present in startup"
+      info        : "The Security Lifecycle Listener performs a number of security checks when Tomcat starts and prevents Tomcat from starting if they fail.
+
+Rationale:
+
+When enabled, the Security Lifecycle Listener can
+
+Enforce a blacklist of OS users that must not be used to start Tomcat.
+
+Set the least restrictive umask before Tomcat start"
+      solution    : "Uncomment the listener in $CATALINA_BASE/conf/server.xml. If the operating system supports umask then the line in $CATALINA_HOME/bin/catalina.sh that obtains the umask also needs to be uncommented.
+Within Server elements add:
+
+checkedOsUsers: A comma separated list of OS users that must not be used to start Tomcat. If not specified, the default value of root is used.
+
+minimumUmask: The least restrictive umask that must be configured before Tomcat will start. If not specified, the default value of 0007 is used.
+
+<Listener className='org.apache.catalina.security.SecurityListener' checkedOsUsers='alex,bob' minimumUmask='0007' />
+
+Default Value:
+
+The Security Lifecycle Listener is not enabled by default. For checkedOsUsers, the default value is root. For minimumUmask, the default value is 0007."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|5.1,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/bin/catalina.sh"
+      regex       : "^\s*JAVA_OPTS=\"\$JAVA_OPTS -Dorg\.apache\.catalina\.security\.SecurityListener\.UMASK=\d{3,4}\""
+      expect      : "^\s*JAVA_OPTS=\"\$JAVA_OPTS -Dorg\.apache\.catalina\.security\.SecurityListener\.UMASK=\d{3,4}\""
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "10.18 Use the logEffectiveWebXml and metadata-complete settings for deploying applications in production"
+      info        : "Both fragments and annotations give rise to security concerns. web.xml contains a metadata-complete attribute on the web-app element whose binary value defines whether other sources of metadata should be considered when deploying this web application, this includes annotations on class files (@WebServlet, but also @WebListener, @WebFilter, ...), web-fragment.xml as well as classes located in WEB-INF/classes. In addition, Tomcat could allow you to log the effective web.xml, when an application starts, and the effective web.xml is the result of taking the main web.xml for your application merging in all the fragments applying all the annotations. By logging that, you are able to review it, and see if that is in fact what you actually want.
+
+Rationale:
+
+Enable logEffectiveWebXml will allow you to log the effective web.xml and you are able to see if that is in fact what you actually want. Enable metadata-complete so that the web.xml is the only metadata considered.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Set the metadata-complete value in the web.xml in each of the applications to true.
+Note: The metadata-complete option is not enough to disable all of annotation scanning. If there is a ServletContainerInitializer with a @HandlesTypes annotation, Tomcat has to scan your application for classes that use annotations or interfaces specified in that annotation.
+
+Set the logEffectiveWebXml value in the context.xml in each of the application to true.
+
+Default Value:
+
+If logEffectiveWebXml and/or metadata-complete is/are not specified, the default value is false."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+    </report>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.19 Ensure Manager Application Passwords are Encrypted"
+      info        : "Apache Tomcat ships with a Manager Application which requires users with a role of manager-gui, manager-status, manager-script, and/or manager-jmx to authenticate. The usernames and passwords to log onto the Manager Application are stored in the tomcat-users.xml in plain text by default.
+
+Rationale:
+
+Storing passwords in plain text may allow users with access to read the tomcat-users.xml file to obtain the credentials of user who have been assigned roles for the Manager Application. This may allow for accounts to be compromised on Tomcat and elsewhere."
+      solution    : "Generate the encrypted password:
+
+cd $CATALINA_HOME/bin
+digest.bat -a sha-256 YOURPASSWORD
+
+This will return the original password followed by encrypted password:
+
+YOURPASSWORD:240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
+
+Replace the plain text password with the above encrypted password generated above in CATALINA_HOME/conf/tomcat-user.xml file as follows.
+
+<user username='admin' password='240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
+roles='manager-gui'/>
+
+Add the digest element as a child to the login-config element where the realm-name element has a value of UserDatabase. For example:
+
+<login-config>
+   <auth-method>DIGEST</auth-method>
+   <realm-name>UserDatabase</realm-name>
+</login-config>"
+      reference   : "800-171|3.5.2,800-171|3.13.16,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1M,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+      file        : "@CATALINA_HOME@/webapps/manager/WEB-INF/web.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"//*[local-name() = 'web-app']/*[local-name() = 'login-config']\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"not(*[local-name() = 'auth-method'])\">"
+      xsl_stmt    : "<xsl:text>FAIL - auth method not set for </xsl:text><xsl:value-of select=\"*[local-name() = 'realm-name']\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"*[local-name() = 'auth-method'] != 'DIGEST'\">"
+      xsl_stmt    : "<xsl:text>FAIL - auth method set to </xsl:text><xsl:value-of select=\"*[local-name() = 'auth-method']\" /> <xsl:text> for </xsl:text><xsl:value-of select=\"*[local-name() = 'realm-name']\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"*[local-name() = 'auth-method'] = 'DIGEST'\">"
+      xsl_stmt    : "<xsl:text>PASS - auth method set to </xsl:text><xsl:value-of select=\"*[local-name() = 'auth-method']\" /> <xsl:text> for </xsl:text><xsl:value-of select=\"*[local-name() = 'realm-name']\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Apache_Tomcat_9_L1_v1.2.0.audit from CIS Apache Tomcat 9 Benchmark"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/4107"
+    </report>
+  </else>
+</if>
+
+</check_type>

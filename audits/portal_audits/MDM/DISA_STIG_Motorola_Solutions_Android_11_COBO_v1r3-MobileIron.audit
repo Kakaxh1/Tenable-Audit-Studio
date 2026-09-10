@@ -1,0 +1,695 @@
+#TRUSTED acc31637057a22af999e945edc1e863ac465eec61a4dcfedfcb1eee500b5e63bd20f1c19a90095d0640adbc42a7bc8d868ca939e2bb97515dc48174b8d5380ebb0d4cefabb735e35612e4d50dbf4a42cb21e1d300cd94b5822e16215aae0792ba97da87f389c61b96ee4c2dff4d0f5881861f147afc817864fbcda944dc0c945328a6323526b9e6c74f5a451714be8588f364b60bd9c8fef2552850f1b2cd031cd0331f33cb86f6243a7329c784db690f174a75bae9eb425782416abab414ad03978e66d74d797758123704b503cbd80a06b19f098671671d6ea741d2d14ae150b39f9dadbd6b1c3b8b3592667be67b38cf22bacfa066ff27c78c7bc4173b7c63802fee72215c4f0c6e48f67bf13abd04e350e3e2c93960a3268f96d1b9272a8a335f6bf44a53328e69a485f06e9321f13c6e3ca491736034c431cccd1666da66463233b689f69ff7ba736cfde8dc9652a00cd8336bbfc02375c51fd0523e5cf86f67928d284ade090037ddfeae0a19e9e2deaebc79f15eafe249fa257cbd86b3d9891f13f133e6402cca1531b1f58c554309714266347886635c4f19aa3a51643a4c481fbb9f4d8d11cc2175be52a3c6bc94f95a1924c8b801c84c06db9ee458b2d11e036eb85a477f5a0e7ae0c2c36d025f73bb0fc0b2b86bc60974cf35cd571a2acf7fb66abaf835b554e09f120842b05d47dd26acdff07d7d96532a3562d
+#TRUST-RSA-SHA256 9714afc87c39fffa4d7337133a96ff8664c1f64a13082d9a61a037bce9c02066b256f3ecf2491f306b5eae754dee6abcd4c181cf0fd134dbae0bf9803eaf04077fdae183d4648b0850c938fcce7408b8f0a1cc0571bdbfceef2df27da8cb7cea1a96de1b2790516cae88715a73d0421c5febc04e1ea0d9579583979be8a88ff2f3ba8d6d0f7f63e8cb446a33787e3112c7c0928f01e74400b6e25c846c85ef824e668db929d6eaa12c19f6abee94219d77e776c54bc9f77e768979c60802de0b2aed77c2a5941309d19debe74a0b2231d10d5c40907f86c39a9668af4ce5b5561823b9567c530de877992e8c6690b79841af9a5f00030e3ffdaa02216b5d053b3ffd151e21053a79efeec0c0addf5711a009742bcd61b4a633938582639a1ff7f82b9c7b64463bf6d6ebf730013dc7fc35f6e8d10a1def495e954724079b62e49edf27e9f000ee9c6750e23f7038242ff9626028bf24de46ce0d2a5bd5247698cb6951840ff72374a4fdf8c78750b74900e3abf4e9192dc713c9f941aebaa93ea588347b8443a0ccf1c12d64e236e28c02d7508ab9948b0d8a199afa42c2edbbe27fd2196407f845089f61685e1f1e6ba69536f54931df4fdb3d7f4f2bb8b373ee7e9e44740108b28b578d6ceb410cfc3df8cd0cd0064e86ea770b4901e28c3b6e1f942183795b04c1377dc4934c4f6fb8beb75b20bd424bb3f904e667d75482
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2024/08/28 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Motorola Solutions Android 11 COBO v1r3 STIG.
+#
+#<ui_metadata>
+#<display_name>MobileIron - DISA Motorola Solutions Android 11 COBO v1r3</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Motorola Solutions Android 11</name>
+#  <profile>COBO MobileIron</profile>
+#  <version>1.3.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip</link>
+#</spec>
+#<labels>mdm,airwatch,android,motorola</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>WHITELIST</name>
+#    <default>.*</default>
+#    <description>Device Application Whitelist</description>
+#    <info>This is a comma separated whitelist of applications. Only these applications may be present on the device. Use a variable value of '.*' if this check is N/A for your organization, otherwise use a format like 'application_name1,application_name2,etc'.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BLACKLIST</name>
+#    <default>!@#$%$#@!</default>
+#    <description>Device Application Blacklist</description>
+#    <info>This is a comma separated blacklist of applications. None of these applications may be present on the device. Use a variable value of !@#$%$#@!' if this check is N/A for your organization, otherwise use a format like 'application_name1,application_name2,etc'.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"MDM" mdm_type:MOBILEIRON>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-000100 - Motorola Solutions Android 11 must be configured to enforce a minimum password length of six characters."
+  info           : "Password strength is a measure of the effectiveness of a password in resisting guessing and brute force attacks. The ability to crack a password is a function of how many attempts an adversary is permitted, how quickly an adversary can do each attempt, and the size of the password space. The longer the minimum length of the password is, the larger the password space. Having a too-short minimum password length significantly reduces password strength, increasing the chance of password compromise and resulting device and data compromise.
+
+SFR ID: FMT_SMF_EXT.1.1 #1a"
+  solution       : "Configure the Motorola Solutions Android 11 device to enforce a minimum password length of six characters.
+
+On the EMM console:
+1. Open 'Password constraints'.
+2. Select 'Personal Profile'.
+3. Open 'Minimum password quality'.
+4. Choose Numeric Complex, Alphabetic, Alphanumeric, or Complex.
+5. Open 'Minimum password length'.
+6. Enter in the number of characters as '6'."
+  reference      : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CAT|II,CCI|CCI-000205,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251078r958468_rule,STIG-ID|MOTS-11-000100,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-251078"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                 "Policy: " + .policyName + " - Passcode Length = \(.policyRules.SECURITY_PWD_LENGTH // "Not Defined")"'
+  regex          : "Passcode Length ="
+  expect         : "Passcode Length = ([6-9]|[1-8][0-9]|9[0-9])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-000200 - Motorola Solutions Android 11 must be configured to not allow passwords that include more than two repeating or sequential characters - Type"
+  info           : "Password strength is a measure of the effectiveness of a password in resisting guessing and brute force attacks. Passwords that contain repeating or sequential characters are significantly easier to guess than those that do not contain repeating or sequential characters. Therefore, disallowing repeating or sequential characters increases password strength and decreases risk. The numeric (complex) setting allows the use of a numeric only keyboard for passwords and enforces the repeating or sequential characters limitation.
+
+SFR ID: FMT_SMF_EXT.1.1 #1b"
+  solution       : "Configure the Motorola Solutions Android 11 device to prevent passwords from containing more than two repeating or sequential characters.
+
+On the EMM console:
+1. Open 'Password constraints'.
+2. Select 'Personal Profile'.
+3. Set password quality to 'Numeric (Complex)'.
+
+Note: Alphabetic, Alphanumeric, and Complex are also acceptable selections, but these selections will cause the user to select a complex password, which is not required by the STIG."
+  reference      : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251079r959010_rule,STIG-ID|MOTS-11-000200,SWIFT-CSCv1|2.3,Vuln-ID|V-251079"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Passcode Type = \(.policyRules.SECURITY_PWD_TYPE // "Not Defined")"'
+  regex          : "Passcode Type ="
+  expect         : "Passcode Type = Alphanumeric"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-000200 - Motorola Solutions Android 11 must be configured to not allow passwords that include more than two repeating or sequential characters - Minimum complex characters"
+  info           : "Password strength is a measure of the effectiveness of a password in resisting guessing and brute force attacks. Passwords that contain repeating or sequential characters are significantly easier to guess than those that do not contain repeating or sequential characters. Therefore, disallowing repeating or sequential characters increases password strength and decreases risk. The numeric (complex) setting allows the use of a numeric only keyboard for passwords and enforces the repeating or sequential characters limitation.
+
+SFR ID: FMT_SMF_EXT.1.1 #1b"
+  solution       : "Configure the Motorola Solutions Android 11 device to prevent passwords from containing more than two repeating or sequential characters.
+
+On the EMM console:
+1. Open 'Password constraints'.
+2. Select 'Personal Profile'.
+3. Set password quality to 'Numeric (Complex)'.
+
+Note: Alphabetic, Alphanumeric, and Complex are also acceptable selections, but these selections will cause the user to select a complex password, which is not required by the STIG."
+  reference      : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251079r959010_rule,STIG-ID|MOTS-11-000200,SWIFT-CSCv1|2.3,Vuln-ID|V-251079"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Passcode Minimum Complex Characters = \(.policyRules.SECURITY_PWD_MIN_COMPLEX_CHAR // "Not Defined")"'
+  regex          : "Passcode Minimum Complex Characters ="
+  expect         : "Passcode Minimum Complex Characters = ([2-9]|[3-9][0-9])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-000300 - Motorola Solutions Android 11 must be configured to enable a screen-lock policy that will lock the display after a period of inactivity."
+  info           : "The screen-lock timeout helps protect the device from unauthorized access. Devices without a screen-lock timeout provide an opportunity for adversaries who gain physical access to the mobile device through loss, theft, etc. Such devices are much more likely to be in an unlocked state when acquired by an adversary, thus granting immediate access to the data on the mobile device and possibly access to DoD networks.
+
+SFR ID: FMT_SMF_EXT.1.1 #2a"
+  solution       : "Configure the Motorola Solutions Android 11 device to enable a screen-lock policy that will lock the display after a period of inactivity.
+
+On the EMM Console:
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Set 'Max time to screen lock' to any number desired. The units are in seconds."
+  reference      : "800-171|3.1.10,800-53|AC-11a.,800-53r5|AC-11a.,CAT|II,CCI|CCI-000057,CN-L3|8.1.4.1(b),DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11a.,NESA|T2.3.8,NESA|T2.3.9,NIAv2|AM23a,NIAv2|AM23b,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,Rule-ID|SV-251080r958402_rule,STIG-ID|MOTS-11-000300,Vuln-ID|V-251080"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Device Lock Timeout = \(.policyRules.SECURITY_GRACE_PERIOD // "Not Defined")"'
+  regex          : "Device Lock Timeout ="
+  expect         : "Device Lock Timeout = ([1-9]|1[0-5])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-000400 - Motorola Solutions Android 11 must be configured to lock the display after 15 minutes (or less) of inactivity."
+  info           : "The screen lock timeout must be set to a value that helps protect the device from unauthorized access. Having a too-long timeout would increase the window of opportunity for adversaries who gain physical access to the mobile device through loss, theft, etc. Such devices are much more likely to be in an unlocked state when acquired by an adversary, thus granting immediate access to the data on the mobile device. The maximum timeout period of 15 minutes has been selected to balance functionality and security; shorter timeout periods may be appropriate depending on the risks posed to the mobile device.
+
+SFR ID: FMT_SMF_EXT.1.1 #2b"
+  solution       : "Configure the Motorola Solutions Android 11 device to lock the device display after 15 minutes (or less) of inactivity.
+
+On the EMM Console:
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Set 'Max time to screen lock' to any number between 1 and 900. The units are in seconds, so 900 represents 15 minutes (15 * 60 seconds)."
+  reference      : "800-171|3.1.10,800-53|AC-11a.,800-53r5|AC-11a.,CAT|II,CCI|CCI-000057,CN-L3|8.1.4.1(b),DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11a.,NESA|T2.3.8,NESA|T2.3.9,NIAv2|AM23a,NIAv2|AM23b,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,Rule-ID|SV-251081r958402_rule,STIG-ID|MOTS-11-000400,Vuln-ID|V-251081"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Device Lock Timeout = \(.policyRules.SECURITY_GRACE_PERIOD // "Not Defined")"'
+  regex          : "Device Lock Timeout ="
+  expect         : "Device Lock Timeout = ([1-9]|1[0-5])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-000500 - Motorola Solutions Android 11 must be configured to not allow more than ten consecutive failed authentication attempts."
+  info           : "The more attempts an adversary has to guess a password, the more likely the adversary will enter the correct password and gain access to resources on the device. Setting a limit on the number of attempts mitigates this risk. Setting the limit at 10 or less gives authorized users the ability to make a few mistakes when entering the password, but still provides adequate protection against dictionary or brute force attacks on the password.
+
+SFR ID: FMT_SMF_EXT.1.1 #2c, FIA_AFL_EXT.1.5"
+  solution       : "Configure the Motorola Solutions Android 11 device to allow only ten or fewer consecutive failed authentication attempts.
+
+On the EMM Console:
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Set 'Max password failures for local wipe' to a number between 1 and 10."
+  reference      : "800-171|3.1.8,800-53|AC-7a.,800-53r5|AC-7a.,CAT|III,CCI|CCI-000044,CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,Rule-ID|SV-251082r958388_rule,STIG-ID|MOTS-11-000500,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2,Vuln-ID|V-251082"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Maximum Number of Failed Attempts = \(.policyRules.SECURITY_PWD_MAX_FAILED_ATTEMPTS // "Not Defined")"'
+  regex          : "Maximum Number of Failed Attempts ="
+  expect         : "Maximum Number of Failed Attempts = ([1-9]|1[0-5])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-000800 - Motorola Solutions Android 11 must be configured to enforce an application installation policy by specifying one or more authorized application repositories, including [selection: DoD-approved commercial app repository, EMM server, mobile application store]."
+  info           : "Forcing all applications to be installed from authorized application repositories can prevent unauthorized and malicious applications from being installed and executed on mobile devices. Allowing such installations and executions could cause a compromise of DoD data accessible by these unauthorized/malicious applications.
+
+SFR ID: FMT_SMF_EXT.1.1 #8a"
+  solution       : "Configure the Motorola Solutions Android 11 device to disable unauthorized application repositories.
+
+On the EMM Console:
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow install unknown sources' to 'On'.
+3. Toggle 'Disallow installs from unknown sources globally' to 'On'."
+  reference      : "800-171|3.4.2,800-171|3.4.9,800-53|CM-6b.,800-53|CM-11b.,800-53r5|CM-6b.,800-53r5|CM-11b.,CAT|II,CCI|CCI-000366,CCI|CCI-001806,CN-L3|8.1.10.6(d),CSF|DE.CM-3,CSF|PR.IP-1,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|CM-6b.,NESA|T3.2.1,QCSC-v1|8.2.1,Rule-ID|SV-251083r959010_rule,STIG-ID|MOTS-11-000800,SWIFT-CSCv1|2.3,SWIFT-CSCv1|5.1,Vuln-ID|V-251083"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="LOCKDOWN") | "Policy: " + .policyName + " - Lockdown Unknown Sources = \(.policyRules.LOCKDOWN_UNKNOWN_SOURCES // "Not Defined")"'
+  regex          : "Lockdown Unknown Sources ="
+  expect         : "Lockdown Unknown Sources = On"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "MOTS-11-001000 - Motorola Solutions Android 11 must be configured to enforce an application installation policy by specifying an application allow list that restricts applications by the following characteristics: [selection: list of digital signatures, cryptographic hash values, names, application version]."
+  info             : "The application allow list, in addition to controlling the installation of applications on the MD, must control user access/execution of all core and preinstalled applications, or the MD must provide an alternate method of restricting user access/execution to core and pre-installed applications.
+
+Core application: Any application integrated into the OS by the OS or MD vendors.
+
+Pre-installed application: Additional non-core applications included in the OS build by the OS vendor, MD vendor, or wireless carrier.
+
+Requiring all authorized applications to be in an application allow list prevents the execution of any applications (e.g., unauthorized, malicious) that are not part of the allow list. Failure to configure an application allow list properly could allow unauthorized and malicious applications to be downloaded, installed, and executed on the mobile device, causing a compromise of DoD data accessible by these applications.
+
+The application allow list, in addition to controlling the installation of applications on the MD, must control user access/execution of all core applications (included in the OS by the OS vendor) and pre-installed applications (provided by the MD vendor and wireless carrier), or the MD must provide an alternate method of restricting user access/execution to core and pre-installed applications.
+
+SFR ID: FMT_SMF_EXT.1.1 #8b"
+  solution         : "Configure the Motorola Solutions Android 11 device to use an application allow list.
+
+On the EMM Console:
+1. Go to the Android app catalog for managed Motorola Solutions Play.
+2. Select apps to be available (only approved apps).
+3. Push updated policy to the device.
+
+Note: Managed Motorola Solutions Play is an allowed App Store."
+  reference        : "800-171|3.4.2,800-171|3.4.9,800-53|CM-6b.,800-53|CM-11b.,800-53r5|CM-6b.,800-53r5|CM-11b.,CAT|II,CCI|CCI-000366,CCI|CCI-001806,CN-L3|8.1.10.6(d),CSF|DE.CM-3,CSF|PR.IP-1,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|CM-6b.,NESA|T3.2.1,QCSC-v1|8.2.1,Rule-ID|SV-251084r959010_rule,STIG-ID|MOTS-11-001000,SWIFT-CSCv1|2.3,SWIFT-CSCv1|5.1,Vuln-ID|V-251084"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | whitelist |
+                 if (length > 0) then
+                    hostname + " has one or more non-whitelisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " All items were whitelisted."
+                 end'
+  regex            : ''
+  expect           : 'All items were whitelisted.'
+  bw_list          : "@WHITELIST@"
+  output_all_lines : YES
+</custom_item>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "MOTS-11-001100 - Motorola Solutions Android 11 allow list must be configured to not include applications with the following characteristics:"
+  info             : "- Back up MD data to non-DoD cloud servers (including user and application access to cloud backup services);
+- Transmit MD diagnostic data to non-DoD servers;
+- Voice assistant application if available when MD is locked;
+- Voice dialing application if available when MD is locked;
+- Allows synchronization of data or applications between devices associated with user; and
+- Allows unencrypted (or encrypted but not FIPS 140-2 validated) data sharing with other MDs or printers.
+
+Requiring all authorized applications to be in an application allow list prevents the execution of any applications (e.g., unauthorized, malicious) that are not part of the allow list. Failure to configure an application allow list properly could allow unauthorized and malicious applications to be downloaded, installed, and executed on the mobile device, causing a compromise of DoD data accessible by these applications. Applications with the listed characteristics have features that can cause the compromise of sensitive DoD data or have features with no known application in the DoD environment.
+
+Application note: The application allow list, in addition to controlling the installation of applications on the MD, must control user access/execution of all core and preinstalled applications, or the MD must provide an alternate method of restricting user access/execution to core and pre-installed applications.
+
+Core application: Any application integrated into the OS by the OS or MD vendors.
+
+Pre-installed application: Additional non-core applications included in the OS build by the OS vendor, MD vendor, or wireless carrier.
+
+SFR ID: FMT_SMF_EXT.1.1 #8b"
+  solution         : "Configure the Motorola Solutions Android 11 device application allow list to exclude applications with the following characteristics:
+
+- Back up MD data to non-DoD cloud servers (including user and application access to cloud backup services);
+- Transmit MD diagnostic data to non-DoD servers;
+- Voice assistant application if available when MD is locked;
+- Voice dialing application if available when MD is locked;
+- Allows synchronization of data or applications between devices associated with user;
+- Payment processing; and
+- Allows unencrypted (or encrypted but not FIPS 140-2 validated) data sharing with other MDs, display screens (screen mirroring), or printers.
+
+On the EMM Console:
+1. Go to the Android app catalog for managed Motorola Solutions Play.
+2. Before selecting an app, review the app details and privacy policy to ensure the app does not include prohibited characteristics."
+  reference        : "800-171|3.4.2,800-171|3.4.9,800-53|CM-6b.,800-53|CM-11b.,800-53r5|CM-6b.,800-53r5|CM-11b.,CAT|II,CCI|CCI-000366,CCI|CCI-001806,CN-L3|8.1.10.6(d),CSF|DE.CM-3,CSF|PR.IP-1,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|CM-6b.,NESA|T3.2.1,QCSC-v1|8.2.1,Rule-ID|SV-251085r959010_rule,STIG-ID|MOTS-11-001100,SWIFT-CSCv1|2.3,SWIFT-CSCv1|5.1,Vuln-ID|V-251085"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | blacklist |
+                 if (length > 0) then
+                    hostname + " has one or more blacklisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " No blacklisted items found."
+                 end'
+  regex            : ''
+  expect           : 'No blacklisted items found.'
+  bw_list          : "@BLACKLIST@"
+  output_all_lines : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-001400 - Motorola Solutions Android 11 must be configured to disable Bluetooth or configured via User Based Enforcement (UBE) to allow Bluetooth for only Headset Profile (HSP), HandsFree Profile (HFP), and Serial Port Profile (SPP) - Serial Port Profile capable devices."
+  info           : "Some Bluetooth profiles provide the capability for remote transfer of sensitive DoD data without encryption or otherwise do not meet DoD IT security policies, and therefore should be disabled.
+
+SFR ID: FMT_SMF_EXT.1.1 #18h
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution       : "Configure the Motorola Solutions Android 11 device to disable Bluetooth or if the AO has approved the use of Bluetooth (for example, for car hands-free use), train the user to connect to Only authorized Bluetooth devices using only HSP, HFP, or SPP Bluetooth capable devices (UBE).
+
+To disable Bluetooth, use the following procedure:
+On the EMM Console:
+1. Open 'User restrictions on parent' section.
+2. Toggle 'Disallow Bluetooth' to 'On'.
+
+The user training requirement is satisfied in requirement GOOG-11-008700."
+  reference      : "800-171|3.4.2,800-171|3.4.7,800-53|CM-6b.,800-53|CM-7(1)(b),800-53r5|CM-6b.,800-53r5|CM-7(1)(b),CAT|III,CCI|CCI-000366,CCI|CCI-001761,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-7(1),NESA|T3.2.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,Rule-ID|SV-251086r959010_rule,STIG-ID|MOTS-11-001400,SWIFT-CSCv1|2.3,Vuln-ID|V-251086"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                "Policy: " + .policyName + " - Bluetooth Status = \(.policyRules.LOCKDOWN_BLUETOOTH // "Not Defined")"'
+  regex          : "Bluetooth Status ="
+  expect         : "Bluetooth Status = off"
+  severity       : MEDIUM
+</custom_item>
+
+<report type:"WARNING">
+  description : "MOTS-11-002300 - Motorola Solutions Android 11 must be configured to disable trust agents."
+  info        : "Note: This requirement is not applicable (NA) for specific biometric authentication factors included in the product's Common Criteria evaluation.
+
+Trust agents allow a user to unlock a mobile device without entering a passcode when the mobile device is, for example, connected to a user-selected Bluetooth device or in a user-selected location. This technology would allow unauthorized users to have access to DoD sensitive data if compromised. By not permitting the use of non-password authentication mechanisms, users are forced to use passcodes that meet DoD passcode requirements.
+
+SFR ID: FMT_SMF_EXT.1.1 #23, FIA_UAU.5.1
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Motorola Solutions Android 11 device to disable trust agents.
+
+On the EMM console:
+1. Open 'Lock screen restrictions' section.
+2. Select 'Personal Profile'.
+3. Toggle 'Disable trust agents' to 'On'.
+4. Select 'Work Profile'.
+5. Toggle 'Disable trust agents' to 'On'."
+  reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6b.,800-53|CM-6(1),800-53|CM-7a.,800-53r5|CM-6b.,800-53r5|CM-6(1),800-53r5|CM-7a.,CAT|II,CCI|CCI-000366,CCI|CCI-000370,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),ITSG-33|CM-7a.,NESA|T3.2.1,NIAv2|NS5f,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-251087r958478_rule,STIG-ID|MOTS-11-002300,SWIFT-CSCv1|2.3,Vuln-ID|V-251087"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-002800 - Motorola Solutions Android 11 must be configured to disable developer modes."
+  info           : "Developer modes expose features of the Google Android device that are not available during standard operation. An adversary may leverage a vulnerability inherent in a developer mode to compromise the confidentiality, integrity, and availability of DoD sensitive information. Disabling developer modes mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #26"
+  solution       : "Configure the Motorola Solutions Android 11 device to disable developer modes.
+
+On the EMM Console:
+1. Open 'Set user restrictions' section.
+2. Toggle 'Disallow debugging features' to 'On'.
+3. Open 'Set user restrictions on parent' section.
+4. Toggle 'Disallow debugging features' to 'On'."
+  reference      : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-251088r958478_rule,STIG-ID|MOTS-11-002800,SWIFT-CSCv1|2.3,Vuln-ID|V-251088"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                "Policy: " + .policyName + " - Developer Unlock = \(.policyRules.LOCKDOWN_ALLOW_DEVELOPER_UNLOCK // "Not Defined")"'
+  regex          : "Developer Unlock ="
+  expect         : "Developer Unlock = off"
+</custom_item>
+
+<report type:"WARNING">
+  description : "MOTS-11-003400 - Motorola Solutions Android 11 must be configured to display the DoD advisory warning message at start-up or each time the user unlocks the device."
+  info        : "The Google Android 11 is required to display the DoD-approved system use notification message or banner before granting access to the system that provides privacy and security notices consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance. Required banners help ensure that DoD can audit and monitor the activities of mobile device users without legal restriction.
+
+System use notification messages can be displayed when individuals first access or unlock the mobile device. The banner must be implemented as a 'click-through' banner at device unlock (to the extent permitted by the operating system). A 'click-through' banner prevents further activity on the information system unless and until the user executes a positive action to manifest agreement by clicking on a box indicating 'OK.'
+
+The approved DoD text must be used exactly as required in the KS referenced in DoDI 8500.01. For devices accommodating banners of 1300 characters, the banner text is:
+
+You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+-At any time, the USG may inspect and seize data stored on this IS.
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+
+For devices with severe character limitations, the banner text is:
+
+I've read & consent to terms in IS user agreem't.
+
+The administrator must configure the banner text exactly as written without any changes.
+
+SFR ID: FMT_SMF_EXT.1.1 #36
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the DoD warning banner by either of the following methods (required text is found in the Vulnerability Discussion):
+
+1. By placing the DoD warning banner text in the user agreement signed by each Motorola Solutions Android 11 device user (preferred method).
+2. By configuring the warning banner text on the EMM console and installing the banner on each managed mobile device.
+
+On the EMM Console:
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Select 'Lock screen message'.
+4. Enter in message."
+  reference   : "800-171|3.1.9,800-53|AC-8a.,800-53r5|AC-8a.,CAT|III,CCI|CCI-000048,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-251089r958390_rule,STIG-ID|MOTS-11-003400,TBA-FIISB|45.2.4,Vuln-ID|V-251089"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-003500 - Motorola Solutions Android 11 must be configured to disable USB mass storage mode."
+  info           : "USB mass storage mode enables the transfer of data and software from one device to another. This software can include malware. When USB mass storage is enabled on a mobile device, it becomes a potential vector for malware and unauthorized data exfiltration. Prohibiting USB mass storage mode mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #39a"
+  solution       : "Configure the Motorola Solutions Android 11 device to disable USB mass storage mode.
+
+On the EMM console:
+1. Open 'User restrictions on parent'.
+2. Toggle 'Disallow USB file transfer'."
+  reference      : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-251090r958478_rule,STIG-ID|MOTS-11-003500,SWIFT-CSCv1|2.3,Vuln-ID|V-251090"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - USB Mass Storage Enabled = \(.policyRules.LOCKDOWN_USB_MASS_STORAGE // "Not Defined")"'
+  regex          : "USB Mass Storage Enabled ="
+  expect         : "USB Mass Storage Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-003700 - Motorola Solutions Android 11 must be configured to not allow backup of [all applications, configuration data] to locally connected systems."
+  info           : "Data on mobile devices is protected by numerous mechanisms, including user authentication, access control, and cryptography. When the data is backed up to an external system (either locally connected or cloud-based), many if not all of these mechanisms are no longer present. This leaves backed-up data vulnerable to attack. Disabling backup to external systems mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #40"
+  solution       : "Configure the Motorola Solutions Android 11 device to disable backup to locally connected systems.
+
+Note: On Restrictions, the backup features for Motorola Solutions are not in the framework.
+
+On the EMM console:
+1. Open 'Device owner management' section.
+2. Toggle 'Enable backup service' to 'Off'.
+3. Open 'User restrictions on parent'.
+4. Select 'Disallow USB file transfer'."
+  reference      : "800-171|3.1.21,800-53|AC-20(2),800-53r5|AC-20(2),CAT|II,CCI|CCI-000097,CSF|ID.AM-4,CSF|PR.AC-3,CSF2.0|ID.AM-02,CSF2.0|ID.AM-04,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-20(2),NESA|M1.3.5,NESA|T1.2.3,QCSC-v1|3.2,QCSC-v1|5.2.2,Rule-ID|SV-251091r959010_rule,STIG-ID|MOTS-11-003700,SWIFT-CSCv1|2.5,Vuln-ID|V-251091"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - USB Media Player Enabled = \(.policyRules.LOCKDOWN_USB_MEDIA_PLAYER // "Not Defined")"'
+  regex          : "USB Media Player Enabled ="
+  expect         : "USB Media Player Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-003900 - Motorola Solutions Android 11 must be configured to not allow backup of all applications and configuration data to remote systems."
+  info           : "Backups to remote systems (including cloud backup) can leave data vulnerable to breach on the external systems, which often offer less protection than the Google Android device. Where the remote backup involves a cloud-based solution, the backup capability is often used to synchronize data across multiple devices. In this case, DoD devices may synchronize DoD sensitive information to a user's personal device or other unauthorized computers that are vulnerable to breach. Disallowing remote backup mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #40"
+  solution       : "Configure the Motorola Solutions Android 11 device to disable backup to remote systems (including commercial clouds).
+
+Note: On a Restrictions, data in the work profile cannot be backed up by default.
+
+On the EMM console:
+1. Open 'Set user restrictions'.
+2. Ensure 'Enable backup service' is not selected.
+
+Note: Since personal accounts cannot be added to the work profile (GOOG-11-009200), this control only impacts personal profile accounts. Site can allow backup based on local policy."
+  reference      : "800-171|3.1.20,800-53|AC-20(3),800-53r5|AC-20(3),CAT|II,CCI|CCI-002338,CSF|ID.AM-4,CSF|PR.AC-3,CSF2.0|ID.AM-02,CSF2.0|ID.AM-04,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-20,NESA|M1.3.5,NESA|M4.2.2,NIAv2|OS7,NIAv2|OS8,QCSC-v1|3.2,QCSC-v1|5.2.2,Rule-ID|SV-251092r959010_rule,STIG-ID|MOTS-11-003900,SWIFT-CSCv1|2.5,Vuln-ID|V-251092"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Google Backup Enabled = \(.policyRules.LOCKDOWN_GOOGLE_BACKUP // "Not Defined")"'
+  regex          : "Google Backup Enabled ="
+  expect         : "Google Backup Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "MOTS-11-005200 - Motorola Solutions Android 11 must allow only the Administrator (EMM) to perform the following management function: Enable/disable location services."
+  info        : "If a user is able to configure the security setting, the user could inadvertently or maliciously set it to a value that poses unacceptable risk to DoD information systems. An adversary could exploit vulnerabilities created by the weaker configuration to compromise DoD sensitive information.
+
+SFR ID: FMT_MOF_EXT.1.2 #22
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Motorola Solutions Android 11 device to enable/disable location services.
+
+On the EMM console:
+1. Open 'Set user restrictions on parent'.
+2. Toggle 'Disallow config location' to 'On'.
+3. Toggle 'Disallow share location' to 'On'."
+  reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6b.,800-53|CM-6(1),800-53|CM-7a.,800-53r5|CM-6b.,800-53r5|CM-6(1),800-53r5|CM-7a.,CAT|III,CCI|CCI-000366,CCI|CCI-000370,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),ITSG-33|CM-7a.,NESA|T3.2.1,NIAv2|NS5f,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-251093r958478_rule,STIG-ID|MOTS-11-005200,SWIFT-CSCv1|2.3,Vuln-ID|V-251093"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "MOTS-11-005505 - Motorola Solutions Android 11 must be configured to enable audit logging."
+  info        : "Audit logs enable monitoring of security-relevant events and subsequent forensics when breaches occur. To be useful, Administrators must have the ability to view the audit logs.
+
+SFR ID: FMT_SMF_EXT.1.1 #32
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Motorola Solutions Android 11 device to enable audit logging.
+
+On the EMM console:
+1. Open 'Device owner management' section.
+2. Toggle 'Enable security logging' to 'On'."
+  reference   : "800-171|3.4.2,800-53|AU-4(1),800-53|CM-6b.,800-53|CM-6(1),800-53r5|AU-4(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|II,CCI|CCI-000366,CCI|CCI-000370,CCI|CCI-001851,CN-L3|8.1.10.6(d),CSF|PR.DS-4,CSF|PR.IP-1,CSF|PR.PT-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NESA|T3.3.1,NESA|T3.6.2,NIAv2|NS5f,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251094r958754_rule,STIG-ID|MOTS-11-005505,SWIFT-CSCv1|2.3,Vuln-ID|V-251094"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "MOTS-11-006100 - Motorola Solutions Android 11 must be configured to generate audit records for the following auditable events: Detected integrity violations."
+  info        : "Audit logs enable monitoring of security-relevant events and subsequent forensics when breaches occur. They help identify attacks so that breaches can either be prevented or limited in their scope. They facilitate analysis to improve performance and security. The requirement statement lists key events for which the system must generate an audit record.
+
+Application note: The requirement applies only to integrity violation detections that can be logged by the audit logging component.
+
+SFR ID: FMT_SMF_EXT.1.1 #37
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Motorola Solutions Android 11 device to generate audit records for the following auditable events: Detected integrity violations.
+
+On the EMM console:
+1. Open 'Device owner management' section.
+2. Toggle 'Enable security logging' to 'On'."
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12a.,800-53r5|AU-12a.,CAT|III,CCI|CCI-000169,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-12a.,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251095r958442_rule,STIG-ID|MOTS-11-006100,SWIFT-CSCv1|6.4,Vuln-ID|V-251095"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "MOTS-11-008700 - Motorola Solutions Android 11 users must complete required training."
+  info        : "The security posture of Google devices requires the device user to configure several required policy rules on their device. User-Based Enforcement (UBE) is required for these controls. In addition, if the Authorizing Official (AO) has approved the use of an unmanaged personal space, the user must receive training on risks. If a user is not aware of their responsibilities and does not comply with UBE requirements, the security posture of the Google mobile device may become compromised, and DoD sensitive data may become compromised.
+
+SFR ID: NA
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "All Motorola Solutions device users must complete training on the following training topics (users must acknowledge that they have reviewed training via a signed User Agreement or similar written record):
+
+- Operational security concerns introduced by unmanaged applications/unmanaged personal space, including applications using global positioning system (GPS) tracking.
+- Need to ensure no DoD data is saved to the personal space or transmitted from a personal app (for example, from personal email).
+- If the Purebred key management app is used, users are responsible for maintaining positive control of their credentialed device at all times. The DoD PKI certificate policy requires subscribers to maintain positive control of the devices that contain private keys and to report any loss of control so the credentials can be revoked. Upon device retirement, turn-in, or reassignment, ensure that a factory data reset is performed prior to device hand-off. Follow mobility service provider decommissioning procedures as applicable.
+- How to configure the following UBE controls (users must configure the control) on the Motorola Solutions device:
+  **Secure use of Calendar Alarm
+  **Local screen mirroring and Mirroring procedures (authorized/not authorized for use)
+  **Do not upload DoD contacts via smart call and caller ID services
+  **Do not remove DoD intermediate and root PKI digital certificates
+  **Disable Wi-Fi Sharing
+  **Do not configure a DoD network (work) VPN profile on any third-party VPN client installed in the personal space
+  **If Bluetooth connections are approved for mobile device, types of allowed connections (for example car hands-free, but not Bluetooth wireless keyboard)
+  **How to perform a full device wipe
+- AO guidance on acceptable use and restrictions, if any, on downloading and installing personal apps and data (music, photos, etc.) in the Motorola Solutions device personal space."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251096r959010_rule,STIG-ID|MOTS-11-008700,SWIFT-CSCv1|2.3,Vuln-ID|V-251096"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-008800 - Motorola Solutions Android 11 must be configured to enforce that Wi-Fi Sharing is disabled."
+  info           : "Wi-Fi Sharing is an optional configuration of Wi-Fi Tethering/Mobile Hotspot, which allows the device to share its Wi-Fi connection with other wirelessly connected devices instead of its mobile (cellular) connection.
+
+Wi-Fi Sharing grants the other device access to a corporate Wi-Fi network and may possibly bypass the network access control mechanisms. This risk can be partially mitigated by requiring the use of a pre-shared key for personal hotspots.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution       : "Configure Motorola Solutions Android 11 device to disable Wi-Fi Sharing.
+
+Mobile Hotspot must be enabled in order to enable Wi-Fi Sharing. If the AO has not approved Mobile Hotspot and it has been disabled on the EMM console, no further action is needed. If Mobile Hotspot is being used, use the following procedure to disable Wi-Fi Sharing:
+
+On the EMM console:
+1. Open 'Set user restrictions on parent'.
+2. Toggle 'Disallow config tethering' to 'On'."
+  reference      : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251097r959010_rule,STIG-ID|MOTS-11-008800,SWIFT-CSCv1|2.3,Vuln-ID|V-251097"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - WiFi Tethering Enabled = \(.policyRules.LOCKDOWN_WIFI_TETHERING // "Not Defined")"'
+  regex          : "WiFi Tethering Enabled ="
+  expect         : "WiFi Tethering Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "MOTS-11-009000 - Motorola Solutions Android 11 must have the DoD root and intermediate PKI certificates installed."
+  info        : "DoD root and intermediate PKI certificates are used to verify the authenticity of PKI certificates of users and web services. If the root and intermediate certificates are not available, an adversary could falsely sign a certificate in such a way that it could not be detected. Providing access to the DoD root and intermediate PKI certificates greatly diminishes the risk of this attack.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Motorola Solutions Android 11 device to install DoD root and intermediate certificates.
+
+On the EMM console upload DoD root and intermediate certificates as part of a device and/or work profile.
+
+The current DoD root and intermediate PKI certificates may be obtained in self-extracting zip files at http://cyber.mil/pki-pke (for NIPRNet)."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251098r959010_rule,STIG-ID|MOTS-11-009000,SWIFT-CSCv1|2.3,Vuln-ID|V-251098"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "MOTS-11-009100 - Motorola Solutions Android 11 must allow only the administrator (EMM) to install/remove DoD root and intermediate PKI certificates - MDM to install/remove DoD root and intermediate PKI certificates."
+  info        : "DoD root and intermediate PKI certificates are used to verify the authenticity of PKI certificates of users and web services. If the user is allowed to remove root and intermediate certificates, the user could allow an adversary to falsely sign a certificate in such a way that it could not be detected. Restricting the ability to remove DoD root and intermediate PKI certificates to the Administrator mitigates this risk.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Motorola Solutions Android 11 device to prevent a user from removing DoD root and intermediate PKI certificates.
+
+On the EMM console:
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow config credentials' to 'On'."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|II,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-251099r959010_rule,STIG-ID|MOTS-11-009100,SWIFT-CSCv1|2.3,Vuln-ID|V-251099"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "MOTS-11-009400 - Motorola Solutions Android 11 work profile must be configured to enforce the system application disable list."
+  info             : "The system application disable list controls user access to/execution of all core and preinstalled applications.
+
+Core application: Any application integrated into Google Android 11 by Google.
+
+Preinstalled application: Additional non-core applications included in the Google Android 11 build by Google or the wireless carrier.
+
+Some system applications can compromise DoD data or upload users' information to non-DoD-approved servers. A user must be blocked from using such applications that exhibit behavior that can result in compromise of DoD data or DoD user information.
+
+The site administrator must analyze all preinstalled applications on the device and disable all applications not approved for DoD use by configuring the system application disable list.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution         : "Configure Motorola Solutions Android 11 device Work to enforce the system application disable list.
+
+The required configuration is the default configuration when the device is enrolled. If the device configuration is changed, use the following procedure to bring the device back into compliance:
+
+On the EMM console:
+1. Open 'Apps management' section.
+2. Select 'Hide apps on parent'.
+3. Enter package names of apps.
+
+Configure a list of approved Motorola Solutions core and preinstalled apps in the core app allow list."
+  reference        : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251100r959010_rule,STIG-ID|MOTS-11-009400,SWIFT-CSCv1|2.3,Vuln-ID|V-251100"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | blacklist |
+                 if (length > 0) then
+                    hostname + " has one or more blacklisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " No blacklisted items found."
+                 end'
+  regex            : ''
+  expect           : 'No blacklisted items found.'
+  bw_list          : "@BLACKLIST@"
+  output_all_lines : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "MOTS-11-010200 - Motorola Solutions Android 11 must be configured to disallow configuration of date and time."
+  info        : "Determining the correct time a particular application event occurred on a system is critical when conducting forensic analysis and investigating system events.
+
+Periodically synchronizing internal clocks with an authoritative time source is necessary to correctly correlate the timing of events that occur across the enterprise. The three authoritative time sources for Google Android 11 are an authoritative time server that is synchronized with redundant United States Naval Observatory (USNO) time servers as designated for the appropriate DoD network (NIPRNet or SIPRNet), or the Global Positioning System (GPS), or the wireless carrier.
+
+Time stamps generated by the audit system in Google Android 11 must include both date and time. The time may be expressed in Coordinated Universal Time (UTC), a modern continuation of Greenwich Mean Time (GMT), or local time with an offset from UTC.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Motorola Solutions Android 11 work Profile to set auto network time.
+
+On the EMM console:
+1. Open 'Set user restrictions on parent'.
+2. Toggle 'Disallow config date time' to 'On'."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251101r959010_rule,STIG-ID|MOTS-11-010200,SWIFT-CSCv1|2.3,Vuln-ID|V-251101"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "MOTS-11-010800 - Motorola Solutions Android 11 devices must have the latest available Motorola Solutions Android 11 operating system installed."
+  info        : "Required security features are not available in earlier operating system versions. In addition, there may be known vulnerabilities in earlier versions.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Install the latest released version of the Motorola Solutions Android 11 operating system on all managed Motorola Solutions devices.
+
+Note: Motorola Solutions Android device operating system updates are released directly by Motorola Solutions or can be distributed via the EMM. Android versions for Motorola Solutions devices can be found at https://developers.MotorolaSolutions.com/android/images"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251102r959010_rule,STIG-ID|MOTS-11-010800,SWIFT-CSCv1|2.3,Vuln-ID|V-251102"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "MOTS-11-011000 - Motorola Solutions Android 11 devices must be configured to disable the use of third-party keyboards."
+  info           : "Many third-party keyboard applications are known to contain malware.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution       : "Configure Motorola Solutions Android 11 device to disallow the use of third-party keyboards.
+
+On the EMM console, configure application allow list for Motorola Solutions Play that does not have any third-party keyboards."
+  reference      : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251103r959010_rule,STIG-ID|MOTS-11-011000,SWIFT-CSCv1|2.3,Vuln-ID|V-251103"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Input restrictions = \(.policyRules.LOCKDOWN_AFW_RESTRICT_INPUT_METHODS // "Not Defined")"'
+  regex          : "Input restrictions ="
+  expect         : "Input restrictions = on"
+</custom_item>
+
+<report type:"WARNING">
+  description : "MOTS-11-999999 - All Motorola Solutions Android 11 installations must be removed."
+  info        : "Motorola Solutions Android 11 is no longer supported by Google and therefore, may contain security vulnerabilities.
+Satisfies: FMT_MOF_EXT.1.2 #47
+Reference: PP-MDF-991000
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Remove all installations of Motorola Solutions Android 11."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MOT_Solutions_Android_11_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-264375r985800_rule,STIG-ID|MOTS-11-999999,SWIFT-CSCv1|2.3,Vuln-ID|V-264375"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MOT_Solutions_Android_11_V1R3_STIG.zip"
+</report>
+
+</check_type>

@@ -1,0 +1,179 @@
+#TRUSTED adb1b924f958ed7432786eccbc986ca17dc97b812a11e9ed89bceb432814deecf3287b5c2de9c769f08ffd9ebb397a121d6af2394c2d7a10f68445bc24118d6a682267319e0af79c8f9a87244d86f68157627a7e41ad5351d7c955604d2652f006f1e2f260157df84ea30f1157c1e8c1c6fe624bdfba89a58a02cd57795c33e869e1928b0a1dab90f146702f51be85e8f401a8459b1229653d66593fcf3e75e8cd44efc74197fbabc3a0ff43e1ede7754e86640caf4007ae40cb2529a5bd48e45694d044287d89a61bbec65e5a81655ddd9206fd7fed5d594b5820fed47869681d1b17301d9ee29d292f63c9bdfbd598b0ed0c6e48056dc9b5186cbf79b05bcc6b37ed2d88dd5aac2f9027f2a66ec3d8e2de6e134033b4c570618dc12989bbc2ca04b3d99c73df90e65f8dde0c9386629121b204fd94c17ed0123cf5c8494203dbcd8849e543142b374073df2dd43d122ef25b7a8feeb5c67bd585546731ac5aa726998b721a3607d4f4abb318395f6bc2cfc836c3e4e09344e7b18afbe88bde3048c189c857738f384a16636efdfb447b80ab7ed5b7ccae321820209461ea94a8fb6ea9c51a8b44f6a0aafd88be2fbdb812d882722fa0becd87ec43fcc78509df0a8bcf2e685ef6b659bbfaeca37965831a5b400ccd6fd4c241aea6fd988ea40eb182ac2b892bac47a1f72b49967a7f162f06aad889314548c4eeecbcd97e14
+#TRUST-RSA-SHA256 0fdc9c07bb457003f1dd0869e6c1810448abed321a3f09702cbdefc2e1e27f273c20ac6c259263700d34005e0062adb0622ee86003628f8cb25598712d62344439c76cfcb187024f6f9c7f9a8497ab0cab15986730e2c6bc288bc4ab50e88b9cab5bbe02095082d1c36fd4b7a8282bb872643d5e3e0177e3d5e08943b5090d2fb0a08d7ef53017591f59cc51266498a6918055eeac0504d2ee78c9ecb3b523c5eaddff5b27f5365a8445b11f10810485534115d3cc746862a6ece60864cb0c44af29d3ea4bc330c789247b84da532f9d9698c59524933105e418e987cd6d48ae608a408eaaddeee5b94bf65182165f0f37929377a639efa381eaa2a5d0ec76851886a3373b6d93ef50861a5903029a980071a039d59fa74cc1d8577752c979f5a553774f1003c2fde9878f1df0e231c8868ad3267304ad4085df68005150cc6bb6695ae93fab4e6f352544c6b52b74c51e5e4f94a97687d1e7f6d45061ba4948b46a666d35f55f7c1188ec28211edd5a4f761306a6e3f5f0c1f50ca5d1405e2e293c51ae0acc9b8ced7bd084b6daf2fc07bebbeb02a4085baf0dd6570484f45a6d6cbfb22958aa7464e9e48c8340d668c079105da63dab3b2254937a9ce591d1c385b340981e18216949d64c1c6a9e48708648fb6972730c803a39624718f4765343d93ae76f491779fc20559c8b7cfd1ef3cb9d37de2a89ef3ffccb5fb7d3a7
+#
+# This script is Copyright (C) 2004-2023 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.4 $
+# $Date: 2023/03/07 $
+#
+#<ui_metadata>
+#<display_name>Tenable Best Practices OpenStack v2.0.0</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>Best Practices OpenStack</name>
+#  <version>2.0.0</version>
+#  <link>http://docs.openstack.org</link>
+#</spec>
+#<labels>openstack,tenable,update_20230227</labels>
+#<variables>
+#  <variable>
+#    <name>SERVER_UID</name>
+#    <default>replace_with_user_id</default>
+#    <description>Server Owner User ID</description>
+#    <info>This 'Server Owner User ID' variable is used in the audit to query for servers owned by a specific username.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SCAN_INTERVAL</name>
+#    <default>30</default>
+#    <description>Days Since the last Nessus Scan</description>
+#    <info>This is a 'Days Since' value for Nessus Scans.</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"OpenStack">
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Servers and their details"
+  info           : "The Servers and their current state will determine what services are available."
+  solution       : "Review the list of Servers. If any are unknown or not in the expected state they should be investigated."
+  request        : "getServers"
+  json_transform : ".servers[] | \"Name: \(.name), ID: \(.id), Status: \(.status), User_ID: \(.user_id), Created: \(.created), Updated: \(.updated), Host_ID: \(.hostId), Tenant_ID: \(.tenant_id), Addresses: \([.addresses.[].[].addr] | join(\",\"))\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Active Servers"
+  info           : "The Servers and their current state will determine what services are available."
+  solution       : "Review the list of Servers. If any are unknown or not in the expected state they should be investigated."
+  request        : "getServers"
+  json_transform : ".servers[] | select(.status==\"ACTIVE\") | \"Name: \(.name), ID: \(.id), Status: \(.status), User_ID: \(.user_id), Created: \(.created), Updated: \(.updated), Host_ID: \(.hostId), Tenant_ID: \(.tenant_id), Addresses: \([.addresses.[].[].addr] | join(\",\"))\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Inactive Servers"
+  info           : "The Servers and their current state will determine what services are available."
+  solution       : "Review the list of Servers. If any are unknown or not in the expected state they should be investigated."
+  request        : "getServers"
+  json_transform : ".servers[] | select(.status!=\"ACTIVE\") | \"Name: \(.name), ID: \(.id), Status: \(.status), User_ID: \(.user_id), Created: \(.created), Updated: \(.updated), Host_ID: \(.hostId), Tenant_ID: \(.tenant_id), Addresses: \([.addresses.[].[].addr] | join(\",\"))\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Servers created since the last scan"
+  info           : "The Servers and their current state will determine what services are available.
+  Note - This check uses a variable supplied at .audit scan time via the User Interface. Please ensure the variable value is populated correctly."
+  solution       : "Review the list of Servers. If any are unknown or not in the expected state they should be investigated."
+  request        : "getServers"
+  json_transform : ".servers[] | select((.created | iso_8601_days_ago) < @SCAN_INTERVAL@) | \"Name: \(.name), ID: \(.id), Status: \(.status), User_ID: \(.user_id), Created: \(.created), Updated: \(.updated), Host_ID: \(.hostId), Tenant_ID: \(.tenant_id), Addresses: \([.addresses.[].[].addr] | join(\",\"))\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Servers updated since the last scan"
+  info           : "The Servers and their current state will determine what services are available.
+  Note - This check uses a variable supplied at .audit scan time via the User Interface. Please ensure the variable value is populated correctly."
+  solution       : "Review the list of Servers. If any are unknown or not in the expected state they should be investigated."
+  request        : "getServers"
+  json_transform : ".servers[] | select((.updated | iso_8601_days_ago) < @SCAN_INTERVAL@) | \"Name: \(.name), ID: \(.id), Status: \(.status), User_ID: \(.user_id), Created: \(.created), Updated: \(.updated), Host_ID: \(.hostId), Tenant_ID: \(.tenant_id), Addresses: \([.addresses.[].[].addr] | join(\",\"))\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Servers owned by SERVER_UID"
+  info           : "The Servers and their current state will determine what services are available.
+  Note - This check uses a variable supplied at .audit scan time via the User Interface. Please ensure the variable value is populated correctly."
+  solution       : "Review the list of Servers. If any are unknown or not in the expected state they should be investigated."
+  request        : "getServers"
+  json_transform : ".servers[] | select(.user_id == \"@SERVER_UID@\") | \"Name: \(.name), ID: \(.id), Status: \(.status), User_ID: \(.user_id), Created: \(.created), Updated: \(.updated), Host_ID: \(.hostId), Tenant_ID: \(.tenant_id), Addresses: \([.addresses.[].[].addr] | join(\",\"))\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Server Flavors"
+  info           : "The Servers and their current state will determine what services are available."
+  solution       : "Review the list of Server Flavors. If any are unknown they should be investigated."
+  request        : "getFlavors"
+  json_transform : ".flavors[] | \"Name: \(.name), ID: \(.id), VCPUS: \(.vcpus), Disk: \(.disk), Ram: \(.ram), Swap: \(.swap)\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Server Images"
+  info           : "The Servers and their current state will determine what services are available."
+  solution       : "Review the list of Server Images. If any are unknown they should be investigated."
+  request        : "getImages"
+  json_transform : ".images[] | \"Name: \(.name), ID: \(.id), Link: \(.self)\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "Review the list of OpenStack Tenants"
+  info           : "The Tenants and their current state will determine what services are available."
+  solution       : "Review the list of Tenants. If any are unknown they should be investigated."
+  request        : "getProjects"
+  json_transform : ".projects[] | \"Name: \(.name), ID: \(.id), Enabled: \(.enabled)\""
+  reference      : "800-171|3.1.1,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "Review the list of Current OpenStack Users"
+  info           : "Identifying and managing users is an important function in protecting your assets and information."
+  solution       : "Users should be periodically reviewed. If any users are not documented they should be investigated and/or removed."
+  request        : "getUsers"
+  json_transform : ".users[] | \"ID: \(.id), Name: \(.name), Enabled: \(.enabled)\""
+  reference      : "800-171|3.1.1,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Networks and their attached subnets"
+  info           : "Different security requirements mandate different security controls. It is a security best practice to segment infrastructure into zones that impose similar security controls."
+  solution       : "Review the list of Networks. If any are missing or undocumented they should be investigated."
+  request        : "getNetworks"
+  json_transform : ".networks[] | \"Name: \(.name), ID: \(.id), Subnets: (\.subnets[])\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "OpenStack Subnet Details"
+  info           : "Different security requirements mandate different security controls. It is a security best practice to segment infrastructure into zones that impose similar security controls."
+  solution       : "Review the list of Subnet Details. If any are missing or undocumented they should be investigated."
+  request        : "getSubnets"
+  json_transform : ".subnets[] | \"ID: \(.id), CIDR: \(.cidr), Gateway IP: \(.gateway_ip), IP Version: \(.ip_version), Name: \(.name), DHCP Enabled: \(.enable_dhcp), Network ID: \(.network_id), Tenant ID: \(.tenant_id), Allocation Pool: \(.allocation_pools[].start) - \(.allocation_pools[].end)\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "Review the list of Ports and their details"
+  info           : "Different security requirements mandate different security controls. It is a security best practice to segment infrastructure into zones that impose similar security controls."
+  solution       : "Review the list of Ports. If any are missing or undocumented they should be investigated."
+  request        : "getPorts"
+  json_transform : ".ports[] | \"ID: \(.id), Status: \(.status), Admin State Up: \(.admin_state_up), Network ID: \(.network_id), Tenant ID: \(.tenant_id), Device Owner: \(.device_owner), Mac Address: \(.mac_address), Fixed IPs: \(.fixed_ips)\""
+  reference      : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2"
+</custom_item>
+
+</check_type>

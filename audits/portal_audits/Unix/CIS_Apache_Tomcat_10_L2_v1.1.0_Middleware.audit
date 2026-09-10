@@ -1,0 +1,1020 @@
+#TRUSTED 9a2c0ea0535be19ada1d9785db2cf945593b69fcea07200336eecd2eefc9909c34d16513d2473ffa69309ae12d61103b8337069abebf049913a44c4fa2746be50df779413bdd3aab15e7aab7f0ef4112699017400db5f14147d22d4280577b4dff8fefadb182b3451ea58eef0390ef458f970c4d80030ab28b413371d5f4d211e951db9c79c9c783c268cfe94673977ff80278282f42211e45b110dbaf446cb74eed02a1a82712d994abd08334c2fd38428df805d75d2b33f726bb3f73779e6f38e3f3c8d267499d87746b85fdbcdc0dbebfcc665867dc34f7bd449ee28eb30d3f1f1cc49c9de303b1bfd00862e9048884b240c27d43c704acf0be26cdeda1d8021b7b29c0b849d5e068b40961cfd486f78e02ca911f18a15fd6db3a3061c898d825f899af6c525f5f288c472167178f443b24e6e6a34a1d9c7c99e8186f61522ad792977ce2007e27deef76c1f4aacc0895be9b519b44161b5477aa9d1353a7a7dee458624c29b36b74391edf27d052feaa2312b1084d690703e99498431c14bb98134266f8e65ff0c88c85f996da96b2485da831a52e53d3af121af34599065d686f9dd10c5ed317f25815589df42d9563025f0720a28423dd3f2ae5a2ff1577a0ed1091db6ae6b73bbe5f2d5dc3357a840d6de474c9d84c2bbf9e5801a839a690e6d5010bc5f0e47d5322ff03a75254c0c5d96c5f603a7e2268eb1d34b457
+#TRUST-RSA-SHA256 73ec43c950c9409b2dfeb947fd6174d9a26eb5479a35529c18f3ce8fcabc641846a16d75d13b1773147c9b4eabf96cbf42e3432c498abad7e9c02b06cd8b15efed504f00cc634012381e5df70b4d51ecba16918914468ca5d2257164bdbca0c39a4c9d12bf2a02c0347fe4d682c6b5e7ffed3d247f294de78276f39c39f3a8672ff9d5beb7f65ed9a823bafc4f6c14b0b02ec7824e40e78e885e1b13f64d04d08783c29a172dce514e1521b8717fc24dedefab90671d704e5bf3bf9703b06058c556f7c692a7a9cbb43b778b418036061d33a24f1a865ec4add74c2c95e110b36c38aca3082d3361227b0196d3dded1897f163b980317d9a449c5fcf296a7c44e8f0281f6a47ee7a870afe4d15115cb360b53596bb38e5bedaa1cbe167e12ed519131cabf29e8b52c62c8289d33e59fa71faabde4848a17e182a3a5c1982fcea7d5317a658a4e0ae5ec342f95c6cb8eeda4b059d6071e00429bf3c446a843408a2cb7e9c6377c3b86e6c88b5d2cb799e43f5590d84684f16da1ced8119af553a220566ee978495f5fd2f99fca3b7fdabc36e9e572678235d9c3a55c764411dbd18e7e95d0cb8342cfb9670e0f303b02be1e0e1b5b8ec44798ba8030ccae82f2e0a86e2726870874439f71176ef75197bb12e9e409046146e18ab50aad42c4e6e1c5988161fbd270e8ac1a7dbdeb5c0b4c528fa243e730edd02e4a615085bda3c
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+#
+# $Revision: 1.2 $
+# $Date: 2024/06/17 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               CIS Apache Tomcat 10 Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS Apache Tomcat 10 L2 v1.1.0 Middleware</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Apache Tomcat 10</name>
+#  <profile>L2 Middleware</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/11652</link>
+#</spec>
+#<labels>apache_tomcat_middleware_10,cis,agent</labels>
+#<benchmark_refs>CCE,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<application>
+#  <app_name>Apache Tomcat</app_name>
+#  <app_key>Config files</app_key>
+#</application>
+#<variables>
+#  <variable>
+#    <name>SERVER_HEADER</name>
+#    <default>I am a teapot</default>
+#    <description>Server header text</description>
+#    <info>The server header is a vanity header developed to help identify the underlying technology in a server for troubleshooting and identification.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>WEB_APP_DIR</name>
+#    <default>*</default>
+#    <description>Web application directory</description>
+#    <info>The name of your web application directory within CATALINA_BASE (e.g., /var/lib/tomcat9/webapps/yourappname)</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>PRODUCT_VERSION</name>
+#    <default>10</default>
+#    <description>Apache Tomcat Version</description>
+#    <info>Apache Tomcat Version</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Tomcat 10 is installed"
+      cmd         : "echo '@APP_name@/@APP_version@'"
+      expect      : "@APP_name@/@PRODUCT_VERSION@.*"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Apache_Tomcat_10_L2_v1.1.0_Middleware.audit from CIS Apache Tomcat 10 Benchmark"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+    </report>
+
+    <custom_item>
+      type        : FILE_CHECK_NOT
+      description : "1.1 Remove extraneous files and directories - /webapps/docs"
+      info        : "The installation may provide example applications, documentation, and other directories which may not serve a production use.
+
+Rationale:
+
+Removing sample resources is a defense in depth measure that reduces potential exposures introduced by these resources."
+      solution    : "Perform the following to remove extraneous resources:
+
+$ rm -rf $CATALINA_HOME/webapps/docs \
+     $CATALINA_HOME/webapps/examples \
+     $CATALINA_HOME/webapps/ROOT
+
+If the Manager and HOST-Manager application are not utilized, also remove the following resources:
+
+$ rm -rf $CATALINA_HOME/webapps/host-manager \
+     $CATALINA_HOME/webapps/manager
+
+Default Value:
+
+docs, examples, ROOT, manager and host-manager are default web applications shipped with Tomcat."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|2.6,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/docs"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK_NOT
+      description : "1.1 Remove extraneous files and directories - @APP_Config_catalogs@/webapps/examples"
+      info        : "The installation may provide example applications, documentation, and other directories which may not serve a production use.
+
+Rationale:
+
+Removing sample resources is a defense in depth measure that reduces potential exposures introduced by these resources."
+      solution    : "Perform the following to remove extraneous resources:
+
+$ rm -rf $CATALINA_HOME/webapps/docs \
+     $CATALINA_HOME/webapps/examples \
+     $CATALINA_HOME/webapps/ROOT
+
+If the Manager and HOST-Manager application are not utilized, also remove the following resources:
+
+$ rm -rf $CATALINA_HOME/webapps/host-manager \
+     $CATALINA_HOME/webapps/manager
+
+Default Value:
+
+docs, examples, ROOT, manager and host-manager are default web applications shipped with Tomcat."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|2.6,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/examples"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK_NOT
+      description : "1.1 Remove extraneous files and directories - /webapps/ROOT"
+      info        : "The installation may provide example applications, documentation, and other directories which may not serve a production use.
+
+Rationale:
+
+Removing sample resources is a defense in depth measure that reduces potential exposures introduced by these resources."
+      solution    : "Perform the following to remove extraneous resources:
+
+$ rm -rf $CATALINA_HOME/webapps/docs \
+     $CATALINA_HOME/webapps/examples \
+     $CATALINA_HOME/webapps/ROOT
+
+If the Manager and HOST-Manager application are not utilized, also remove the following resources:
+
+$ rm -rf $CATALINA_HOME/webapps/host-manager \
+     $CATALINA_HOME/webapps/manager
+
+Default Value:
+
+docs, examples, ROOT, manager and host-manager are default web applications shipped with Tomcat."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|2.6,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/ROOT"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK_NOT
+      description : "1.1 Remove extraneous files and directories - /webapps/host-manager"
+      info        : "The installation may provide example applications, documentation, and other directories which may not serve a production use.
+
+Rationale:
+
+Removing sample resources is a defense in depth measure that reduces potential exposures introduced by these resources."
+      solution    : "Perform the following to remove extraneous resources:
+
+$ rm -rf $CATALINA_HOME/webapps/docs \
+     $CATALINA_HOME/webapps/examples \
+     $CATALINA_HOME/webapps/ROOT
+
+If the Manager and HOST-Manager application are not utilized, also remove the following resources:
+
+$ rm -rf $CATALINA_HOME/webapps/host-manager \
+     $CATALINA_HOME/webapps/manager
+
+Default Value:
+
+docs, examples, ROOT, manager and host-manager are default web applications shipped with Tomcat."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|2.6,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/host-manager"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK_NOT
+      description : "1.1 Remove extraneous files and directories - /webapps/manager"
+      info        : "The installation may provide example applications, documentation, and other directories which may not serve a production use.
+
+Rationale:
+
+Removing sample resources is a defense in depth measure that reduces potential exposures introduced by these resources."
+      solution    : "Perform the following to remove extraneous resources:
+
+$ rm -rf $CATALINA_HOME/webapps/docs \
+     $CATALINA_HOME/webapps/examples \
+     $CATALINA_HOME/webapps/ROOT
+
+If the Manager and HOST-Manager application are not utilized, also remove the following resources:
+
+$ rm -rf $CATALINA_HOME/webapps/host-manager \
+     $CATALINA_HOME/webapps/manager
+
+Default Value:
+
+docs, examples, ROOT, manager and host-manager are default web applications shipped with Tomcat."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|2.6,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/manager"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "1.2 Disable Unused Connectors"
+      info        : "The default installation of Tomcat includes connectors with default settings. These are traditionally set up for convenience. It is best to remove these connectors and enable only what is needed.
+
+Rationale:
+
+Improperly configured or unnecessarily installed Connectors may lead to a security exposure.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Within the $CATALINA_HOME/conf/server.xml, remove, or comment out, each unused Connector. For example, to disable an instance of the HTTPConnector, remove the following:
+
+<Connector className='org.apache.catalina.connector.http.HttpConnector'
+...
+connectionTimeout='60000'/>
+
+Default Value:
+
+$CATALINA_HOME/conf/server.xml, has the following connectors defined by default:
+
+A non-SSL HTTP Connector bound to port 8080
+
+An AJP Connector bound to port 8009"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|9.2,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@port!='-1'\">"
+      xsl_stmt    : "<xsl:text>REVIEW - connector on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>No connectors found</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "REVIEW"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.1 Alter the Advertised server.info String"
+      info        : "The server.info attribute contains the name of the application service. This value is presented to Tomcat clients when clients connect to the tomcat server.
+
+Rationale:
+
+Altering the server.info attribute may increase the complexity for attackers to determine which vulnerabilities affect the server platform."
+      solution    : "Perform the following to alter the server platform string that gets displayed when clients connect to the tomcat server.
+
+Extract the ServerInfo.properties file from the catalina.jar file:
+
+$ cd $CATALINA_HOME/lib
+$ jar xf catalina.jar org/apache/catalina/util/ServerInfo.properties
+
+Navigate to the util directory that was created
+
+cd org/apache/catalina/util
+
+Open ServerInfo.properties in an editor
+
+Update the server.info attribute in the ServerInfo.properties file.
+
+server.info=<SomeWebServer>
+
+Update the catalina.jar with the modified ServerInfo.properties file.
+
+$ jar uf catalina.jar org/apache/catalina/util/ServerInfo.properties
+
+Default Value:
+
+The default value for the server.info attribute is Apache Tomcat/<version>. For example, Apache Tomcat/9.0.0.M9."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53|SI-8,800-53r5|SI-3,800-53r5|SI-8,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|7.9,CSCv7|13.2,CSCv8|9.6,CSF|DE.CM-4,CSF|DE.DP-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,ITSG-33|SI-8,LEVEL|2M,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      cmd         : "java -cp @APP_Config_catalogs@/lib/catalina.jar org.apache.catalina.util.ServerInfo | /bin/egrep 'version'"
+      expect      : "^((?!([Aa][Pp][Aa][Cc][Hh][Ee]|[Tt][Oo][Mm][Cc][Aa][Tt])).)*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.2 Alter the Advertised server.number String"
+      info        : "The server.number attribute represents the specific version of Tomcat that is executing. This value is presented to Tomcat clients when connect.
+
+Rationale:
+
+Advertising a valid server version may provide attackers with information useful for locating vulnerabilities that affect the server platform. Altering the server version string may increase the complexity for attackers to determine which vulnerabilities affect the server platform."
+      solution    : "Perform the following to alter the server version string that gets displayed when clients connect to the server.
+
+Extract the ServerInfo.properties file from the catalina.jar file:
+
+$ cd $CATALINA_HOME/lib
+$ jar xf catalina.jar org/apache/catalina/util/ServerInfo.properties
+
+Navigate to the util directory that was created
+
+$ cd org/apache/Catalina/util
+
+Open ServerInfo.properties in an editor
+
+Update the server.number attribute
+
+server.number=<someversion>
+
+Update the catalina.jar with the modified ServerInfo.properties file.
+
+$ jar uf catalina.jar org/apache/catalina/util/ServerInfo.properties
+
+Default Value:
+
+The default value for the server.number attribute is a four part version number, such as 9.0.0.0."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53|SI-8,800-53r5|SI-3,800-53r5|SI-8,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|7.9,CSCv7|13.2,CSCv8|9.6,CSF|DE.CM-4,CSF|DE.DP-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,ITSG-33|SI-8,LEVEL|2M,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      cmd         : "java -cp @APP_Config_catalogs@/lib/catalina.jar org.apache.catalina.util.ServerInfo | /bin/egrep 'number'"
+      expect      : "^[\\s]*Server number:[\\s]+[0-8\\.]+$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.3 Alter the Advertised server.built Date"
+      info        : "The server.built date represents the date which Tomcat was compiled and packaged. This value is presented to Tomcat clients when clients connect to the server.
+
+Rationale:
+
+Altering the server.built string may make it harder for attackers to fingerprint which vulnerabilities affect the server platform.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Perform the following to alter the server version string that gets displayed when clients connect to the server.
+
+Extract the ServerInfo.properties file from the catalina.jar file:
+
+$ cd $CATALINA_HOME/lib
+$ jar xf catalina.jar org/apache/catalina/util/ServerInfo.properties
+
+Navigate to the util directory that was created
+
+$ cd org/apache/Catalina/util
+
+Open ServerInfo.properties in an editor
+
+Update the server.built attribute in the ServerInfo.properties file.
+
+server.built=
+
+Update the catalina.jar with the modified ServerInfo.properties file.
+
+$ jar uf catalina.jar org/apache/catalina/util/ServerInfo.properties
+
+Default Value:
+
+The default value for the server.built attribute is build date and time. For example, Jul 8 2008 11:40:35."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53|SI-8,800-53r5|SI-3,800-53r5|SI-8,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|7.9,CSCv7|13.2,CSCv8|9.6,CSF|DE.CM-4,CSF|DE.DP-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,ITSG-33|SI-8,LEVEL|2M,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      cmd         : "java -cp @APP_Config_catalogs@/lib/catalina.jar org.apache.catalina.util.ServerInfo | /bin/egrep 'built'"
+      expect      : "^[\\s]*Server built:\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec]) [0-9]{1,2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "2.4 Disable X-Powered-By HTTP Header and Rename the Server Value for all Connectors"
+      info        : "The xpoweredBy setting determines if Apache Tomcat will advertise its presence via the X-Powered-By HTTP header. It is recommended that this value be set to false. The server attribute overrides the default value that is sent down in the HTTP header further masking Apache Tomcat.
+
+Rationale:
+
+Preventing Tomcat from advertising its presence in this manner may increase the complexity for attackers to determine which vulnerabilities affect the server platform."
+      solution    : "Perform the following to prevent Tomcat from advertising its presence via the X-PoweredBy HTTP header.
+
+Add the xpoweredBy attribute to each Connector specified in $CATALINA_HOME/conf/server.xml. Set the xpoweredBy attributes value to false.
+
+<Connector
+...
+xpoweredBy='false' />
+
+Alternatively, ensure the xpoweredBy attribute for each Connector specified in $CATALINA_HOME/conf/server.xml is absent.
+
+Add the server attribute to each Connector specified in $CATALINA_HOME/conf/server.xml. Set the server attribute value to anything except a blank string.
+
+Default Value:
+
+The default value is false."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53|SI-8,800-53r5|SI-3,800-53r5|SI-8,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|7.9,CSCv7|13.2,CSCv8|9.6,CSF|DE.CM-4,CSF|DE.DP-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,ITSG-33|SI-8,LEVEL|2A,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@server and @server != '' and (@xPoweredBy = 'false' or not(@xPoweredBy))\">"
+      xsl_stmt    : "<xsl:text>PASS - server attribute not blank and xPoweredBy is disabled or not defined for port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@xPoweredBy != 'false'\">"
+      xsl_stmt    : "<xsl:text>FAIL - xPoweredBy is enabled for port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"not(@server)\">"
+      xsl_stmt    : "<xsl:text>FAIL - server attribute not set for port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@server = ''\">"
+      xsl_stmt    : "<xsl:text>FAIL - server attribute is blank for port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - xPoweredBy and server attributes not set for </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "2.7 Ensure Sever Header is Modified To Prevent Information Disclosure"
+      info        : "The server header is a vanity header developed to help identify the underlying technology in a server for troubleshooting and identification. This header is unnecessary and could be used to target your website for exploitation. Tomcat does not provide the ability to remove the server header, however, it does provide the ability to modify the header.
+
+Rationale:
+
+The server header may specify the underlying technology used by an application. Attackers are able to conduct reconnaissance on a website using these response headers. This header could be used to target attacks for specific known vulnerabilities associated with the underlying technology. Removing this header will prevent targeting of your application for specific exploits by non-determined attackers.
+
+While this is not the only way to fingerprint a site through the response headers, it makes it harder and prevents some potential attackers from targeting your website."
+      solution    : "In $CATALINA_HOME/conf/server.xml, add the server directive to the connector as shown below replacing apache with the text of your choosing. This text should not help in identifying the server.
+
+<Connector port='8443' server='I am a teapot' redirectPort='8080' />
+
+Scripted:
+
+If you do not have the header defined:
+
+sed -ir 's/Connector/Connector server='I am a teapot'/g' $CATALINA_HOME/conf/server.xml
+
+If you already have a header but it is still revealing
+
+sed -ir 's/server='[^']*'/server='I Am A Teapot'/g' $CATALINA_HOME/conf/server.xml
+
+Default Value:
+
+The default value is Apache-Coyote/1.1."
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53|SI-8,800-53r5|SI-3,800-53r5|SI-8,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|13.2,CSCv8|9.6,CSF|DE.CM-4,CSF|DE.DP-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,ITSG-33|SI-8,LEVEL|2M,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@server='@SERVER_HEADER@'\">"
+      xsl_stmt    : "<xsl:text>PASS - server header set on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - server header not set on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "3.2 Disable the Shutdown port"
+      info        : "Tomcat listens on TCP port 8005 to accept shutdown requests. By connecting to this port and sending the SHUTDOWN command, all applications within Tomcat are halted. The shutdown port is not exposed to the network as it is bound to the loopback interface. If this functionality is not used, it is recommended that the shutdown port be disabled.
+
+Rationale:
+
+Disabling the Shutdown port will eliminate the risk of malicious local entities using the shutdown command to disable the Tomcat server."
+      solution    : "Set the port to -1 in the $CATALINA_HOME/conf/server.xml to disable the shutdown port:
+
+<Server port='-1' shutdown='SHUTDOWN'>
+
+Default Value:
+
+The shutdown port is enabled on TCP port 8005, bound to the loopback address."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|CM-6,800-53|CM-7,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|1.7,CSCv7|9.2,CSCv8|4.4,CSCv8|4.8,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,NIAv2|SS15a,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:value-of select=\"Server/@port\" />"
+      xsl_stmt    : "</xsl:template>"
+      expect      : "-1"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "5.1 Use secure Realms"
+      info        : "A realm is a database of usernames and passwords used to identify valid users of web applications. Review the Realms configuration to ensure Tomcat is not configured to use MemoryRealm, JDBCRealm, UserDatabaseRealm, or JAASRealm.
+
+Rationale:
+
+According to the Tomcat documentation: MemoryRealm and JDBCRealm are not designed for production usage and could result in reduced availability; the UserDatabaseRealm is not intended for large-scale installations; and the JAASRealm is not widely used and therefore the code is not as mature as the other realms."
+      solution    : "Set the Realm className setting in $CATALINA_HOME/conf/server.xml to one of the appropriate realms."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7,800-53|CM-7(1),800-53|SI-7,800-53|SI-7(1),800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|SI-7,800-53r5|SI-7(1),CN-L3|7.1.3.5(b),CSCv7|3.3,CSCv7|14.6,CSCv8|2.6,CSCv8|2.7,CSF|PR.DS-6,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|SI-7,ITSG-33|SI-7a.,ITSG-33|SI-7(1),LEVEL|2M,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:variable name=\"realms\" select=\"'org.apache.catalina.realm.MemoryRealm,org.apache.catalina.realm.JDBCRealm,org.apache.catalina.realm.UserDatabaseRealm,org.apache.catalina.realm.JAASRealm'\" />"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Engine//Realm\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"contains($realms, @className)\">"
+      xsl_stmt    : "<xsl:text>FAIL - insecure realm </xsl:text><xsl:value-of select=\"@className\" /><xsl:text>found</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - realm </xsl:text><xsl:value-of select=\"@className\" /><xsl:text>found</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "5.2 Use LockOut Realms"
+      info        : "A LockOut realm wraps around standard realms adding the ability to lock a user out after multiple failed logins.
+
+Rationale:
+
+Locking out a user after multiple failed logins slows down attackers from brute forcing logins."
+      solution    : "Create a lockout realm wrapping the main realm similar to the example below:
+
+<Realm className='org.apache.catalina.realm.LockOutRealm'
+failureCount='3' lockOutTime='600' cacheSize='1000'
+cacheRemovalWarningTime='3600'>
+    <Realm
+className='org.apache.catalina.realm.DataSourceRealm'
+dataSourceName=... />
+</Realm>"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSCv8|4,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2M,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Engine/Realm\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"contains(@className, 'org.apache.catalina.realm.LockOutRealm')\">"
+      xsl_stmt    : "<xsl:text>PASS - LockoutRealm found</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - No LockoutRealm found</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "6.1 Setup Client-cert Authentication"
+      info        : "Client-cert authentication requires that each client connecting to the server have a certificate to authenticate. This is generally regarded as stronger authentication than a password as it requires the client to have the certificate and not just know a password.
+
+Rationale:
+
+Certificate based authentication is more secure than password based authentication."
+      solution    : "In the Connector element, set the clientAuth parameter to true and the certificateVerification to required
+
+<-- Define a SSL Coyote HTTP/1.1 Connector on port 8443 -->
+
+<Connector
+     port='8443' minProcessors='5' maxProcessors='75'
+     enableLookups='true' disableUploadTimeout='true'
+     acceptCount='100' debug='0' scheme='https' secure='true';
+     clientAuth='true' sslProtocol='TLS'/>
+...
+<Connector ...>
+     <SSLHostConfig
+      certificateVerification='required'
+     />
+
+Default Value:
+
+Not configured"
+      reference   : "800-171|3.5.2,800-53|IA-5(1),800-53r5|IA-5(1),CSCv7|16.4,CSCv8|5.2,CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5(1),LEVEL|2M,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@secure='true' and @clientAuth='true' and SSLHostConfig/@certificateVerification='required'\">"
+      xsl_stmt    : "<xsl:text>PASS - clientAuth and certificateVerification set for secure connector on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@secure='true' and (not(@clientAuth) or not(SSLHostConfig/@certificateVerification))\">"
+      xsl_stmt    : "<xsl:text>FAIL - clientAuth and certificateVerification not set for secure connector on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:when test=\"@secure='true' and (@clientAuth!='true' or SSLHostConfig/@certificateVerification!='required')\">"
+      xsl_stmt    : "<xsl:text>FAIL - clientAuth and certificateVerification not set for secure connector on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - clientAuth and certificateVerification not required on port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK
+      description : "7.1 Application specific logging"
+      info        : "By default, java.util.logging does not provide the capabilities to configure per-web application settings, only per VM. In order to overcome this limitation Tomcat implements JULI as a wrapper for java.util.logging. JULI provides additional configuration functionality so you can set each web application with different logging specifications.
+
+Rationale:
+
+Establishing per application logging profiles will help ensure that each application's logging verbosity is set to an appropriate level in order to provide appropriate information when needed for security review."
+      solution    : "Create a logging.properties file and place that into your application WEB-INF/classes directory.
+Note: By default, installing Tomcat places a logging.properties file in $CATALINA_HOME/conf. This file can be used as base for an application specific logging properties file
+
+Default Value:
+
+By default, per application logging is not configured."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2M,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/@WEB_APP_DIR@/WEB-INF/classes/logging.properties"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "7.3 Ensure className is set correctly in context.xml"
+      info        : "Ensure the className attribute is set to AccessLogValve. The className attribute determines the access log valve to be used for logging.
+
+Rationale:
+
+Some log valves are not suited for production and should not be used. Apache recommends org.apache.catalina.valves.AccessLogValve"
+      solution    : "Add the following statement into the $CATALINA_BASE/webapps/<app_name>/META-INF/context.xml file if it does not already exist.
+
+<Valve
+className='org.apache.catalina.valves.AccessLogValve'
+directory='$CATALINA_HOME/logs/'
+prefix='access_log'
+fileDateFormat='yyyy-MM-dd.HH'
+suffix='.log'
+pattern='%h %t %H cookie:%{SESSIONID}c request:%{SESSIONID}r %m %U %s %q %r'
+/>
+
+Default Value:
+
+Does not exist by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2M,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/*/META-INF/context.xml"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"Context/Valve/@className='org.apache.catalina.valves.AccessLogValve'\">"
+      xsl_stmt    : "<xsl:text>PASS - className is </xsl:text><xsl:value-of select=\"Context/Valve/@className\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - className not set</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "9.2 Disabling auto deployment of applications"
+      info        : "Tomcat allows auto deployment of applications while Tomcat is running. It is recommended that this capability be disabled.
+
+Rationale:
+
+This could allow malicious or untested applications to be deployed and should be disabled."
+      solution    : "In the $CATALINA_HOME/conf/server.xml file, change autoDeploy to false.
+
+autoDeploy='false'
+
+Default Value:
+
+autoDeploy is set to true."
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSCv8|4,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"Server/Service/Engine/Host/@autoDeploy='true'\">"
+      xsl_stmt    : "<xsl:text>FAIL - AutoDeploy enabled for </xsl:text><xsl:value-of select=\"@name\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - AutoDeploy disabled or not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "9.3 Disable deploy on startup of applications"
+      info        : "Tomcat allows auto deployment of applications on startup. It is recommended that this capability be disabled.
+
+Rationale:
+
+This could allow malicious or untested applications to be deployed and should be disabled."
+      solution    : "In the $CATALINA_HOME/conf/server.xml file, change deployOnStartup to false.
+
+deployOnStartup='false'
+
+Default Value:
+
+deployOnStartup is set to true."
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSCv8|4,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Engine/Host\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@deployOnStartup='true'\">"
+      xsl_stmt    : "<xsl:text>FAIL - AutoDeploy enabled for </xsl:text><xsl:value-of select=\"Server/Service/Engine/Host/@name\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - deployOnStartup disabled or not present</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "10.3 Restrict manager application"
+      info        : "Limit access to the manager application to only those with a justified need.
+
+Rationale:
+
+Limiting access to the least privilege will ensure only those people with a justified need will have access to a resource. The manager application should be limited to only administrators.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "For the manager application, edit $CATALINA_BASE/conf/<enginename>/<hostname>/manager.xml, and add the bolded line:
+
+<Context path='/manager' docBase='${catalina.home}/webapps/manager' debug='0' privileged='true'><Valve className='org.apache.catalina.valves.RemoteAddrValve' allow='127.0.0.1'/></Context>
+
+Add hosts, comma separated, which are allowed to access the admin application.
+Note: The RemoteAddrValve property expects a regular expression, therefore periods and other regular expression meta-characters must be escaped.
+
+Default Value:
+
+By default this setting is not present"
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.7,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+    </report>
+
+    <custom_item>
+      type        : FILE_CHECK_NOT
+      description : "10.5 Rename the manager application - host-manager/manager.xml"
+      info        : "The manager application allows administrators to manage Tomcat remotely via a web interface. The manager application should be renamed to make it harder for attackers or automated scripts to locate.
+
+Rationale:
+
+By relocating the manager applications, an attacker will need to guess its location rather than simply navigate to the standard location in order to carry out an attack."
+      solution    : "Perform the following to rename the manager application:
+
+Rename the manager application XML file:
+
+# mv $CATALINA_HOME/webapps/host-manager/manager.xml \
+$CATALINA_HOME/webapps/host-manager/<new-name>.xml
+
+Update the docBase attribute within $CATALINA_HOME/webapps/host-manager/<new-name>.xml to $CATALINA_HOME/webapps/<new-name>
+
+Move $CATALINA_HOME/webapps/manager to $CATALINA_HOME/webapps/<new-name>
+
+# mv $CATALINA_HOME/webapps/manager $CATALINA_HOME/webapps/<new-name>
+
+Default Value:
+
+The default name of the manager application is manager and is located at:
+
+$CATALINA_HOME/webapps/manager"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.1,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/host-manager/manager.xml"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CHECK_NOT
+      description : "10.5 Rename the manager application - webapps/manager"
+      info        : "The manager application allows administrators to manage Tomcat remotely via a web interface. The manager application should be renamed to make it harder for attackers or automated scripts to locate.
+
+Rationale:
+
+By relocating the manager applications, an attacker will need to guess its location rather than simply navigate to the standard location in order to carry out an attack."
+      solution    : "Perform the following to rename the manager application:
+
+Rename the manager application XML file:
+
+# mv $CATALINA_HOME/webapps/host-manager/manager.xml \
+$CATALINA_HOME/webapps/host-manager/<new-name>.xml
+
+Update the docBase attribute within $CATALINA_HOME/webapps/host-manager/<new-name>.xml to $CATALINA_HOME/webapps/<new-name>
+
+Move $CATALINA_HOME/webapps/manager to $CATALINA_HOME/webapps/<new-name>
+
+# mv $CATALINA_HOME/webapps/manager $CATALINA_HOME/webapps/<new-name>
+
+Default Value:
+
+The default name of the manager application is manager and is located at:
+
+$CATALINA_HOME/webapps/manager"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.1,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/webapps/manager"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "10.6 Enable strict servlet Compliance"
+      info        : "The STRICT_SERVLET_COMPLIANCE influences Tomcat's behavior in several subtle ways. See the References below for the complete list. It is recommended that STRICT_SERVLET_COMPLIANCE be set to true.
+
+Rationale:
+
+When STRICT_SERVLET_COMPLIANCE is set to true, Tomcat will always send an HTTP Content-type header when responding to requests. This is significant as the behavior of web browsers is inconsistent in the absence of the Content-type header. Some browsers will attempt to determine the appropriate content-type by sniffing
+
+Impact:
+
+Changing this to true will change a number of other default values which is likely to break the majority of systems as some browsers are unable to correctly handle the cookie headers that result from a strict adherence to the specifications. Please refer to the referenced documentation for a complete list of changed values. Defaults, regardless of whether or not they have been changed by setting org.apache.catalina.STRICT_SERVLET_COMPLIANCE can always be overridden by explicitly setting the appropriate system property or element attribute."
+      solution    : "Start Tomcat with strict compliance enabled, add -Dorg.apache.catalina.STRICT_SERVLET_COMPLIANCE=true to your startup script.
+
+Default Value:
+
+The default value is false."
+      reference   : "800-171|3.13.1,800-53|SC-7(8),800-53r5|SC-7(8),CN-L3|8.1.10.6(j),CSCv7|5.1,CSCv8|13.10,CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(8),LEVEL|2M,NESA|T4.5.4,NIAv2|SU4,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Binary_catalog@/catalina.sh"
+      regex       : "-Dorg\\.apache\\.catalina\\.STRICT_SERVLET_COMPLIANCE[\\s]*=[\\s]*[Tt][Rr][Uu][Ee]"
+      expect      : "-Dorg\\.apache\\.catalina\\.STRICT_SERVLET_COMPLIANCE[\\s]*=[\\s]*[Tt][Rr][Uu][Ee]"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "10.8 Do not allow additional path delimiters - ALLOW_BACKSLASH"
+      info        : "Being able to specify different path-delimiters on Tomcat creates the possibility that an attacker can access applications that were previously blocked by a proxy like mod_proxy.
+
+Rationale:
+
+Allowing additional path-delimiters allows for an attacker to get to an application or area which was not previously visible."
+      solution    : "To start Tomcat with ALLOW_BACKSLASH and ALLOW_ENCODED_SLASH set to false, add -Dorg.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH=false and -Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=false to your startup script in setenv.sh in CATALINA_BASE/bin.
+
+Default Value:
+
+By default both parameters are set to false."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.1,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Binary_catalog@/catalina.sh"
+      regex       : "-Dorg\\.apache\\.catalina\\.connector\\.CoyoteAdapter\\.ALLOW_BACKSLASH[\\s]*=[\\s]*[Ff][Aa][Ll][Ss][Ee]"
+      expect      : "-Dorg\\.apache\\.catalina\\.connector\\.CoyoteAdapter\\.ALLOW_BACKSLASH[\\s]*=[\\s]*[Ff][Aa][Ll][Ss][Ee]"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "10.8 Do not allow additional path delimiters - ALLOW_ENCODED_SLASH"
+      info        : "Being able to specify different path-delimiters on Tomcat creates the possibility that an attacker can access applications that were previously blocked by a proxy like mod_proxy.
+
+Rationale:
+
+Allowing additional path-delimiters allows for an attacker to get to an application or area which was not previously visible."
+      solution    : "To start Tomcat with ALLOW_BACKSLASH and ALLOW_ENCODED_SLASH set to false, add -Dorg.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH=false and -Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=false to your startup script in setenv.sh in CATALINA_BASE/bin.
+
+Default Value:
+
+By default both parameters are set to false."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.1,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Binary_catalog@/catalina.sh"
+      regex       : "-Dorg\\.apache\\.catalina\\.connector\\.CoyoteAdapter\\.ALLOW_ENCODED_SLASH[\\s]*=[\\s]*[Ff][Aa][Ll][Ss][Ee]"
+      expect      : "-Dorg\\.apache\\.catalina\\.connector\\.CoyoteAdapter\\.ALLOW_ENCODED_SLASH[\\s]*=[\\s]*[Ff][Aa][Ll][Ss][Ee]"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.9 Configure connectionTimeout"
+      info        : "The connectionTimeout setting allows Tomcat to close idle sockets after a specific amount of time to save system resources.
+
+Rationale:
+
+Closing idle sockets reduces system resource usage which can provide better performance and help protect against Denial of Service attacks.
+
+Impact:
+
+This timeout will also apply when reading any request body when disableUploadTimeout is not set to false."
+      solution    : "Set the connectionTimeout for each connector in $CATALINA_HOME/conf/server.xml ensure to the optimal number of milliseconds based on hardware resources, load, and number of concurrent connections.
+
+connectionTimeout='60000'
+
+Default Value:
+
+By default this is set to 60000 (i.e. 60 seconds)."
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSCv8|4,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@connectionTimeout and @connectionTimeout>0\">"
+      xsl_stmt    : "<xsl:text>PASS - Timeout set</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - Timeout not set</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.10 Configure maxHttpHeaderSize"
+      info        : "The maxHttpHeaderSize limits the size of the request and response headers defined in bytes.
+
+Rationale:
+
+Limiting the size of the header request can help protect against Denial of Service (DoS) requests."
+      solution    : "Set maxHttpHeaderSize for each connector in $CATALINA_HOME/conf/server.xml to the appropriate setting.
+
+maxHttpHeaderSize='8192'
+
+Default Value:
+
+The default is 8192 bytes."
+      reference   : "800-171|3.1.16,800-171|3.13.15,800-53|AC-18,800-53|SC-23,800-53r5|AC-18,800-53r5|SC-23,CSCv7|5.1,CSCv8|12.6,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ITSG-33|AC-18,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@maxHttpHeaderSize and @maxHttpHeaderSize>0\">"
+      xsl_stmt    : "<xsl:text>PASS - maxHttpHeaderSize set</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>FAIL - maxHttpHeaderSize not set for Connector </xsl:text><xsl:value-of select='@port' /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "10.11 Force SSL for all applications"
+      info        : "Use the transport-guarantee attribute to ensure SSL protection when accessing all applications. This can be overridden on a per application basis in the application configuration.
+
+Rationale:
+
+By default, when accessing applications SSL will be enforced to protect information sent over the network. By using the transport-guarantee attribute within web.xml, SSL is enforced.
+
+Note: This requires SSL to be configured.
+
+Impact:
+
+If the data protection level is set to INTEGRAL or CONFIDENTIAL, and the client is not already using SSL, then the client is redirected to the same URI, but using port 443 or the port defined for the redirectPort attribute in the <Connector> element in server.xml."
+      solution    : "Set transport-guarantee to CONFIDENTIAL in $CATALINA_HOME/conf/web.xml:
+
+<user-data-constraint>
+  <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+</user-data-constraint>
+
+Default Value:
+
+By default this configuration is not present."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_catalogs@/conf/web.xml"
+      regex       : "<transport-guarantee>CONFIDENTIAL</transport-guarantee>"
+      expect      : "<transport-guarantee>CONFIDENTIAL</transport-guarantee>"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_XML
+      description : "10.15 Do not resolve hosts on logging valves"
+      info        : "Setting enableLookups to true on Connector will result in a DNS look-ups to obtain the host name of the remote client before logging any information. This uses additional resources when logging.
+
+Rationale:
+
+Allowing enableLookups adds additional overhead to resolve the host name of a remote client which is rarely needed."
+      solution    : "In Connector elements, set the enableLookups attribute to false or remove it.
+
+<Connector ... enableLookups='false' />
+
+Default Value:
+
+By default, DNS lookups are disabled."
+      reference   : "800-53|SI-8,800-53r5|SI-8,CSCv7|5.1,CSCv8|9.2,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-8,LEVEL|2A,QCSC-v1|3.2,QCSC-v1|8.2.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+      file        : "@APP_Config_files@"
+      xsl_stmt    : "<xsl:template match=\"/\">"
+      xsl_stmt    : "<xsl:for-each select=\"Server/Service/Connector\">"
+      xsl_stmt    : "<xsl:choose>"
+      xsl_stmt    : "<xsl:when test=\"@enableLookups and @enableLookups = 'true'\">"
+      xsl_stmt    : "<xsl:text>FAIL - Lookups enabled for port </xsl:text><xsl:value-of select=\"@port\" /><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:when>"
+      xsl_stmt    : "<xsl:otherwise>"
+      xsl_stmt    : "<xsl:text>PASS - Lookups not enabled</xsl:text><xsl:text>&#xa;</xsl:text>"
+      xsl_stmt    : "</xsl:otherwise>"
+      xsl_stmt    : "</xsl:choose>"
+      xsl_stmt    : "</xsl:for-each>"
+      xsl_stmt    : "</xsl:template>"
+      not_expect  : "FAIL"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Apache_Tomcat_10_L2_v1.1.0_Middleware.audit from CIS Apache Tomcat 10 Benchmark"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/11652"
+    </report>
+  </else>
+</if>
+
+</check_type>

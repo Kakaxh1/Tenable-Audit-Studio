@@ -1,0 +1,695 @@
+#TRUSTED 19ea8207ca1336a06f514c91febe68e53bc5bbff8d634ff47e89876e2db7200837e8e55db5117a4d31f3a30a383dd8e454bf758c646fd7aae8bf5ad046452b5c7929d6c99857ce2979a2bd18aa28bd7518898af26a8861c70cbf55949f3e6b6e87bfd68122028206d3818808aba6820e61e903529868f819a400e1ab596010ba311f8b17e42316f01bc6332305e04d55670e53c418f674ff5069b9277e5d7ebee80bc30272206c98b501523cd512a95c3caa6672fc45588a8c5a667b5a8bc33934438a63f0226cc233c0725724ceb4fcbdcd1f21debe6a99a1f29d4d0456baa21ca7396f8d574c117232736418cfb3444064147b5e1c06598f1e4f9fb83cf0a5309fa1a456983112281bc8ccac7ef2cee63ab4057b6daa3947d4b3c978d866447365eabc8d260f39cf6f188ba1dc8c588355ee77494d1f0efe5e8dbc71b1ffee18ea616653e52eba05755a0c53984bd92d3909a75c181984a00b29958d2e9404a230cb5c5a72be5fe7528c863c6c4430592b8d468a489bfc2d4112c6111b06d551f286488fdab7dd040a004476d39809e7bbcdd23085cf5998edd02abeaa18021f07ffe688e73e0b1495eda1ea90e8700d7a3430088d7656bfd865d1d9949334d113a50f9273ea244c69527ab4af5acb4db0255fb701e9cab6379babfeab18b03b9c1e73dbc37919a57839860350527ead90b227940917022bc4711b29066326
+#TRUST-RSA-SHA256 aa2d58d89cba31b13ee52869ce08cd14808f2979f1eba434780305bf32a3df9d83c151944b6e50929faae1f49ba8978d6c939bdcf4c53e41d125bab51de670d72d2ce0599354c70e0383009112936a3211d1d28457cb131241a8bdb4d2de799bd21ef613ad4afd49ebcdfffbab3884b39f8d157bff152354b704d9af6eeed046947b0fa394580e1c08402fa369adb3383f244858a411415c91c84823b0cadc44e1db83a7e0d79488fabb7131e53d83491cfcaef6d3cf08a4459944b4076748e23dc16a3448bad36acca456a523f3fc5e8501fabe971841948ec3594c610e317802b0ad26bf80f6817614ab5027a073d47121e0f94cb63cf8d7416aa6ec8053715e19175760ce9467c957dddaa0984e333bc14427ae6518829a7cf9e69e4b11d1c2dabbd14c24e0b44701f56100046c4b4683352ab7d24fe78a36173537a35fd88d35a779a783ded68e8de11f002fcd7c085b98580c758fa0bd0fc7536b972a05e5f4c855fe986364c82de1a10d3863e9b8f9a33282e9f36a8579d5162491b893a490fa8c438d2ec1091ce1e27a3bb5ecb0badf850bb0b4a73de02c5bb9c433ad1e1e07637d09622ccc34e7014f344ab330dd4ed976ef08cd9401df5bd7c235b8447df0ca09234e571f76211f1d2ec8915fc246dfbf4805d816c11f704ba96c73e565f00a6a77c1897105936416bc12778ef4200925273eabeda8333da3856187
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/01/14 $
+#
+# description : This .audit is designed against the CIS Oracle MySQL Enterprise Edition 8.4 Benchmark 1.1.0
+#
+#<ui_metadata>
+#<display_name>CIS Oracle MySQL Enterprise Edition 8.4 v1.1.0 L2 MySQL RDBMS on Linux MySQLDB</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Oracle MySQL Enterprise Edition 8.4</name>
+#  <profile>L2 MySQL RDBMS on Linux</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/20914</link>
+#</spec>
+#<labels>database,mysql_8.4_enterprise</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>MYSQL_LICENSE</name>
+#    <default>Commercial</default>
+#    <description>Whether this is Commercial or GPL</description>
+#    <info>This determines whether the version is Enterprise or Community.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>AUDIT_FILTER_NAME</name>
+#    <default>log_all</default>
+#    <description>Audit filter name for check 6.6</description>
+#    <info>The audit filter name used in check 6.6</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"MySQLDB">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "MySQL 8.4 is installed"
+      sql_request : "show variables like 'version' ;"
+      sql_types   : STRING, REGEX
+      sql_expect  : "version", "8\.[4-9]\..*"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "MySQL 8.4 Enterprise Edition is installed"
+      sql_request : "show variables like 'license' ;"
+      sql_types   : STRING, STRING
+      sql_expect  : "license", "@MYSQL_LICENSE@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Oracle_MySQL_Enterprise_Edition_8.4_v1.1.0_L2_MySQL_RDBMS_on_Linux_MySQLDB.audit from CIS Oracle MySQL Enterprise Edition 8.4 v1.1.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "10.2 Allowlist Approved Servers Belonging to a MySQL InnoDB Cluster"
+      info        : "Optionally, specify an allowlist of approved servers that belong to the MySQL InnoDB Cluster.
+
+When using MySQL InnoDB Cluster by specifying the allowlist explicitly, you can increase the security of your cluster as only servers in the allowlist are allowed to connect to the cluster.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Example - to configure a cluster to only accept connections from servers at addresses 203.0.113.0/24 and 198.51.100.110 . The whitelist can also include host names, which are resolved only when a connection request is made by another server.
+
+mysql-js> cluster.addInstance(\"icadmin@ic-3:3306\", {ipAllowlist: \"203.0.113.0/24, 198.51.100.110\"})"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "select @@group_replication_ip_allowlist"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.10 Use Dual Passwords to Enable Higher Frequency Password Rotation"
+      info        : "Dual passwords act as a tool to encourage password rotations in cases where a synchronized password change is not viable. By having a time delta to have old and new passwords in place, the process of replacing old passwords with new passwords within applications is simplified.
+
+Too often passwords used by applications are not changed regularly because of the difficulty in timing for propagating the new password, keeping the applications connected, and connection failures due to race conditions. If it is difficult to perform a synchronized change you can optionally use dual passwords to simplify the task of password rotation.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "To set dual passwords execute the following ALTER command:
+
+ALTER USER '<user>'@'<hostname>'
+  IDENTIFIED BY '<new_password>'
+  RETAIN CURRENT PASSWORD;
+
+Once the new password has been distributed DISCARD the old password using ALTER :
+
+ALTER USER '<user>'@'<hostname>'
+  DISCARD OLD PASSWORD;
+
+Impact:
+
+If the original password isn't removed upon completion of the password rotation process, the potential risk for a compromise is increased."
+      reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5,800-53r5|IA-5,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5,LEVEL|2M,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SELECT user, host FROM mysql.user WHERE length(user_attributes >'$.additional_password')>0;"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.11 Lock Out Accounts if Not Currently in Use"
+      info        : "If users with accounts will not be using their account for some time, to reduce the risk of attacks or inappropriate account usage or if suspicions exist that an account might be under attack, disabling the account will secure it and once it's ready to resume use it can easily be re-enabled.
+
+Only have active accounts that will be used.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "To lock accounts - example:
+
+ALTER USER 'jeffrey'@'localhost' ACCOUNT LOCK;
+
+To unlock accounts - example
+
+ALTER USER 'jeffrey'@'localhost' ACCOUNT UNLOCK;
+
+Note: Works for CREATE as well. It is good practice to LOCK an account if created ahead of time."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01f.,800-53|AC-2(3),800-53r5|AC-2(3),CN-L3|7.1.3.2(e),CN-L3|8.1.4.2(c),CSCv7|16.9,CSCv8|5.3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.6,ITSG-33|AC-2(3),LEVEL|2M,NIAv2|AM26,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,TBA-FIISB|36.2.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "select user, host, account_locked from mysql.user;"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.12 Ensure AES Encryption Mode for AES_ENCRYPT/AES_DECRYPT is Configured Correctly"
+      info        : "A block encryption mode with a Cipher Block Chaining (CBC) mode value and key length of 256 is recommended when using the AES_ENCRYPT() and AES_DECRYPT() functions for encryption.
+
+The default for backward compatibility on upgraded MySQL databases is aes-128-ecb . Using 128-bit keys does not provide sufficient security. Regardless of whether breaking the lowest level is beyond existing technology, larger key sizes are needed to better protect data and satisfy regulations."
+      solution    : "Add the following lines to the MySQL server's /etc/my.cnf :
+
+For example, if Block Encryption Mode for aes-256 CBC
+
+block_encryption_mode=aes-256-cbc
+
+Or, run the following command:
+
+set persist block_encryption_mode='aes-256-cbc';
+
+Restart the server for this change to take effect.
+
+Impact:
+
+Configuring a key length of 256 may impact backwards compatibility."
+      reference   : "800-53|SA-15,800-53r5|SA-15,CSCv7|18.5,CSCv8|16.11,CSF|PR.IP-2,CSF2.0|ID.RA-09,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.30,LEVEL|2A,NIAv2|SS5,NIAv2|SS6a,QCSC-v1|4.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "select @@block_encryption_mode;"
+      sql_types   : REGEX
+      sql_expect  : "aes-256-(ECB|CBC|CFB1|CFB8|CFB128|OFB)"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : SQL_POLICY
+          description : "auth_socket enabled"
+          sql_request : " SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME LIKE 'auth%';"
+          sql_types   : STRING, STRING
+          sql_expect  : "auth_socket", "ACTIVE"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : SQL_POLICY
+          description : "2.13 Ensure Socket Peer-Credential Authentication is Used Appropriately"
+          info        : "The server-side auth_socket authentication plugin, authenticates clients that connect to the MySQL server from the local host through the Unix socket file. Users authenticated by the auth_socket need not specify a password when connecting to the server. However, users authenticated by the auth_socket plugin are restricted from connecting remotely; they can only connect from the local host through the Unix socket file. This method is only suitable in situations where the server administrator OS account access is restricted.
+
+This method may be desirable in specific cases, including:
+
+ - The Linux system where MySQL is running is dedicated to the MySQL server and only the MySQL DBA and OS Admin have access.
+ - When control over user authentication is centralized in the operating system.
+ - It is desirable that audit trails in the database and operating system can use the same user names.
+ - For certain other narrow installation use cases auth_socket may be desirable.
+ - Only local connections for a user.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "Add these options under the [mysqld] option group in the MySQL /etc/my.cnf :
+
+plugin-load-add=auth_socket.so
+auth_socket=FORCE_PLUS_PERMANENT
+
+For example:
+
+For an OS user which can login to MySQL using auth_socket :
+
+CREATE USER '<user>'@'<localhost>' IDENTIFIED WITH auth_socket;
+
+The user can then login using:
+
+mysql -u <user>
+
+Impact:
+
+Things to consider when using the operating system to authenticate users:
+
+ - The user must have an operating system account on the computer which must be accessed.
+ - If a user has logged in using this method and steps away from the terminal, another user could easily log in because this user does not need any passwords or credentials. This could pose a serious security problem.
+ - When an operating system is used to authenticate database users, managing distributed database environments and database links requires special care. Special care must also be taken not to leave such a terminal unlocked and unattended. Hence, we recommend that you carefully evaluate your requirements before opting for auth_socket.
+ - This will not work where distributed connections are required."
+          reference   : "800-171|3.4.1,800-171r3|03.04.10,800-53|CM-8,800-53r5|CM-8,800-53r5|IA-8(2),CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSCv8|6.6,CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,CSF2.0|ID.AM-01,CSF2.0|ID.AM-02,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.9,ISO-27001-2022|A.8.9,ITSG-33|CM-8,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+          sql_request : "select user, host, plugin from mysql.user where plugin = 'auth_socket';"
+          sql_types   : STRING
+          sql_expect  : "^Manual Review Required$"
+          severity    : MEDIUM
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "2.13 Ensure Socket Peer-Credential Authentication is Used Appropriately"
+          info        : "The server-side auth_socket authentication plugin, authenticates clients that connect to the MySQL server from the local host through the Unix socket file. Users authenticated by the auth_socket need not specify a password when connecting to the server. However, users authenticated by the auth_socket plugin are restricted from connecting remotely; they can only connect from the local host through the Unix socket file. This method is only suitable in situations where the server administrator OS account access is restricted.
+
+This method may be desirable in specific cases, including:
+
+ - The Linux system where MySQL is running is dedicated to the MySQL server and only the MySQL DBA and OS Admin have access.
+ - When control over user authentication is centralized in the operating system.
+ - It is desirable that audit trails in the database and operating system can use the same user names.
+ - For certain other narrow installation use cases auth_socket may be desirable.
+ - Only local connections for a user."
+          solution    : "Add these options under the [mysqld] option group in the MySQL /etc/my.cnf :
+
+plugin-load-add=auth_socket.so
+auth_socket=FORCE_PLUS_PERMANENT
+
+For example:
+
+For an OS user which can login to MySQL using auth_socket :
+
+CREATE USER '<user>'@'<localhost>' IDENTIFIED WITH auth_socket;
+
+The user can then login using:
+
+mysql -u <user>
+
+Impact:
+
+Things to consider when using the operating system to authenticate users:
+
+ - The user must have an operating system account on the computer which must be accessed.
+ - If a user has logged in using this method and steps away from the terminal, another user could easily log in because this user does not need any passwords or credentials. This could pose a serious security problem.
+ - When an operating system is used to authenticate database users, managing distributed database environments and database links requires special care. Special care must also be taken not to leave such a terminal unlocked and unattended. Hence, we recommend that you carefully evaluate your requirements before opting for auth_socket.
+ - This will not work where distributed connections are required."
+          reference   : "800-171|3.4.1,800-171r3|03.04.10,800-53|CM-8,800-53r5|CM-8,800-53r5|IA-8(2),CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSCv8|6.6,CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,CSF2.0|ID.AM-01,CSF2.0|ID.AM-02,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.9,ISO-27001-2022|A.8.9,ITSG-33|CM-8,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.14 Ensure MySQL is Bound to an IP Address"
+      info        : "By default, the MySQL server accepts TCP/IP connections from MySQL user accounts on all server host IPv6 and IPv4 interfaces. You can make this configuration more restrictive by setting the bind_address configuration option to a specific IPv4 or IPv6 address so that the server only accepts TCP/IP connections on that address.
+
+Limiting the IP address provides additional controls and restrictions on how client applications can connect to MySQL. If not configured to a specific IP all IPs for this server can be used to connect to MySQL."
+      solution    : "For example, to have the MySQL server only accept connections on a specific IPv4 address, add an entry similar to this under the [mysqld] option group in the MySQL /etc/my.cnf :
+
+bind_address=192.0.2.24
+
+In this case, clients can connect to the server using --host=192.0.2.24 . Connections on other server host addresses are not permitted."
+      reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables WHERE VARIABLE_NAME = 'bind_address';"
+      sql_types   : STRING, REGEX
+      sql_expect  : "bind_address", "^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.1.5 Point-in-Time Recovery"
+      info        : "With binlogs it is possible to implement point-in-time recovery. This makes it possible to restore the changes between the last full backup and the point-in-time.
+
+Enabling binlogs is not sufficient. The binlogs need to be backed up to separate media. The restore procedure should be created and tested. The data in the binlog files may contain sensitive information which needs be stored in the proper location with restrictive permissions and may require encryption.
+
+Using binlogs can reduce the amount of information lost when recovering from a backup."
+      solution    : "Enable binlogs, then create and test a restore procedure.
+
+Impact:
+
+Binlogs can grow quite large and take up a large amount of space so auto remove needs to be put into place."
+      reference   : "800-171|3.8.9,800-171r3|03.08.09,800-53|CP-9,800-53|CP-10,800-53r5|CP-9,800-53r5|CP-10,CSCv7|10.2,CSCv8|11.2,CSF|PR.IP-4,CSF|RC.RP-1,CSF|RS.RP-1,CSF2.0|PR.DS-01,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|RC.RP,CSF2.0|RC.RP-01,CSF2.0|RC.RP-02,CSF2.0|RC.RP-03,CSF2.0|RC.RP-05,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(ii),ISO-27001-2022|A.5.29,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.13,ISO/IEC-27001|A.12.3.1,ITSG-33|CP-9,ITSG-33|CP-10,ITSG-33|CP-10a.,LEVEL|2A,NESA|M5.2.3,NESA|T2.2.4,QCSC-v1|5.2.3,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE, 'BINLOG - Log Expiration' as Note FROM performance_schema.global_variables where variable_name = 'binlog_expire_logs_seconds';"
+      sql_types   : STRING, REGEX, STRING
+      sql_expect  : "binlog_expire_logs_seconds", "^[1-9][0-9]*$", "BINLOG - Log Expiration"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.15 Limit Accepted Transport Layer Security (TLS) Versions"
+      info        : "MySQL supports multiple protocols of TLS. The higher the version the stronger the security and/or better the performance.
+
+Requiring clients attempting to connect to MySQL to use higher versions of TLS to better protect data in transit."
+      solution    : "Set the version(s) of TLS you wish to accept in mysql.conf specify TLS and Ciphers.
+
+For example to only accept TLS 1.3 set tls_version in my.conf :
+
+tls_version=TLSv1.3
+
+If TLS 1.3 is not supported on the Operating System then set to TLS 1.2:
+
+tls_version=TLSv1.2
+
+Note: with this setting, only clients that support the specified TLS version(s) are able to establish an encrypted connection to the server.
+
+Impact:
+
+Connections attempting to use an unsupported version of TLS or Cipher will fail."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SA-15,800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SA-15,800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv7|18.5,CSCv8|3.10,CSCv8|16.11,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.IP-2,CSF|PR.PT-4,CSF2.0|ID.RA-09,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,CSF2.0|PR.PS-06,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.30,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS5,NIAv2|SS6a,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "select @@tls_version;"
+      sql_types   : REGEX
+      sql_expect  : "^(TLSv1\.(2|3),?){1,2}$"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.16 Require Client-Side Certificates (X.509)"
+      info        : "Client-side certificates may be used as proof of identity as well as to encrypt data in transit.
+
+Requiring client-side certificates provides additional validation of a user's identity, thus increasing the level of security, while also providing strong encryption."
+      solution    : "Create or Alter users using the REQUIRE X509.
+
+For example:
+
+CREATE USER 'newuser2'@'%' IDENTIFIED BY <password> require x509;
+
+For accounts created with a REQUIRE X509 clause, clients must specify at least --ssl-cert and --ssl-key . In addition, --ssl-ca (or --ssl-capath ) is recommended so that the public certificate provided by the server can be verified.
+
+For example:
+
+mysql --ssl-ca=ca.pem \\
+      --ssl-cert=client-cert.pem \\
+      --ssl-key=client-key.pem"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "select user, host, ssl_type from mysql.user where user not in ('mysql.infoschema', 'mysql.session', 'mysql.sys');"
+      sql_types   : REGEX, REGEX, REGEX
+      sql_expect  : ".+", ".+", "^(?i)(X509|SSL)$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : SQL_POLICY
+          description : "tls_ciphersuites"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables WHERE VARIABLE_NAME IN ('tls_ciphersuites');"
+          sql_types   : STRING, STRING
+          sql_expect  : "tls_ciphersuites", "TLS_AES_256_GCM_SHA384"
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "ssl_cipher"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables WHERE VARIABLE_NAME IN ('ssl_cipher');"
+          sql_types   : STRING, STRING
+          sql_expect  : "ssl_cipher", "ECDHE-ECDSA-AES128-GCM-SHA256"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.17 Ensure Only Approved Ciphers are Used"
+          info        : "MySQL supports multiple encryption ciphers. Ciphers can vary in strength, speed and overhead.
+
+Requiring clients attempting to connect to MySQL to use strong ciphers protects data in transit."
+          solution    : "Set ssl_cipher and tls_ciphersuites in the mysql.conf to an approved cipher suite:
+
+tls_ciphersuites='TLS_AES_256_GCM_SHA384'
+ssl_cipher='ECDHE-ECDSA-AES128-GCM-SHA256'
+
+Or
+
+Execute the following commands:
+
+set persist ssl_cipher='ECDHE-ECDSA-AES128-GCM-SHA256';
+set persist tls_ciphersuites='TLS_AES_256_GCM_SHA384';
+
+Impact:
+
+Connections attempting to use an unsupported cipher will fail."
+          reference   : "800-53|SA-15,800-53r5|SA-15,CSCv7|18.5,CSCv8|16.11,CSF|PR.IP-2,CSF2.0|ID.RA-09,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.30,LEVEL|2A,NIAv2|SS5,NIAv2|SS6a,QCSC-v1|4.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.2.1 Ensure Binary and Relay Logs are Encrypted"
+      info        : "The binlog_encryption system variable may be used to configure encryption of the binary and relay logs. This may be configured to ON even if binary logging is not enabled in order to encrypt relay log files.
+
+The database, and thus the binary and relay logs, may contain sensitive information. Encrypting the binary and relay logs protects all data stored in these logs from internal and external threats."
+      solution    : "To remediate misconfiguration, run this command:
+
+SET GLOBAL binlog_encryption=ON;
+
+If you receive the error message below, you need to install keyring. For instructions see Section 8.4.4, \"The MySQL Keyring\" https://dev.mysql.com/doc/refman/8.4/en/keyring.html in the MySQL documentation.
+
+ERROR 3794 (HY000): Unable to recover binlog encryption master key, please check if keyring plugin is loaded."
+      reference   : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE, 'BINLOG - At Rest Encryption' as Note FROM performance_schema.global_variables where variable_name = 'binlog_encryption';"
+      sql_types   : STRING, STRING, STRING
+      sql_expect  : "binlog_encryption", "ON", "BINLOG - At Rest Encryption"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.9 Require Current Password for Password Reset"
+      info        : "Require the current password for password reset.
+
+Requiring a prior password for password reset enables DBAs to prevent users from changing a password without proving that they know the current password. Such changes could otherwise occur, for example, if one user walks away from a terminal session temporarily without logging out, and a malicious user uses the session to change the original user's MySQL password. This can have unfortunate consequences; the most problematic being the malicious user can access MySQL with the user's changed credentials."
+      solution    : "Set the value to ON
+
+SET PERSIST password_require_current=ON;"
+      reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5,800-53r5|IA-5,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5,LEVEL|2A,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables where VARIABLE_NAME in ('password_require_current');"
+      sql_types   : STRING, STRING
+      sql_expect  : "password_require_current", "ON"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "4.8 Ensure 'sql_mode' Contains 'STRICT_ALL_TABLES'"
+      info        : "When data changing statements are made (i.e., INSERT, UPDATE ), MySQL can handle invalid or missing values differently depending on whether strict SQL mode is enabled. When strict SQL mode is enabled, data may not be truncated or otherwise \"adjusted\" to make the data changing statement work.
+
+Without strict mode the server tries to proceed with the action when an error might have been a more secure choice. For example, by default MySQL will truncate data if it does not fit in a field, which can lead to unknown behavior, or be leveraged by an attacker to circumvent data validation."
+      solution    : "Set STRICT_ALL_TABLES to the sql_mode in the server's global configuration, for example:
+
+SET GLOBAL sql_mode ='STRICT_ALL_TABLES,ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+Impact:
+
+Applications relying on the MySQL database should be aware that STRICT_ALL_TABLES is in use, such that error conditions are handled appropriately."
+      reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SHOW VARIABLES LIKE 'sql_mode';"
+      sql_types   : STRING, REGEX
+      sql_expect  : "sql_mode", ".*STRICT_ALL_TABLES.*"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : SQL_POLICY
+          description : "audit_log_encryption"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables where variable_name in ('audit_log_encryption');"
+          sql_types   : STRING, STRING
+          sql_expect  : "audit_log_encryption", "AES"
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "binlog_encryption"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables where variable_name in ('binlog_encryption');"
+          sql_types   : STRING, STRING
+          sql_expect  : "binlog_encryption", "ON"
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "innodb_redo_log_encrypt"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables where variable_name in ('innodb_redo_log_encrypt');"
+          sql_types   : STRING, STRING
+          sql_expect  : "innodb_redo_log_encrypt", "ON"
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "innodb_undo_log_encrypt"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables where variable_name in ('innodb_undo_log_encrypt');"
+          sql_types   : STRING, STRING
+          sql_expect  : "innodb_undo_log_encrypt", "ON"
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "table_encryption_privilege_check"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM performance_schema.global_variables where variable_name in ('table_encryption_privilege_check');"
+          sql_types   : STRING, STRING
+          sql_expect  : "table_encryption_privilege_check", "ON"
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "table encryption"
+          sql_request : "SELECT INNODB_TABLESPACES.NAME, INNODB_TABLESPACES.ENCRYPTION FROM information_schema.INNODB_TABLESPACES WHERE NAME NOT IN ('innodb_temporary','sys/sys_config');"
+          sql_types   : REGEX, STRING
+          sql_expect  : ".+", "Y"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "4.9 Use MySQL TDE for At-Rest Data Encryption"
+          info        : "Transparent Data Encryption (TDE) at-rest encryption protects your critical data by enabling data-at-rest encryption in the database. It protects the privacy of your information, prevents data breaches and helps meet regulatory requirements.
+
+File system based encryption does a good job of protecting against data theft on devices unable to limit physical access. It does not, however, protect against users who have or gain access to the operating system, backups, over the network copies, etc. Encrypting data from mysqld adds an additional layer of data protection."
+          solution    : "Edit my.cnf :
+
+# AUDIT LOG
+sudo vi /etc/my.cnf
+[mysqld]
+audit-log=FORCE_PLUS_PERMANENT
+audit-log-format=JSON
+audit-log-encryption=AES
+
+Execute these commands:
+
+#### Table Encryption
+>set persist table_encryption_privilege_check=ON;
+
+#### BINLOG
+>set persist binlog_encryption=ON;
+
+##### REDO and UNDO
+>set persist innodb_redo_log_encrypt=ON;
+>set persist innodb_undo_log_encrypt=ON;
+
+# DO NOT USE GENERAL LOG OR SLOW LOGS - USE AUDIT AND PERFORMANCE_SCHEMA.
+>SET PERSIST general_log = 'OFF';
+
+Run ALTER to enable encryption ( Note: This will lock the table as table is encrypted).
+
+# TABLESPACES, TABLES
+ALTER TABLESPACE <tablespacename> ENCRYPTION = 'Y';
+// if innodb file per table (indicated by schemaname/tablename in report)
+ALTER TABLE <tablename> ENCRYPTION = 'Y';
+#Encrypt the system tablespace
+ALTER TABLESPACE mysql ENCRYPTION = 'Y';
+
+Run MySQL Enterprise Backup with encryption.
+
+For example:
+
+$ mysqlbackup --defaults-file=/home/dbadmin/my.cnf --backup-image=/home/admin/backups/my.mbi \\
+  --backup-dir=/home/admin/backup-tmp --encrypt-password backup-to-image"
+          reference   : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "5.3 Ensure 'PROCESS' is Not Granted to Non-Administrative Users"
+      info        : "The PROCESS privilege found in the mysql.user table determines whether a given user can see statement execution information for all sessions.
+
+The PROCESS privilege allows principals to view currently executing MySQL statements beyond their own, including statements used to manage passwords. This may be leveraged by an attacker to compromise MySQL or to gain access to potentially sensitive data.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Perform the following steps to remediate this setting:
+
+ - Enumerate the non-administrative users found in the result set of the audit procedure
+ - For each user, issue the following SQL statement (replace <user> with the non-administrative user): REVOKE PROCESS ON *.* FROM '<user>';
+
+Impact:
+
+Users denied the PROCESS privilege may also be denied use of SHOW ENGINE."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|14.6,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SELECT GRANTEE FROM INFORMATION_SCHEMA.USER_PRIVILEGES WHERE PRIVILEGE_TYPE = 'PROCESS';"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.3 Ensure 'log_error_verbosity' is Set to '2'"
+      info        : "The log_error_verbosity system variable, set to 2 by default, specifies the verbosity of events sent to the MySQL error log. A value of 2 enables logging of error and warning messages, a value of 3 also includes informational logging, a value of 1 logs only errors.
+
+This might help to detect malicious behavior by logging communication errors and aborted connections."
+      solution    : "Perform the following actions to remediate this setting:
+
+ - Open the MySQL configuration file ( my.cnf )
+ - Ensure the following line is found in the mysqld section log_error_verbosity = 2"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SHOW GLOBAL VARIABLES LIKE 'log_error_verbosity';"
+      sql_types   : STRING, STRING
+      sql_expect  : "log_error_verbosity", "2"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : SQL_POLICY
+          description : "check for audit filter"
+          sql_request : "SELECT * FROM mysql.audit_log_filter;"
+          sql_types   : STRING, STRING
+          sql_expect  : "@AUDIT_FILTER_NAME@", "{\"filter\": {\"log\": true}}"
+          match_all   : NO
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "check for audit filter in use"
+          sql_request : "SELECT * FROM mysql.audit_log_user;"
+          sql_types   : STRING, STRING, STRING
+          sql_expect  : "%", "", "@AUDIT_FILTER_NAME@"
+          match_all   : NO
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "6.6 Ensure ALL Events are Audited"
+          info        : "This filter defines all events to be written to the audit log.
+
+This filter to log all, and binding to all, users must be set to ensure all event information is written to the audit log."
+          solution    : "Create Log All Filter:
+
+SELECT audit_log_filter_set_filter('log_all', '{ \"filter\": { \"log\": true } }');
+
+Apply to all logins:
+
+SELECT audit_log_filter_set_user('%', 'log_all');
+
+Impact:
+
+Logging all events can result in very large audit files. In the case where the database is extremely active it may be more appropriate to be more selective when defining audit filters."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.7 Set audit_log_strategy to SYNCHRONOUS or SEMISYNCRONOUS"
+      info        : "The audit_log_strategy must be set to SYNCHRONOUS or SEMISYNCHRONOUS
+
+This setting controls how information is written to the audit log. It can be set to SYNCHRONOUS to make it fully durable or other settings which are less durable but have less performance overhead."
+      solution    : "To remediate this configuration:
+
+ - Open the MySQL configuration file ( my.cnf )
+ - Navigate to the mysqld section of the configuration file
+ - Set audit_log_strategy='SEMISYNCHRONOUS' (or SYNCHRONOUS )
+
+Impact:
+
+If this setting is set to PERFORMANCE or ASYNCHRONOUS audit events might be lost in case of a crash or when the server somehow can't write to the audit log file."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      sql_request : "SHOW GLOBAL VARIABLES LIKE 'audit_log_strategy';"
+      sql_types   : STRING, REGEX
+      sql_expect  : "audit_log_strategy", "^(SYNCHRONOUS|SEMISYNCHRONOUS)"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Oracle_MySQL_Enterprise_Edition_8.4_v1.1.0_L2_MySQL_RDBMS_on_Linux_MySQLDB.audit from CIS Oracle MySQL Enterprise Edition 8.4 v1.1.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/20914"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

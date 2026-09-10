@@ -1,0 +1,345 @@
+#TRUSTED 5e8a324c435776298dd0fefe62fae8ff0665e94d4560a29dbea0eef775325743b9711a9b5ef9b2bf13371bbc905c6560d9801526376671a2ca47a3222b4c23466f17f4c3b008ae99b425e4cd54b1661ef11a356e0ae70d3d8050e1b03d8f4e845af5bd34b1f73c57e680ae7cebd42ccb7e9f454f91d2c3a7501aa5029fe6d9e4afba508f2cf02c40a2e07a99ad09eec3af60757f503f174e35d865e4743f6d9b4eef1049df1c76bb3e3fcb8f8a6b7cf5d6c894a0565e768325e2e85dec9102ce5e7b47635d6f53c4de39d033df55f7559c544248897de1b043ac881a0f647a8014f8fa55db18d741faeb3f540dcb731b200f9f9cccbd4689d9b5578d2ff8ac4e9d164077f3e844bfafed1112d67bf3e459ff8842c0557dbb240bcba0a4068bd0a2e2b092bd3f36113caf30218f1b2130fac308e058379bbf58484c5ef0430f498309a128a781b0f0a21cee3b40d2a18485fc6c2aee0d99ed0c510d3d04f28fdc34fb30d7b730ee744de7e9e83a9e674df800fb5f51828243b48e1e3e1efd3db20805acb2a053a6ae83dee7fa9d6bc86be07a0bfd9242d4031367f9520e6864274148c63ed582544be229f3b5f9de9d535e66af061183ac3ef88eb76b88484287f711dbc4a7f3b033181242207e6193f278fe701d8a8f0abaeb7ecc8372fab67233ac805640b5214db10cc3f7e36cbeee7231e955f59d9b7a680a073ab693ef0d
+#TRUST-RSA-SHA256 0a717dfa5918c787b852bf9f7fd96ea1bcbf28415725e4744eff3e66953173e1b892a5758c6b6317f1614014d14b096a47343321cb79d0f17bb640a2dd47138f75c47d319cedc6d6015ffb245c9e12582a1469f80da0b48febdddf42d3608fcab14ffb097c7cd9ea36c341ac4a5e4b750eb00e437bff46b2231b65bb860cc537034c04c216c2f023e022b5692c5f4721c41ea389abae2ccf86c8229f960dd1c3c9e072c9faa553f95955c7441e22e2a09e4c155072a256e9ebe3d27d96886f2d7257d41f11e77935b71b94bf0fc2d157ec071471bdaf5adf5d881778a27699add845291c9b6c7e6fd101b319eef9ed6756985f32014152b44de94aa670dae3acf515138b4baac37538743ae60ce0ce99d2c3842d863940f6a2880a0078f820991cfbdc2647e763848e0f8a3b179a73047fb3296d22dc13c72f1103490dce4dd89891c95f5f0a6b60834edf4d8fd5e4b597b54c8a52b8611c9d74f684f59cbb449e78652e88ad4ccbc3f3ab978ddb74d9822d019822345796344e76491f7304095e668193ebb1cc571b888d94b829ddde00890887a5445ce4905ea11192936a7eed9c7f7ba04d83546176c3f59dceb8f6d269095c4caecaa0be8419a91615b3d20d1633a0a6cdf901d537aaeaf52bbc976137c862c207751636e3da66572fd6b598088c55ecc68c81b1d140c4650ffc8e02832871efe48654655194e49b71a406
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.4 $
+# $Date: 2024/06/17 $
+#
+# Description : This .audit is designed to query a Citrix ADM device
+#               All configuration values are obtained through the Citrix NITRO API, and all
+#               guidance listed is based on general industry practices.
+#
+#               https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest
+#
+#<ui_metadata>
+#<display_name>Tenable Best Practice Citrix ADM v1.0.0</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>Tenable Best Practice Citrix ADM</name>
+#  <version>1.0.0</version>
+#  <link>https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/</link>
+#</spec>
+#<labels>tenable,citrix,citrix_adc,update_20230227</labels>
+#</ui_metadata>
+
+<check_type:"Citrix_Application_Delivery">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Check that a specific ADM key exists"
+      request        : "ADMgetMASSummary"
+      json_transform : ".mas_summary"
+      expect         : "ns_service_count"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "Tenable_Best_Practices_Citrix_ADM_v1.0.0.audit from Tenable Best Practices"
+      info        : "Nessus has successfully identified a Citrix ADM target."
+      see_also    : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+    </report>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - NTP - Authentication"
+      info           : "Enable NTP authentication."
+      solution       : "Configuration > System > Administration > NTP Servers > NTP Parameters
+
+      Update the value to Enabled."
+      reference      : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMgetNTPparam"
+      json_transform : ".ntp_param | .[] | .authentication"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)true(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - NTP - Synchronization"
+      info           : "Enable NTP synchronization."
+      solution       : "Configuration > System > Administration > NTP Servers > NTP Synchronization
+
+      Update the value to Enabled."
+      reference      : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMgetNTPsync"
+      json_transform : ".ntp_sync | .[] | .ntpd_status"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)true(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - NTP - Servers count"
+      info           : "At least two NTP servers should be specified for redundancy."
+      solution       : "Configuration > System > Administration > NTP Servers
+
+      Add NTP servers."
+      reference      : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistNTPservers"
+      json_transform : ".ntp_server | length"
+      expect         : "([2-9]|[1-9][0-9])"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - SSL - Settings - TLS v1"
+      info           : "SSL protocols settings should be verified."
+      solution       : "Configuration > System > Administration > Configure SSL Settings
+
+      Update the value to disable TLSv1."
+      reference      : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSSLsettings"
+      json_transform : ".ssl_settings | .[] | .tlsv1"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)false(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - SSL - Settings - SSL v3"
+      info           : "SSL protocols settings should be verified."
+      solution       : "Configuration > System > Administration > Configure SSL Settings
+
+      Update the value to disable SSLv3."
+      reference      : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSSLsettings"
+      json_transform : ".ssl_settings | .[] | .sslv3"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)false(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - SSL - Settings - TLSv1.1"
+      info           : "SSL protocols settings should be verified."
+      solution       : "Configuration > System > Administration > Configure SSL Settings
+
+      Update the value to disable TLSv1.1."
+      reference      : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSSLsettings"
+      json_transform : ".ssl_settings | .[] | .tlsv1_1"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)false(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - SSL - Settings - TLSv1.2"
+      info           : "SSL protocols settings should be verified."
+      solution       : "Configuration > System > Administration > Configure SSL Settings
+
+      Update the value to enable TLSv1.2."
+      reference      : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSSLsettings"
+      json_transform : ".ssl_settings | .[] | .tlsv1_2"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)true(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - Syslog - Configure server"
+      info           : "Logging should be offloaded to a syslog server"
+      solution       : "Configuration > System > Audit Log Messages > Syslog Servers
+
+      Add a syslog server."
+      reference      : "800-171|3.3.8,800-53|AU-9(2),800-53r5|AU-9(2),CN-L3|8.1.3.5(d),CN-L3|8.1.4.3(c),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(2),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SS13e,PCI-DSSv3.2.1|10.5.3,PCI-DSSv3.2.1|10.5.4,PCI-DSSv4.0|10.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSyslogservers"
+      json_transform : ".syslog_server | length"
+      expect         : "[1-9][0-9]*"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - System Settings - Communication with instances"
+      info           : "Communication with instances should use https"
+      solution       : "Configuration > System > Administration > System Configurations > System, Time zone, Allowed URLs and Message of the day
+
+      Update the value for Communication with instance(s)* to https."
+      reference      : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSystemsettings"
+      json_transform : ".system_settings | . [] | .svm_ns_comm"
+      expect         : "^(?i)https(?-i)$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - System Settings - Session Timeout"
+      info           : "Session timeout should be Enabled."
+      solution       : "Configuration > System > Administration > System Configurations > System, Time zone, Allowed URLs and Message of the day
+
+      Update the value for Session Timeout to a maximum of 10 minutes."
+      reference      : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSystemsettings"
+      json_transform : ".system_settings | . [] | .session_timeout"
+      expect         : "^([1-9]|[1-9][0-9]|[1-5][0-9]{2}|600)$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - System Settings - Session Unit"
+      info           : "Session timeout should be Enabled."
+      solution       : "Configuration > System > Administration > System Configurations > System, Time zone, Allowed URLs and Message of the day
+
+      Update the value for Session Timeout Unit to minutes.
+
+      NOTE### add message as to why minutes vs. hours"
+      reference      : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSystemsettings"
+      json_transform : ".system_settings | . [] | .session_timeout_unit"
+      regex          : "(?i)(Minutes|Hours)(?-i)"
+      expect         : "(?i)Minutes(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - System Settings - Enable Session Timeout"
+      info           : "Session timeout should be Enabled."
+      solution       : "Configuration > System > Administration > System Configurations > System, Time zone, Allowed URLs and Message of the day
+
+      Update the value for Enable Session Timeout Unit to Enabled."
+      reference      : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSystemsettings"
+      json_transform : ".system_settings | . [] | .enable_session_timeout"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)true(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - System Settings - Disable Shell access for non-nsroot User"
+      info           : "Shell access for non-nsroot User's should be Disabled."
+      solution       : "Configuration > System > Administration > System Configurations > System, Time zone, Allowed URLs and Message of the day
+
+      Update the value for 'Enable Shell access for non-nsroot User' to Disabled."
+      reference      : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSystemsettings"
+      json_transform : ".system_settings | . [] | .enable_shell_access"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)false(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - System Settings - Secure Access Only"
+      info           : "Secure Access Only should be Enabled. When you select Secure Access mode, Citrix ADM communicates in secure mode, that is, it uses HTTPS protocol."
+      solution       : "Configuration > System > Administration > System Configurations > System, Time zone, Allowed URLs and Message of the day
+
+      Update the value for Secure Access Only to Enabled."
+      reference      : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMlistSystemsettings"
+      json_transform : ".system_settings | . [] | .secure_access_only"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)true(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - User Administration - Password Policy - Password Complexity"
+      info           : "User password complexity should be Enabled."
+      solution       : "Configuration > System > User Administration > Settings
+
+      Update the value for Enable Password Complexity to Enabled."
+      reference      : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMgetPasswordpolicy"
+      json_transform : ".password_policy | . [] | .enable_password_complexity"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)true(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - User Administration - Password Policy - Minimum Length"
+      info           : "User password minimum length should be a minimium of 12 characters."
+      solution       : "Configuration > System > User Administration > Settings
+
+      Update the value for Minimum Password Length to a minimum of 12 characters."
+      reference      : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMgetPasswordpolicy"
+      json_transform : ".password_policy | . [] | .minimum_password_length"
+      expect         : "(1[2-9]|[2-9][0-9]|1[01][0-9]|12[0-7])"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - User Administration - Password Policy - Enable User Lockout"
+      info           : "The user-lockout policy provides security against hackers and password-cracking software. This policy disables a user account if an incorrect password is entered a specified number of times."
+      solution       : "Configuration > System > User Administration > Settings
+
+      Update the value for Enable User Lockout to a Enabled."
+      reference      : "800-171|3.1.10,800-53|AC-11,800-53r5|AC-11,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMgetUserlockoutpolicy"
+      json_transform : ".user_lockout_policy | . [] | .enable_user_lockout"
+      regex          : "(?i)(true|false)(?-i)"
+      expect         : "(?i)true(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - User Administration - Password Policy - Invalid Login Attempts"
+      info           : "The user-lockout policy provides security against hackers and password-cracking software. This policy disables a user account if an incorrect password is entered a specified number of times."
+      solution       : "Configuration > System > User Administration > Settings
+
+      Update the value for Invalid Login Attempts to less than 3."
+      reference      : "800-171|3.1.10,800-53|AC-11,800-53r5|AC-11,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMgetUserlockoutpolicy"
+      json_transform : ".user_lockout_policy | . [] | .invalid_logins"
+      expect         : "^[1-3]$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADM - User Administration - Password Policy - User Lockout Interval (Seconds)"
+      info           : "The user-lockout policy provides security against hackers and password-cracking software. This policy disables a user account if an incorrect password is entered a specified number of times."
+      solution       : "Configuration > System > User Administration > Settings
+
+      Update the value for User Lockout Interval (Seconds) to a value greater than than 300."
+      reference      : "800-171|3.1.10,800-53|AC-11,800-53r5|AC-11,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11,NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+      request        : "ADMgetUserlockoutpolicy"
+      json_transform : ".user_lockout_policy | . [] | .user_lockout_interval"
+      expect         : "^(3[0-9][0-9]|[4-9][0-9][0-9]|[1-9][0-9]{3,})$"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "Tenable_Best_Practices_Citrix_ADM_v1.0.0.audit from Tenable Best Practices"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://developer-docs.citrix.com/projects/citrix-adm-nitro-api-reference/en/latest/"
+    </report>
+  </else>
+</if>
+
+</check_type>

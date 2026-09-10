@@ -1,0 +1,407 @@
+#TRUSTED 2be928b53c98afd16d3a30748c18cb255052a10e69c289199b79c9e13cdcb9d6e4e15c643a5393937f72e627514cd1938f4d94f542fefff01b8e362e67e1214b22ba3c5b1fb11755e6c7b50d9709ae2ffe5dabbf909fdfae764f39d6d6f4e8a67e2a7fed79abbf02309abf5eb91dd24bc23872396e7b3cef5aeaee1f07fb85b87b632422a77f8504e33a86e603929d4c46bfd410f9c7f4841cfca7a1fa7840d1634568d787301064e5c1e9534c143bcf177f7e5b32f96cef0d20da9e64fdc24203a450b836a1ced770eb8240d4f2ca95903b7b231e785cc7b92892e63558102729c08d5c759d1eb8ea6112196cc15828a32545cba5509d61e2f8e838b6a288472d0776404d39b960c425c69c4f4f0ae5a26f1a6afdcfa15b3cccb5b786edca4585552b0219c5380b6fb19c09c8e07882f45153c4faa5cce8a5c0ae5e7ec4c9baf2cf02341bd61e2b17d4a29ae373a8b1c90cfdb08d76acbe3b8747e9dbeb961f53e31599b6f3eeab89677a9de00c775dced72efbb1a5e9bc0d8c3d3b1d9d3ab42aad7b7baf72dd90665c12bba5c0f9fda7b7a012e945b6f2eead4dd179d7f65188a49b456bc564e864016a424a508cf18a33c4993bb909378e3f8154db713c6b643d55d943682ed8ff4c751b046f30fa79c6e34b4d6b01d3d22613c6f4f922704ef0c6f22e0901c4222910a14263e4a69313a053279bba587d052ac429568c19
+#TRUST-RSA-SHA256 180fbb511c8ede8a84d906a30b4abc7ef9f3cb95a73783fc672183cceca4b8f3f27a9fa69e58fca7f5ef32c4800f8a39110a7ec278ee9ab2ae71afb70d724234e44b13b9fdc42837942fc13d375fdfffcec1e3942ef52c8913face586f1a9693d3dd9385417a1780c7455f1faea7d846461b08965e18f178bcbaf1ee1e9fb7b9f0cfe100515a1b950fc7ee01bf64cfdd275571e5a8e9ffb79583d32fd2e98b9097f5299d246ecbe173db4bae4a2d336571d85ba73f9224f560bb64a9d9688be571e2e4418483728e0ddd44fbd06a5e6d2900ad8829cd530130523e20ba0fb899e78fcb0c896765657cf1e4f49d4c127212dac84c241970500f0184c91e8841de6a062be161554ec856ceece73d95bb9cfdffa17485b50ed7fda5c8ac25385b06f6a05ff42206477c4b939e051733af2f7c3ca443ca47ab702b1883198406122a0e813323b2e4e26c924a24d7cd1e305998035bbdbbb6bc5c631869e38e62f0a09cd06c7643b65b4e2232afe6fa2c81e34a7fc90d7bf540db116069bc728a1718e34063274a7625aeb470adde73946cb48f94b0af2ac0c447d1cb5cc0823aa99c3b4a0055a566e367ddaffb0ad794dbbad4a1a360fbeeeaa7d210f82a9e20931bbea718e3e3e44c5fe4475a1b26f5f2cd5780b628e69a39790bfa22cdb6797bcf4d7454e7fac1c39c71dd1a0db0120972ccf84a346a02423e5e188e1c15e006fa
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/09/01 $
+#
+# description : This .audit is designed against the CIS PostgreSQL 17 Benchmark v1.1.0
+#
+#<ui_metadata>
+#<display_name>CIS PostgreSQL 17 v1.1.0 L1 OS Linux Unix</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>PostgreSQL 17</name>
+#  <profile>L1 OS Linux</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/26344</link>
+#</spec>
+#<labels>agent,cis,postgres,postgresql_unix</labels>
+#<benchmark_refs>800-53,800-53r5,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>PLATFORM_CHECK</name>
+#    <default>/var/run/postgresql</default>
+#    <description>Platform Check</description>
+#    <info>Check if this file exists to determine if PostgreSQL is installed.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>PG_HOME_DIR</name>
+#    <default>/var/lib/pgsql/17</default>
+#    <description>pgsql home dir</description>
+#    <info>full path to home dir</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : FILE_CHECK
+      description : "PostgreSQL exists"
+      file        : "@PLATFORM_CHECK@"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Linux found"
+      cmd         : "uname -a"
+      expect      : "Linux"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_PostgreSQL_17_v1.1.0_L1_OS_Linux_Unix.audit from CIS PostgreSQL 17 v1.1.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+      show_output : YES
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.1 Ensure packages are obtained from authorized repositories"
+      info        : "Standard Linux distributions, although possessing the requisite packages, often do not have PostgreSQL pre-installed. The installation process includes installing the binaries and the means to generate a data cluster. Package installation should include both the server and client packages. Contribution modules are optional depending upon one's architectural requirements (they are recommended though).
+
+When obtaining and installing software packages (typically via dnf or apt ), it's imperative that packages are sourced only from valid and authorized repositories. For PostgreSQL, the canonical repositories are the official PostgreSQL YUM repository (yum.postgresql.org) and the official PostgreSQL APT repository (apt.postgresql.org). Your chosen PostgreSQL vendor may offer its own software repositories as well.
+
+Being open-source, PostgreSQL packages are widely available across the internet through package aggregators and providers. However, using invalid or unauthorized sources for packages can lead to implementing untested, defective, or malicious software.
+
+Many organizations choose to implement a local software repository within their organization. Care must be taken to ensure that only valid and authorized packages are downloaded and installed into such local repositories.
+
+From a security perspective, it's imperative to verify the PostgreSQL binary packages are sourced from a valid software repository. For a complete listing of all PostgreSQL binaries available via configured repositories inspect the output from dnf provides '*libpq.so' or apt-file search /usr/pgsql-17/lib/libpq.so.5.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Alter the configured repositories so they only include valid and authorized sources of packages.
+
+As an example of adding an authorized repository, we will install the PGDG repository RPM from 'yum.postgresql.org https://yum.postgresql.org':
+
+# whoami
+root
+# dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+Last metadata expiration check: 0:01:35 ago on Mon 04 May 2026 01:19:37 PM EDT.
+[snip]
+Installed:
+  pgdg-redhat-repo-42.0-35.noarch
+
+Complete!
+# whoami
+root
+# dnf repolist all | egrep 'enabled$'
+pgdg-common PostgreSQL common enabled
+pgdg14 PostgreSQL 14 for enabled
+pgdg15 PostgreSQL 15 for enabled
+pgdg16 PostgreSQL 16 for enabled
+pgdg17 PostgreSQL 17 for enabled
+pgdg18 PostgreSQL 18 for enabled
+rhel-10-for-x86_64-appstream-rpms Red Hat Enterprise enabled
+rhel-10-for-x86_64-baseos-rpms Red Hat Enterprise enabled
+
+If the version of PostgreSQL installed is not 17.x or they did not come from a valid repository, the packages may be uninstalled using this command:
+
+# whoami
+root
+# dnf remove $(rpm -qa|grep postgres)
+
+To install the PGDG RPMs for PostgreSQL 17.x, run:
+
+# whoami
+root
+# dnf install -y postgresql17-{server,contrib}
+<snip>
+Installed:
+<snip>
+  postgresql17-17.9-1PGDG.rhel10.1.x86_64 postgresql17-contrib-17.9-1PGDG.rhel10.1.x86_64 postgresql17-libs-17.9-1PGDG.rhel10.1.x86_64 postgresql17-server-17.9-1PGDG.rhel10.1.x86_64
+Complete!"
+      reference   : "800-171|3.4.1,800-171|3.4.7,800-171|3.7.1,800-171|3.7.2,800-171r3|03.04.06,800-171r3|03.04.10,800-171r3|03.07.04,800-53|CM-7(1),800-53|CM-8,800-53|MA-3,800-53r5|CM-7(1),800-53r5|CM-8,800-53r5|MA-3,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSCv7|2.1,CSCv8|2.1,CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,CSF|PR.IP-1,CSF|PR.MA-1,CSF|PR.PT-3,CSF2.0|ID.AM-01,CSF2.0|ID.AM-02,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.9,ISO-27001-2022|A.8.9,ITSG-33|CM-7(1),ITSG-33|CM-8,ITSG-33|MA-3,ITSG-33|MA-3a.,LEVEL|1M,NESA|T1.2.1,NESA|T1.2.2,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.3,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+      cmd         : "dnf repolist all | grep -E 'enabled$'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.3 Ensure systemd Service Files Are Enabled"
+      info        : "Confirm, and correct if necessary, the PostgreSQL systemd service is enabled.
+
+Enabling the systemd service on the OS ensures the database service is active when a change of state occurs as in the case of a system startup or reboot."
+      solution    : "Irrespective of package source, PostgreSQL services can be identified because they typically include the text string \"postgresql\". PGDG installs do not automatically register the service as a \"want\" of the default systemd target. Multiple instances of PostgreSQL services often distinguish themselves using a version number.
+
+# whoami
+root
+# systemctl enable postgresql-17
+Created symlink /etc/systemd/system/multi-user.target.wants/postgresql-17.service -> /usr/lib/systemd/system/postgresql-17.service.
+# systemctl is-enabled postgresql-17.service
+enabled"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.16.01,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-09,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO-27001-2022|A.8.30,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+      cmd         : "systemctl is-enabled postgresql-17.service"
+      expect      : "^[\\s]*enabled[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check home dir permissions"
+          file        : "@PG_HOME_DIR@"
+          owner       : "postgres"
+          mask        : "077"
+          group       : "postgres"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check data dir permissions"
+          file        : "@PG_HOME_DIR@/data"
+          owner       : "postgres"
+          mask        : "077"
+          group       : "postgres"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check backups dir permissions"
+          file        : "@PG_HOME_DIR@/backups"
+          owner       : "postgres"
+          mask        : "077"
+          group       : "postgres"
+        </custom_item>
+
+        <custom_item>
+          type        : FILE_CHECK
+          description : "check initdb log permissions"
+          file        : "@PG_HOME_DIR@/initdb.log"
+          owner       : "postgres"
+          mask        : "177"
+          group       : "postgres"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "check db dir"
+          cmd         : "/bin/su - postgres -c '/usr/pgsql-17/bin/postgresql-17-check-db-dir ~postgres/17/data'; /bin/echo rc=$?"
+          expect      : "^rc=0$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.4 Ensure Data Cluster Initialized Successfully"
+          info        : "First-time installs of a given PostgreSQL major release require the instantiation of the database cluster. A database cluster is a collection of databases that are managed by a single server instance.
+
+For the purposes of security, PostgreSQL enforces ownership and permissions of the data cluster such that:
+
+ - An initialized data cluster is owned by the UNIX account that created it.
+ - The data cluster cannot be accessed by other UNIX user accounts.
+ - The data cluster cannot be created or owned by root.
+ - The PostgreSQL process cannot be invoked by root nor any UNIX user account other than the owner of the data cluster.
+
+Incorrectly instantiating the data cluster will result in a failed installation."
+          solution    : "Attempting to instantiate a data cluster to an existing non-empty directory will fail:
+
+# whoami
+root
+# PGSETUP_INITDB_OPTIONS=\"-k\" /usr/pgsql-17/bin/postgresql-17-setup initdb
+Data directory is not empty!
+
+In the case of a cluster instantiation failure, one must delete/remove the entire data cluster directory and repeat the initdb command:
+
+# whoami
+root
+# rm -rf ~postgres/17
+# PGSETUP_INITDB_OPTIONS=\"-k\" /usr/pgsql-17/bin/postgresql-17-setup initdb
+Initializing database ... OK"
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.1 Ensure the file permissions mask is correct"
+      info        : "Files are always created using a default set of permissions. File permissions can be restricted by applying a permissions mask called the umask . The postgres user account should use a umask of 0077 to deny file access to all user accounts except the owner.
+
+The Linux OS defaults the umask to 0022, which means the owner and primary group can read and write the file, and other accounts are permitted to read the file. Not explicitly setting the umask to a value as restrictive as 0077 allows other users to read, write, or even execute files and scripts created by the postgres user account. The alternative to using a umask is explicitly updating file permissions after file creation using the command line utility chmod (a manual and error-prone process that is not advised)."
+      solution    : "Depending upon the postgres user's environment, the umask is typically set in the initialization file .bash_profile, but may also be set in .profile or .bashrc . To set the umask, add the following to the appropriate profile file:
+
+# whoami
+postgres
+# cd ~
+# ls -ld .{bash_profile,profile,bashrc}
+ls: cannot access .profile: No such file or directory
+ls: cannot access .bashrc: No such file or directory
+-rwx------. 1 postgres postgres 267 Apr 14 21:28 .bash_profile
+# echo \"umask 077\" >> .bash_profile
+# source .bash_profile
+# umask
+0077"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+      cmd         : "su - postgres -c umask"
+      expect      : "^[0-7]+77$"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "4.2 Ensure sudo is configured correctly"
+      info        : "It is common to have more than one authorized individual administering the PostgreSQL service at the Operating System level. It is also quite common to permit login privileges to individuals on a PostgreSQL host who otherwise are not authorized to access the server's data cluster and files. Administering the PostgreSQL data cluster, as opposed to its data, is to be accomplished via a localhost login of a regular UNIX user account. Access to the postgres superuser account is restricted in such a manner as to interdict unauthorized access. sudo satisfies the requirements by escalating ordinary user account privileges as the PostgreSQL RDBMS superuser.
+
+Without sudo, there would be no capabilities to strictly control access to the superuser account nor to securely and authoritatively audit its use.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "As superuser root, execute the following commands:
+
+# echo '%dba ALL=(postgres) PASSWD: ALL' > /etc/sudoers.d/postgres
+# chmod 600 /etc/sudoers.d/postgres
+
+This grants any Operating System user that is a member of the dba group the ability to use sudo -iu postgres to become the postgres user.
+
+Ensure that all Operating System users that need such access are members of the group."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+    </report>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "fips-mode-setup"
+          cmd         : "fips-mode-setup --check"
+          expect      : "FIPS mode is enabled."
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "openssl version"
+          cmd         : "openssl version"
+          expect      : "FIPS"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "6.7 Ensure FIPS 140-2 OpenSSL Cryptography Is Used"
+          info        : "Install, configure, and use OpenSSL on a platform that has a NIST certified FIPS 140-2 installation of OpenSSL. This provides PostgreSQL instances the ability to generate and validate cryptographic hashes to protect unclassified information requiring confidentiality and cryptographic protection, in accordance with the data owner's requirements.
+
+Federal Information Processing Standard (FIPS) Publication 140-2 is a computer security standard developed by a U.S. Government and industry working group for validating the quality of cryptographic modules. Use of weak, or untested, encryption algorithms undermines the purposes of utilizing encryption to protect data. PostgreSQL uses OpenSSL for the underlying encryption layer.
+
+The database and application must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated. It is the responsibility of the data owner to assess the cryptography requirements in light of applicable federal laws, Executive Orders, directives, policies, regulations, and standards.
+
+For detailed information, refer to NIST FIPS Publication 140-2, Security Requirements for Cryptographic Modules. Note that the product's cryptographic modules must be validated and certified by NIST as FIPS-compliant. The security functions validated as part of FIPS 140-2 for cryptographic modules are described in FIPS 140-2 Annex A. Currently, only Red Hat Enterprise Linux is certified as a FIPS 140-2 distribution of OpenSSL. For other operating systems, users must obtain or build their own FIPS 140-2 OpenSSL libraries."
+          solution    : "Configure OpenSSL to be FIPS compliant as PostgreSQL uses OpenSSL for cryptographic modules. To configure OpenSSL to be FIPS 140-2 compliant, see the official RHEL Documentation https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening#switching-the-system-to-fips-mode_using-the-system-wide-cryptographic-policies. Below is a general summary of the steps required:
+
+To switch the system to FIPS mode in RHEL 9:
+
+# fips-mode-setup --enable
+Kernel initramdisks are being regenerated. This might take some time.
+Setting system policy to FIPS
+Note: System-wide crypto policies are applied on application start-up.
+It is recommended to restart the system for the change of policies
+to fully take place.
+FIPS mode will be enabled.
+Please reboot the system for the setting to take effect.
+
+Restart your system to allow the kernel to switch to FIPS mode:
+
+# reboot
+
+After the restart, you can check the current state of FIPS mode:
+
+# fips-mode-setup --check
+FIPS mode is enabled."
+          reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "8.2 Ensure the backup and restore tool, 'pgBackRest', is installed and configured"
+      info        : "pgBackRest aims to be a simple, reliable backup and restore system that can seamlessly scale up to the largest databases and workloads. Instead of relying on traditional backup tools like tar and rsync, pgBackRest implements all backup features internally and uses a custom protocol for communicating with remote systems. Removing reliance on tar and rsync allows for better solutions to database-specific backup challenges. The custom remote protocol allows for more flexibility and limits the types of connections that are required to perform a backup which increases security.
+
+The native PostgreSQL backup facility pg_dump provides adequate logical backup operations but does not provide for Point In Time Recovery (PITR). The PostgreSQL facility pg_basebackup performs a physical backup of the database files and does provide for PITR, but it is constrained by single threading. Both of these methodologies are standard in the PostgreSQL ecosystem and appropriate for particular backup/recovery needs. pgBackRest offers another option with much more robust features and flexibility.
+
+pgBackRest is open-source software developed to perform efficient backups on PostgreSQL databases that measure in tens of terabytes and greater. It supports per-file checksums, compression, partial/failed backup resume, high-performance parallel transfer, asynchronous archiving, tablespaces, expiration, full/differential/incremental backups, local/remote operation via SSH or TLS, hard-linking, restore, backup encryption, and more. pgBackRest is written in C and does not depend on rsync or tar but instead performs its own deltas which give it maximum flexibility. Finally, pgBackRest provides an easy-to-use internal repository listing backup details accessible via the pgbackrest info command, as illustrated below.
+
+$ pgbackrest info
+stanza: proddb01
+status: ok
+
+db (current)
+  wal archive min/max (17.9-1): 000000010000000000000012 / 000000010000000000000017
+
+      full backup: 20260412-153106F
+          timestamp start/stop: 2026-04-12 15:31:06 / 2026-04-12 15:31:49
+          wal start/stop: 000000010000000000000012 / 000000010000000000000012
+          database size: 29.4MB, backup size: 29.4MB
+          repository size: 3.4MB, repository backup size: 3.4MB
+
+      diff backup: 20260412-153106F_20260412-173109D
+          timestamp start/stop: 2026-04-12 17:31:09 / 2026-04-12 17:31:19
+          wal start/stop: 000000010000000000000015 / 000000010000000000000015
+          database size: 29.4MB, backup size: 2.6MB
+          repository size: 3.4MB, repository backup size: 346.8KB
+          backup reference list: 20260412-153106F
+
+      incr backup: 20260412-153106F_20260412-183114I
+          timestamp start/stop: 2026-04-12 18:31:14 / 2026-04-12 18:31:22
+          wal start/stop: 000000010000000000000017 / 000000010000000000000017
+          database size: 29.4MB, backup size: 8.2KB
+          repository size: 3.4MB, repository backup size: 519B
+          backup reference list: 20260412-153106F, 20260412-153106F_20260412-173109D"
+      solution    : "pgBackRest is not installed nor configured for PostgreSQL by default, but instead is maintained as a GitHub project. Fortunately, it is a part of the PGDG repository and can be easily installed:
+
+# whoami
+root
+# dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+<snip>
+Installed:
+  epel-release-10-7.el10_1.noarch
+
+Complete!
+# dnf -y install pgbackrest
+<snip>
+Installed:
+  libssh2-1.11.1-1.el10_1.x86_64 pgbackrest-2.58.0-1PGDG.rhel10.1.x86_64
+
+Complete!
+
+Once installed, pgBackRest must be configured for things like stanza name, backup location, retention policy, logging, etc. Please consult the configuration guide http://pgbackrest.org/configuration.html.
+
+If employing pgBackRest for your backup/recovery solution, ensure the repository, base backups, and WAL archives are stored on a reliable file system separate from the database server. Further, the external storage system where backups reside should have limited access to only those system administrators as necessary. Finally, as with any backup/recovery solution, stringent testing must be conducted. A backup is only good if it can be restored successfully."
+      reference   : "800-171|3.8.9,800-171r3|03.08.09,800-53|CP-9,800-53|CP-10,800-53r5|CP-9,800-53r5|CP-10,CSCv7|10.1,CSCv7|10.2,CSCv8|11.2,CSF|PR.IP-4,CSF|RC.RP-1,CSF|RS.RP-1,CSF2.0|PR.DS-01,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|RC.RP,CSF2.0|RC.RP-01,CSF2.0|RC.RP-02,CSF2.0|RC.RP-03,CSF2.0|RC.RP-05,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(ii),ISO-27001-2022|A.5.29,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.13,ISO/IEC-27001|A.12.3.1,ITSG-33|CP-9,ITSG-33|CP-10,ITSG-33|CP-10a.,LEVEL|1A,NESA|M5.2.3,NESA|T2.2.4,QCSC-v1|5.2.3,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+      cmd         : "pgbackrest"
+      expect      : "^pgBackRest .+$"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_PostgreSQL_17_v1.1.0_L1_OS_Linux_Unix.audit from CIS PostgreSQL 17 v1.1.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/26344"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

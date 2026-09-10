@@ -1,0 +1,973 @@
+#TRUSTED 5d08c0d32e65b1f5074fa29d263fa5abeb57d8ebbae6ac21256dad94f7f3a2210138b78bdcf56d2cbbdf8ca8e18ebecf420dfd8354acf1f7bf993d2b29ca3ec59e7d5e55eac24a52bb702d1a4bd2a77e64a3b416b664398006e7f6e5d3e5b1a3dad3588edfaa146b4c57965bbe36cc7f218c54852a441dd197fd027dfb6471a99be889d267567a0b6c4defe6b34de1256cab6e917ae5caa4d446f1a810acc42399c90fe36b99d49372e0d0f6c5707a3716f0f7ee3129432f014738de98083ea9895a7bd895ce9097058d893be55c155074ca47f52d8ff7351de5984e191af52effba0ff99790f23793962736e53f405777ceb7b06431e9bdf840146d5ad7b9b5298c21702d889faf0bf26f8eacaf4222a3146b2f78c89e4b19924b4c457113511c4a37659773c74beba42923476c7cbe7082d4984dbaec61698f00fed0ab130f168ddc45d9ce17e97118ad6af46f8412905c0494da97e8684f6d3d59293e38ce30ea22e8ca02aeb1c95e580a3e5835b61d41a50bc9c9c39a8d59307a3b71d762615f42181de3693d3577c472012edfdb76f9cc700264e6d2f0ef40c628a6124b7301f4b5f3d430202cbc10f52df4642e6dd830726022246b9703e935a0dcfe79ad3728d898fda92d8ffc847404ef349d0212e68dc270b45804c5eec59b95ab5f35ff8a319d273ba46ad13d1ae64e9990b3b9791daa5062f15e6e4c812952e6de
+#TRUST-RSA-SHA256 0935e4da1fcd45754357aeac96096fe1c0198806ab6b4f100c8ef5bc8d81da53e5582d6cb97e325a09bc04afb53321d90c69f42e13058798bc7bea76f682d6a60336d7d9701a0fd6663e059ba1abdc60704b14599beec452f6174f74727292238c1643d07e44805f6f82e1a5d4dc3a60233d3462cbe73efd8f9f7099f63da9372c90e0a3ecc70fbfcf1112a26b14652d54ea8e15766801f57f9a8e9ee434ea17250dc7b2b2b98db7ca2fef106f6781e84523c874e7ecc83ba4273736f7d567015a16e534ab9519957dde2ed78b87a08166d5b19852808b97cbbe7dc46fe01ba199db551b8fff68f1c3ef992edcd79db55b5ef7149fcf338c5e61aa339b7ed606c45a722c96ca89fac4ae89cd2fa7aa627106a66b307a262e69a7344de24579e90eaeebd6916b66e0181f2b727284f57be00acf3deb6107056df8b14020714876d03cfaaf2dfbd95d4330d65e324c084ab1541819338034284274583b9d650af4d244bca2b39c01cc3ff74214797d01fafd8a3bc968707e94f93e06f40a66f9cab04068ab85981f2687f75c791528483e52cedcb70aa1e25eb751a4d15d578c472e43654ed52bc207b39665d210d32b129e4749d35c9b40c3a158de6181b40172c1a0ffa23bf478f86f2c36ee5151609814964fa70dc142aadb08dadb27c43ca6712a89be6952da047935ebc9f9fdcc6bf14d4164152143fa2f7b072e931fe25f
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/07/06 $
+#
+# description : This .audit is designed against the DISA HPE Aruba Networking AOS VPN STIG v1r1
+#
+#<ui_metadata>
+#<display_name>DISA HPE Aruba Networking AOS VPN STIG v1r1</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>HPE Aruba Networking AOS VPN</name>
+#  <version>1.1.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip</link>
+#</spec>
+#<labels>aruba,disa</labels>
+#<benchmark_refs>800-53,800-53r5,CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>BANNER_TEXT</name>
+#    <default>You are accessing a U.S. Government \\(USG\\) Information System \\(IS\\) that is provided for USG-authorized use only\.</default>
+#    <description>DoD Notice and Consent Banner substring</description>
+#    <info>A substring of the Standard Mandatory DoD Notice and Consent Banner that must be present in the configured VIA (remote access VPN) banner.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>MAX_SESSIONS</name>
+#    <default>1</default>
+#    <description>Maximum concurrent sessions per VPN user account</description>
+#    <info>The organization-defined maximum number of concurrent sessions for VPN user accounts.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"ArubaOS">
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "ARBA-VN-000040 - AOS, when used as a VPN Gateway, must ensure inbound and outbound traffic is configured with a security policy in compliance with information flow control policies."
+  info        : "Unrestricted traffic may contain malicious traffic, which poses a threat to an enclave or to other connected networks. Additionally, unrestricted traffic may transit a network, which uses bandwidth and other resources.
+
+VPN traffic received from another enclave with different security policy or level of trust must not bypass being inspected by the firewall before being forwarded to the private network.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS with the following commands:
+configure terminal
+ip access-list session <name>
+network <A.B.C.D> <netmask A.B.C.D> any any permit
+any any any deny log
+ipv6 network <X:X:X:X::X/<0-128> any any permit
+ipv6 any any any deny log
+exit
+write memory
+interface gigabit <#/#/#>
+ip access-group session <ACL name>
+exit
+write mem"
+  reference   : "800-171|3.1.3,800-171r3|03.01.03,800-53|AC-4,800-53r5|AC-4,CAT|II,CCI|CCI-001414,CN-L3|8.1.10.2(c),CSF|DE.AE-1,CSF|ID.AM-3,CSF|PR.AC-4,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.22,ITSG-33|AC-4,NESA|T4.2.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.6,NESA|T5.7.2,NESA|T7.5.2,NESA|T7.6.4,NIAv2|GS11a,NIAv2|GS12a,NIAv2|GS14a,NIAv2|GS15a,NIAv2|GS16a,NIAv2|NS13a,NIAv2|NS13b,NIAv2|NS13c,NIAv2|NS14,NIAv2|SS23,NIAv2|SS27a,NIAv2|SS27b,NIAv2|SS32,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,Rule-ID|SV-266992r1040904_rule,STIG-ID|ARBA-VN-000040,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.4,Vuln-ID|V-266992"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  regex       : "ip access-list session"
+  item        : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type         : BANNER_CHECK
+  description  : "ARBA-VN-000110 - The Remote Access VPN Gateway and/or client must display the Standard Mandatory DOD Notice and Consent Banner before granting remote access to the network."
+  info         : "Display of a standardized and approved use notification before granting access to the network ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+In most VPN implementations, the banner is configured in the management backplane (NDM Security Requirements Guide) and serves as the presentation for the VPN client connection as well as for administrator logon to the device management tool/backplane.
+
+System use notifications are required only for access via logon interfaces with human users and are not required when such human interfaces do not exist. This requirement applies to VPN gateways that have the concept of a user account and have the logon function residing on the VPN gateway.
+
+The banner must be formatted in accordance with applicable DOD policy. Use the following verbiage for VPN gateways that can accommodate banners of 1300 characters:
+
+\"You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.\"
+
+Use the following verbiage for operating systems that have severe limitations on the number of characters that can be displayed in the banner:
+
+\"I've read & consent to terms in IS user agreem't.\"
+
+Satisfies: SRG-NET-000041-VPN-000110, SRG-NET-000042-VPN-000120, SRG-NET-000043-VPN-000130"
+  solution     : "Configure AOS with the following commands:
+configure terminal
+banner via #
+You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+-At any time, the USG may inspect and seize data stored on this IS.
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.#
+write memory"
+  reference    : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53|AC-8b.,800-53|AC-8c.1.,800-53|AC-8c.2.,800-53|AC-8c.3.,800-53r5|AC-8a.,800-53r5|AC-8b.,800-53r5|AC-8c.1.,800-53r5|AC-8c.2.,800-53r5|AC-8c.3.,CAT|II,CCI|CCI-000048,CCI|CCI-000050,CCI|CCI-001384,CCI|CCI-001385,CCI|CCI-001386,CCI|CCI-001387,CCI|CCI-001388,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,ITSG-33|AC-8b.,ITSG-33|AC-8c.a.,ITSG-33|AC-8c.b.,ITSG-33|AC-8c.c.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,NIAv2|AM10f,Rule-ID|SV-266989r1040733_rule,STIG-ID|ARBA-VN-000110,TBA-FIISB|45.2.4,Vuln-ID|V-266989"
+  see_also     : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  item         : "banner via"
+  content      : "@BANNER_TEXT@"
+  is_substring : YES
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "ARBA-VN-000170 - AOS, when used as a VPN Gateway, must limit the number of concurrent sessions for user accounts to one or to an organization-defined number."
+  info        : "VPN gateway management includes the ability to control the number of users and user sessions that utilize a VPN gateway. Limiting the number of allowed users and sessions per user is helpful in limiting risks related to denial-of-service attacks.
+
+This requirement addresses concurrent sessions for information system accounts and does not address concurrent sessions by single users via multiple system accounts. The maximum number of concurrent sessions should be defined based on mission needs and the operational environment for each system.
+
+The intent of this policy is to ensure the number of concurrent sessions is deliberately set to a number based on the site's mission and not left unlimited."
+  solution    : "Configure AOS with the following commands:
+configure terminal
+user-role <vpn user role>
+max-sessions 1
+exit
+write memory"
+  reference   : "800-53|AC-10,800-53r5|AC-10,CAT|II,CCI|CCI-000054,CSF2.0|PR.AA-05,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-10,NESA|T5.5.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-266993r1040745_rule,STIG-ID|ARBA-VN-000170,Vuln-ID|V-266993"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  regex       : "max-sessions"
+  item        : "max-sessions[\s]+@MAX_SESSIONS@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "ARBA-VN-000220 - AOS, when used as a VPN Gateway, must be configured to use IPsec with SHA-2 at 384 bits or greater for hashing to protect the integrity of remote access sessions."
+  info        : "Without strong cryptographic integrity protections, information can be altered by unauthorized users without detection.
+
+SHA-1 is considered a compromised hashing standard and is being phased out of use by industry and government standards. DOD systems must not be configured to use SHA-1 for integrity of remote access sessions.
+
+The remote access VPN provides access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network.
+
+Satisfies: SRG-NET-000063-VPN-000220, SRG-NET-000074-VPN-000250, SRG-NET-000168-VPN-000600, SRG-NET-000230-VPN-000780
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS with the following commands:
+configure terminal
+crypto isakmp policy <priority>
+hash sha2-384-192
+exit
+write memory"
+  reference   : "800-171|3.1.13,800-171|3.13.15,800-171r3|03.13.08,800-171r3|03.13.15,800-53|AC-17(2),800-53|IA-7,800-53|SC-23,800-53r5|AC-17(2),800-53r5|IA-7,800-53r5|SC-23,CAT|II,CCI|CCI-000068,CCI|CCI-000803,CCI|CCI-001184,CCI|CCI-001453,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(d),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),ITSG-33|IA-7,ITSG-33|IA-7a.,ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T4.5.1,NESA|T5.4.2,NESA|T7.4.1,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-266983r1040715_rule,STIG-ID|ARBA-VN-000220,SWIFT-CSCv1|2.6,Vuln-ID|V-266983"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  regex       : "^crypto isakmp policy |^version |^hash |^crypto-local ipsec-map |^crypto map .+ ipsec-isakmp"
+  item        : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "vpnlogon ACL must not permit svc-pptp"
+      cmd         : "show ip access-list vpnlogon"
+      not_expect  : "svc-pptp[\s]+[a-zA-Z0-9.:/-]*[\s]*permit"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "vpnlogon ACL must not permit svc-l2f"
+      cmd         : "show ip access-list vpnlogon"
+      not_expect  : "svc-l2f[\s]+[a-zA-Z0-9.:/-]*[\s]*permit"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Control plane firewall must not permit TCP 1723 (PPTP)"
+      cmd         : "show firewall-cp"
+      not_expect  : "[\s]+6[\s]+1723[\s]+1723[\s]+Permit"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARBA-VN-000470 - The Remote Access VPN Gateway must be configured to prohibit Point-to-Point Tunneling Protocol (PPTP) and Layer 2 Forwarding (L2F)."
+      info        : "PPTP and L2F are obsolete methods for implementing virtual private networks. Both protocols may be easy to use and readily available, but they have many well-known security issues and exploits. Encryption and authentication are both weak."
+      solution    : "Configure AOS with the following commands:
+configure terminal
+cd /mm
+ip access-list session vpnlogon
+any any svc-pptp deny
+exit
+write memory
+cd /mynode
+firewall cp
+ipv4 deny any proto 6 ports 1723 1723
+ipv6 deny any proto 6 ports 1723 1723
+exit
+write memory"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CAT|II,CCI|CCI-000382,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-266998r1040760_rule,STIG-ID|ARBA-VN-000470,SWIFT-CSCv1|2.3,Vuln-ID|V-266998"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "vpnlogon ACL must not permit svc-l2f"
+      cmd         : "show ip access-list vpnlogon"
+      not_expect  : "svc-l2f[\s]+[a-zA-Z0-9.:/-]*[\s]*permit"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "vpnlogon ACL must not permit svc-pptp"
+      cmd         : "show ip access-list vpnlogon"
+      not_expect  : "svc-pptp[\s]+[a-zA-Z0-9.:/-]*[\s]*permit"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "vpnlogon ACL must not permit svc-l2tp"
+      cmd         : "show ip access-list vpnlogon"
+      not_expect  : "svc-l2tp[\s]+[a-zA-Z0-9.:/-]*[\s]*permit"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Control plane firewall must not permit UDP 1701 (L2TP)"
+      cmd         : "show firewall-cp"
+      not_expect  : "[\s]+17[\s]+1701[\s]+1701[\s]+Permit"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARBA-VN-000480 - For site-to-site VPN implementations using AOS, the Layer 2 Tunneling Protocol (L2TP) must be blocked or denied at the security boundary with the private network so unencrypted L2TP packets cannot traverse into the private network of the enclave."
+      info        : "Unlike Generic Routing Encapsulation (GRE) (a simple encapsulating header), L2TP is a full-fledged communications protocol with control channel, data channels, and a robust command structure. In addition to Point-to-Point Protocol (PPP), other link layer types (called pseudowires) can be and are defined for delivery in L2TP by separate Internet Engineering Task Force Request for Comments (RFC) documents. Further complexity is created by the capability to define vender-specific parameters beyond those defined in the L2TP specifications.
+
+The endpoint devices of an L2TP connection can be an L2TP Access Concentrator (LAC), in which case it inputs/outputs the layer 2 protocol to/from the L2TP tunnel. Otherwise, it is an L2TP Network Server (LNS), in which case it inputs/outputs the layer 3 (IP) protocol to/from the L2TP tunnel. The specifications describe three reference models: LAC-LNS, LAC-LAC, and LNS-LNS, the first of which is the most common case. The LAC-LNS model allows a remote access user to reach their home network or internet service provider from a remote location. The remote access user connects to a LAC device, which tunnels the connection home to a waiting LNS. The LAC could also be located on the remote user's laptop, which connects to an LNS at home using a generic internet connection. The other reference models may be used for more obscure scenarios.
+
+Although the L2TP protocol does not contain encryption capability, it can be operated over IPsec, which would provide authentication and confidentiality. A remote user in the LAC-LNS model would most likely obtain a dynamically assigned IP address from the home network to ultimately use through the tunnel back to the home network. The outer IP source address used to send the L2TP tunnel packet to the home network is likely to be unknown or highly variable. Also, because the LNS provides the remote user with a dynamic IP address, the firewall at the home network would have to be dynamically updated to accept this address in conjunction with the outer tunnel address. There is also the issue of authentication of the remote user prior to divulging an acceptable IP address.
+
+Because of all of these complications, the strict filtering rules applied to the IP-in-IP and GRE tunneling cases will likely not be possible in the L2TP scenario.
+
+In addition to the difficulty of enforcing addresses and endpoints (as explained above), the L2TP protocol itself is a security concern if allowed through a security boundary. In particular:
+
+1. L2TP potentially allows link layer protocols to be delivered from afar. These protocols were intended for link-local scope only and are less defended and not as well known.
+2. The L2TP tunnels can carry IP packets that are very difficult to see and filter because of the additional layer 2 overhead.
+3. L2TP is highly complex and variable (vender-specific variability) and therefore would be a viable target that is difficult to defend. It is better left outside of the main firewall where less damage occurs if the L2TP-processing node is compromised.
+4. Filtering cannot be used to detect and prevent other unintended layer 2 protocols from being tunneled. The strength of the application layer code would have to be relied on to achieve this task.
+5. Regardless of whether the L2TP is handled inside or outside of the main network, a secondary layer of IP filtering is required; therefore, bringing it inside does not save resources.
+
+It is not recommended to allow unencrypted L2TP packets across the security boundary into the network's protected areas. Reference the Backbone Transport STIG for additional L2TP guidance and use."
+      solution    : "Configure AOS with the following commands:
+configure terminal
+cd /mm
+ip access-list session vpnlogon
+any any svc-l2tp deny
+exit
+write memory
+cd /mynode
+vpdn group l2tp
+disable
+exit
+write memory"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CAT|II,CCI|CCI-000382,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-266991r1040739_rule,STIG-ID|ARBA-VN-000480,SWIFT-CSCv1|2.3,Vuln-ID|V-266991"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "ARBA-VN-000490 - The VPN Gateway must uniquely identify and authenticate organizational users (or processes acting on behalf of organizational users)."
+  info        : "To ensure accountability and prevent unauthenticated access, organizational users must be identified and authenticated to prevent potential misuse and compromise of the system.
+
+Organizational users include organizational employees or individuals the organization deems to have equivalent status of employees (e.g., contractors). Organizational users (and any processes acting on behalf of users) must be uniquely identified and authenticated for all accesses except the following.
+
+(i) Accesses explicitly identified and documented by the organization. Organizations document specific user actions that can be performed on the information system without identification or authentication; and
+
+(ii) Accesses that occur through authorized use of group authenticators without individual authentication. Organizations may require unique identification of individuals' in-group accounts (e.g., shared privilege accounts) or for detailed accountability of individual activity.
+
+This requirement only applies to components where this is specific to the function of the device or has the concept of an organizational user (e.g., VPN or proxy capability). This does not apply to authentication for the purpose of configuring the device itself (i.e., device management).
+
+Satisfies: SRG-NET-000138-VPN-000490, SRG-NET-000166-VPN-000590, SRG-NET-000341-VPN-001350
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS with the following commands:
+
+1. crypto pki csr ec curve_name secp384r1 common_name <common_name> country <US> state_or_province <state> city <city> organization <org> unit <unit> email <email>
+show crypto pki csr
+2. Use DOD PKI to generate a public certificate based on the CSR.
+3. Using the web GUI, navigate to Configuration >> System >> Certificates >> Import Certificates.
+4. Click the plus sign (+) and enter \"Certificate name:\", browse to the public certificate file, choose the appropriate format, select Certificate type: \"ServerCert\", and click \"Submit\".
+5. Click Pending Changes >> Deploy Changes.
+
+Continue configuring with the CLI:
+configure terminal
+crypto-local isakmp ca-certificate <CA certificate name>
+crypto-local isakmp certificate-group server-certificate <EC certificate name> ca-certificate <CA certificate name>
+write memory
+
+crypto dynamic-map <name> <priority>
+version v2
+set pfs group20
+set transform-set default-gcm256
+set security-association lifetime seconds 28800
+exit
+write memory
+
+aaa authentication-server radius <name>
+host <A.B.C.D or X:X:X:X::X or hostname>
+key <preshared key>
+enable
+exit
+write memory
+
+aaa server-group <name>
+auth-server <name>
+exit
+write memory
+
+ip access-list session <name>
+any any any permit
+ipv6 any any any permit
+exit
+write memory
+
+user-role <name>
+access-list session <name>
+exit
+write memory
+
+aaa authentication via auth-profile <name>
+default-role <name>
+client-cert-enable
+server-group <name>
+exit
+write memory
+
+aaa authentication via connection-profile <name>
+auth-profile <name>
+enable-fips
+ikev2-policy 10009
+ikev2-proto
+ikev2auth eap-tls
+ipsecv2-cryptomap map <name> number <priority>
+max-timeout value <0-65535>
+suiteb-crypto
+validate-server-cert
+exit
+write memory
+
+aaa authentication via web-auth default
+auth-profile <name>
+exit
+write memory
+
+user-role <name>
+via <name>
+exit
+write memory"
+  reference   : "800-171|3.5.1,800-171|3.5.2,800-171r3|03.05.01a.,800-171r3|03.05.12,800-53|IA-2,800-53|IA-2(12),800-53|IA-5(2)(c),800-53r5|IA-2,800-53r5|IA-2(12),800-53r5|IA-5(2)(a)(2),CAT|II,CCI|CCI-000187,CCI|CCI-000764,CCI|CCI-001953,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-2,ITSG-33|IA-2a.,ITSG-33|IA-5(2)(c),NESA|T2.3.8,NESA|T5.2.3,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-266995r1040751_rule,STIG-ID|ARBA-VN-000490,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-266995"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  regex       : "aaa authentication via connection-profile"
+  item        : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Site-to-site VPN: at least one ISAKMP policy must use certificate-based authentication (rsa-sig or ecdsa)"
+      regex       : "^authentication[\s]+(rsa-sig|ecdsa-256|ecdsa-384)[\s]*$"
+      item        : "^authentication[\s]+(rsa-sig|ecdsa-256|ecdsa-384)[\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Site-to-site VPN: review live ISAKMP SA table and confirm '-c' (certificate auth) flag on each SA"
+      cmd         : "show crypto isakmp sa"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Hardware client VPN: review AP database FLAGS column for 'c' (CERT-based RAP) on each provisioned RAP"
+      cmd         : "show ap database long"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARBA-VN-000540 - AOS, when used as a VPN Gateway, must uniquely identify all network-connected endpoint devices before establishing a connection."
+      info        : "Without identifying devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity.
+
+For distributed architectures (e.g., service-oriented architectures), the decisions regarding the validation of identification claims may be made by services separate from the services acting on those decisions. In such situations, it is necessary to provide the identification decisions (as opposed to the actual identifiers) to the services that need to act on those decisions.
+
+This requirement applies to applications that connect locally, remotely, or through a network to an endpoint device (including, but not limited to, workstations, printers, servers outside a datacenter, Voice Over Internet Protocol [VoIP] phones, and video teleconference codecs). Gateways and service-oriented architecture (SOA) applications are examples of where this requirement would apply.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure AOS using the web interface:
+
+1. Navigate to Configuration >> Services >> VPN and expand \"Site-to-Site\".
+2. Select the configured site-to-site VPN IPsec maps. Select the applicable Server certificate. Select the applicable trusted DOD root CA under \"CA certificate:\".
+3. Click Submit >> Pending Changes >> Deploy Changes.
+4. Navigate to Configuration >> Access Points >> Remote APs tab.
+5. Select the check box next to the AP Name in the Remote AP table and click \"Provision\".
+6. In the \"General\" tab, select \"Certificate\" from the \"Authentication method:\" drop-down list.
+7. Click \"Submit\" to apply the configuration and reboot the AP as a certificate Remote AP.
+8. Click Pending Changes >> Deploy Changes."
+      reference   : "800-171r3|03.05.02,800-53|IA-3,800-53r5|IA-3,CAT|II,CCI|CCI-000778,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-3,ITSG-33|IA-3a.,NESA|T5.4.3,QCSC-v1|13.2,Rule-ID|SV-266987r1040727_rule,STIG-ID|ARBA-VN-000540,TBA-FIISB|27.1,Vuln-ID|V-266987"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CMD_EXEC
+  description : "ARBA-VN-000560 - AOS, when used as a VPN Gateway and using public key infrastructure (PKI)-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor."
+  info        : "Without path validation, an informed trust decision by the relying party cannot be made when presented with any certificate not already explicitly trusted. To meet this requirement, the information system must create trusted channels between itself and remote trusted authorized IT product (e.g., syslog server) entities that protect the confidentiality and integrity of communications. The information system must create trusted paths between itself and remote administrators and users that protect the confidentiality and integrity of communications.
+
+A trust anchor is an authoritative entity represented via a public key and associated data. It is most often used in the context of public key infrastructures, X.509 digital certificates, and Domain Name System Security Extensions (DNSSEC). However, applications that do not use a trusted path are not approved for nonlocal and remote management of DOD information systems.
+
+Use of SSHv2 to establish a trusted channel is approved. Use of FTP, TELNET, HTTP, and SNMPV1 is not approved because they violate the trusted channel rule set. Use of web management tools that are not validated by common criteria may also violate the trusted channel rule set.
+
+When there is a chain of trust, usually the top entity to be trusted becomes the trust anchor; it can be, for example, a certificate authority (CA). A certification path starts with the subject certificate and proceeds through a number of intermediate certificates up to a trusted root certificate, typically issued by a trusted CA.
+
+This requirement verifies that a certification path to an accepted trust anchor is used for certificate validation and that the path includes status information. Path validation is necessary for a relying party to make an informed trust decision when presented with any certificate not already explicitly trusted. Status information for certification paths includes certificate revocation lists or online certificate status protocol responses. Validation of the certificate status information is out of scope for this requirement.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS using the web interface:
+
+1. Navigate to Configuration >> System >> Certificates tab.
+2. Under \"Import Certificates\", click the plus sign (+) and upload the trusted root CA. Provide the certificate name, upload the certificate file, and select the matching certificate format.
+3. Choose the TrustedCA Certificate type.
+4. Click Submit >> Pending Changes >> and Deploy Changes."
+  reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5(2)(a),800-53r5|IA-5(2)(b)(1),CAT|II,CCI|CCI-000185,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(2)(a),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-266984r1040891_rule,STIG-ID|ARBA-VN-000560,Vuln-ID|V-266984"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  cmd         : "show crypto-local pki TrustedCA"
+  regex       : ".*"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "ARBA-VN-000580 - The Remote Access VPN Gateway must use a separate authentication server (e.g., Lightweight Directory Access Protocol [LDAP], Remote Authentication Dial-In User Service [RADIUS], Terminal Access Controller Access-Control System+ [TACACS+] to perform user authentication."
+  info        : "The VPN interacts directly with public networks and devices and should not contain user authentication information for all users. Authentication, Authorization, and Accounting (AAA) network security services provide the primary framework through which a network administrator can set up access control and authorization on network points of entry or network access servers. It is not advisable to configure access control on the VPN gateway or remote access server. Separation of services provides added assurance to the network if the access control server is compromised.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS with the following commands:
+
+1. crypto pki csr ec curve_name secp384r1 common_name <common_name> country <US> state_or_province <state> city <city> organization <org> unit <unit> email <email>
+show crypto pki csr
+2. Use DOD PKI to generate a public certificate based on the CSR.
+3. Using the web GUI, navigate to Configuration >> System >> Certificates >> Import Certificates.
+4. Click the plus sign (+) and enter \"Certificate name:\", browse to the public certificate file, choose the appropriate format, select Certificate type: \"ServerCert\", and click \"Submit\".
+5. Click Pending Changes >> Deploy Changes.
+
+Continue configuring with the CLI:
+configure terminal
+crypto-local isakmp ca-certificate <CA certificate name>
+crypto-local isakmp certificate-group server-certificate <EC certificate name> ca-certificate <CA certificate name>
+write memory
+
+crypto dynamic-map <name> <priority>
+version v2
+set pfs group20
+set transform-set default-gcm256
+set security-association lifetime seconds 28800
+exit
+write memory
+
+aaa authentication-server radius <name>
+host <A.B.C.D or X:X:X:X::X or hostname>
+key <preshared key>
+enable
+exit
+write memory
+
+aaa server-group <name>
+auth-server <name>
+exit
+write memory
+
+ip access-list session <name>
+any any any permit
+ipv6 any any any permit
+exit
+write memory
+
+user-role <name>
+access-list session <name>
+exit
+write memory
+
+aaa authentication via auth-profile <name>
+default-role <name>
+client-cert-enable
+server-group <name>
+exit
+write memory
+
+aaa authentication via connection-profile <name>
+auth-profile <name>
+enable-fips
+ikev2-policy 10009
+ikev2-proto
+ikev2auth eap-tls
+ipsecv2-cryptomap map <name> number <priority>
+max-timeout value <0-65535>
+suiteb-crypto
+validate-server-cert
+exit
+write memory
+
+aaa authentication via web-auth default
+auth-profile <name>
+exit
+write memory
+
+user-role <name>
+via <name>
+exit
+write memory"
+  reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5(2)(c),800-53r5|IA-5(2)(a)(2),CAT|II,CCI|CCI-000187,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(2)(c),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-266994r1040748_rule,STIG-ID|ARBA-VN-000580,Vuln-ID|V-266994"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  regex       : "aaa authentication via auth-profile"
+  item        : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "check ip default-gateway"
+      regex       : "ip default-gateway"
+      item        : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "check ipv4 route"
+      regex       : "ipv4 route"
+      item        : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "check ipv6 route"
+      regex       : "ipv6 route"
+      item        : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARBA-VN-000710 - AOS, when used as a VPN Gateway, must be configured to route sessions to an intrusion detection and prevention system (IDPS) for inspection."
+      info        : "Remote access devices, such as those providing remote access to network devices and information systems, that lack automated capabilities increase risk and make remote user access management difficult at best.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network.
+
+Automated monitoring of remote access sessions allows organizations to detect cyberattacks and ensure ongoing compliance with remote access policies by auditing connection activities of remote access capabilities from a variety of information system components (e.g., servers, workstations, notebook computers, smartphones, and tablets).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure AOS with the following commands:
+configure terminal
+ip default-gateway <ipv4>
+ipv6 default-gateway <ipv6>
+ip route <A.B.C.D IPv4 network> <A.B.C.D netmask> <A.B.C.D nexthop> <cost>
+ipv6 route <X:X:X:X::X IPv6 network/prefix> <X:X:X:X::X nexthop> <cost>
+write memory"
+      reference   : "800-171|3.13.1,800-171|3.13.5,800-171r3|03.13.01a.,800-53|SC-7a.,800-53r5|SC-7a.,CAT|II,CCI|CCI-001097,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7a.,NESA|T3.4.1,NESA|T3.6.3,NESA|T4.2.1,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-266999r1040763_rule,STIG-ID|ARBA-VN-000710,TBA-FIISB|43.1,Vuln-ID|V-266999"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CMD_EXEC
+  description : "ARBA-VN-000720 - AOS, when used as a VPN Gateway, must terminate all network connections associated with a communications session at the end of the session."
+  info        : "Idle Transmission Control Protocol (TCP) sessions can be susceptible to unauthorized access and hijacking attacks. By default, routers do not continually test whether a previously connected TCP endpoint is still reachable. If one end of a TCP connection idles out or terminates abnormally, the opposite end of the connection may still believe the session is available. These \"orphaned\" sessions use up valuable router resources and can be hijacked by an attacker.
+
+To mitigate this risk, routers must be configured to send periodic keep-alive messages to check that the remote end of a session is still connected. If the remote device fails to respond to the TCP keep-alive message, the sending router will clear the connection and free resources allocated to the session.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS with the following commands:
+configure terminal
+crypto-local isakmp dpd idle-timeout <idle_sec> retry-timeout <retry_sec> retry-attempts <retry_number>
+write memory"
+  reference   : "800-171|3.13.9,800-171r3|03.13.09,800-53|SC-10,800-53r5|SC-10,CAT|III,CCI|CCI-001133,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.20,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.5.1,Rule-ID|SV-266990r1040736_rule,STIG-ID|ARBA-VN-000720,SWIFT-CSCv1|2.6,Vuln-ID|V-266990"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  cmd         : "show configuration effective | include dpd"
+  regex       : ".*"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "ARBA-VN-000721 - The Remote Access VPN Gateway must terminate remote access network connections after an organization-defined time period."
+  info        : "This requirement is in response to the DOD Office of Inspector General Audit of Maintaining Cybersecurity in the Coronavirus Disease-2019 Telework Environment.
+
+Best practice is to terminate inactive user sessions after a period; however, when setting timeouts to any VPN connection, the organization must consider the risk to the mission and the purpose of the VPN. VPN connections that provide user access to the network are the prime candidates for VPN session termination and are the primary focus of this requirement.
+
+To determine if and when the VPN connections warrant termination, the organization must perform a risk assessment to identify the use case for the VPN and determine if periodic VPN session termination puts the mission at significant risk.
+
+The organization must document the results and the determination of the risk assessment in the VPN section of the System Security Plan. The organization must also configure VPN session terminations in accordance with the risk assessment.
+
+Terminating an idle session within a short time period reduces the window of opportunity for unauthorized personnel to take control of a management session enabled on the console or console port that has been left unattended. Quickly terminating an idle session will also free up resources committed by the managed network element.
+
+Terminating network connections associated with communications sessions includes, for example, deallocating associated TCP/IP address/port pairs at the operating system level and deallocating networking assignments at the application level if multiple application sessions are using a single operating system-level network connection.
+
+This requirement applies to any network element that tracks individual sessions (e.g., stateful inspection firewall, ALG, or VPN).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS with the following commands:
+
+For each VIA authentication profile:
+aaa authentication via connection-profile
+
+configure terminal
+aaa authentication via
+connection-profile<name>
+max-timeout value <0-65535>
+exit
+write memory"
+  reference   : "800-171|3.1.10,800-171|3.13.9,800-171r3|03.01.10a.,800-171r3|03.13.09,800-53|AC-11a.,800-53|SC-10,800-53r5|AC-11a.,800-53r5|SC-10,CAT|II,CCI|CCI-000057,CCI|CCI-001133,CN-L3|8.1.4.1(b),DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11a.,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T2.3.9,NESA|T4.5.1,NESA|T5.5.1,NIAv2|AM23a,NIAv2|AM23b,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,Rule-ID|SV-266996r1040892_rule,STIG-ID|ARBA-VN-000721,SWIFT-CSCv1|2.6,Vuln-ID|V-266996"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  regex       : "aaa authentication via connection-profile"
+  item        : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "show policies in use"
+      cmd         : "show crypto-local ipsec-map"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "show IKEv1/v2 policies"
+      cmd         : "show crypto isakmp policy"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARBA-VN-001090 - AOS, when used as an IPsec VPN Gateway, must use Advanced Encryption Standard (AES) encryption for the Internet Key Exchange (IKE) proposal to protect confidentiality of remote access sessions."
+      info        : "Without confidentiality protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network.
+
+AES is the Federal Information Processing Standard (FIPS)-validated cipher block cryptographic algorithm approved for use in DOD. For an algorithm implementation to be listed on a FIPS 140-2/140-3 cryptographic module validation certificate as an approved security function, the algorithm implementation must meet all the requirements of FIPS 140-2/140-3 and must successfully complete the cryptographic algorithm validation process. Currently, the National Institute of Standards and Technology (NIST) has approved the following confidentiality modes to be used with approved block ciphers in a series of special publications: ECB, CBC, OFB, CFB, CTR, XTS-AES, FF1, FF3, CCM, GCM, KW, KWP, and TKW.
+
+Satisfies: SRG-NET-000317-VPN-001090, SRG-NET-000371-VPN-001650, SRG-NET-000400-VPN-001940, SRG-NET-000525-VPN-002330
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure AOS with the following commands for each IKEv2 Policy number noted:
+configure terminal
+crypto isakmp policy <priority>
+encryption aes256
+exit
+write memory"
+      reference   : "800-171|3.1.13,800-171|3.5.10,800-171|3.13.8,800-171r3|03.05.07c.,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5(1)(c),800-53|SC-8,800-53r5|AC-17(2),800-53r5|IA-5(1)(c),800-53r5|SC-8,CAT|I,CCI|CCI-000068,CCI|CCI-000197,CCI|CCI-002418,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),ITSG-33|IA-5(1)(c),ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|CY6,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,Rule-ID|SV-266985r1040721_rule,STIG-ID|ARBA-VN-001090,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|26.1,Vuln-ID|V-266985"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CMD_EXEC
+  description : "ARBA-VN-001300 - AOS, when used as a VPN Gateway, must renegotiate the security association after 24 hours or less or as defined by the organization."
+  info        : "When a VPN gateway creates an IPsec security association (SA), resources must be allocated to maintain the SA. These resources are wasted during periods of IPsec endpoint inactivity, which could result in the gateway's inability to create new SAs for other endpoints, thereby preventing new sessions from connecting.
+
+The Internet Key Exchange (IKE) idle timeout may also be set to allow SAs associated with inactive endpoints to be deleted before the SA lifetime has expired, although this setting is not recommended at this time. The value of one hour or less is a common best practice.
+
+Satisfies: SRG-NET-000337-VPN-001300, SRG-NET-000337-VPN-001290"
+  solution    : "Configure AOS with the following commands:
+configure terminal
+crypto-local ipsec-map <name> <priority>
+set security-association lifetime seconds 28800
+exit
+write memory
+
+crypto dynamic-map <name> <priority>
+set security-association lifetime seconds 28800
+exit
+write memory"
+  reference   : "800-171r3|03.05.01b.,800-53|IA-11,800-53r5|IA-11,CAT|II,CCI|CCI-002038,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),QCSC-v1|13.2,Rule-ID|SV-266997r1040757_rule,STIG-ID|ARBA-VN-001300,Vuln-ID|V-266997"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  cmd         : "show crypto isakmp policy"
+  regex       : "lifetime:"
+  expect      : "lifetime:[\s]*28800[\s]+seconds"
+  match_all   : YES
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Site-to-site VPN: at least one ISAKMP policy must use certificate-based authentication (rsa-sig or ecdsa)"
+      regex       : "^authentication[\s]+(rsa-sig|ecdsa-256|ecdsa-384)[\s]*$"
+      item        : "^authentication[\s]+(rsa-sig|ecdsa-256|ecdsa-384)[\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Site-to-site VPN: review live ISAKMP SA table and confirm '-c' (certificate auth) flag on each SA"
+      cmd         : "show crypto isakmp sa"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Hardware client VPN: review AP database FLAGS column for 'c' (CERT-based RAP) on each provisioned RAP"
+      cmd         : "show ap database long"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARBA-VN-001370 - AOS, when used as a VPN Gateway, must authenticate all network-connected endpoint devices before establishing a connection."
+      info        : "Without authenticating devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity.
+
+For distributed architectures (e.g., service-oriented architectures), the decisions regarding the validation of authentication claims may be made by services separate from the services acting on those decisions. In such situations, it is necessary to provide authentication decisions (as opposed to the actual authenticators) to the services that need to act on those decisions.
+
+This requirement applies to applications that connect either locally, remotely, or through a network to an endpoint device (including, but not limited to, workstations, printers, servers (outside a datacenter), VoIP Phones, and VTC codecs). Gateways and SOA applications are examples of where this requirement would apply.
+
+Device authentication is a solution enabling an organization to manage devices. It is an additional layer of authentication ensuring only specific preauthorized devices can access the system.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure AOS using the web interface:
+
+1. Navigate to Configuration >> Services >> VPN and expand \"Site-to-Site\".
+2. Select the configured site-to-site VPN IPsec maps. Select the applicable Server certificate. Select the applicable trusted DOD root CA under \"CA certificate:\".
+3. Click Submit >> Pending Changes >> Deploy Changes.
+4. Navigate to Configuration >> Access Points >> Remote APs tab.
+5. Select the check box next to the AP Name in the Remote AP table and click \"Provision\".
+6. In the \"General\" tab, select \"Certificate\" from the \"Authentication method:\" drop-down list.
+7. Click \"Submit\" to apply the configuration and reboot the AP as a certificate Remote AP.
+8. Click Pending Changes >> Deploy Changes."
+      reference   : "800-171r3|03.05.02,800-53|IA-3,800-53r5|IA-3,CAT|II,CCI|CCI-001958,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-3,ITSG-33|IA-3a.,NESA|T5.4.3,QCSC-v1|13.2,Rule-ID|SV-266988r1040893_rule,STIG-ID|ARBA-VN-001370,TBA-FIISB|27.1,Vuln-ID|V-266988"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "ARBA-VN-001460 - AOS, when used as a VPN Gateway, must use an approved Commercial Solution for Classified (CSfC) when transporting classified traffic across an unclassified network."
+  info        : "Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data.
+
+The National Security Agency/Central Security Service's (NSA/CSS) CSfC program enables commercial products to be used in layered solutions to protect classified National Security Systems (NSS) data. Currently, Suite B cryptographic algorithms are specified by the National Institute of Standards and Technology (NIST) and are used by the NSA's Information Assurance Directorate in solutions approved for protecting classified and unclassified NSS. However, quantum-resistant algorithms will be required for future required Suite B implementations.
+
+Satisfies: SRG-NET-000352-VPN-001460, SRG-NET-000565-VPN-002390, SRG-NET-000565-VPN-002400
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS with the following commands:
+
+1. crypto pki csr ec curve_name secp384r1 common_name <common_name> country <US> state_or_province <state> city <city> organization <org> unit <unit> email <email>
+show crypto pki csr
+2. Use DOD PKI to generate a public certificate based on the CSR.
+3. Using the web GUI, navigate to Configuration >> System >> Certificates >> Import Certificates.
+4. Click the plus sign (+) and enter \"Certificate name:\", browse to the public certificate file, choose the appropriate format, \"ServerCert\" type, and click \"Submit\".
+5. Navigate to Configuration >> System >> Admin and choose the imported certificate under \"Server Certificate\" and click \"Submit\".
+6. Click Pending Changes >> Deploy Changes.
+
+configure terminal
+crypto ipsec transform-set <name> esp-aes256-gcm
+crypto isakmp policy <#>
+authentication ecdsa-384
+encryption aes256
+group 20
+hash sha2-384-192
+prf prf-hmac-sha384
+version v2
+exit
+crypto-local ipsec-map <name> <priority>
+set transform-set <set created earlier name>
+<configure VPN settings as needed>
+exit
+write memory"
+  reference   : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CAT|II,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2,Rule-ID|SV-266986r1040894_rule,STIG-ID|ARBA-VN-001460,Vuln-ID|V-266986"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  regex       : "^crypto isakmp policy |^version |^encryption |^hash |^group |^authentication |^crypto ipsec transform-set |^crypto-local ipsec-map |^crypto map .+ ipsec-isakmp"
+  item        : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Virtual-AP profiles - verify Forward mode is not split-tunnel for each active profile (show wlan virtual-ap <name> | include \"Forward mode\")"
+      cmd         : "show wlan virtual-ap"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "AP system-profiles - verify Double Encrypt is enabled for each active profile (show ap system-profile <name> | include \"Double Encrypt\")"
+      cmd         : "show ap system-profile"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "VIA connection-profiles - verify split tunneling is disabled for each referenced profile (show aaa authentication via connection-profile <name> | include \"Enable split tunneling\")"
+      cmd         : "show aaa authentication via connection-profile"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARBA-VN-001620 - AOS, when used as a VPN Gateway, must disable split-tunneling for remote client VPNs."
+      info        : "Split tunneling would in effect allow unauthorized external connections, making the system more vulnerable to attack and to exfiltration of organizational information.
+
+A VPN hardware or software client with split tunneling enabled provides an unsecured backdoor to the enclave from the internet. With split tunneling enabled, a remote client has access to the internet while at the same time has established a secured path to the enclave via an IPsec tunnel. A remote client connected to the internet that has been compromised by an attacker on the internet provides an attack base to the enclave's private network via the IPsec tunnel. Hence, it is imperative that the VPN gateway enforces a no split-tunneling policy to all remote clients.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure AOS using the following commands:
+configure terminal
+wlan virtual-ap <profile name>
+forward-mode tunnel
+exit
+write memory
+ap system-profile <profile name>
+double-encrypt
+exit
+write memory
+
+For each VIA connection profile:
+vaaa authentication via connection-profile <name>
+no split-tunneling
+exit
+write memory"
+      reference   : "800-171|3.13.2,800-171|3.13.5,800-171|3.13.7,800-171r3|03.13.01,800-53|SC-7(7),800-53r5|SC-7(7),CAT|II,CCI|CCI-002397,CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(7),NESA|T4.5.4,NIAv2|NS50,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-267000r1040766_rule,STIG-ID|ARBA-VN-001620,TBA-FIISB|43.1,Vuln-ID|V-267000"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : CMD_EXEC
+  description : "ARBA-VN-001640 - AOS, when used as an IPsec VPN Gateway, must specify Perfect Forward Secrecy (PFS) during Internet Key Exchange (IKE) negotiation."
+  info        : "PFS generates each new encryption key independently from the previous key. Without PFS, compromise of one key will compromise all communications.
+
+The phase 2 (Quick Mode) Security Association (SA) is used to create an IPsec session key. Hence, its rekey or key regeneration procedure is very important. The phase 2 rekey can be performed with or without Perfect Forward Secrecy (PFS). With PFS, every time a new IPsec Security Association is negotiated during the Quick Mode, a new Diffie-Hellman (DH) exchange occurs. The new DH shared secret will be included with original keying material (SYKEID_d, initiator nonce, and responder nonce} from phase 1 for generating a new IPsec session key. If PFS is not used, the IPsec session key will always be completely dependent on the original keying material from the Phase-1. Hence, if an older key is compromised at any time, it is possible that all new keys may be compromised.
+
+The DH exchange is performed in the same manner as was done in phase 1 (Main or Aggressive Mode). However, the phase 2 exchange is protected by encrypting the phase 2 packets with the key derived from the phase 1 negotiation. Because DH negotiations during phase 2 are encrypted, the new IPsec session key has an added element of secrecy."
+  solution    : "Configure AOS with the following commands:
+configure terminal
+crypto-local ipsec-map <map name> <priority #>
+set pfs group 19
+exit
+write memory"
+  reference   : "800-171|3.13.8,800-171r3|03.13.08,800-53|SC-8,800-53r5|SC-8,CAT|I,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,CSF2.0|PR.DS-02,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.20,ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-266982r1040712_rule,STIG-ID|ARBA-VN-001640,Vuln-ID|V-266982"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  cmd         : "show crypto-local ipsec-map"
+  regex       : "PFS [(]Y/N[)]"
+  expect      : "PFS [(]Y/N[)]: Y"
+  match_all   : YES
+</custom_item>
+
+<custom_item>
+  type        : CMD_EXEC
+  description : "ARBA-VN-002220 - AOS, when used as an IPsec VPN Gateway, must use Internet Key Exchange (IKE) for IPsec VPN security associations (SAs)."
+  info        : "Without IKE, the SPI is manually specified for each security association. IKE peers will negotiate the encryption algorithm and authentication or hashing methods as well as generate the encryption keys.
+
+An IPsec SA is established using either IKE or manual configuration. When using IKE, the security associations are established when needed and expire after a period of time or volume of traffic threshold. If manually configured, they are established as soon as the configuration is complete at both end points, and they do not expire. When using IKE, the Security Parameter Index (SPI) for each security association is a pseudo-randomly derived number.
+
+With manual configuration of the IPsec security association, both the cipher key and authentication key are static. Hence, if the keys are compromised, the traffic being protected by the current IPsec tunnel can be decrypted as well as traffic in any future tunnels established by this SA. Furthermore, the peers are not authenticated prior to establishing the SA, which could result in a rogue device establishing an IPsec SA with either of the VPN endpoints.
+
+IKE provides primary authentication to verify the identity of the remote system before negotiation begins. This feature is lost when the IPsec security associations are manually configured, which results in a nonterminating session using static preshared keys.
+
+Satisfies: SRG-NET-000512-VPN-002220, SRG-NET-000132-VPN-000460, SRG-NET-000147-VPN-000530"
+  solution    : "Configure AOS with the following commands:
+configure terminal
+crypto-local ipsec-map <name> <priority>
+version v2
+exit
+write memory"
+  reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.5.4,800-171r3|03.04.02a.,800-171r3|03.04.06b.,800-171r3|03.05.04,800-53|CM-6b.,800-53|CM-7b.,800-53|IA-2(9),800-53r5|CM-6b.,800-53r5|CM-7b.,CAT|I,CCI|CCI-000366,CCI|CCI-000382,CCI|CCI-001942,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.1.4.4(b),CN-L3|8.1.10.6(d),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.PS-01,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,ITSG-33|CM-7a.,ITSG-33|IA-2(9),NESA|T2.3.8,NESA|T3.2.1,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM18,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-267001r1040895_rule,STIG-ID|ARBA-VN-002220,SWIFT-CSCv1|2.3,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-267001"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  cmd         : "show crypto-local ipsec-map"
+  regex       : "IKE Version:"
+  expect      : "IKE Version: [12]"
+  match_all   : YES
+</custom_item>
+
+<custom_item>
+  type        : CMD_EXEC
+  description : "ARBA-VN-002430 - AOS, when used as a VPN Gateway, must not accept certificates that have been revoked when using PKI for authentication."
+  info        : "Situations may arise in which the certificate issued by a certificate authority (CA) may need to be revoked before the lifetime of the certificate expires (for example, when the certificate is known to have been compromised).
+
+When an incoming Internet Key Exchange (IKE) session is initiated for a remote client or peer whose certificate is revoked, the revocation list configured for use by the VPN server is checked to determine if the certificate is valid. If the certificate is revoked, IKE will fail, and an IPsec security association will not be established for the remote endpoint.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AOS using the web interface:
+
+1. Navigate to Configuration >> System >> Certificates tab. Under \"Import Certificates\", upload the trust root CA.
+2. Choose the TrustCA Certificate type. Click \"Submit\".
+3. Upload the same certificate and select the OCSPResponderCert Certificate type (provide a different friendly name). Click \"Submit\".
+4. Click Pending Changes >> Deploy Changes.
+5. Expand \"Revocation Checkpoint\". Select the configured trusted root CA.
+6. Select \"ocsp\" for Revocation method 1. Enter the OCSP server URL in the OCSP URL field (remove \"http://\").
+7. Choose the configured certificate under OCSP responder cert. Click \"Submit\".
+8. Click Pending Changes >> Deploy Changes."
+  reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5(2)(d),800-53r5|IA-5(2)(b)(2),CAT|I,CCI|CCI-004068,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|HPE_Aruba_AOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(2),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-268313r1040899_rule,STIG-ID|ARBA-VN-002430,Vuln-ID|V-268313"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_HPE_Aruba_Networking_AOS_Y26M04_STIG.zip"
+  cmd         : "show crypto-local pki rcp"
+  regex       : ".*"
+  expect      : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+</check_type>

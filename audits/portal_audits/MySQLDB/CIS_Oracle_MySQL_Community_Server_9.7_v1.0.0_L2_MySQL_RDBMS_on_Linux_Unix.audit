@@ -1,0 +1,256 @@
+#TRUSTED 60fbaec11349e936f8d3424d9c836cf1e16cbbe057e59c6585fc0e7f68bf1a75f0e9d87e81c036f15d9ff8b3c27803d07f29e6be7cf63728a2d78024b03bb0fa47f71cb7f609e8376565ca6e88f0b4afbb7e9705c18df5b0efe156294809b29938c744b30fe87de93e0a812b60fed102296aa52357062c994943f1ace8249583312639dea7aed12272d55de43c72a1c64336078a88d19611d80eb5d0891c6894d224572a8b5f960c048d0ca400eb82d79158697594002b176b2bb5a927973ea08615659f21f55043b50d0cfc94e2b4c4ed1eda7df576e889c62230269e131153ec166470ebac76a65015ebb966ad1921d905a1e0c7fd45dcd008dd096a027cd9fc47b8dbb713e380ef13113ca558cc20073a3c2cdec6ded2431ddd72ecd406cf65e92cf283bcdbe5db99fe8b775e1c14aab4927734c6cad7ae3685f1f0d54799202ac50b67f203131595d6934e09720140ef1e4ebc4d861aeca934cd91c06f88389d01a9e1cccadb561427141a6c1f37bd0b15f098019a634823a857645a8f728bdd0f9d6b46e52e98b6b86023f3c9dc00ab47a3f816a5b5f130d7868ced255f89b6ce55714b9eaf08e5686fef78c363c7273d893b0b307b9edbdcd8ac8a49ca57bf206509feebc4be050d846130028623111f9a4c7a509971b67ad67c3539de9a5202a1d396eb4b047dbedf1d39d8614e35cf31e545096640d4fb200ce9f817
+#TRUST-RSA-SHA256 61a53e347fa066e45b40d7df04f452e0946a7896c66ca4b6719a531ce19dd0935fb6fb55a3c6833f34dbec86ee9a8779c1a131d108de9fa0f02551a71dd667c099646e10f190338bece2e83e9dd60eea6e99a15986705bd78b3579a713bf77889b8a92fc29102cc9d7555ba579a936db0e418ddff93133c78c38eb4021d9f6f3cbd2c0e688d336123df3fc6b1d91a1b2634ebe369e3a837303e43a8a7c1d928098eb823bb3fd81633b6a41e4f4f7fb903808baea74342dc478e14fbaa04a389125c90b63042325a2f99a14191a719e2b84bf03bfba27f02dee915584f671a80dffdc1ecf51e290eb8c93d8f3d1afa90499e840495fa507a4098b77794ab82cca4c3fea09d7473ef388806d988da6c3b61bb6e8c139264d272dad9accf0d9e6ccc134b043c581f1ffb7375f5451dfadedc19f99aa140ee79b5d90fb07ff6276f00d24db789d7bac2ee7541198021fb4f48b324a92e3174316ee48135453e1174f9a880c6bc80946b5c2fdec9a8e3e8a84d449cae0dba470b21e4bb49955eca0ec5feb6c7ca7ea26143a55f1c1261371bec12d59cb54b782e94950433eb125072854e77f7bb2dc11fbc51cf7fb30bd7666f2bedb94e75356ca88f24c3ac381dc68b59acb97af2dbdce364f91dd226d609173d4aff5f8bdb13b401873b9edf694078b901060f0a9a52d606069934186427f92537171b7382f70303247e0b1991bd7
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/09/01 $
+#
+# description : This .audit is designed against the CIS Oracle MySQL Community Server 9.7 Benchmark v1.0.0
+#
+#<ui_metadata>
+#<display_name>CIS Oracle MySQL Community Server 9.7 v1.0.0 L2 MySQL RDBMS on Linux Unix</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Oracle MySQL Community Server 9.7</name>
+#  <profile>L2 MySQL RDBMS on Linux</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/22688</link>
+#</spec>
+#<labels>agent,cis,linux_host_os</labels>
+#<benchmark_refs>800-53,800-53r5,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Linux found"
+      cmd         : "uname -a"
+      expect      : "Linux"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Oracle_MySQL_Community_Server_9.7_v1.0.0_L2_MySQL_RDBMS_on_Linux_Unix.audit from CIS Oracle MySQL Community Server 9.7 v1.0.0"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22688"
+      show_output : YES
+    </report>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "MySQL client history file in /home is absent or linked to /dev/null"
+          cmd         : "BAD=$(/bin/find /home -maxdepth 2 -name .mysql_history 2>/dev/null | while read f; do /bin/readlink $f 2>/dev/null | /bin/grep -q /dev/null || /bin/echo $f; done); /bin/echo $BAD | /bin/grep -q . && /bin/echo FAIL $BAD || /bin/echo PASS"
+          expect      : "^[\\s]*PASS[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "MySQL client history file in /root is absent or linked to /dev/null"
+          cmd         : "BAD=$(/bin/find /root -maxdepth 1 -name .mysql_history 2>/dev/null | while read f; do /bin/readlink $f 2>/dev/null | /bin/grep -q /dev/null || /bin/echo $f; done); /bin/echo $BAD | /bin/grep -q . && /bin/echo FAIL $BAD || /bin/echo PASS"
+          expect      : "^[\\s]*PASS[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "MySQL Shell history file is absent or linked to /dev/null"
+          cmd         : "BAD=$(/bin/find /root /home -maxdepth 3 -name history 2>/dev/null | /bin/grep mysqlsh | while read f; do /bin/readlink $f 2>/dev/null | /bin/grep -q /dev/null || /bin/echo $f; done); /bin/echo $BAD | /bin/grep -q . && /bin/echo FAIL $BAD || /bin/echo PASS"
+          expect      : "^[\\s]*PASS[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.3 Disable MySQL Command History"
+          info        : "On Linux/UNIX, the MySQL client and MySQL Shell log statements executed interactively to a history file. The default MySQL Client file is named .mysql_history in the user's home directory. The files are split by language and named history.sql, history.js and history.py . Most interactive commands run in the MySQL client application are saved to a history file. The MySQL command history should be disabled. By default, the MySQL Shell does not save history between sessions.
+
+Disabling the MySQL Client and MySQL Shell command history reduces the probability of exposing sensitive information, such as passwords, encryption keys, or other sensitive data or information."
+          solution    : "For MySQL Client perform the following steps to remediate this setting:
+
+ - Remove .mysql_history if it exists.
+ - Use either of the techniques below to prevent it from being created again:
+
+ - Set the MYSQL_HISTFILE environment variable to /dev/null. This will need to be placed in the shell's startup script.
+ - Create $HOME/.mysql_history as a symbolic link to /dev/null.
+> ln -s /dev/null $HOME/.mysql_history
+
+Another way to prevent history from being recorded is to use the --batch option.
+
+For MySQL Shell perform the following steps to remediate this setting:
+
+ - Remove $HOME/.mysqlsh/history.* if files exist.
+ - Use either of the techniques below to prevent it from being created again:
+
+ - Start shell and list show options using \\option -l
+ - Set to no history using the command \\option --persist history.autoSave=1"
+          reference   : "800-171r3|03.03.03b.,800-171r3|03.14.08,800-53|AU-11,800-53|SI-12,800-53r5|AU-11,800-53r5|SI-12,CSCv7|13.2,CSCv8|3.4,CSF|PR.PT-1,CSF2.0|ID.AM-07,CSF2.0|ID.AM-08,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-11,ITSG-33|SI-12,ITSG-33|SI-12a.,LEVEL|2A,NESA|M5.2.3,NESA|M5.2.4,NESA|M5.3.1,NESA|T3.6.2,NIAv2|DR1,NIAv2|DR1a,NIAv2|DR1b,NIAv2|DR1c,NIAv2|DR2,NIAv2|DR3,NIAv2|DR4,NIAv2|DR5,NIAv2|DR6,NIAv2|SM7,PCI-DSSv3.2.1|3.1,PCI-DSSv3.2.1|10.7,PCI-DSSv4.0|3.2.1,PCI-DSSv4.0|10.5.1,QCSC-v1|8.2.1,QCSC-v1|13.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/22688"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "1.5 Ensure Interactive Login is Disabled"
+      info        : "When created, the MySQL user may have interactive access to the operating system, which means that the MySQL user could log into the host as any other user would.
+
+Preventing the MySQL user from logging in interactively may reduce the impact of a compromised MySQL account. There is also more accountability, as accessing the operating system where the MySQL server lies will require the user's own account. Interactive access by the MySQL user is unnecessary and should be disabled."
+      solution    : "Execute one of the following commands in a terminal:
+
+usermod -s /bin/false mysql
+
+Or
+
+usermod -s /sbin/nologin mysql
+
+Impact:
+
+This setting will prevent the MySQL administrator from interactively logging into the operating system using the MySQL user. Instead, the administrator will need to log in using their own account."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22688"
+      cmd         : "/bin/getent passwd mysql"
+      expect      : "^mysql:.*:(/bin/false|/usr/bin/false|/sbin/nologin|/usr/sbin/nologin)$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"OR">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "MySQL chroot configuration check"
+          cmd         : "/bin/grep -E '^chroot=' /etc/mysql/my.cnf /etc/my.cnf 2>/dev/null | /bin/awk -F= '{if ($2 && $2 !~ /^[[:space:]]*$/) print \"chroot configured:\", $2; else print \"chroot empty or invalid\"}' | /bin/head -1; if [ $? -ne 0 ] || [ -z \"$(/bin/grep -E '^chroot=' /etc/mysql/my.cnf /etc/my.cnf 2>/dev/null | /bin/awk -F= '{if ($2 && $2 !~ /^[[:space:]]*$/) print $2}')\" ]; then /bin/echo 'chroot not configured'; fi"
+          expect      : "^chroot configured:"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "MySQL systemd user configuration check"
+          cmd         : "/bin/systemctl show mysqld.service mysql.service mariadb.service 2>/dev/null | /bin/grep '^User=' | /bin/head -1 | /bin/awk -F= '{if ($2 && $2 != \"root\" && $2 !~ /^[[:space:]]*$/) print \"systemd user configured:\", $2; else print \"systemd user not configured or running as root\"}'; if [ $(/bin/systemctl show mysqld.service mysql.service mariadb.service 2>/dev/null | /bin/grep -c '^User=') -eq 0 ]; then /bin/echo 'systemd service not found'; fi"
+          expect      : "^systemd user configured:"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "MySQL Docker container running check"
+          cmd         : "if /bin/docker -v >/dev/null 2>&1; then if /bin/docker images --format '{{.Repository}}' 2>/dev/null | /bin/grep -q mysql; then if /bin/docker ps --format '{{.Image}}' 2>/dev/null | /bin/grep -q mysql; then /bin/echo 'MySQL running in Docker container'; else /bin/echo 'MySQL Docker image exists but no container running'; fi; else /bin/echo 'No MySQL Docker image found'; fi; else /bin/echo 'Docker not installed'; fi"
+          expect      : "^MySQL running in Docker container$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.7 Ensure MySQL is Run Under a Sandbox Environment"
+          info        : "Use of the chroot() system call at startup, Systemd with settings to achieve isolation, or Docker will put MySQL in a sandbox environment.
+
+Running MySQL in a Sandbox environment may reduce the impact of a MySQL-born vulnerability by making portions of the file system inaccessible to the MySQL instance."
+          solution    : "Perform one of the following steps to remediate this setting:
+
+ - Configure MySQL to use chroot:
+
+ - Choose a non-system partition <chroot location> for MySQL
+ - Add chroot= <chroot_location> to the my.cnf option file
+
+ - Configure MySQL to run under systemd:
+
+ - If mysql is managed by systemd and running, stop the service:
+$ sudo systemctl stop <mysqld>.service
+
+ - If a mysql user and group do not already exist, create them:
+$ sudo groupadd mysql
+$ sudo useradd -r -g mysql -s /bin/false mysql
+
+ - Set the ownership of the base directory:
+$ sudo chown -R mysql:mysql /usr/local/mysql/
+
+ - Create or modify the <mysqld> .service file in /lib/systemd/system to include the following entries, if not already present:
+[Unit]
+Description=MySQL Server
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=mysql
+Group=mysql
+
+ - If mysql was not already managed by systemd execute this command:
+$ sudo systemctl daemon-reload
+
+ - Start the MySQL server:
+$ sudo systemctl start <mysqld>.service
+
+ - If you would like mysql to automatically run at startup execute this command:
+$ sudo systemctl enable <mysqld>.service
+
+ - Follow documentation in the references for standing up MySQL in a Docker container.
+
+Impact:
+
+Use of the chroot option somewhat limits LOAD DATA INFILE and SELECT ... INTO OUTFILE."
+          reference   : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CSCv7|2.10,CSCv8|3.12,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,LEVEL|2M"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/22688"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"OR">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "allow-suspicious-udfs is not present in the MySQL configuration"
+          cmd         : "/bin/my_print_defaults mysqld | /bin/grep allow-suspicious-udfs | /bin/awk '{print} END {if (NR == 0) print \"pass\"}'"
+          expect      : "(?i)^[\\s]*\\**[\\s]*pass:?[\\s]*\\**$"
+        </custom_item>
+
+        <custom_item>
+          type        : CMD_EXEC
+          description : "allow-suspicious-udfs is present and explicitly set to OFF"
+          cmd         : "/bin/my_print_defaults mysqld | /bin/grep allow-suspicious-udfs"
+          expect      : "(?i)^[\\s]*--allow-suspicious-udfs=OFF"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "4.3 Ensure 'allow-suspicious-udfs' is Set to 'OFF'"
+          info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+          solution    : "Perform the following to establish the recommended state:
+
+ - Remove --allow-suspicious-udfs from the mysqld startup command line.
+ - Remove allow-suspicious-udfs from the MySQL option file."
+          reference   : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/22688"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Oracle_MySQL_Community_Server_9.7_v1.0.0_L2_MySQL_RDBMS_on_Linux_Unix.audit from CIS Oracle MySQL Community Server 9.7 v1.0.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22688"
+      show_output : YES
+    </report>
+  </else>
+</if>
+
+</check_type>

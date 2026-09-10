@@ -1,0 +1,511 @@
+#TRUSTED 653687047dccddabacc434b4535f63e68fde42262fbadd25688f246a8636d235d8d2a2d8fb0399ef6f18078c3608fccc4df6855aac3a009009d98dbdab45b62ec333c9bc20351283c05214427375315b2eb25ada0c40b354340f8aadd0cd2d6b7364004e2aaaf07b178868bf60417458658048e163bb47ba7f0565aa2a7a838f12a731de736ebc26930b91854292ef6946919395934a70c4748e9638d39f455c5c997ff6602d6a35e09880a08721e85d2e748f1eafd420de552dd1eba53bac3b5b74278a1e1c06dd1cd1f35df78548b79c6fa132c8486b72497e15ebb3dccb572a568f3381f40dc1e3fb9830cebcc6ec5ca4bfc7753aecda5659b889f07835a4686b13208a46a11344c157f79f7eb8c7f64c50f4165772e1c2e4a6929906e94e62351026fd7fbfbe11c194e23f7366e3bf7a93f0bab1280d14306448cb6ed1c9cf51fc0bd6422d262cf91fd285e9717f4e3acf7251e88092125d8280b2128846e11e33a378e903c6fb08670a51233ce33800304fcabc3c060e90ce4dc442c1939c32f06a6ce29c816e0a9bbef586be29f60752f241d8acda42e0c191d8343806c30f628cd77035e02732a6164861bc635580e15919cb89ef7342f51164a9f11b91d7bb1fa652458c8b00576cd1a10e179e34b29946f52246a4952bce01f645a15f25880492ea176735b186e841ad43602408ab0c3f5282d95d65e8c6d3d9c2df
+#TRUST-RSA-SHA256 46cb2c7a420d6be45512eb0162e093510e95efa30e37ff563c58a1f94ef2b4ea98bca2309d6a1a44f6ed8acbda7b944e93efce00392a4086c1227e645e2591e2c4bc88206482db0167b4024485b442372b6528864299912d31434e9091c26035df0f82e23b9865ff11d3af3166c4e725ff0c8ac480d96e6561827d88e263af1278598c1b14c3d10e2ffbe4d709958220c727651762534f79e9a25fe71256ac874fa038474ee4bd176de065bc7474fcac8c1be30065cbc23d60e8e6d07c1c2d00366d8ba1909a6b40901c15ce4face9da880678ee95ea9c14c224c0f2b9caa9964e178b631fdc9ff55034c65e9c279f8b16cbac8aa45bac79b702cc9c6251d04d0c615935a442b5c681b00f2cb1b6ef2d6ee470462df62d9f240c974368d4a57bfe9d50efd92516d20665ffb90d692f63d0dc9c8a4bd4ead4f559893cf1bc3762c0a69121b77919374d78742a839cf63d5a1349c340193cc687328ac36e1a8a594f2de605a9e5d726930f7ef48d741b2d4882ba9764d1e15dee37c89c8f748d2fe07e626ba6bcc0b5c7e87a922d51c472da3d1b0b31477597b442a0e4daee2aa87bcaa8e45af3755e345729d464e41d8468c284872c9493b300ccdc503c0254ff4c5578553d3bc77c94119a36246ede27c47b4051203bf1a45b28dd7fcafc8a4d51d42130a61c266586eeb9673d1cc82b487cf9572e7504111ac410f6083364e2
+#
+# This script is Copyright (C) 2004-2023 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.3 $
+# $Date: 2023/03/07 $
+#
+#     description : ArubaOS CX 10.x Hardening Guide - v1.0.0.
+#                   https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us
+#
+#<ui_metadata>
+#<display_name>ArubaOS CX 10.x Hardening Guide v1.0.0</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>ArubaOS CX 10.x Hardening Guide</name>
+#  <version>1.0.0</version>
+#  <link>https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us</link>
+#</spec>
+#<labels>aruba,arubaos,cx,update_20230227</labels>
+#<variables>
+#  <variable>
+#    <name>MGMT_VRF</name>
+#    <default>mgmt</default>
+#    <description>Management VRF</description>
+#    <info>The name of the management vrf.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BANNER_MOTD_TEXT</name>
+#    <default>This system is for authorized use only. Unauthorized or improper\nuse of this system may result in civil or criminal penalties. By\ncontinuing to use this system you acknowledge your consent to\nthese conditions of use.</default>
+#    <description>MOTD Banner Text</description>
+#    <info>The banner to be displayed during the login process.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BANNER_EXEC_TEXT</name>
+#    <default>All activity is logged and monitored\non this device.</default>
+#    <description>EXEC Banner Text</description>
+#    <info>The banner to be displayed after the login process.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>MIN_PASSWORD_LENGTH</name>
+#    <default>12</default>
+#    <description>Minimum Password Length</description>
+#    <info>The minimum password length for users.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>AAA_LIMIT_LOGIN_ATTEMPTS</name>
+#    <default>2</default>
+#    <description>Failed Login Attempts</description>
+#    <info>The number of failed logins attempts before locking out the account.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>AAA_LOCKOUT_TIME</name>
+#    <default>300</default>
+#    <description>Login attempt lockout time</description>
+#    <info>The number of seconds an account is locked out after invalid login attempts is reached.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"ArubaOS">
+
+# System settings and services
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Time synchronization - ntp authentication"
+  info        : "Many secure protocols and auditing functions rely on system times being synchronized with a reliable time source, either within or (where security considerations permit) external to the managed network. One of the most commonly used protocols to accomplish this is the Network Time Protocol (NTP), which can use both local and Internet-hosted servers to synchronize system time across a network. NTP should be configured and enabled on the device prior to enabling secure management protocols."
+  solution    : "For example, to configure a switch to use NTP authentication and connect to a local NTP server at 10.100.1.254 using the switch management port:
+
+  switch(config)# ntp authentication
+  switch(config)# ntp authentication-key 1 md5 myPassword
+  switch(config)# ntp server 10.100.1.254 prefer
+  switch(config)# ntp vrf mgmt"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "ntp"
+  item        : "ntp authentication[\\s]*$"
+  reference   : "800-171|3.3.7,800-171|3.5.1,800-53|AU-8(1),800-53|IA-2,800-53r5|IA-2,800-53r5|SC-45(1),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.1.4.3(b),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(b),HIPAA|164.312(d),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T3.6.7,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1,TBA-FIISB|37.4"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Time synchronization - ntp authentication-key"
+  info        : "Many secure protocols and auditing functions rely on system times being synchronized with a reliable time source, either within or (where security considerations permit) external to the managed network. One of the most commonly used protocols to accomplish this is the Network Time Protocol (NTP), which can use both local and Internet-hosted servers to synchronize system time across a network. NTP should be configured and enabled on the device prior to enabling secure management protocols."
+  solution    : "For example, to configure a switch to use NTP authentication and connect to a local NTP server at 10.100.1.254 using the switch management port:
+
+  switch(config)# ntp authentication
+  switch(config)# ntp authentication-key 1 md5 myPassword
+  switch(config)# ntp server 10.100.1.254 prefer
+  switch(config)# ntp vrf mgmt"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "ntp"
+  item        : "ntp authentication-key [0-9]+"
+  reference   : "800-171|3.3.7,800-171|3.5.1,800-53|AU-8(1),800-53|IA-2,800-53r5|IA-2,800-53r5|SC-45(1),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.1.4.3(b),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(b),HIPAA|164.312(d),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T3.6.7,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1,TBA-FIISB|37.4"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Time synchronization - ntp server"
+  info        : "Many secure protocols and auditing functions rely on system times being synchronized with a reliable time source, either within or (where security considerations permit) external to the managed network. One of the most commonly used protocols to accomplish this is the Network Time Protocol (NTP), which can use both local and Internet-hosted servers to synchronize system time across a network. NTP should be configured and enabled on the device prior to enabling secure management protocols."
+  solution    : "For example, to configure a switch to use NTP authentication and connect to a local NTP server at 10.100.1.254 using the switch management port:
+
+  switch(config)# ntp authentication
+  switch(config)# ntp authentication-key 1 md5 myPassword
+  switch(config)# ntp server 10.100.1.254 prefer
+  switch(config)# ntp vrf mgmt"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "ntp"
+  item        : "ntp server [0-9\\.]+"
+  reference   : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Time synchronization - ntp vrf"
+  info        : "Many secure protocols and auditing functions rely on system times being synchronized with a reliable time source, either within or (where security considerations permit) external to the managed network. One of the most commonly used protocols to accomplish this is the Network Time Protocol (NTP), which can use both local and Internet-hosted servers to synchronize system time across a network. NTP should be configured and enabled on the device prior to enabling secure management protocols."
+  solution    : "For example, to configure a switch to use NTP authentication and connect to a local NTP server at 10.100.1.254 using the switch management port:
+
+  switch(config)# ntp authentication
+  switch(config)# ntp authentication-key 1 md5 myPassword
+  switch(config)# ntp server 10.100.1.254 prefer
+  switch(config)# ntp vrf mgmt"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "ntp"
+  item        : "ntp vrf @MGMT_VRF@"
+  reference   : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+</custom_item>
+
+<custom_item>
+  type        : BANNER_CHECK
+  description : "Login banner - banner motd"
+  info        : "Setting a banner to be displayed during the login process notifies users that unauthorized use is prohibited, and that access to and use of the system may be monitored and logged."
+  solution    : "The following is an example of creating a \"message of the day\" (MOTD) banner that will be displayed when a user connects to the switch, prior to logging in (using the ^ character to denote the end of the banner):
+
+  switch(config)# banner motd ^Enter a new banner. Terminate the banner with the delimiter you have chosen.
+  switch(config-banner-motd)# This system is for authorized use only. Unauthorized or improper
+  switch(config-banner-motd)# use of this system may result in civil or criminal penalties. By
+  switch(config-banner-motd)# continuing to use this system you acknowledge your consent to
+  switch(config-banner-motd)# these conditions of use.
+  switch(config-banner-motd)# ^"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  item        : "banner motd"
+  content     : "@BANNER_MOTD_TEXT@"
+  reference   : "800-171|3.1.9,800-53|AC-8,800-53r5|AC-8,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8,NESA|M1.3.6,TBA-FIISB|45.2.4"
+</custom_item>
+
+<custom_item>
+  type        : BANNER_CHECK
+  description : "Login banner - banner exec"
+  info        : "Setting a banner to be displayed during the login process notifies users that unauthorized use is prohibited, and that access to and use of the system may be monitored and logged."
+  solution    : "The following is an example of creating a \"message of the day\" (MOTD) banner that will be displayed when a user connects to the switch, prior to logging in (using the ^ character to denote the end of the banner):
+
+  switch(config)# banner motd ^Enter a new banner. Terminate the banner with the delimiter you have chosen.
+  switch(config-banner-motd)# This system is for authorized use only. Unauthorized or improper
+  switch(config-banner-motd)# use of this system may result in civil or criminal penalties. By
+  switch(config-banner-motd)# continuing to use this system you acknowledge your consent to
+  switch(config-banner-motd)# these conditions of use.
+  switch(config-banner-motd)# ^"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  item        : "banner exec"
+  content     : "@BANNER_EXEC_TEXT@"
+  reference   : "800-171|3.1.9,800-53|AC-8,800-53r5|AC-8,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8,NESA|M1.3.6,TBA-FIISB|45.2.4"
+</custom_item>
+
+# Insecure protocols and secure alternatives
+
+<report type:"WARNING">
+  description : "TFTP vs SFTP"
+  info        : "TFTP should not be used for file transfers as it does not require authentication, and transfers data in the clear, enabling an unauthorized user to intercept potentially sensitive data. Secure File Transfer Protocol (SFTP) should be used instead as it provides an encrypted session between client and server.
+
+  NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "For example, to copy a software image from an SFTP server to the primary image slot on the switch, using the management interface:
+
+  switch# copy sftp://sftpuser@10.10.10.1/TL_10_01_0001.swi primary vrf mgmt"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  reference   : "800-53|CM-7b."
+</report>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "SNMPv1 and v2c vs SNMPv3 - snmpv3"
+  info        : "SNMP is disabled by default in ArubaOS-CX. This protocol is used to monitor switches and routers from a central management server such as AirWave or IMC. The commonly used SNMP versions 1 and 2c use community names for read and write access, much like passwords are used for authentication. These community names are sent across the wire as cleartext. If a malicious user were to capture these community names, they could pull configuration parameters and monitoring data from the switch.
+
+SNMP version 3 was developed to overcome this weakness by using asymmetric cryptography, similar to that used by SSH, to encrypt SNMP traffic over the wire."
+  solution    : "Follow these steps to create an SNMPv3 user, and assign SNMP functionality to the mgmt VRF instance:
+
+  switch(config)# snmpv3 user myUser auth sha auth-pass plaintext myAuthPswrd priv des priv-pass plaintext myPrivPswrd
+  switch(config)# snmp-server vrf mgmt
+
+  In addition to enabling SNMPv3, the default SNMPv1/v2c community name public should be replaced with a nonstandard community name:
+
+  switch(config)# snmp-server community ReadOnlyCommunity
+
+  This community name can instead be used if SNMPv3 cannot be used due to functional limitations within theenvironment, but SNMP is still required for device monitoring."
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "snmpv3"
+  item        : "snmpv3 user .+ auth .+"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK_NOT
+  description : "SNMPv1 and v2c vs SNMPv3 - snmp-server community"
+  info        : "SNMP is disabled by default in ArubaOS-CX. This protocol is used to monitor switches and routers from a central management server such as AirWave or IMC. The commonly used SNMP versions 1 and 2c use community names for read and write access, much like passwords are used for authentication. These community names are sent across the wire as cleartext. If a malicious user were to capture these community names, they could pull configuration parameters and monitoring data from the switch.
+
+SNMP version 3 was developed to overcome this weakness by using asymmetric cryptography, similar to that used by SSH, to encrypt SNMP traffic over the wire."
+  solution    : "Follow these steps to create an SNMPv3 user, and assign SNMP functionality to the mgmt VRF instance:
+
+  switch(config)# snmpv3 user myUser auth sha auth-pass plaintext myAuthPswrd priv des priv-pass plaintext myPrivPswrd
+  switch(config)# snmp-server vrf mgmt
+
+  In addition to enabling SNMPv3, the default SNMPv1/v2c community name public should be replaced with a nonstandard community name:
+
+  switch(config)# snmp-server community ReadOnlyCommunity
+
+  This community name can instead be used if SNMPv3 cannot be used due to functional limitations within theenvironment, but SNMP is still required for device monitoring."
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "snmp-server community"
+  item        : "(public|readonly|write)"
+  match_case  : NO
+  reference   : "800-171|3.5.2,800-53|IA-5e.,800-53r5|IA-5e.,CN-L3|7.1.3.2(d),CN-L3|8.1.4.2(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5e.,NESA|T5.2.3,NIAv2|NS2,NIAv2|NS39,NIAv2|SS14f,PCI-DSSv3.2.1|2.1,PCI-DSSv4.0|2.2.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+</custom_item>
+
+# Auditing and logging
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Auditing and logging"
+  info        : "ArubaOS-Switch provides both locally stored event and security logs, as well as using the syslog protocol to forward events to a remote server for auditing purposes. Logged events can be filtered by severity level, originating system modules, or using regular expressions to match against message text."
+  solution    : "The syslog client is capable of connecting to a server using UDP (default) or TCP protocols. Use the following command to configure the switch to forward all events with a severity of warning or higher to a syslog server located at 10.100.1.250 using the mgmt VRF:
+
+  switch(config)# logging 10.100.1.250 vrf mgmt severity warning"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "logging"
+  item        : "logging [0-9\.]+ (vrf .+)?severity warning"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+</custom_item>
+
+# Access control
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Management interface"
+  info        : "The built-in management interface is intended to provide a means to access and manage the switch from anetwork segregated from production traffic. Only stations on the segregated management network can gain management access to the switch. This sharply limits the universe of devices that can attempt unauthorized access.
+
+  In the switch software, the management interface is logically separated from the rest of the switch by means of virtual routing and forwarding (VRF); features that are intended to be used on the management interface are assigned to the dedicated mgmt VRF instance. Several management services can be configured to use the mgmt VRF rather than normal switch ports, as illustrated in several examples above.
+
+  Traffic cannot be routed between the management interface and normal switch ports, and the management interface can be assigned a dedicated gateway address. The management interface is enabled by default.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "To configure the management interface with a static IP address, gateway, and DNS:
+
+  switch(config)# interface mgmt
+  switch(config-if-mgmt)# ip static 10.1.1.5/24
+  switch(config-if-mgmt)# default-gateway 10.1.1.1
+  switch(config-if-mgmt)# nameserver 10.0.1.10 10.0.1.11
+
+  To use DHCP instead:
+
+  switch(config)# interface mgmt
+  switch(config-if-mgmt)# ip dhcp
+
+  To show the status of the management interface:
+
+  switch# show interface mgmt
+    Address Mode                   : static
+    Admin State                    : up
+    Mac Address                    : d0:67:26:11:11:11
+    IPv4 address/subnet-mask       : 10.1.1.5/24
+    Default gateway IPv4           : 10.1.1.1
+    IPv6 address/prefix            :
+    IPv6 link local address/prefix : fe80::d267:2611:1111:1111/64
+    Default gateway IPv6           :
+    Primary Nameserver             : 10.0.1.10
+    Secondary Nameserver           : 10.0.1.11"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  context     : "interface mgmt"
+  regex       : ".*"
+  item        : "Manual Review Required"
+  severity    : MEDIUM
+  reference   : "800-171|3.13.2,800-171|3.13.5,800-53|SC-7(13),800-53r5|SC-7(13),CN-L3|8.1.10.6(h),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(13),NESA|T4.5.4,NIAv2|GS7d,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|3.1,TBA-FIISB|43.1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Access control lists"
+  info        : "IP Access Control Lists (ACLs) can also be used to limit management access, permitting more granular control over IP ranges or protocols permitted to access the switch.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Note that all ACLs in ArubaOS-Switch have an implicit \"deny any\" rule at the end of the rules list; this requires that allowed traffic be explicitly permitted to pass through an applied ACL."
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  context     : "ip access-list"
+  regex       : ".*"
+  item        : "Manual Review Required"
+  severity    : MEDIUM
+  reference   : "800-171|3.13.1,800-53|SC-7(11),800-53r5|SC-7(11),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|31.3"
+</custom_item>
+
+# Authentication, authorization, and accounting
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Minimum password length"
+  info        : "Device administrators can specify a minimum password length that can be used to reduce the probability that management user passwords can be brute-forced to gain access to devices."
+  solution    : "To require a minimum password length of 12 characters:
+
+  switch(config)# aaa authentication minimum-password-length 12"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "aaa authentication"
+  item        : "aaa authentication minimum-password-length @MIN_PASSWORD_LENGTH@"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Failed authentication lockout"
+  info        : "By default, there is no limit on the number of login attempts a user can make before successfully authenticating; this introduces the risk of an unauthorized user gaining access to a switch by guessing an account password. This risk can be mitigated by specifying a limit on failed login attempts; once this limit is reached, the user account is locked out."
+  solution    : "To set the number of failed login attempts before account lockout to 2, with a lockout time of 300 seconds (5 minutes), use the following command:
+
+  switch(config)# aaa authentication limit-login-attempts 2 lockout-time 300
+
+  The limit on failed login attempts can be set between 1 and 10; if set to 1, any failed login attempt will result in the account being locked out. The lockout time can be set in a range from 1 to 3,600 seconds (1 hour).
+
+  This setting applies only to login attempts through SSH or the Web UI using local authentication; it does not apply to login attempts through the serial console. This feature cannot be configured when RADIUS or TACACS+ are being used for user authentication; account lockout policies should be configured on the respective authentication server instead."
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "aaa authentication"
+  item        : "aaa authentication limit-login-attempts @AAA_LIMIT_LOGIN_ATTEMPTS@ lockout-time @AAA_LOCKOUT_TIME@"
+  reference   : "800-171|3.1.8,800-53|AC-7,800-53r5|AC-7,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7,NIAv2|AM24,TBA-FIISB|36.2.4,TBA-FIISB|45.1.2"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Centralized authentication - server"
+  info        : "Authenticating users through RADIUS/TACACS provides a centralized way to manage access to the switch. This allows the administrator to make modifications to the set of authorized users without having to make changes on every network device. RADIUS/TACACS authentication is supported by Aruba ClearPass Policy Manager."
+  solution    : "In the following example, a RADIUS server at IP address 10.100.0.253, with the authentication key \"secret\", is configured to be used for authentication on the switch:
+
+  switch(config)# radius-server host 10.100.0.253 key secret
+
+  Similar to the RADIUS example above, the following command designates a TACACS server at 10.100.0.252, with the authentication key \"terces\", as an authentication server:
+
+  switch(config)# tacacs-server host 10.100.0.252 key terces"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "(tacacs|radius)-server"
+  item        : "(tacacs|radius)-server host .+"
+  reference   : "800-171|3.5.1,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Centralized authentication - configuration"
+  info        : "Authenticating users through RADIUS/TACACS provides a centralized way to manage access to the switch. This allows the administrator to make modifications to the set of authorized users without having to make changes on every network device. RADIUS/TACACS authentication is supported by Aruba ClearPass Policy Manager."
+  solution    : "To enable RADIUS authentication for switch login as the primary authentication method, with local authenticationas the secondary method, use the following configuration command:
+
+  switch(config)# aaa authentication login default group radius local
+
+  To enable TACACS+ authentication as the primary method and local authentication as the secondary method formanagement access, use the following configuration command:
+
+  switch(config)# aaa authentication login default group tacacs local"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "aaa authentication login default group"
+  item        : "aaa authentication login default group (radius|tacacs) local"
+  reference   : "800-171|3.5.1,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+</custom_item>
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Check for tacacs"
+      item        : "tacacs-server host .+"
+    </custom_item>
+  </condition>
+
+  <then>
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Centralized authentication - tacacs authorization"
+      info        : "TACACS+ also allows for commands authorization and accounting, permitting more granular control of command-line access and allowing managers to monitor user sessions and configuration activity on their devices."
+      solution    : "The following commands enable authorization and accounting, handled by servers in the default tacacs group:
+
+      switch(config)# aaa authorization commands default group tacacs
+      switch(config)# aaa accounting all default start-stop group tacacs"
+      see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+      regex       : "aaa authorization"
+      item        : "aaa authorization commands default group tacacs"
+      reference   : "800-171|3.5.1,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+    </custom_item>
+
+    <custom_item>
+      type        : CONFIG_CHECK
+      description : "Centralized authentication - tacacs accounting"
+      info        : "TACACS+ also allows for commands authorization and accounting, permitting more granular control of command-line access and allowing managers to monitor user sessions and configuration activity on their devices."
+      solution    : "The following commands enable authorization and accounting, handled by servers in the default tacacs group:
+
+      switch(config)# aaa authorization commands default group tacacs
+      switch(config)# aaa accounting all default start-stop group tacacs"
+      see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+      regex       : "aaa accounting"
+      item        : "aaa accounting all default start-stop group tacacs"
+      reference   : "800-171|3.5.1,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "Centralized authentication - tacacs authorization"
+      info        : "TACACS+ also allows for commands authorization and accounting, permitting more granular control of command-line access and allowing managers to monitor user sessions and configuration activity on their devices.
+
+      NOTE: TACACS configuration was not found. This check does not apply."
+      solution    : "The following commands enable authorization and accounting, handled by servers in the default tacacs group:
+
+      switch(config)# aaa authorization commands default group tacacs
+      switch(config)# aaa accounting all default start-stop group tacacs"
+      see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+      reference   : "800-171|3.5.1,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+    </report>
+
+    <report type:"PASSED">
+      description : "Centralized authentication - tacacs accounting"
+      info        : "TACACS+ also allows for commands authorization and accounting, permitting more granular control of command-line access and allowing managers to monitor user sessions and configuration activity on their devices.
+
+      NOTE: TACACS configuration was not found. This check does not apply."
+      solution    : "The following commands enable authorization and accounting, handled by servers in the default tacacs group:
+
+      switch(config)# aaa authorization commands default group tacacs
+      switch(config)# aaa accounting all default start-stop group tacacs"
+      see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+      reference   : "800-171|3.5.1,800-53|IA-2,800-53r5|IA-2,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+    </report>
+  </else>
+</if>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Session timeout"
+  info        : "The session timeout should be configured to a nonzero value. The session timeout default value is 30 minutes; when the timeout period has elapsed with no user activity, the session will be terminated and the user will be required to log in again."
+  solution    : "Use the following command to set the session timeout to 5 minutes:
+
+  switch(config)# session-timeout 5
+
+  The session timeout period can be set between 0 (disabled) and 43,200 minutes (30 days), and applies to serial console and SSH sessions; it does not apply to the web UI."
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "session-timeout"
+  item        : "session-timeout 5"
+  reference   : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+</custom_item>
+
+# Attack prevention
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Control Plane Policing"
+  info        : "Control Plane Policing (CoPP) prevents flooding of certain types of packets from overloading the switch or module CPU by either rate-limiting or dropping packets. The switch software provides a number of default classes of packets that can be rate-limited, including (but not limited to) ARP broadcasts, multicast, routing protocols (BGP,OSPF), and spanning tree.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Administrators may create up to 32 custom CoPP policies, though only one can be active at any given time. The following commands demonstrate the creation of a simple custom CoPP policy, and how it is applied to the switch:
+
+  switch(config)# copp-policy copp_example
+  switch(config-copp)# class arp-broadcast priority 2 rate 1000 burst 1000
+  switch(config-copp)# class unknown-multicast priority 2 rate 1000 burst 1000
+  switch(config-copp)# class unresolved-ip-unicast priority 2 rate 1000 burst 1000
+  switch(config-copp)# default-class priority 1 rate 3000 burst 3000
+  switch(config-copp)# exit
+  switch(config)# apply copp-policy copp_example
+
+  To remove a custom CoPP policy from service and automatically apply the default profile:
+
+  switch(config)# no apply copp-policy copp_example
+
+  At least one CoPP policy must be active on the device at all times. An active custom CoPP policy cannot be deleted; it must first be removed from service using the above command."
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  regex       : "copp-policy .*"
+  item        : "Manual Review Required"
+  severity    : MEDIUM
+  reference   : "800-53|SC-5,800-53r5|SC-5,CSF|DE.CM-1,CSF|PR.DS-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1"
+</custom_item>
+
+# Physical security
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "USB port"
+  info        : "The switch includes a USB port to receive a flash drive for deploying, troubleshooting, backing up configurations, or updating switches. This port should be disabled when not in use, and only temporarily enabled when needed."
+  solution    : "To enable the USB port, use the following command in the configuration context:
+
+  switch# usb
+
+  To disable the port:
+
+  switch# no usb"
+  see_also    : "https://support.hpe.com/hpesc/public/docDisplay?docId=a00053695en_us"
+  item        : "no usb"
+  reference   : "800-171|3.13.1,800-53|SC-7(14),800-53r5|SC-7(14),CN-L3|8.1.3.1(b),CN-L3|8.1.3.1(c),CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(14),NESA|T4.5.4,NIAv2|CS1,NIAv2|CS2,NIAv2|CS3,NIAv2|NS5b,NIAv2|PH6,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+</custom_item>
+
+</check_type>

@@ -1,0 +1,860 @@
+#TRUSTED 91ce7ee75b4ea88ecc83f40af03066b469ccf33a569163deb51a0b57a22b3b69491e63965f1bc9dec84640c9a5de85622974ecafa393b3a27fde2fd0e1324de043cb59c435ce12dd8e07360e4f1c9a459039474318d92201422ab227a6f2161f3e488d90f48ebab19059e17daa23929da470dd73195d060cd5685ecfa24d92986a07cf62f0ced617ac913a74026e6b190f4d8d7cf01f13bdc8b730d7faaeab0311c1fc8caec3299b5478404eb0758ec07f106a87fe63485fd22c415331d198fbbfdf53b2e2b96f93a95c76f694f2bb508516d27c741a4de61cbab76301afc41630ef40bb366f239c6cdc47abca40f226e01044cc21352ebbf8fc45556f430f6338d15bbb3d6bb59fea8a8f5f01ba615f58ce8459bd668929dfb1ccd45628a8fd5e6410c50d66513faf4448fbf74472b66ea2a6e505b0ff97ff5d98ebd8e1c7a8577d2c09ddee241846db60bfd86edc83712f9c8e1b78616f96d048537e684f224030066e4109417fa8ddd76a6519b39569497f59c7332c02647c8ff8c1ad02f06c67d9948b37299a02e717e80e8b8f2040c6a50c2beac39f50ec51c544d3c40b96db6b2073ab46e52fc4a16f772c027461b8f2bca4b60ffc61fd6e5510de3898f1fa454710e9c90073e379a37f75216383a49029bc96095355140b166e8a7a1c217213052a1c8ae180f9d78c8edc5b606908796c2ff7e93f617e269ea40735d3
+#TRUST-RSA-SHA256 036810048397a87a6adf663d512fe0f5f4752b492dfd190e59199aa5c95391f7ce19cc0bd76bdaba232e4054359401b6b802d12131ebdd42ae52c395c66873cd80e60710ffb2154c73cc1e054d0a59a2dd3cbfa2ab4ba40c673b3d452c3048fd25f5941fdd6bbad2009ebd0cbc24c4f6aaee29946230e20a7871d3215207c3bded2d054f409440175c6eca9adbd77f7e52ea44fc0fc6944e2f7044c564ce10db1455d46ce3687c0ade5fb282d509f408734687d1223756d4c1a7651df24633c541e2a7ec20be6540c69b5f724b5837a232fdb73de3f36c472a4b61880dd315d5a9e394f75a1376abe88398e8418b26c1537745812d9d2157de6bc81cde3deb883ea41160e00a2c7a67fcb0f67254aa604d96b222fa3ea6d300a7792e8601533f59a1480d3ba7e12dfada96c8f6714b13a30167499c03b157e08ad11ceb88dc83fd9d8d1cb3552ee38fccaad7fe927c6b3fba274237515bbe658e12004de5affc07f7bb7cec3589909494e0c64257da038824dc8521d0264fa03ff38fee6201657f3b60818ee5f7061a9aaf09e38305c2effcbd3cd289fb4682e2e35039a7a60bf63eb440fe206c3d5c4dba7ede2a2a9a2d331f0707aff597d1b14782cbb23fd32211b4697c290b7b46493de8a97f3e53bdbb3e95f3732f1c54f087b54a0f0f7f9a0075ab7acdab97520245062fbcb33b0a9c06740c3973232113c927d9547f61
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/03/13 $
+#
+# description : This .audit is designed against the CIS Google Kubernetes Engine (GKE) Autopilot Benchmark 1.3.0
+#
+#<ui_metadata>
+#<display_name>CIS Google Kubernetes Engine GKE Autopilot v1.3.0 L2</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Google Kubernetes Engine GKE Autopilot</name>
+#  <profile>L2</profile>
+#  <version>1.3.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/24113</link>
+#</spec>
+#<labels>cis</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"GCP">
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Cluster Role Bindings"
+      request        : "listClusterRolebindings"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+      regex          : "Subject: system:anonymous"
+      not_expect     : "Subject: system:anonymous"
+      severity       : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Role Bindings"
+      request        : "listRoleBindings"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+      regex          : "Subject: system:anonymous"
+      not_expect     : "Subject: system:anonymous"
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "4.1.8 Avoid bindings to system:anonymous"
+      info        : "Avoid ClusterRoleBindings or RoleBindings with the user system:anonymous.
+
+Kubernetes assigns user system:anonymous to API server requests that have no authentication information provided. Binding a role to user system:anonymous gives any unauthenticated user the permissions granted by that role and is strongly discouraged.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Identify all clusterrolebindings and rolebindings to the user system:anonymous. Check if they are used and review the permissions associated with the binding using the commands in the Audit section above or refer to GKE documentation https://cloud.google.com/kubernetes-engine/docs/best-practices/rbac#detect-prevent-default.
+
+Strongly consider replacing unsafe bindings with an authenticated, user-defined group. Where possible, bind to non-default, user-defined groups with least-privilege roles.
+
+If there are any unsafe bindings to the user system:anonymous, proceed to delete them after consideration for cluster operations with only necessary, safer bindings.
+
+kubectl delete clusterrolebinding
+[CLUSTER_ROLE_BINDING_NAME] kubectl delete rolebinding
+[ROLE_BINDING_NAME]
+--namespace
+[ROLE_BINDING_NAMESPACE]
+
+Impact:
+
+Unauthenticated users will have privileges and permissions associated with roles associated with the configured bindings.
+
+Care should be taken before removing any clusterrolebindings or rolebindings from the environment to ensure they were not required for operation of the cluster. Use a more specific and authenticated user for cluster operations."
+      reference   : "800-171|3.1.1,800-171|3.5.2,800-171|3.5.5,800-171|3.5.6,800-171r3|03.01.01,800-171r3|03.05.05,800-171r3|03.05.12,800-171r3|03.15.01,800-53|AC-1,800-53|AC-2,800-53|AC-2(1),800-53|IA-4,800-53|IA-5,800-53r5|AC-1,800-53r5|AC-2,800-53r5|AC-2(1),800-53r5|IA-4,800-53r5|IA-5,CN-L3|7.1.2.7(b),CN-L3|7.1.3.2(d),CN-L3|8.1.4.2(e),CN-L3|8.1.10.6(c),CSCv7|14.6,CSCv7|16.7,CSCv8|6.1,CSCv8|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|GV.OC-03,CSF2.0|GV.OV-01,CSF2.0|GV.PO-01,CSF2.0|GV.PO-02,CSF2.0|GV.SC-03,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.1,ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.4,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.31,ISO-27001-2022|A.5.36,ISO-27001-2022|A.5.37,ISO-27001-2022|A.8.2,ISO-27001-2022|5.2,ISO-27001-2022|5.3,ISO-27001-2022|7.5.1,ISO-27001-2022|7.5.2,ISO-27001-2022|7.5.3,ISO/IEC-27001|A.9.1.1,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-1,ITSG-33|AC-2,ITSG-33|AC-2(1),ITSG-33|IA-4,ITSG-33|IA-5,LEVEL|2A,NESA|M1.2.2,NESA|T5.2.3,NIAv2|AM28,NIAv2|AM29,NIAv2|AM30,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.3.1 Ensure that all Namespaces have Network Policies defined"
+  info           : "Use network policies to isolate traffic in the cluster network.
+
+Running different applications on the same Kubernetes cluster creates a risk of one compromised application attacking a neighboring application. Network segmentation is important to ensure that containers can communicate only with those they are supposed to. A network policy is a specification of how selections of pods are allowed to communicate with each other and other network endpoints.
+
+Network Policies are namespace scoped. When a network policy is introduced to a given namespace, all traffic not allowed by the policy is denied. However, if there are no network policies in a namespace all traffic will be allowed into and out of the pods in that namespace.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution       : "Follow the documentation and create NetworkPolicy objects as needed.See: https://cloud.google.com/kubernetes-engine/docs/how-to/network-policy#creating_a_network_policy for more information.
+
+Impact:
+
+Once network policies are in use within a given namespace, traffic not explicitly allowed by a network policy will be denied. As such it is important to ensure that, when introducing network policies, legitimate traffic is not blocked."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171r3|03.13.01,800-53|CA-9,800-53|SC-7,800-53r5|CA-9,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|14.1,CSCv7|14.2,CSCv8|13.4,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listClusterNetworkPolicies"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Network Policy: \(.metadata.name)\""
+  expect         : "^Manual Review Required$"
+  severity       : MEDIUM
+</custom_item>
+
+<report type:"WARNING">
+  description : "4.4.1 Consider external secret storage"
+  info        : "Consider the use of an external secrets storage and management system instead of using Kubernetes Secrets directly, if more complex secret management is required. Ensure the solution requires authentication to access secrets, has auditing of access to and use of secrets, and encrypts secrets. Some solutions also make it easier to rotate secrets.
+
+Kubernetes supports secrets as first-class objects, but care needs to be taken to ensure that access to secrets is carefully limited. Using an external secrets provider can ease the management of access to secrets, especially where secrests are used across both Kubernetes and non-Kubernetes environments.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Refer to the secrets management options offered by the cloud service provider or a third-party secrets management solution.
+
+Impact:
+
+None"
+  reference   : "800-171|3.13.1,800-171r3|03.13.01,800-53|SC-7(10),800-53r5|SC-7(10),CN-L3|8.1.10.6(j),CSCv7|13,CSCv8|3,CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.12,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(10),LEVEL|2M,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|33.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<report type:"WARNING">
+  description : "4.5.1 Configure Image Provenance using ImagePolicyWebhook admission controller"
+  info        : "Configure Image Provenance for the deployment.
+
+Kubernetes supports plugging in provenance rules to accept or reject the images in deployments. Rules can be configured to ensure that only approved images are deployed in the cluster.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Follow the Kubernetes documentation and setup image provenance.
+
+Impact:
+
+Regular maintenance for the provenance configuration should be carried out, based on container image updates."
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|18,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|2M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.6.2 Ensure that the seccomp profile is set to RuntimeDefault in the pod definitions"
+  info           : "Enable RuntimeDefault seccomp profile in the pod definitions.
+
+Seccomp (secure computing mode) is used to restrict the set of system calls applications can make, allowing cluster administrators greater control over the security of workloads running in the cluster. Kubernetes disables seccomp profiles by default for historical reasons. It should be enabled to ensure that the workloads have restricted actions available within the container."
+  solution       : "Use security context to enable the RuntimeDefault seccomp profile in your pod definitions. An example is as below:
+
+{
+  \"namespace\": \"kube-system\",
+  \"name\": \"metrics-server-v0.7.0-dbcc8ddf6-gz7d4\",
+  \"seccompProfile\": \"RuntimeDefault\"
+}
+
+Impact:
+
+If the RuntimeDefault seccomp profile is too restrictive for you, you would have to create/manage your own Localhost seccomp profiles."
+  reference      : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.2,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listPods"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | select(.metadata.annotations.\"seccomp.security.alpha.kubernetes.io/pod\" != \"runtime/default\") | select(.spec.securityContext.seccompProfile.type != \"RuntimeDefault\") | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Pod Name: \(.metadata.name), seccomp Profile Type: \(.spec.securityContext.seccompProfile.type), seccomp Annotations: \(.metadata.annotations.\"seccomp.security.alpha.kubernetes.io/pod\")\""
+  regex          : "(seccomp Profile Type:|seccomp Annotations:)"
+  expect         : "(seccomp Profile Type: RuntimeDefault|seccomp Annotations: runtime/default)"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "4.6.3 Apply Security Context to Pods and Containers"
+  info        : "Apply Security Context to Pods and Containers
+
+A security context defines the operating system security settings (uid, gid, capabilities, SELinux role, etc..) applied to a container. When designing containers and pods, make sure that the security context is configured for pods, containers, and volumes. A security context is a property defined in the deployment yaml. It controls the security parameters that will be assigned to the pod/container/volume. There are two levels of security context: pod level security context, and container level security context.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Follow the Kubernetes documentation and apply security contexts to your pods. For a suggested list of security contexts, you may refer to the CIS Google Container-Optimized OS Benchmark.
+
+Impact:
+
+If you incorrectly apply security contexts, there may be issues running the pods."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSCv8|4,CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,LEVEL|2M,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.6.4 The default namespace should not be used"
+  info           : "Kubernetes provides a default namespace, where objects are placed if no namespace is specified for them. Placing objects in this namespace makes application of RBAC and other controls more difficult.
+
+Resources in a Kubernetes cluster should be segregated by namespace, to allow for security controls to be applied at that level and to make it easier to manage resources."
+  solution       : "Ensure that namespaces are created to allow for appropriate segregation of Kubernetes resources and that all new resources are created in a specific namespace.
+
+Impact:
+
+None"
+  reference      : "800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|CM-7,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|2.10,CSCv8|12.2,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2A,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listPods_default"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Pod Name: \(.metadata.name)\""
+  regex          : "Pod Name:"
+  not_expect     : "Pod Name:"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "ar"
+      request        : "listServices"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | (.value.services[] | select(.config.name == \"artifactregistry.googleapis.com\") | .state) as $artifactRegistry | (.value.services[] | select(.config.name == \"containerscanning.googleapis.com\") | .state) as $containerScanning | \"Project Number: \($projectNumber), Project ID: \($projectId), Artifact Registry API: \($artifactRegistry), Container Scanning API: \($containerScanning)\""
+      regex          : "API"
+      expect         : "Artifact Registry API: ENABLED, Container Scanning API: ENABLED"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "gcr"
+      request        : "listServices"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | (.value.services[] | select(.config.name == \"containerregistry.googleapis.com\") | .state) as $containerRegistry | (.value.services[] | select(.config.name == \"containeranalysis.googleapis.com\") | .state) as $containerAnalysis | \"Project Number: \($projectNumber), Project ID: \($projectId), Container Registry API: \($containerRegistry), Container Analysis API: \($containerAnalysis)\""
+      regex          : "API"
+      expect         : "Container Registry API: ENABLED, Container Analysis API: ENABLED"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "5.1.1 Ensure Image Vulnerability Scanning is enabled"
+      info        : "Note: GCR is now deprecated, being superseded by Artifact Registry starting 15th May 2024. Runtime Vulnerability scanning is available via GKE Security Posture
+
+Scan images stored in Google Container Registry (GCR) or Artifact Registry (AR) for vulnerabilities.
+
+Vulnerabilities in software packages can be exploited by malicious users to obtain unauthorized access to local cloud resources. GCR Container Analysis API or Artifact Registry Container Scanning API allow images stored in GCR or AR respectively to be scanned for known vulnerabilities."
+      solution    : "For Images Hosted in GCR:
+
+Using Google Cloud Console
+
+ - Go to GCR by visiting: https://console.cloud.google.com/gcr
+ - Select Settings and, under the Vulnerability Scanning heading, click the TURN ON button.
+
+Using Command Line
+
+gcloud services enable containeranalysis.googleapis.com
+
+For Images Hosted in AR:
+
+Using Google Cloud Console
+
+ - Go to GCR by visiting: https://console.cloud.google.com/artifacts
+ - Select Settings and, under the Vulnerability Scanning heading, click the ENABLE button.
+
+Using Command Line
+
+gcloud services enable containerscanning.googleapis.com
+
+Impact:
+
+None."
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171r3|03.11.02,800-53|RA-5,800-53r5|RA-5,CSCv7|3,CSCv7|3.1,CSCv7|3.2,CSCv8|7.6,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.8,ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,LEVEL|2A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.7.1,PCI-DSSv3.2.1|6.1,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "5.1.2 Minimize user access to Container Image repositories"
+  info        : "Note: GCR is now deprecated, see the references for more details.
+
+Restrict user access to GCR or AR, limiting interaction with build images to only authorized personnel and service accounts.
+
+Weak access control to GCR or AR may allow malicious users to replace built images with vulnerable or back-doored containers.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "For Images Hosted in AR:
+
+Using Google Cloud Console:
+
+ - Go to Artifacts Browser by visiting https://console.cloud.google.com/artifacts
+ - From the list of artifacts select each repository with format Docker
+ - Under the Permissions tab, modify the roles for each member and ensure only authorized users have the Artifact Registry Administrator, Artifact Registry Reader, Artifact Registry Repository Administrator and Artifact Registry Writer roles.
+
+Using Command Line:
+
+gcloud artifacts repositories set-iam-policy <repository-name> <path-to-policy-file> --location <repository-location>
+
+To learn how to configure policy files see: https://cloud.google.com/artifact-registry/docs/access-control#grant
+
+For Images Hosted in GCR:
+
+Using Google Cloud Console:
+
+To modify roles granted at the GCR bucket level:
+
+ - Go to Storage Browser by visiting: https://console.cloud.google.com/storage/browser.
+ - From the list of storage buckets, select artifacts.<project_id>.appspot.com for the GCR bucket
+ - Under the Permissions tab, modify permissions of the identified member via the drop-down role menu and change the Role to Storage Object Viewer for read-only access.
+
+For a User or Service account with Project level permissions inherited by the GCR bucket, or the Service Account User Role :
+
+ - Go to IAM by visiting: https://console.cloud.google.com/iam-admin/iam
+ - Find the User or Service account to be modified and click on the corresponding pencil icon.
+ - Remove the create / modify role ( Storage Admin / Storage Object Admin / Storage Object Creator / Service Account User ) on the user or service account.
+ - If required add the Storage Object Viewer role - note with caution that this permits the account to view all objects stored in GCS for the project.
+
+Using Command Line:
+
+To change roles at the GCR bucket level:Firstly, run the following if read permissions are required:
+
+gsutil iam ch <type>:<email_address>:objectViewer gs://artifacts.<project_id>.appspot.com
+
+Then remove the excessively privileged role ( Storage Admin / Storage Object Admin / Storage Object Creator ) using:
+
+gsutil iam ch -d <type>:<email_address>:<role> gs://artifacts.<project_id>.appspot.com
+
+where:
+
+ - <type> can be one of the following:
+ - user, if the <email_address> is a Google account.
+ - serviceAccount, if <email_address> specifies a Service account.
+ - <email_address> can be one of the following:
+ - a Google account (for example, someone@example.com ).
+ - a Cloud IAM service account.
+
+To modify roles defined at the project level and subsequently inherited within the GCR bucket, or the Service Account User role, extract the IAM policy file, modify it accordingly and apply it using:
+
+gcloud projects set-iam-policy <project_id> <policy_file>
+
+Impact:
+
+Care should be taken not to remove access to GCR or AR for accounts that require this for their operation.Any account granted the Storage Object Viewer role at the project level can view all objects stored in GCS for the project."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<report type:"WARNING">
+  description : "5.1.3 Minimize cluster access to read-only for Container Image repositories"
+  info        : "Note: GCR is now deprecated, see the references for more details.
+
+Configure the Cluster Service Account with Artifact Registry Viewer Role to only allow read-only access to AR repositories.Configure the Cluster Service Account with Storage Object Viewer Role to only allow read-only access to GCR.
+
+The Cluster Service Account does not require administrative access to GCR or AR, only requiring pull access to containers to deploy onto GKE. Restricting permissions follows the principles of least privilege and prevents credentials from being abused beyond the required role.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "For Images Hosted in AR:
+
+Using Google Cloud Console:
+
+ - Go to Artifacts Browser by visiting https://console.cloud.google.com/artifacts
+ - From the list of repositories, for each repository with Format Docker
+ - Under the Permissions tab, modify the permissions for GKE Service account and ensure that only the Artifact Registry Viewer role is set.
+
+Using Command Line:Add artifactregistry.reader role
+
+gcloud artifacts repositories add-iam-policy-binding <repository> \\
+--location=<repository-location> \\
+--member='serviceAccount:<email-address>' \\
+--role='roles/artifactregistry.reader'
+
+Remove any roles other than artifactregistry.reader
+
+gcloud artifacts repositories remove-iam-policy-binding <repository> \\
+--location <repository-location> \\
+--member='serviceAccount:<email-address>' \\
+--role='<role-name>'
+
+For Images Hosted in GCR:
+
+Using Google Cloud Console:
+
+For an account explicitly granted access to the bucket:
+
+ - Go to Storage Browser by visiting: https://console.cloud.google.com/storage/browser.
+ - From the list of storage buckets, select artifacts.<project_id>.appspot.com for the GCR bucket.
+ - Under the Permissions tab, modify permissions of the identified GKE Service Account via the drop-down role menu and change to the Role to Storage Object Viewer for read-only access.
+
+For an account that inherits access to the bucket through Project level permissions:
+
+ - Go to IAM console by visiting: https://console.cloud.google.com/iam-admin.
+ - From the list of accounts, identify the required service account and select the corresponding pencil icon.
+ - Remove the Storage Admin / Storage Object Admin / Storage Object Creator roles.
+ - Add the Storage Object Viewer role - note with caution that this permits the account to view all objects stored in GCS for the project.
+ - Click SAVE.
+
+Using Command Line:
+
+For an account explicitly granted to the bucket:Firstly add read access to the Kubernetes Service Account:
+
+gsutil iam ch <type>:<email_address>:objectViewer gs://artifacts.<project_id>.appspot.com
+
+where:
+
+ - <type> can be one of the following:
+ - user, if the <email_address> is a Google account.
+ - serviceAccount, if <email_address> specifies a Service account.
+ - <email_address> can be one of the following:
+ - a Google account (for example, someone@example.com ).
+ - a Cloud IAM service account.
+
+Then remove the excessively privileged role ( Storage Admin / Storage Object Admin / Storage Object Creator ) using:
+
+gsutil iam ch -d <type>:<email_address>:<role> gs://artifacts.<project_id>.appspot.com
+
+For an account that inherits access to the GCR Bucket through Project level permissions, modify the Projects IAM policy file accordingly, then upload it using:
+
+gcloud projects set-iam-policy <project_id> <policy_file>
+
+Impact:
+
+A separate dedicated service account may be required for use by build servers and other robot users pushing or managing container images.
+
+Any account granted the Storage Object Viewer role at the project level can view all objects stored in GCS for the project."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|3.2,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "check if Binary Authorization is enabled for GKE clusters"
+      request        : "listContainerClusters"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Evaluation Mode: \(.binaryAuthorization.evaluationMode)\""
+      regex          : "Evaluation Mode"
+      expect         : "Evaluation Mode: PROJECT_SINGLETON_POLICY_(ENFORCE|AUDIT_AND_WARN)"
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "check Binary Authorization Policy content"
+      request        : "listContainerBinaryAuthorizations"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value | \"Project Number: \($projectNumber), Project ID: \($projectId), Binary Authorization Policy: \(.name), Evaluation Mode: \(.defaultAdmissionRule.evaluationMode)\""
+      regex          : "Evaluation Mode"
+      expect         : "Evaluation Mode: (REQUIRE_ATTESTATION|ALWAYS_DENY)"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "5.1.4 Ensure only trusted container images are used"
+      info        : "Use Binary Authorization to allowlist (whitelist) only approved container registries.
+
+Allowing unrestricted access to external container registries provides the opportunity for malicious or unapproved containers to be deployed into the cluster. Ensuring only trusted container images are used reduces this risk."
+      solution    : "Using Google Cloud Console
+
+ - Go to Binary Authorization by visiting: https://console.cloud.google.com/security/binary-authorization.
+ - Enable the Binary Authorization API (if disabled).
+ - Create an appropriate policy for use with the cluster. See https://cloud.google.com/binary-authorization/docs/policy-yaml-reference for guidance.
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Select the cluster for which Binary Authorization is disabled.
+ - Under the details pane, within the Security section, click on the pencil icon named Edit Binary Authorization.
+ - Check the box next to Enable Binary Authorization.
+ - Choose Enforce policy and provide a directory for the policy to be used.
+ - Click SAVE CHANGES.
+
+Using Command Line:
+
+Update the cluster to enable Binary Authorization:
+
+gcloud container cluster update <cluster_name> --location <location> --project <project_id> --binauthz-evaluation-mode=<evaluation_mode>
+
+Example:
+gcloud container clusters update $CLUSTER_NAME --location $LOCATION --project $PROJECT_ID --binauthz-evaluation-mode=PROJECT_SINGLETON_POLICY_ENFORCE
+
+See: https://cloud.google.com/sdk/gcloud/reference/container/clusters/update#--binauthz-evaluation-mode for more details around the evaluation modes available.
+
+Create a Binary Authorization Policy using the Binary Authorization Policy Reference: https://cloud.google.com/binary-authorization/docs/policy-yaml-reference for guidance.
+
+Import the policy file into Binary Authorization:
+
+gcloud container binauthz policy import <yaml_policy>
+
+Impact:
+
+All container images to be deployed to the cluster must be hosted within an approved container image registry. If public registries are not on the allowlist, a process for bringing commonly used container images into an approved private registry and keeping them up to date will be required."
+      reference   : "800-171|3.4.8,800-171r3|03.04.08,800-53|CM-7(5),800-53|CM-10,800-53r5|CM-7(5),800-53r5|CM-10,CSCv7|5.2,CSCv7|5.3,CSCv8|2.5,CSF|DE.CM-3,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.32,ISO-27001-2022|A.8.19,ISO/IEC-27001|A.12.5.1,ISO/IEC-27001|A.12.6.2,ITSG-33|CM-7,LEVEL|2A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|44.2.2,TBA-FIISB|49.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "5.2.1 Ensure GKE clusters are not running using the Compute Engine default service account"
+  info        : "Create and use minimally privileged Service accounts to run GKE clusters instead of using the Compute Engine default Service account. Unnecessary permissions could be abused in the case of a node compromise.
+
+A GCP service account (as distinct from a Kubernetes ServiceAccount) is an identity that an instance or an application can be used to run GCP API requests. This identity is used to identify virtual machine instances to other Google Cloud Platform services. By default, Kubernetes Engine nodes use the Compute Engine default service account. This account has broad access by default, as defined by access scopes, making it useful to a wide variety of applications on the VM, but it has more permissions than are required to run your Kubernetes Engine cluster.
+
+A minimally privileged service account should be created and used to run the Kubernetes Engine cluster instead of using the Compute Engine default service account, and create separate service accounts for each Kubernetes Workload (See recommendation 5.2.2).
+
+Kubernetes Engine requires, at a minimum, the node service account to have the monitoring.viewer, monitoring.metricWriter, and logging.logWriter roles. Additional roles may need to be added for the nodes to pull images from GCR.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Using Google Cloud Console:
+
+To create a minimally privileged service account:
+
+ - Go to Service Accounts by visiting: https://console.cloud.google.com/iam-admin/serviceaccounts.
+ - Click on CREATE SERVICE ACCOUNT.
+ - Enter Service Account Details.
+ - Click CREATE AND CONTINUE.
+ - Within Service Account permissions add the following roles:
+ - Logs Writer.
+ - Monitoring Metric Writer.
+ - `Monitoring Viewer.
+
+ - Click CONTINUE.
+ - Grant users access to this service account and create keys as required.
+ - Click DONE.
+
+To create a Node pool to use the Service account:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Click on the cluster name within which the Node pool will be launched.
+ - Click on ADD NODE POOL.
+ - Within the Node Pool details, select the Security subheading, and under `Identity defaults, select the minimally privileged service account from the Service Account drop-down.
+ - Click `CREATE to launch the Node pool.
+
+Note: The workloads will need to be migrated to the new Node pool, and the old node pools that use the default service account should be deleted to complete the remediation.
+
+Using Command Line:
+
+To create a minimally privileged service account:
+
+gcloud iam service-accounts create <node_sa_name> --display-name \"GKE Node Service Account\"
+export NODE_SA_EMAIL=gcloud iam service-accounts list --format='value(email)' --filter='displayName:GKE Node Service Account'
+
+Grant the following roles to the service account:
+
+export PROJECT_ID=gcloud config get-value project
+gcloud projects add-iam-policy-binding <project_id> --member serviceAccount:<node_sa_email> --role roles/monitoring.metricWriter
+gcloud projects add-iam-policy-binding <project_id> --member serviceAccount:<node_sa_email> --role roles/monitoring.viewer
+gcloud projects add-iam-policy-binding <project_id> --member serviceAccount:<node_sa_email> --role roles/logging.logWriter
+
+To create a new Node pool using the Service account, run the following command:
+
+gcloud container node-pools create <node_pool> --service-account=<sa_name>@<project_id>.iam.gserviceaccount.com--cluster=<cluster_name> --zone <compute_zone>
+
+Note: The workloads will need to be migrated to the new Node pool, and the old node pools that use the default service account should be deleted to complete the remediation.
+
+Impact:
+
+Instances are automatically granted the https://www.googleapis.com/auth/cloud-platform scope to allow full access to all Google Cloud APIs. This is so that the IAM permissions of the instance are completely determined by the IAM roles of the Service account. Thus if Kubernetes workloads were using cluster access scopes to perform actions using Google APIs, they may no longer be able to, if not permitted by the permissions of the Service account. To remediate, follow recommendation 5.2.2.
+
+The Service account roles listed here are the minimum required to run the cluster. Additional roles may be required to pull from a private instance of Google Container Registry (GCR)."
+  reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5,800-53r5|IA-5,CSCv7|4.3,CSCv8|4.7,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5,LEVEL|2A,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.3.1 Ensure Kubernetes Secrets are encrypted using keys managed in Cloud KMS"
+  info           : "Encrypt Kubernetes secrets, stored in etcd, at the application-layer using a customer-managed key in Cloud KMS.
+
+By default, GKE encrypts customer content stored at rest, including Secrets. GKE handles and manages this default encryption for you without any additional action on your part.
+
+Application-layer Secrets Encryption provides an additional layer of security for sensitive data, such as user defined Secrets and Secrets required for the operation of the cluster, such as service account keys, which are all stored in etcd.
+
+Using this functionality, you can use a key, that you manage in Cloud KMS, to encrypt data at the application layer. This protects against attackers in the event that they manage to gain access to etcd."
+  solution       : "To enable Application-layer Secrets Encryption, several configuration items are required. These include:
+
+ - A key ring
+ - A key
+ - A GKE service account with Cloud KMS CryptoKey Encrypter/Decrypter role
+
+Once these are created, Application-layer Secrets Encryption can be enabled on an existing or new cluster.
+
+Using Google Cloud Console:
+
+To create a key
+
+ - Go to Cloud KMS by visiting https://console.cloud.google.com/security/kms.
+ - Select CREATE KEY RING.
+ - Enter a Key ring name and the region where the keys will be stored.
+ - Click CREATE.
+ - Enter a Key name and appropriate rotation period within the Create key pane.
+ - Click CREATE.
+
+To enable on a new cluster
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Click CREATE CLUSTER, and choose the required cluster mode.
+ - Within the Security heading, under CLUSTER, check Encrypt secrets at the application layer checkbox.
+ - Select the kms key as the customer-managed key and, if prompted, grant permissions to the GKE Service account.
+ - Click CREATE.
+
+To enable on an existing cluster
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Select the cluster to be updated.
+ - Under the Details pane, within the Security heading, click on the pencil named Application-layer secrets encryption.
+ - Enable Encrypt secrets at the application layer and choose a kms key.
+ - Click SAVE CHANGES.
+
+Using Command Line:
+
+To create a key:Create a key ring:
+
+gcloud kms keyrings create <ring_name> --location <location> --project <key_project_id>
+
+Create a key:
+
+gcloud kms keys create <key_name> --location <location> --keyring <ring_name> --purpose encryption --project <key_project_id>
+
+Grant the Kubernetes Engine Service Agent service account the Cloud KMS CryptoKey Encrypter/Decrypter role:
+
+gcloud kms keys add-iam-policy-binding <key_name> --location <location> --keyring <ring_name> --member serviceAccount:<service_account_name> --role roles/cloudkms.cryptoKeyEncrypterDecrypter --project <key_project_id>
+
+To create a new cluster with Application-layer Secrets Encryption:
+
+gcloud container clusters create <cluster_name> --cluster-version=latest --zone <zone> --database-encryption-key projects/<key_project_id>/locations/<location>/keyRings/<ring_name>/cryptoKeys/<key_name> --project <cluster_project_id>
+
+To enable on an existing cluster:
+
+gcloud container clusters update <cluster_name> --zone <zone> --database-encryption-key projects/<key_project_id>/locations/<location>/keyRings/<ring_name>/cryptoKeys/<key_name> --project <cluster_project_id>
+
+Impact:
+
+To use the Cloud KMS CryptoKey to protect etcd in the cluster, the 'Kubernetes Engine Service Agent' Service account must hold the 'Cloud KMS CryptoKey Encrypter/Decrypter' role."
+  reference      : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Database Encryption - State: \(.databaseEncryption.state)\""
+  regex          : "Database Encryption - State"
+  expect         : "Database Encryption - State: ENCRYPTED"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.4.2 Ensure Control Plane Authorized Networks is Enabled"
+  info           : "Enable Control Plane Authorized Networks to restrict access to the cluster's control plane to only an allowlist of authorized IPs.
+
+Authorized networks are a way of specifying a restricted range of IP addresses that are permitted to access your cluster's control plane. Kubernetes Engine uses both Transport Layer Security (TLS) and authentication to provide secure access to your cluster's control plane from the public internet. This provides you the flexibility to administer your cluster from anywhere; however, you might want to further restrict access to a set of IP addresses that you control. You can set this restriction by specifying an authorized network.
+
+Control Plane Authorized Networks blocks untrusted IP addresses. Google Cloud Platform IPs (such as traffic from Compute Engine VMs) can reach your master through HTTPS provided that they have the necessary Kubernetes credentials.
+
+Restricting access to an authorized network can provide additional security benefits for your container cluster, including:
+
+ - Better protection from outsider attacks: Authorized networks provide an additional layer of security by limiting external, non-GCP access to a specific set of addresses you designate, such as those that originate from your premises. This helps protect access to your cluster in the case of a vulnerability in the cluster's authentication or authorization mechanism.
+ - Better protection from insider attacks: Authorized networks help protect your cluster from accidental leaks of master certificates from your company's premises. Leaked certificates used from outside GCP and outside the authorized IP ranges (for example, from addresses outside your company) are still denied access."
+  solution       : "Using Google Cloud Console:
+
+ - Go to Kubernetes Engine by visiting https://console.cloud.google.com/kubernetes/list
+ - Select Kubernetes clusters for which Control Plane Authorized Networks is disabled
+ - Within the Details pane, under the Networking heading, click on the pencil icon named Edit control plane authorised networks.
+ - Check the box next to Enable control plane authorised networks.
+ - Click SAVE CHANGES.
+
+Using Command Line:
+
+To enable Control Plane Authorized Networks for an existing cluster, run the following command (define own IP range):
+
+gcloud container clusters update $CLUSTER_NAME \\
+  --location $LOCATION \\
+  --enable-master-authorized-networks \\
+  --master-authorized-networks \"203.0.113.0/24,198.51.100.10/32\" \\
+  --project $PROJECT_ID
+
+Along with this, you can list authorized networks using the --master-authorized-networks flag which contains a list of up to 20 external networks that are allowed to connect to your cluster's control plane through HTTPS. You provide these networks as a comma-separated list of addresses in CIDR notation (such as 90.90.100.0/24 ).
+
+Impact:
+
+When implementing Control Plane Authorized Networks, be careful to ensure all desired networks are on the allowlist to prevent inadvertently blocking external access to your cluster's control plane."
+  reference      : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Master Authorized Networks Config - Enabled: \(.masterAuthorizedNetworksConfig.enabled)\""
+  regex          : "Master Authorized Networks Config - Enabled"
+  expect         : "Master Authorized Networks Config - Enabled: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.4.3 Ensure clusters are created with Private Endpoint Enabled and Public Access Disabled"
+  info           : "Disable access to the Kubernetes API from outside the node network if it is not required.
+
+In a private cluster, the master node has two endpoints, a private and public endpoint. The private endpoint is the internal IP address of the master, behind an internal load balancer in the master's VPC network. Nodes communicate with the master using the private endpoint. The public endpoint enables the Kubernetes API to be accessed from outside the master's VPC network.
+
+Although Kubernetes API requires an authorized token to perform sensitive actions, a vulnerability could potentially expose the Kubernetes publically with unrestricted access. Additionally, an attacker may be able to identify the current cluster and Kubernetes API version and determine whether it is vulnerable to an attack. Unless required, disabling public endpoint will help prevent such threats, and require the attacker to be on the master's VPC network to perform any attack on the Kubernetes API."
+  solution       : "Once a cluster is created without enabling Private Endpoint only, it cannot be remediated. Rather, the cluster must be recreated.
+
+Using Google Cloud Console:
+
+ - Go to Kubernetes Engine by visiting https://console.cloud.google.com/kubernetes/list
+ - Click CREATE CLUSTER, and choose CONFIGURE for the Standard mode cluster.
+ - Configure the cluster as required then click Networking under CLUSTER in the navigation pane.
+ - Under IPv4 network access, click the Private cluster radio button.
+ - Uncheck the Access control plane using its external IP address checkbox.
+ - In the Control plane IP range textbox, provide an IP range for the control plane.
+ - Configure the other settings as required, and click CREATE.
+
+Using Command Line:
+
+Create a cluster with a Private Endpoint enabled and Public Access disabled by including the --enable-private-endpoint flag within the cluster create command:
+
+gcloud container clusters create-auto <cluster_name> --location $LOCATION --enable-private-endpoint
+
+Setting this flag also requires the setting of --enable-private-nodes and --enable-master-authorized-networks.
+
+Impact:
+
+To enable a Private Endpoint, the cluster has to also be configured with private nodes, a private master IP range and IP aliasing enabled.
+
+If the Private Endpoint flag --enable-private-endpoint is passed to the gcloud CLI, or the external IP address undefined in the Google Cloud Console during cluster creation, then all access from a public IP address is prohibited."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-171r3|03.13.01,800-171r3|03.13.06,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|12,CSCv8|4.4,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Private Cluster Config - Enable Private Endpoint: \(.privateClusterConfig.enablePrivateEndpoint)\""
+  regex          : "Private Cluster Config - Enable Private Endpoint"
+  expect         : "Private Cluster Config - Enable Private Endpoint: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.4.4 Ensure clusters are created with Private Nodes"
+  info           : "Private Nodes are nodes with no public IP addresses. Disable public IP addresses for cluster nodes, so that they only have private IP addresses.
+
+Disabling public IP addresses on cluster nodes restricts access to only internal networks, forcing attackers to obtain local network access before attempting to compromise the underlying Kubernetes hosts."
+  solution       : "Once a cluster is created without enabling Private Nodes, it cannot be remediated. Rather the cluster must be recreated.
+
+Using Google Cloud Console:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Click CREATE CLUSTER.
+ - Configure the cluster as required then click Networking under CLUSTER in the navigation pane.
+ - Under IPv4 network access, click the Private cluster radio button.
+ - Configure the other settings as required, and click CREATE.
+
+Using Command Line:
+
+To create a cluster with Private Nodes enabled, include the --enable-private-nodes flag within the cluster create command:
+
+gcloud container clusters create <cluster_name> --location $LOCATION --enable-private-nodes
+
+Impact:
+
+To enable Private Nodes, the cluster has to also be configured with a private master IP range and IP Aliasing enabled.
+
+Private Nodes do not have outbound access to the public internet. If you want to provide outbound Internet access for your private nodes, you can use Cloud NAT or you can manage your own NAT gateway.
+
+To access Google Cloud APIs and services from private nodes, Private Google Access needs to be set on Kubernetes Engine Cluster Subnets."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-171r3|03.13.01,800-171r3|03.13.06,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|12,CSCv8|4.4,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Enable Private Nodes: \(.privateClusterConfig.enablePrivateNodes)\""
+  regex          : "Enable Private Nodes"
+  expect         : "Enable Private Nodes: true"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "5.4.5 Ensure use of Google-managed SSL Certificates"
+  info        : "Encrypt traffic to HTTPS load balancers using Google-managed SSL certificates.
+
+Encrypting traffic between users and the Kubernetes workload is fundamental to protecting data sent over the web.
+
+Google-managed SSL Certificates are provisioned, renewed, and managed for domain names. This is only available for HTTPS load balancers created using Ingress Resources, and not TCP/UDP load balancers created using Service of type:LoadBalancer.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "If services of type:LoadBalancer are discovered, consider replacing the Service with an Ingress.
+
+To configure the Ingress and use Google-managed SSL certificates, follow the instructions as listed at: https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs.
+
+Impact:
+
+Google-managed SSL Certificates are less flexible than certificates that are self obtained and managed. Managed certificates support a single, non-wildcard domain. Self-managed certificates can support wildcards and multiple subject alternative names (SANs)."
+  reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<report type:"WARNING">
+  description : "5.5.1 Manage Kubernetes RBAC users with Google Groups for GKE"
+  info        : "Cluster Administrators should leverage G Suite Groups and Cloud IAM to assign Kubernetes user roles to a collection of users, instead of to individual emails using only Cloud IAM.
+
+On- and off-boarding users is often difficult to automate and prone to error. Using a single source of truth for user permissions via G Suite Groups reduces the number of locations that an individual must be off-boarded from, and prevents users gaining unique permissions sets that increase the cost of audit.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Follow the G Suite Groups instructions at: https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#google-groups-for-gke.
+
+Then, create a cluster with:
+
+gcloud container clusters create <cluster_name> --security-group <security_group_name>
+
+Finally create Roles, ClusterRoles, RoleBindings, and ClusterRoleBindings that reference the G Suite Groups.
+
+Impact:
+
+When migrating to using security groups, an audit of RoleBindings and ClusterRoleBindings is required to ensure all users of the cluster are managed using the new groups and not individually.
+
+When managing RoleBindings and ClusterRoleBindings, be wary of inadvertently removing bindings required by service accounts."
+  reference   : "800-171|3.1.1,800-171|3.1.5,800-171|3.3.8,800-171|3.3.9,800-171r3|03.01.01,800-171r3|03.01.02,800-171r3|03.01.05,800-171r3|03.01.05a.,800-171r3|03.01.05b.,800-171r3|03.03.08b.,800-53|AC-2,800-53|AC-3,800-53|AC-6,800-53|AC-6(1),800-53|AC-6(7),800-53|AU-9(4),800-53r5|AC-2,800-53r5|AC-5,800-53r5|AC-6,800-53r5|AC-6(1),800-53r5|AC-6(7),800-53r5|AU-9(4),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.3(d),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|16.2,CSCv8|6.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.5,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.4,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.4.2,ITSG-33|AC-2,ITSG-33|AC-3,ITSG-33|AC-6,ITSG-33|AC-6(1),ITSG-33|AU-9(4),ITSG-33|AU-9(4)(a),ITSG-33|AU-9(4)(b),LEVEL|2M,NESA|M1.1.3,NESA|M1.2.2,NESA|M5.2.3,NESA|M5.5.2,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|AM28,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|NS5j,NIAv2|SM5,NIAv2|SM6,NIAv2|SS13c,NIAv2|SS14e,NIAv2|SS15c,NIAv2|SS29,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.3.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<report type:"WARNING">
+  description : "5.6.1 Enable Customer-Managed Encryption Keys (CMEK) for GKE Persistent Disks (PD)"
+  info        : "Use Customer-Managed Encryption Keys (CMEK) to encrypt dynamically-provisioned attached Google Compute Engine Persistent Disks (PDs) using keys managed within Cloud Key Management Service (Cloud KMS).
+
+GCE persistent disks are encrypted at rest by default using envelope encryption with keys managed by Google. For additional protection, users can manage the Key Encryption Keys using Cloud KMS.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "This cannot be remediated by updating an existing cluster. The node pool must either be recreated or a new cluster created.
+
+Using Google Cloud Console:
+
+This is not possible using Google Cloud Console.
+
+Using Command Line:
+
+Follow the instructions detailed at: https://cloud.google.com/kubernetes-engine/docs/how-to/using-cmek.
+
+Impact:
+
+Encryption of dynamically-provisioned attached disks requires the use of the self-provisioned Compute Engine Persistent Disk CSI Driver v0.5.1 or higher.
+
+If CMEK is being configured with a regional cluster, the cluster must run GKE 1.14 or higher."
+  reference   : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2M,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24113"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.7.1 Enable Security Posture"
+  info           : "The security posture dashboard provides insights about your workload security posture at the runtime phase of the software delivery life-cycle."
+  solution       : "To enable Security Posture for a new cluster, be sure to add --security-posture=standard or --security-posture=enterprise when creating.
+
+To update Security Posture for an existing cluster, run the following command:
+
+gcloud container clusters update CLUSTER_NAME \\
+    --location=CONTROL_PLANE_LOCATION \\
+    --security-posture=standard
+
+Replace the following:
+
+ - CLUSTER_NAME: the name of your cluster.
+ - CONTROL_PLANE_LOCATION: the location of the control plane of your cluster. Provide a region for regional Standard and Autopilot clusters, or a zone for zonal Standard clusters.
+
+For console users follow the numbered steps in the console tab using the link provided: Enable configuration auditing on an existing cluster https://cloud.google.com/kubernetes-engine/docs/how-to/protect-workload-configuration#console
+
+Impact:
+
+GKE security posture configuration auditing checks your workloads against a set of defined best practices. Each configuration check has its own impact or risk. Learn more about the checks: About Kubernetes security posture scanning https://cloud.google.com/kubernetes-engine/docs/concepts/about-configuration-scanning and Automatically audit workloads for configuration issues https://cloud.google.com/kubernetes-engine/docs/how-to/protect-workload-configuration
+
+Example: The host namespace check identifies pods that share host namespaces. Pods that share host namespaces allow Pod processes to communicate with host processes and gather host information, which could lead to a container escape"
+  reference      : "800-171|3.4.1,800-171r3|03.04.10,800-53|CM-8(3),800-53r5|CM-8(3),CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSCv7|5.5,CSCv8|2.4,CSF|DE.CM-7,CSF2.0|ID.AM-01,CSF2.0|ID.AM-02,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.9,ISO-27001-2022|A.8.9,ITSG-33|CM-8(3),LEVEL|2A,NESA|T1.2.1,NESA|T1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24113"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Security Posture Config - Mode: \(.securityPostureConfig.mode)\""
+  regex          : "Security Posture Config - Mode:"
+  expect         : "Security Posture Config - Mode: (BASIC|ENTERPRISE)"
+  match_all      : YES
+</custom_item>
+
+</check_type>

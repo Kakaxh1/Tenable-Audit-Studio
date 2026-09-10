@@ -1,0 +1,792 @@
+#TRUSTED 239c0b0f59aa2030f08773cd94747328e97d8986deaa4ed91d5200c1645479c88d98dbb01d9b9e840b1c13359f8316bb92e20c9fc57daedcae4cd0941d7d69db7ee6d58a4a15d09922d31c24a8ae8a5e4aa3d2652e5b07e71939b815166a76a93819c0120870b8e2868791d93dd4235d837501a70d41376049843495be311795218330cae2c19f7089ab7ec829c8c29c9b9205f22fff114e755be2f651ff6998592279208b0073375603037cd548241b79f2cb68e3b566beb60ff31a60214523c92c93150f9338a05383db42ce512877880603b4f31e02e8a8b5574c137447d586f485b9f9e6297fe62fdb610b4c9fa45f9046ec232c80f326acc1334c65e7996457ff18fe678e55949f4660bca38b616d1d955ecd619ea7e27c7adbd4453109d904affb13751d18210626f8755c35f70941c58b926516c30b6686b0eee4fc023f37f3722cb94ca98db8891a08c524d4968547bc861b841f2ea84fe7598f1ba68a24ef4b1b88ec832a616f8ec4134728877dafa3bcd6ae620ab378d292fa3bcda96bb68d1361f164520ca7dc1235455d3ddd6e64610ac9bc5f6852ea7ec60135dcc7eb4461e198ec4bde3367cefb3edf121f8c0f979161ed881bf4e1ec32f851cadb9b86569ba99d8c27ea3dcfcf018710be2e1ed4e32834f55bb76214c70d7e2cd226403fa8d5bd3f7ede3ddfe983e89afaa9c8d0a08998e07c5f4d1e511637
+#TRUST-RSA-SHA256 22a660fed403bc39dd77abebbbc5e4555ead00bec66d930b942f3ec911ca689a3e37f1564b0c8ee5e59360831e7886324a6882e7384c74f43cd8435eb0860b8d57b3351acb7f48990e163dfd04cdf5e799cbbc58ae2bae8c0e7e88842911577e3c3a96966209a6510537e69f86aad7f926d105277b5125371abf542f468348b3a75d5c5f0108e22bae28ca9b894d7ccbf54ec2950fbd781016a956c552e459e09e71b2cf1231ce52a61826bdd9776c1fd267b19d0bf79f2f5f6a0f94dbbae081dbea3113b0ba07002aee1e16c2970135b15f571f6c39da7172ec9632cfea82497736d7d3ca4d00d0dac9c40bd99e21641e2c3deeb6245e8d2336738df0257aa4f9fcedbb9a85c91569bd7a4dc35491c150604e295c97fddeff063fca3fa1e36a6b42b62348a0e19a65009d6bf718cd98680f5687732f494ab59a1325eebea1dc427508a0d8637b2c67177f4b8e53c656620a5fdc6c9ee92613ec419d8998330c36fd4fa054bff51eab8eb96337ddcfc742c654e0037fd85cc5c095bb918eb5438488ac4aa7a3506b54fe8a42e5235d1ceb2315216f943be8e9f33a44bcdf2eef133c5263c527193e968a801551fb8be1e06a52b77e8cfdb3153e6780a698b9a5cf396e23345d05750c6259fab1d4cb7cab84ecddf7bfc330eae46cc47ade32eef9b0335e3484c0db7798f2ad7c6da70e9f57ba928622fce66cdaba81db529cb7
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/01/13 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Splunk Enterprise 7.x for Windows v3r2 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Splunk Enterprise 7.x for Windows v3r2 REST API</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Splunk Enterprise 7.x for Windows</name>
+#  <profile>REST API</profile>
+#  <version>3.2.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip</link>
+#</spec>
+#<labels>splunk,disa</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>MIN_PASSWORD_LENGTH</name>
+#    <default>(1[5-9]|[2-9][0-9]|[1-9][0-9]{2,})</default>
+#    <description>Minimum Password Length</description>
+#    <info>The minimum password length for users. The default value is 15 or more.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SPLUNK_VERSION</name>
+#    <default>7</default>
+#    <description>Splunk Version</description>
+#    <info>Splunk Version</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Splunk">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Splunk is installed and the correct version"
+      request        : "SplunkGetServerInfo"
+      json_transform : ".generator.version"
+      expect         : "^@SPLUNK_VERSION@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_Splunk_Enterprise_7.x_for_Windows_REST_API_v3r2.audit from DISA Splunk Enterprise 7.x for Windows v3r2 STIG"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000010 - Splunk Enterprise must be installed with FIPS mode enabled, to implement NIST FIPS 140-2 approved ciphers for all cryptographic functions."
+      info           : "FIPS 140-2 precludes the use of unvalidated cryptography for the cryptographic protection of sensitive or valuable data within Federal systems. Unvalidated cryptography is viewed by NIST as providing no protection to the information or data. In effect, the data would be considered unprotected plaintext. If the agency specifies that the information or data be cryptographically protected, then FIPS 140-2 is applicable. In essence, if cryptography is required, it must be validated. Cryptographic modules that have been approved for classified use may be used in lieu of modules that have been validated against the FIPS 140-2 standard."
+      solution       : "FIPS 140-2 mode MUST be enabled during installation. If not enabled, it requires a reinstall or upgrade of the application.
+
+The installer must be executed from the command line so that it can be passed the LAUNCHSPLUNK=0 parameter.
+
+This allows Splunk to install and not automatically start up after install.
+
+Example: msiexec /i <splunkinstaller.msi> LAUNCHSPLUNK=0
+
+Using a text editor, edit $SPLUNK_HOME/etc/splunk-launch.conf file, add the line SPLUNK_FIPS=1 to it, restart the server, and then recheck this requirement."
+      reference      : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CAT|I,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2,Rule-ID|SV-221600r961857_rule,STIG-ID|SPLK-CL-000010,STIG-Legacy|SV-111305,STIG-Legacy|V-102349,Vuln-ID|V-221600"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetServerInfo"
+      json_transform : ".entry[].content.fips_mode"
+      expect         : "true"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000020 - Splunk Enterprise must use organization level authentication to uniquely identify and authenticate users."
+      info        : "To ensure accountability and prevent unauthenticated access, organizational users must be uniquely identified and authenticated to prevent potential misuse and compromise of the system.
+
+Sharing of accounts prevents accountability and non-repudiation. Organizational users must be uniquely identified and authenticated for all accesses. The use of an organizational level authentication mechanism provides centralized management of accounts, and provides many benefits not normally leveraged by local account mechanisms.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Select Settings >> Access Controls >> Authentication method.
+
+If using LDAP for user accounts:
+Select LDAP and create an LDAP strategy with the proper settings to connect to the LDAP server.
+Map the appropriate LDAP groups to the appropriate Splunk roles for proper user access.
+
+If using SAML for user accounts:
+Select SAML and create an SAML strategy with the proper settings to connect to the SAML provider.
+Map the appropriate SAML groups to the appropriate Splunk roles for proper user access."
+      reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2,800-53r5|IA-2,CAT|I,CCI|CCI-000764,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221601r1051115_rule,STIG-ID|SPLK-CL-000020,STIG-Legacy|SV-111307,STIG-Legacy|V-102351,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-221601"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000030 - Splunk Enterprise must have all local user accounts removed after implementing organizational level user management system, except for one emergency account of last resort."
+      info        : "User accounts should use an organizational level authentication mechanism such as SAML, LDAP, AD, etc., to provide centralized management.
+
+The use of local accounts should be discouraged, except for an emergency account of last resort.
+
+The use of local accounts instead of organizational level accounts creates a risk where accounts are not properly disabled or deleted when users depart or their roles change.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Select Settings >> Access Controls >> Users.
+
+Delete any user account with Authentication system set to Splunk, with the exception of one emergency account of last resort. Splunk will prevent the user from deleting an LDAP account."
+      reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2,800-53r5|IA-2,CAT|I,CCI|CCI-000764,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221602r1051115_rule,STIG-ID|SPLK-CL-000030,STIG-Legacy|SV-111309,STIG-Legacy|V-102353,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-221602"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000035 - Splunk Enterprise must display the Standard Mandatory DOD Notice and Consent Banner and accept user acknowledgement before granting access to the application."
+      info        : "Display of the DOD-approved use notification before granting access to the application ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via logon interfaces with human users and are not required when such human interfaces do not exist.
+
+The banner must be formatted in accordance with DOD DTM-08-060. Use the following verbiage for applications that can accommodate banners of 1300 characters:
+
+'You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.'
+
+Use the following verbiage for operating systems that have severe limitations on the number of characters that can be displayed in the banner:
+
+'I've read & consent to terms in IS user agreem't.'
+
+The user must acknowledge the notice before being granted access to the application.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This configuration is performed on the machine used as a search head, which may be a separate machine in a distributed environment.
+
+Configure Splunk Enterprise to display the Mandatory DOD Notice and Consent Banner by modifying the web.conf file.
+
+Add/modify the line:
+login_content = <script>function DoDBanner() {alert('You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.\nBy using this IS (which includes any device attached to this IS), you consent to the following conditions:\n-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.\n-At any time, the USG may inspect and seize data stored on this IS.\n-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.\n-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.\n-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.');}DoDBanner();</script>
+
+The string in the above line will be the text of the DOD consent banner."
+      reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,CAT|III,CCI|CCI-000048,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-221931r960843_rule,STIG-ID|SPLK-CL-000035,STIG-Legacy|SV-111311,STIG-Legacy|V-102355,TBA-FIISB|45.2.4,Vuln-ID|V-221931"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000040 - Splunk Enterprise must only allow the use of DOD-approved certificate authorities for cryptographic functions."
+      info        : "Untrusted Certificate Authorities (CA) can issue certificates, but they may be issued by organizations or individuals that seek to compromise DOD systems or by organizations with insufficient security controls. If the CA used for verifying the certificate is not a DOD-approved CA, trust of this CA has not been established.
+
+The DOD will only accept PKI certificates obtained from a DOD-approved internal or external certificate authority.
+
+Splunk Enterprise contains built-in certificates that are common across all Splunk installations and are for initial deployment. These should not be used in any production environment.
+
+The production certificates should be stored in another location away from the Splunk default certificates, as that folder is replaced on any upgrade of the application.
+
+An example would be to use a folder named $SPLUNK_HOME/etc/system/DODcerts under the Splunk installation root folder.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Request a DOD-approved certificate and a copy of the DOD root CA public certificate and place the files in a location for Splunk use.
+
+Configure the certificate files to the PEM format using the Splunk Enterprise system documentation."
+      reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23(5),800-53r5|SC-17b.,800-53r5|SC-23(5),800-53r5|SC-28(3),CAT|II,CCI|CCI-002470,CCI|CCI-004909,CCI|CCI-004910,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-221932r992030_rule,STIG-ID|SPLK-CL-000040,STIG-Legacy|SV-111363,STIG-Legacy|V-102419,Vuln-ID|V-221932"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000045 - Splunk Enterprise must use an SSO proxy service, F5 device, or SAML implementation to accept the DOD common access card (CAC) or other smart card credential for identity management, personal authentication, and multifactor authentication."
+      info        : "The use of PIV credentials facilitates standardization and reduces the risk of unauthorized access.
+
+DOD has mandated the use of the CAC to support identity management and personal authentication for systems covered under Homeland Security Presidential Directive (HSPD) 12, as well as a primary component of layered protection for national security systems.
+
+If the application cannot meet this requirement, the risk may be mitigated through use of an authentication server.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure an SSO proxy service using Apache, IIS, F5, SAML, etc., to provide CAC credentials to Splunk Enterprise.
+
+Examples for Apache and F5 are provided using the supplemental documentation included in this package to be used in addition to the Splunk documentation."
+      reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2(12),800-53r5|IA-2(6)(b),800-53r5|IA-2(12),CAT|II,CCI|CCI-001953,CCI|CCI-004047,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221605r992017_rule,STIG-ID|SPLK-CL-000045,STIG-Legacy|SV-111313,STIG-Legacy|V-102359,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-221605"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000050 - Splunk Enterprise must use TLS 1.2 and SHA-2 or higher cryptographic algorithms."
+      info        : "Without cryptographic integrity protections, information can be altered by unauthorized users without detection.
+
+To protect the integrity of the authenticator and authentication mechanism used for the cryptographic module used by the network device, the application, operating system, or protocol must be configured to use one of the following hash functions for hashing the password or other authenticator in accordance with SP 800-131Ar1: SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, and SHA3-512.
+
+Splunk Enterprise, by default, is compliant with this requirement. But since the settings can be overridden, the check and fix text in this requirement is necessary.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "In the Splunk installation folder, check the following files in the $SPLUNK_HOME/etc/system/local folder:
+
+(Note that these files may exist in one of the following folders or its subfolders:
+$SPLUNK_HOME/etc/apps/
+$SPLUNK_HOME/etc/slave-apps/)
+
+inputs.conf
+
+Check for the following lines; if they do not exist, the settings are compliant. If they exist, they must match the settings below or be removed:
+
+ sslVersions = tls1.2
+ cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-
+ SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-
+ AES128-SHA256:ECDHE-RSA-AES128-SHA256
+ ecdhCurves = prime256v1, secp384r1, secp521r1
+
+outputs.conf
+
+Check for the following lines; if they do not exist, the settings are compliant. If they exist, they must match the settings below or be removed:
+
+ sslVersions = tls1.2
+ cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-
+ SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-
+ AES128-SHA256:ECDHE-RSA-AES128-SHA256
+ ecdhCurves = prime256v1, secp384r1, secp521r1
+
+server.conf
+
+Check for the following lines; if they do not exist, the settings are compliant. If they exist, they must match the settings below or be removed:
+
+ sslVersions = tls1.2
+ sslVersionsForClient = tls1.2
+ cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-
+ SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-
+ AES128-SHA256:ECDHE-RSA-AES128-SHA256:AES256-GCM-SHA384:AES128-GCM-SHA256:AES128-SHA256
+ ecdhCurves = prime256v1, secp384r1, secp521r1
+
+web.conf
+
+Check for the following lines; if they do not exist, the settings are compliant. If they exist, they must match the settings below or be removed:
+
+ sslVersions = tls1.2
+ cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-
+ SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-
+ AES128-SHA256:ECDHE-RSA-AES128-SHA256
+ ecdhCurves = prime256v1, secp384r1, secp521r1
+
+Check the following file in the $SPLUNK_HOME/etc/openldap folder:
+
+ldap.conf
+
+Check for the following lines; they must match the settings below:
+
+ #TLS_PROTOCOL_MIN: 3.1 for TLSv1.0, 3.2 for TLSv1.1, 3.3 for TLSv1.2.
+ TLS_PROTOCOL_MIN 3.3
+ TLS_CIPHER_SUITE ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-
+ SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-
+ AES128-SHA256:ECDHE-RSA-AES128-SHA256"
+      reference   : "800-53|IA-7,800-53r5|IA-7,CAT|I,CCI|CCI-000803,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),ITSG-33|IA-7,ITSG-33|IA-7a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T7.4.1,QCSC-v1|13.2,Rule-ID|SV-221933r961896_rule,STIG-ID|SPLK-CL-000050,STIG-Legacy|SV-111387,STIG-Legacy|V-102439,Vuln-ID|V-221933"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000060 - Splunk Enterprise must use HTTPS/SSL for access to the user interface."
+      info           : "A replay attack may enable an unauthorized user to gain access to the application. Authentication sessions between the authenticator and the application validating the user credentials must not be vulnerable to a replay attack.
+
+Anti-replay is a cryptographically based mechanism; thus, it must use FIPS-approved algorithms. An authentication process resists replay attacks if it is impractical to achieve a successful authentication by recording and replaying a previous authentication message. Note that the anti-replay service is implicit when data contains monotonically increasing sequence numbers and data integrity is assured. Use of DoD PKI is inherently compliant with this requirement for user and device access. Use of Transport Layer Security (TLS), including application protocols, such as HTTPS and DNSSEC, that use TLS/SSL as the underlying security protocol is also complaint.
+
+Configure the information system to use the hash message authentication code (HMAC) algorithm for authentication services to Kerberos, SSH, web management tool, and any other access method."
+      solution       : "This configuration is performed on the machine used as a search head, which may be a separate machine in a distributed environment.
+
+Edit the following file in the installation to configure Splunk to use SSL certificates:
+
+$SPLUNK_HOME/etc/system/local/web.conf
+
+(Note that these files may exist in one of the following folders or its subfolders:
+$SPLUNK_HOME/etc/apps/
+$SPLUNK_HOME/etc/slave-apps/)
+
+[settings]
+enableSplunkWebSSL = true
+privKeyPath = <path to the private key generated for the DoD approved certificate>
+serverCert = <path to the DoD approved certificate in PEM format>"
+      reference      : "800-171|3.5.4,800-171r3|03.05.04,800-53|IA-2(8),800-53r5|IA-2(8),CAT|II,CCI|CCI-001941,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(8),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221607r960993_rule,STIG-ID|SPLK-CL-000060,STIG-Legacy|SV-111315,STIG-Legacy|V-102363,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-221607"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetServerSettings"
+      json_transform : ".entry[].content.enableSplunkWebSSL"
+      expect         : "true"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000070 - Splunk Enterprise must use SSL to protect the confidentiality and integrity of transmitted information."
+      info        : "Without protection of the transmitted information, confidentiality and integrity may be compromised since unprotected communications can be intercepted and either read or altered.
+
+This requirement applies only to those applications that are either distributed or can allow access to data non-locally. Use of this requirement will be limited to situations where the data owner has a strict requirement for ensuring data integrity and confidentiality is maintained at every step of the data transfer and handling process. When transmitting data, applications must leverage transmission protection mechanisms, such as TLS, SSL VPNs, or IPsec.
+
+Communication paths outside the physical protection of a controlled boundary are exposed to the possibility of interception and modification. Protecting the confidentiality and integrity of organizational information can be accomplished by physical means (e.g., employing physical distribution systems) or by logical means (e.g., employing cryptographic techniques). If physical means of protection are employed, then logical means (cryptography) do not have to be employed, and this check will be N/A.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Edit the following files in the installation to configure Splunk to use SSL certificates:
+
+(Note that these files may exist in one of the following folders or its subfolders:
+$SPLUNK_HOME/etc/apps/
+$SPLUNK_HOME/etc/slave-apps/)
+
+This configuration is performed on the machine used as an indexer, which may be a separate machine in a distributed environment.
+
+$SPLUNK_HOME/etc/system/local/inputs.conf
+
+[splunktcp-ssl:9997]
+disabled = 0
+
+[SSL]
+serverCert = <path to the DoD approved certificate in PEM format>
+sslPassword = <password for the certificate>
+
+This configuration is performed on the machine used as a forwarder, which is always a separate machine regardless of environment.
+
+$SPLUNK_HOME/etc/system/local/outputs.conf
+
+[tcpout:group1]
+disabled = 0
+clientCert = <path to the DoD approved certificate in PEM format>
+sslPassword = <password for the certificate>"
+      reference   : "800-171|3.13.8,800-171r3|03.13.08,800-53|SC-8,800-53r5|SC-8,CAT|I,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,CSF2.0|PR.DS-02,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.20,ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-221608r961632_rule,STIG-ID|SPLK-CL-000070,STIG-Legacy|SV-111317,STIG-Legacy|V-102365,Vuln-ID|V-221608"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000080 - Splunk Enterprise must use LDAPS for the LDAP connection."
+      info        : "Passwords need to be protected at all times, and encryption is the standard method for protecting passwords. If passwords are not encrypted, they can be plainly read (i.e., clear text) and easily compromised.
+
+Securing the connection to the LDAP servers mitigates this risk.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If using SAML for authentication, this fix is N/A.
+
+Select Settings >> Access Controls >> Authentication method.
+
+Select LDAP Settings.
+
+Select the LDAP strategy and check the option SSL enabled.
+
+Set Port to 636.
+
+Edit the following file in the installation to configure Splunk to use SSL certificates:
+
+$SPLUNK_HOME/etc/openldap/ldap.conf
+
+Add the following line:
+
+TLS_CACERT <path to the DoD approved certificate in PEM format>"
+      reference   : "800-171|3.5.10,800-171r3|03.05.07c.,800-53|IA-5(1)(c),800-53r5|IA-5(1)(c),CAT|I,CCI|CCI-000197,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(1)(c),NESA|T5.2.3,NIAv2|CY6,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221609r961029_rule,STIG-ID|SPLK-CL-000080,STIG-Legacy|SV-111319,STIG-Legacy|V-102367,SWIFT-CSCv1|4.1,TBA-FIISB|26.1,Vuln-ID|V-221609"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000090 - When Splunk Enterprise is distributed over multiple servers, each server must be configured to disable non-essential capabilities."
+      info        : "Applications are capable of providing a wide variety of functions and services. Some of the functions and services may not be necessary to support the configuration. This becomes more of an issue in distributed environments, where the application functions are spread out over multiple servers.
+
+These unnecessary capabilities or services are often overlooked and therefore may remain unsecured. They increase the risk to the platform by providing additional attack vectors.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the Splunk Installation is not distributed among multiple servers, this fix is N/A.
+
+Select Settings >> Monitoring Console.
+
+In the Monitoring Console, select Settings >> General Setup.
+
+Set the Mode type based on the implementation design.
+
+If Mode is set to Distributed, set each instance only with the server roles necessary for the desired functions.
+
+On instances not designated as search heads, disable the web UI by using the following command:
+
+./splunk disable webserver
+
+On instances not designated as indexers, remove the file:
+
+$SPLUNK_HOME/etc/system/local/indexes.conf"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-221934r960963_rule,STIG-ID|SPLK-CL-000090,STIG-Legacy|SV-111321,STIG-Legacy|V-102369,SWIFT-CSCv1|2.3,Vuln-ID|V-221934"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000105 - Splunk Enterprise must be configured to back up the log records repository at least every seven days onto a different system or system component other than the system or component being audited."
+      info        : "Protection of log data includes ensuring log data is not accidentally lost or deleted. Backing up log records to a different system or onto separate media than the system being audited on an organizationally defined frequency helps to ensure that in the event of a catastrophic system failure, the log records will be retained.
+
+This helps to ensure that a compromise of the information system being audited does not also result in a compromise of the log records.
+
+This requirement only applies to applications that have a native backup capability for log records. Operating system backup requirements cover applications that do not provide native backup functions.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Implement a backup plan for the Splunk log data, following the Splunk documentation on backing up indexed data. Use the underlying OS backup tools, or another approved backup tool."
+      reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9(2),800-53r5|AU-9(2),CAT|III,CCI|CCI-001348,CN-L3|8.1.3.5(d),CN-L3|8.1.4.3(c),CSF|PR.PT-1,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(2),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SS13e,PCI-DSSv3.2.1|10.5.3,PCI-DSSv3.2.1|10.5.4,PCI-DSSv4.0|10.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221612r960948_rule,STIG-ID|SPLK-CL-000105,STIG-Legacy|SV-111579,STIG-Legacy|V-102629,Vuln-ID|V-221612"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000160 - Splunk Enterprise must be configured to protect the log data stored in the indexes from alteration."
+      info        : "Without non-repudiation, it is impossible to positively attribute an action to an individual (or process acting on behalf of an individual).
+
+The records stored by Splunk Enterprise must be protected against alteration. A hash is one way of performing this function. The server must not allow the removal of identifiers or date/time, or it must severely restrict the ability to do so.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the server does not store index data, this fix is N/A.
+
+Edit the following file in the installation folder:
+
+$SPLUNK_HOME/etc/system/local/indexes.conf
+
+Add the following line to each organization-defined index stanza in brackets [ ]:
+
+enableDataIntegrityControl=true"
+      reference   : "800-53|AU-10,800-53r5|AU-10,CAT|II,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221613r960864_rule,STIG-ID|SPLK-CL-000160,STIG-Legacy|SV-111323,STIG-Legacy|V-102373,Vuln-ID|V-221613"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000170 - Splunk Enterprise must use TCP for data transmission."
+      info           : "If the UDP protocol is used for communication, then data packets that do not reach the server are not detected as a data loss. The use of TCP to transport data improves delivery reliability, adds data integrity, and gives the option to encrypt the traffic."
+      solution       : "Select Settings >> Data Inputs, and verify there are zero inputs configured under UDP. Remove any that exist and recreate using TCP.
+
+It is recommended to set these settings before disabling the web UI of the instance in a distributed environment."
+      reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-221614r961863_rule,STIG-ID|SPLK-CL-000170,STIG-Legacy|SV-111325,STIG-Legacy|V-102375,SWIFT-CSCv1|2.3,Vuln-ID|V-221614"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetDataInputsUDP"
+      json_transform : "if ((.entry | length) == 0) then \"pass\" else \"fail\" end"
+      expect         : "pass"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000180 - Splunk Enterprise idle session timeout must be set to not exceed 15 minutes."
+      info           : "Without reauthentication, users may access resources or perform tasks for which they do not have authorization.
+
+When applications provide the capability to change security roles or escalate the functional capability of the application, it is critical the user reauthenticate.
+
+In addition to the reauthentication requirements associated with session locks, organizations may require reauthentication of individuals and/or devices in other situations, including (but not limited to) the following circumstances:
+
+(i) When authenticators change;
+(ii) When roles change;
+(iii) When security categories of information systems change;
+(iv) When the execution of privileged functions occurs;
+(v) After a fixed period of time; or
+(vi) Periodically.
+
+Within the DOD, the minimum circumstances requiring reauthentication are privilege escalation and role changes."
+      solution       : "Select Settings >> Server Settings >> General Settings and set Session timeout to 15 minutes or less."
+      reference      : "800-171r3|03.05.01b.,800-53|IA-11,800-53r5|SC-11b.,CAT|III,CCI|CCI-002038,CCI|CCI-004895,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),QCSC-v1|13.2,Rule-ID|SV-221937r1050786_rule,STIG-ID|SPLK-CL-000180,STIG-Legacy|SV-111365,STIG-Legacy|V-102421,Vuln-ID|V-221937"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetServerSettings"
+      json_transform : ".entry[].content.sessionTimeout"
+      expect         : "^([0-9]|1[0-5])m$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000190 - Splunk Enterprise idle session timeout must be set to not exceed 15 minutes."
+      info           : "Automatic session termination after a period of inactivity addresses the potential for a malicious actor to exploit the unattended session. Closing any unattended sessions reduces the attack surface to the application."
+      solution       : "Select Settings >> Server Settings >> General Settings and set Session timeout to 15 minutes or less."
+      reference      : "800-171|3.1.11,800-171r3|03.01.11,800-53|AC-12,800-53r5|AC-12,CAT|II,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49,Rule-ID|SV-221938r1043182_rule,STIG-ID|SPLK-CL-000190,STIG-Legacy|SV-111367,STIG-Legacy|V-102423,Vuln-ID|V-221938"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetServerSettings"
+      json_transform : ".entry | .[] | .content.sessionTimeout"
+      expect         : "^([0-9]|1[0-5])m$"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000200 - Splunk Enterprise must notify the system administrator (SA) and information system security officer (ISSO) when account events are received (creation, deletion, modification, disabling) - creation, deletion, modification, disabling."
+      info        : "Once an attacker establishes access to an application, the attacker often attempts to create a persistent method of reestablishing access. One way to accomplish this is for the attacker to create a new account. Sending notification of account creation events to the SA and ISSO is one method for mitigating this risk.
+
+To address access requirements, many application developers choose to integrate their applications with enterprise-level authentication/access/auditing mechanisms that meet or exceed access control policy requirements. Such integration allows the application developer to offload those access control functions and focus on core application features and functionality.
+
+Satisfies: SRG-APP-000291-AU-000200, SRG-APP-000292-AU-000420, SRG-APP-000293-AU-000430, SRG-APP-000294-AU-000440
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the Splunk instance is used for Tier 2 CSSP (formerly CND-SP) or JRSS analysis, this fix is Not Applicable.
+
+Configure Splunk Enterprise, using the reporting and notification tools, to notify the SA and ISSO when account events are received for all devices and hosts within its scope of coverage."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53|AC-2(4),800-53r5|AC-2(1),CAT|III,CCI|CCI-000015,CCI|CCI-001683,CCI|CCI-001684,CCI|CCI-001685,CCI|CCI-001686,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-221939r1015827_rule,STIG-ID|SPLK-CL-000200,STIG-Legacy|SV-111369,STIG-Legacy|V-102425,TBA-FIISB|36.2.3,Vuln-ID|V-221939"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000235 - Splunk Enterprise must notify analysts of applicable events for Tier 2 CSSP and JRSS only."
+      info        : "Sending notifications or populating dashboards are ways to monitor and alert on applicable events and allow analysts to mitigate issues.
+
+Tier 2 CSSP and JRSS analysts perform higher-level analysis at larger network coverage and have specific guidelines to handle alerts and reports. This requirement allows these analysts to not be burdened by all of the lower-level alerts that can be considered 'white noise' by isolating their alerting and reporting requirements from other requirements in this STIG.
+
+Satisfies: SRG-APP-000291-AU-000200, SRG-APP-000292-AU-000420, SRG-APP-000293-AU-000430, SRG-APP-000294-AU-000440
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix applies to Tier 2 CSSP or JRSS instances only.
+
+Configure Splunk notifications and dashboards in accordance with designated SSPs, SOPs, and/or TTPs."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53|AC-2(4),800-53r5|AC-2(1),CAT|III,CCI|CCI-000015,CCI|CCI-001683,CCI|CCI-001684,CCI|CCI-001685,CCI|CCI-001686,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-221940r1015828_rule,STIG-ID|SPLK-CL-000235,STIG-Legacy|SV-111389,STIG-Legacy|V-102385,TBA-FIISB|36.2.3,Vuln-ID|V-221940"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000240 - Splunk Enterprise must enforce the limit of 3 consecutive invalid logon attempts by a user during a 15 minute time period."
+      info        : "By limiting the number of failed login attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute forcing, is reduced. Limits are imposed by locking the account.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created, for example, an emergency account of last resort for recovery.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Select Settings >> Access Controls >> Password Policy Management.
+
+Set Lockout to Enabled. Set Failed login attempts to 3 and Lockout threshold in minutes to 15."
+      reference   : "800-171|3.1.8,800-171r3|03.01.08a.,800-53|AC-7a.,800-53r5|AC-7a.,CAT|II,CCI|CCI-000044,CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,Rule-ID|SV-221941r960840_rule,STIG-ID|SPLK-CL-000240,STIG-Legacy|SV-111331,STIG-Legacy|V-102387,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2,Vuln-ID|V-221941"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type        : REST_API
+      description : "SPLK-CL-000250 - Splunk Enterprise must be configured to aggregate log records from organization-defined devices and hosts within its scope of coverage."
+      info        : "If the application is not configured to collate records based on the time when the events occurred, the ability to perform forensic analysis and investigations across multiple components is significantly degraded. Centralized log aggregation must also include logs from databases and servers (e.g., Windows) that do not natively send logs using the syslog protocol."
+      solution    : "Configure Splunk Enterprise to aggregate log records from organization-defined devices and hosts within its scope of coverage, as defined in the site security plan."
+      reference   : "800-171|3.3.1,800-171r3|03.03.03,800-53|AU-12(1),800-53r5|AU-6(4),800-53r5|AU-12(1),CAT|III,CCI|CCI-000174,CCI|CCI-003821,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12(1),PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221621r992018_rule,STIG-ID|SPLK-CL-000250,STIG-Legacy|SV-111333,STIG-Legacy|V-102389,SWIFT-CSCv1|6.4,Vuln-ID|V-221621"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request     : "SplunkGetDataInputsAll"
+      expect      : "Manual Review Required"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000260 - The System Administrator (SA) and Information System Security Officer (ISSO) must configure the retention of the log records based on the defined security plan."
+      info        : "If authorized individuals do not have the ability to modify auditing parameters in response to a changing threat environment, the organization may not be able to respond effectively and important forensic information may be lost.
+
+The organization must define and document log retention requirements for each device and host and then configure Splunk Enterprise to comply with the required retention period.
+
+This requirement enables organizations to extend or limit auditing as necessary to meet organizational requirements. Auditing that is limited to conserve information system resources may be extended to address certain threat situations.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Edit the following file in the Splunk installation folder:
+
+(Note that these files may exist in one of the following folders or its subfolders:
+$SPLUNK_HOME/etc/apps/
+$SPLUNK_HOME/etc/slave-apps/)
+
+$SPLUNK_HOME/etc/system/local/indexes.conf
+
+Set frozenTimePeriodInSecs to the defined retention period for each index location."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03,800-53|AU-12(3),800-53r5|AU-12(3),CAT|III,CCI|CCI-001914,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-246917r960891_rule,STIG-ID|SPLK-CL-000260,STIG-Legacy|SV-111335,STIG-Legacy|V-102391,SWIFT-CSCv1|6.4,Vuln-ID|V-246917"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000270 - Splunk Enterprise must allow only the information system security manager (ISSM) (or individuals or roles appointed by the ISSM) to be assigned to the Power User role - or individuals or roles appointed by the ISSM to be assigned to the Power User role."
+      info        : "Without restricting which roles and individuals can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Provide the list of individuals assigned by the ISSM to be members of the power user role to the LDAP/AD administrator or SAML Identity Provider administrator to add to the security group mapped to the power user role."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03,800-53|AU-12b.,800-53r5|AU-9b.,800-53r5|AU-12b.,CAT|III,CCI|CCI-000171,CCI|CCI-003831,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12b.,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221623r992020_rule,STIG-ID|SPLK-CL-000270,STIG-Legacy|SV-111337,STIG-Legacy|V-102393,SWIFT-CSCv1|6.4,Vuln-ID|V-221623"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000280 - Splunk Enterprise must be configured with a successful/unsuccessful logon attempts report."
+      info        : "The SIEM or Central Log Server is the mitigation method for most of the other STIGs applied to an organization. Robust alerting and reporting is a key feature in any incident response plan.
+
+The ability to report on logon attempts is the first step is creating a chain of events for a forensic analysis and incident response.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the Splunk instance is used for Tier 2 CSSP (formerly CND-SP) or JRSS analysis, this fix is N/A.
+
+Configure Splunk Enterprise using the reporting and notification tools to create a report that audits the logon attempts. Make this report available to the ISSM and other required individuals."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221942r961824_rule,STIG-ID|SPLK-CL-000280,STIG-Legacy|SV-111339,STIG-Legacy|V-102395,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-221942"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000290 - Splunk Enterprise must be configured to send an immediate alert to the System Administrator (SA) and Information System Security Officer (ISSO) (at a minimum) when allocated log record storage volume reaches 75 percent of the repository maximum log record storage capacity."
+      info        : "If security personnel are not notified immediately upon storage volume utilization reaching 75 percent they are unable to plan for storage capacity expansion.
+
+Although this may be part of the operating system function, for the enterprise events management system, this is most often a function managed through the application since it is a critical function and requires the use of a large amount of external storage.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform the following fixes.
+
+(Note that these files may exist in one of the following folders or its subfolders:
+$SPLUNK_HOME/etc/apps/
+$SPLUNK_HOME/etc/slave-apps/)
+
+1. Edit the file in the Splunk installation folder:
+
+$SPLUNK_HOME/etc/system/local/server.conf
+
+Add the following lines:
+
+[diskUsage]
+minFreeSpace =  xxxx
+
+Set the value to 25 percent of the size of the storage volume. For example, 25 percent of a 100 GB drive is 25 GB, and the value set would be 25000, as the value is in megabytes.
+
+2. Examine the file in the Splunk installation folder:
+
+$SPLUNK_HOME/etc/system/local/health.conf
+
+Add the following lines:
+
+[alert_action:email]
+disabled = 0
+action.to =
+action.cc =
+
+Set the email addresses of the ISSO and SA to be able to receive alerts. This email address can be a group address (example alerts@domain.com) that contains the addresses of the ISSO and SA.
+
+3. In the Splunk console, select Settings >> Health Report Manager >> feature:disk_space.
+
+Set the Red setting to 1, and Yellow setting to 2."
+      reference   : "800-171|3.3.4,800-171r3|03.03.04,800-53|AU-5(1),800-53r5|AU-5(1),CAT|III,CCI|CCI-001855,CN-L3|7.1.3.7(e),CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-5(1),NESA|T3.3.1,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221625r961398_rule,STIG-ID|SPLK-CL-000290,STIG-Legacy|SV-111341,STIG-Legacy|V-102397,TBA-FIISB|37.3.2,Vuln-ID|V-221625"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000300 - Splunk Enterprise must notify the System Administrator (SA) and Information System Security Officer (ISSO) (at a minimum) of all audit failure events, such as loss of communications with hosts and devices, or if log records are no longer being received."
+      info        : "It is critical for the appropriate personnel to be aware if a system is at risk of failing to process audit logs as required. Without a real-time alert, security personnel may be unaware of an impending failure of the audit function and application operation may be adversely affected.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the Splunk instance is used for Tier 2 CSSP (formerly CND-SP) or JRSS analysis, this fix is N/A.
+
+Configure Splunk Enterprise using the reporting and notification tools to create a report with notification to the SA and ISSO of any audit failure events, such as loss of communication or logs no longer being collected."
+      reference   : "800-171|3.3.4,800-171r3|03.03.04,800-53|AU-5(2),800-53r5|AU-5(2),CAT|III,CCI|CCI-001858,CN-L3|7.1.3.3(e),CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-5(2),NESA|T3.6.2,NIAv2|GS7f,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221626r961401_rule,STIG-ID|SPLK-CL-000300,STIG-Legacy|SV-111343,STIG-Legacy|V-102399,Vuln-ID|V-221626"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000310 - Splunk Enterprise must notify the System Administrator (SA) or Information System Security Officer (ISSO) if communication with the host and devices within its scope of coverage is lost."
+      info        : "If the system were to continue processing after audit failure, actions could be taken on the system that could not be tracked and recorded for later forensic analysis. To perform this function, some type of heartbeat configuration with all of the devices and hosts must be configured.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the Splunk instance is used for Tier 2 CSSP (formerly CND-SP) or JRSS analysis, this fix is N/A.
+
+Configure Splunk Enterprise using the reporting and notification tools to create a report with notification to the SA and ISSO of any audit failure events, such as loss of communication or logs no longer being collected."
+      reference   : "800-171|3.3.4,800-171r3|03.03.04,800-53|AU-5(4),800-53r5|AU-5(4),CAT|III,CCI|CCI-001861,CN-L3|7.1.3.3(e),CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-5(4),NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-221627r1001259_rule,STIG-ID|SPLK-CL-000310,STIG-Legacy|SV-111345,STIG-Legacy|V-102401,Vuln-ID|V-221627"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000320 - Splunk Enterprise must be configured to notify the System Administrator (SA) and Information System Security Officer (ISSO), at a minimum, when an attack is detected on multiple devices and hosts within its scope of coverage."
+      info        : "Detecting when multiple systems are showing anomalies can often indicate an attack. Notifying appropriate personnel can initiate a proper response and mitigation of the attack.
+
+Splunk can aggregate events from multiple devices and create alerts when specific events occur. Detecting similar events on multiple devices simultaneously may indicate an attack. The ability to alert and report on this activity can aid in thwarting an attack.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure Splunk Enterprise, using the reporting and notification tools, to notify the SA and ISSO, at a minimum, when an attack is detected on multiple devices and hosts within its scope of coverage."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-221628r961863_rule,STIG-ID|SPLK-CL-000320,STIG-Legacy|SV-111347,STIG-Legacy|V-102403,SWIFT-CSCv1|2.3,Vuln-ID|V-221628"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000330 - Splunk Enterprise must enforce password complexity for the account of last resort by requiring that at least one uppercase character be used."
+      info           : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password is, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created, for example, an emergency account of last resort for recovery."
+      solution       : "Select Settings >> Access Controls >> Password Policy Management and set Uppercase to greater than 0."
+      reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000192,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221629r1015820_rule,STIG-ID|SPLK-CL-000330,STIG-Legacy|SV-111349,STIG-Legacy|V-102405,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-221629"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetSplunkAuth"
+      json_transform : ".entry | .[] | .content.minPasswordUppercase"
+      not_expect     : "^0$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000340 - Splunk Enterprise must enforce password complexity for the account of last resort by requiring that at least one lowercase character be used."
+      info           : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created, for example, an emergency account of last resort for recovery."
+      solution       : "Select Settings >> Access Controls >> Password Policy Management and set Lowercase to greater than 0."
+      reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000193,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221630r1015821_rule,STIG-ID|SPLK-CL-000340,STIG-Legacy|SV-111351,STIG-Legacy|V-102407,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-221630"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetSplunkAuth"
+      json_transform : ".entry | .[] | .content.minPasswordLowercase"
+      not_expect     : "^0$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000350 - Splunk Enterprise must enforce password complexity for the account of last resort by requiring that at least one numeric character be used."
+      info           : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created, for example, an emergency account of last resort for recovery."
+      solution       : "Select Settings >> Access Controls >> Password Policy Management and set Numeral to greater than 0."
+      reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000194,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221631r1015822_rule,STIG-ID|SPLK-CL-000350,STIG-Legacy|SV-111353,STIG-Legacy|V-102409,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-221631"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetSplunkAuth"
+      json_transform : ".entry | .[] | .content.minPasswordDigit"
+      not_expect     : "^0$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000360 - Splunk Enterprise must enforce a minimum 15-character password length for the account of last resort."
+      info           : "The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.
+
+Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks. Password length is one factor of several that helps to determine strength and how long it takes to crack a password. The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.
+
+Use of more characters in a password helps to exponentially increase the time and/or resources required to compromise the password.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created, for example, an emergency account of last resort for recovery."
+      solution       : "Select Settings >> Access Controls >>Password Policy Management and set Minimum characters to 15 or more."
+      reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-000205,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221632r1015823_rule,STIG-ID|SPLK-CL-000360,STIG-Legacy|SV-111355,STIG-Legacy|V-102411,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-221632"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetSplunkAuth"
+      json_transform : ".entry | .[] | .content.minPasswordLength"
+      expect         : "^@MIN_PASSWORD_LENGTH@$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000370 - Splunk Enterprise must enforce password complexity for the account of last resort by requiring that at least one special character be used."
+      info           : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor in determining how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+Special characters are those characters that are not alphanumeric. Examples include: ~ ! @ # $ % ^ *.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created, for example, an emergency account of last resort for recovery."
+      solution       : "Select Settings >> Access Controls >> Password Policy Management and set Special character to greater than 0."
+      reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-001619,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221633r1015824_rule,STIG-ID|SPLK-CL-000370,STIG-Legacy|SV-111357,STIG-Legacy|V-102413,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-221633"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetSplunkAuth"
+      json_transform : ".entry | .[] | .content.minPasswordSpecial"
+      not_expect     : "^0$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000380 - Splunk Enterprise must enforce a 60-day maximum password lifetime restriction for the account of last resort."
+      info           : "Any password, no matter how complex, can eventually be cracked. Therefore, passwords need to be changed at specific intervals. If the application does not limit the lifetime of passwords and force users to change their passwords, there is the risk that the system and/or application passwords could be compromised.
+
+This requirement does not include emergency administration accounts that are meant for access to the application in case of failure. These accounts are not required to have maximum password lifetime restrictions.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created."
+      solution       : "Select Settings >> Access Controls >> Password Policy Management and set Expiration to Enabled and Days until password expires to 60."
+      reference      : "800-171|3.5.2,800-171r3|03.05.07d.,800-53|IA-5(1)(d),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000199,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(d),NESA|T5.2.3,NIAv2|AM20,NIAv2|AM21,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221634r1043190_rule,STIG-ID|SPLK-CL-000380,STIG-Legacy|SV-111359,STIG-Legacy|V-102415,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.2,Vuln-ID|V-221634"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetSplunkAuth"
+      json_transform : ".entry | .[] | .content.expireUserAccounts"
+      expect         : "^(60|[1-5]?[0-9])$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000390 - Splunk Enterprise must prohibit password reuse for a minimum of five generations for the account of last resort."
+      info           : "Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+To meet password policy requirements, passwords need to be changed at specific policy-based intervals.
+
+If the information system or application allows the user to consecutively reuse their password when that password has exceeded its defined lifetime, the end result is a password that is not changed as per policy requirements.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account gets created, for example, an emergency account of last resort for recovery."
+      solution       : "Select Settings >> Access Controls >> Password Policy Management and set History to Enabled and Password history count to 5 or more."
+      reference      : "800-171|3.5.7,800-171r3|03.05.07b.,800-53|IA-5(1)(b),800-53r5|IA-5(1)(b),CAT|III,CCI|CCI-004061,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_7-x_for_Windows_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(b),NESA|T5.2.3,NIAv2|AM22d,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-221635r1015267_rule,STIG-ID|SPLK-CL-000390,STIG-Legacy|SV-111361,STIG-Legacy|V-102417,SWIFT-CSCv1|4.1,Vuln-ID|V-221635"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+      request        : "SplunkGetSplunkAuth"
+      json_transform : ".entry | .[] | .content.enablePasswordHistory"
+      expect         : "^([5-9]|[1-9][0-9]+)$"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_Splunk_Enterprise_7.x_for_Windows_REST_API_v3r2.audit from DISA Splunk Enterprise 7.x for Windows v3r2 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_7-x_for_Windows_V3R2_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</check_type>

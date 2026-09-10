@@ -1,0 +1,1945 @@
+#TRUSTED 47d6a868313cd29aa8fc6f23d4606415840d1894594e0432a634db063db65a4890825279566143cd9d7ccf33e81710bd60a8374afa0a81ebe34c87eb9634e6a76be5e38931f44ba7c84875c58325ba5d31f417c91d255a280734a9bf1de220e4ea9881451de43fa82c45eb445a8b3f3ed731a2ab4667f36d56b2892fb09555e1aff6c476998a78e640dc1c8011e7b614b5aea96804a23cfd422408b1deaac62165adcbd0949a3cd3c507a7e5d94241a2f16afe7e2d3d2e89db953404975d88b1504e2dec314cb448e44454b570a06b5f0ea580c1217ce48266057e4fbbf960d795e1bfa33788a58c23df739a0874d8e20ebd1802e335965764f54304fb56d7e2340bb8535c35fceee0667ef6929e7258a2e9039ce784fd8a25b634ebeb6ed620fca4a382d8d5234a85c6d2a3349d57c61670114552a0e7af6439251767756428a2dbcc567056bae5b26f959a0b2201b04d8236fad2019eff638ef580f3908d2d4646560b9b574a39ebcbfb0f5f4ac059cc5d3d88ba0fd95ba64e900aa94d2fb89a3a381fc49b4fc46c3bab137d3ba22f23610748c2082582ee03b04d414054a3c9087c83f7c94c7cc15717744c803fe03f44352e241adddc126d43c8c525f17610648c3a57ce1e53e02552f3d70d78fcfada22b3ff150c55652111788f68fda3150aeaf103fa79606428c9afa25a776240960d38b56728bd56e8ac252336059f
+#TRUST-RSA-SHA256 ae6a172cfa6718af9f08190fbd97f53316ae7972368d01923cc225a47d8646a44625368e328ce7bc5b6d22ed6d1c6c3fc408192258d03e0c4294f2d9d43512bc4f5b1c1a56df7a16f4bcd994db22624926d382f77fd2172bb337de9ab9082a98f6b7c35254d357e3b331c8f6487fa1f53363d9f2b34d5152a8e019631aaf036d4560727fcd0488887217e4cef441b4c98fe469222172beb9e5388a07220a677984f349da5cf1b800003aca00f0047dd392c6245ba34081677823d61cb43b93e25b28ef71821659d0fa9470648da4278b563a84fa380d570f2863a6f5ab5053f5666bb4350c0ce333ba827de8e45d65dd742d25297e2bf8c63bf1a3192817fe0de95c72564eec48108201b967887caa8ccd11714a9843f21a60f8f57ff43215e3467dfd2ad6fa8328f35ea7ee39c47a5cf84a269447e3335f88509f65791649d3972c7bb245025fcd59d4620bcdae4d946fc0354cff581d5b3d9c1e52f3e18ed5e3597b5d9911cdc3570311bdd1176c51faafac501c01b35c43362ef31cf29c8cf68b9a28fcc1efa10a96256b9b422f469c7115bbd67e0c89e80f5d8644353e6d6ddcb1ac92e6cc38509fc3b60c1fb190cbfe305c98cb0d77a38dc3bd499258fc1351c73932b205eab158eab45f740dbfce1edc48d220d5207fbff5965e045cb2fc4877f37e17cf663a3d9f1d1c88cb3999a2391f3f61ce1c19f9dcca716e4230
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.3 $
+# $Date: 2026/06/12 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Microsoft IIS 8.5 Server v2r7 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA IIS 8.5 Server v2r7</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>IIS 8.5 Web</name>
+#  <profile>Server</profile>
+#  <version>2.7.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip</link>
+#</spec>
+#<labels>disa,windows_iis_8.5,agent</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>INETPUB_DIR</name>
+#    <default>C:\inetpub</default>
+#    <description>Inetpub directory</description>
+#    <info>The physical path to the inetpub directory.</info>
+#    <value_type>WIN_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>IIS_VERSION</name>
+#    <default>^Version 8\.[05][\s]*$</default>
+#    <description>IIS Version</description>
+#    <info>The version of IIS to match against in the platform check.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>WINDOWS_VERSION</name>
+#    <default>^[a-zA-Z0-9\(\)\s]*2012[a-zA-Z0-9\(\)\s]*$</default>
+#    <description>Windows Version</description>
+#    <info>The version of Windows Server to match against in the platform check.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"DISA Microsoft IIS 8.5 Server">
+
+<file_acl:"inetpub">
+  <user:"Administrators">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "change permissions" | "create files / write data" | "create folders / append data" | "delete" | "delete subfolder and files" | "full control" | "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "take ownership" | "traverse folder / execute file" | "write attributes" | "write extended attributes"
+  </user>
+
+  <user:"SYSTEM">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "change permissions" | "create files / write data" | "create folders / append data" | "delete" | "delete subfolder and files" | "full control" | "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "take ownership" | "traverse folder / execute file" | "write attributes" | "write extended attributes"
+  </user>
+
+  <user:"TrustedInstaller">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "change permissions" | "create files / write data" | "create folders / append data" | "delete" | "delete subfolder and files" | "full control" | "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "take ownership" | "traverse folder / execute file" | "write attributes" | "write extended attributes"
+  </user>
+
+  <user:"Users">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "traverse folder / execute file"
+  </user>
+
+  <user:"CREATOR OWNER">
+    acl_inheritance : "not inherited"
+    acl_apply       : "subfolders and files only"
+    acl_allow       : "change permissions" | "create files / write data" | "create folders / append data" | "delete" | "delete subfolder and files" | "full control" | "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "take ownership" | "traverse folder / execute file" | "write attributes" | "write extended attributes"
+  </user>
+
+  <user:"ALL APPLICATION PACKAGES">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "traverse folder / execute file"
+  </user>
+
+  <user:"ALL RESTRICTED APPLICATION PACKAGES">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "traverse folder / execute file"
+  </user>
+</file_acl>
+
+<file_acl:"inetmgr">
+  <user:"Administrators">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This object only"
+    acl_allow       : "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "traverse folder / execute file"
+  </user>
+
+  <user:"SYSTEM">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This object only"
+    acl_allow       : "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "traverse folder / execute file"
+  </user>
+
+  <user:"TrustedInstaller">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This object only"
+    acl_allow       : "change permissions" | "create files / write data" | "create folders / append data" | "delete" | "delete subfolder and files" | "full control" | "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "take ownership" | "traverse folder / execute file" | "write attributes" | "write extended attributes"
+  </user>
+
+  <user:"Web Managers">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This object only"
+    acl_allow       : "change permissions" | "create files / write data" | "create folders / append data" | "delete" | "delete subfolder and files" | "full control" | "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "take ownership" | "traverse folder / execute file" | "write attributes" | "write extended attributes"
+  </user>
+
+  <user:"Web Manager designees">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This object only"
+    acl_allow       : "change permissions" | "create files / write data" | "create folders / append data" | "delete" | "delete subfolder and files" | "full control" | "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "take ownership" | "traverse folder / execute file" | "write attributes" | "write extended attributes"
+  </user>
+
+  <user:"ALL APPLICATION PACKAGES">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "traverse folder / execute file"
+  </user>
+
+  <user:"Users">
+    acl_inheritance : "not inherited"
+    acl_apply       : "This folder, subfolders and files"
+    acl_allow       : "list folder / read data" | "read attributes" | "read extended attributes" | "read permissions" | "traverse folder / execute file"
+  </user>
+</file_acl>
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : REG_CHECK
+      description : "Verify IIS is installed."
+      value_type  : POLICY_TEXT
+      value_data  : "HKLM\Software\Microsoft\Inetstp"
+      reg_option  : MUST_EXIST
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Verify IIS 8.0 or 8.5 installed."
+      value_type  : POLICY_TEXT
+      value_data  : "@IIS_VERSION@"
+      reg_key     : "HKLM\Software\Microsoft\Inetstp"
+      reg_item    : "VersionString"
+      check_type  : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "Windows Server 2012 or 2012 R2 installed"
+      value_type  : POLICY_TEXT
+      value_data  : "@WINDOWS_VERSION@"
+      reg_key     : "HKLM\Software\Microsoft\Windows Nt\Currentversion"
+      reg_item    : "ProductName"
+      check_type  : CHECK_REGEX
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_IIS_8.5_Web_Server_v2r7.audit from DISA Microsoft IIS 8.5 Server v2r7 STIG"
+      info        : "This audit is designed against the DISA STIG for IIS 8.5 Site"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify IIS 8.5 installed."
+          value_type  : POLICY_TEXT
+          value_data  : "^Version 8\.5[\s]*$"
+          reg_key     : "HKLM\Software\Microsoft\Inetstp"
+          reg_item    : "VersionString"
+          check_type  : CHECK_REGEX
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition auto:"FAILED" type:"AND">
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "'W3C' format is applied"
+              value_type  : POLICY_TEXT
+              value_data  : "W3C"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logFormat"
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'Date' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "date"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'Time' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "time"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'Client IP Address' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "clientip"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'User Name' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "username"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'Method' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "method"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'URI Query' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "uriquery"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'Protocol Status' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "httpstatus"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify field 'Referer' is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "referer"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "IISW-SV-000102 - The enhanced logging for the IIS 8.5 web server must be enabled and capture all user and web server events."
+              info        : "Log files are a critical component to the successful management of an IS used within the DoD. By generating log files with useful information web administrators can leverage them in the event of a disaster, malicious attack, or other site specific needs.
+
+Ascertaining the correct order of the events that occurred is important during forensic analysis. Events that appear harmless by themselves might be flagged as a potential threat when properly viewed in sequence. By also establishing the event date and time, an event can be properly viewed with an enterprise tool to fully see a possible threat in its entirety.
+
+Without sufficient information establishing when the log event occurred, investigation into the cause of event is severely hindered. Log record content that may be necessary to satisfy the requirement of this control includes, but is not limited to, time stamps, source and destination IP addresses, user/process identifiers, event descriptions, application-specific events, success/fail indications, file names involved, access control, or flow control rules invoked.
+
+Satisfies: SRG-APP-000092-WSR-000055, SRG-APP-000093-WSR-000053, SRG-APP-000095-WSR-000056, SRG-APP-000096-WSR-000057, SRG-APP-000097-WSR-000058, SRG-APP-000097-WSR-000059"
+              solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Click the 'Logging' icon.
+
+Under Format select 'W3C'.
+
+Select the following fields: Date, Time, Client IP Address, User Name, Method, URI Query, Protocol Status, and Referrer.
+
+Under the 'Actions' pane, click 'Apply'."
+              reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02a.,800-53|AU-3,800-53|AU-14(1),800-53|AU-14(2),800-53r5|AU-3a.,800-53r5|AU-3b.,800-53r5|AU-3c.,800-53r5|AU-3d.,800-53r5|AU-14(1),CAT|II,CCI|CCI-000130,CCI|CCI-000131,CCI|CCI-000132,CCI|CCI-000133,CCI|CCI-001462,CCI|CCI-001464,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-14,ITSG-33|AU-14a.,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214400r879562_rule,STIG-ID|IISW-SV-000102,STIG-Legacy|SV-91377,STIG-Legacy|V-76681,SWIFT-CSCv1|6.4,Vuln-ID|V-214400"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "IISW-SV-000103 - Both the log file and Event Tracing for Windows (ETW) for the IIS 8.5 web server must be enabled."
+          info        : "Internet Information Services (IIS) on Windows Server 2012 provides basic logging capabilities. However, because IIS takes some time to flush logs to disk, administrators do not have access to logging information in real-time. In addition, text-based log files can be difficult and time-consuming to process.
+
+In IIS 8.5, the administrator has the option of sending logging information to Event Tracing for Windows (ETW). This option gives the administrator the ability to use standard query tools, or create custom tools, for viewing real-time logging information in ETW. This provides a significant advantage over parsing text-based log files that are not updated in real time.
+
+Satisfies: SRG-APP-000092-WSR-000055, SRG-APP-000108-WSR-000166, SRG-APP-000358-WSR-000063"
+          solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 server name.
+
+Click the 'Logging' icon.
+
+Under Log Event Destination, select the 'Both log file and ETW event' radio button.
+
+Under the 'Actions' pane, click 'Apply'."
+          reference   : "800-171|3.3.4,800-171r3|03.03.04a.,800-53|AU-4(1),800-53|AU-5a.,800-53|AU-14(1),800-53r5|AU-4(1),800-53r5|AU-5a.,800-53r5|AU-14(1),CAT|II,CCI|CCI-000139,CCI|CCI-001464,CCI|CCI-001851,CN-L3|7.1.3.3(e),CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ISO-27001-2022|A.8.15,ITSG-33|AU-4,ITSG-33|AU-5a.,ITSG-33|AU-14,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214401r879562_rule,STIG-ID|IISW-SV-000103,STIG-Legacy|SV-91379,STIG-Legacy|V-76683,SWIFT-CSCv1|6.4,Vuln-ID|V-214401"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          value_type  : POLICY_TEXT
+          value_data  : "File, ETW"
+          appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logTargetW3C"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "IISW-SV-000102 - The enhanced logging for the IIS 8.5 web server must be enabled and capture all user and web server events."
+          info        : "Log files are a critical component to the successful management of an IS used within the DoD. By generating log files with useful information web administrators can leverage them in the event of a disaster, malicious attack, or other site specific needs.
+
+Ascertaining the correct order of the events that occurred is important during forensic analysis. Events that appear harmless by themselves might be flagged as a potential threat when properly viewed in sequence. By also establishing the event date and time, an event can be properly viewed with an enterprise tool to fully see a possible threat in its entirety.
+
+Without sufficient information establishing when the log event occurred, investigation into the cause of event is severely hindered. Log record content that may be necessary to satisfy the requirement of this control includes, but is not limited to, time stamps, source and destination IP addresses, user/process identifiers, event descriptions, application-specific events, success/fail indications, file names involved, access control, or flow control rules invoked.
+
+Satisfies: SRG-APP-000092-WSR-000055, SRG-APP-000093-WSR-000053, SRG-APP-000095-WSR-000056, SRG-APP-000096-WSR-000057, SRG-APP-000097-WSR-000058, SRG-APP-000097-WSR-000059"
+          solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Click the 'Logging' icon.
+
+Under Format select 'W3C'.
+
+Select the following fields: Date, Time, Client IP Address, User Name, Method, URI Query, Protocol Status, and Referrer.
+
+Under the 'Actions' pane, click 'Apply'."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02a.,800-53|AU-3,800-53|AU-14(1),800-53|AU-14(2),800-53r5|AU-3a.,800-53r5|AU-3b.,800-53r5|AU-3c.,800-53r5|AU-3d.,800-53r5|AU-14(1),CAT|II,CCI|CCI-000130,CCI|CCI-000131,CCI|CCI-000132,CCI|CCI-000133,CCI|CCI-001462,CCI|CCI-001464,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-14,ITSG-33|AU-14a.,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214400r879562_rule,STIG-ID|IISW-SV-000102,STIG-Legacy|SV-91377,STIG-Legacy|V-76681,SWIFT-CSCv1|6.4,Vuln-ID|V-214400"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+
+        <report type:"PASSED">
+          description : "IISW-SV-000103 - Both the log file and Event Tracing for Windows (ETW) for the IIS 8.5 web server must be enabled."
+          info        : "Internet Information Services (IIS) on Windows Server 2012 provides basic logging capabilities. However, because IIS takes some time to flush logs to disk, administrators do not have access to logging information in real-time. In addition, text-based log files can be difficult and time-consuming to process.
+
+In IIS 8.5, the administrator has the option of sending logging information to Event Tracing for Windows (ETW). This option gives the administrator the ability to use standard query tools, or create custom tools, for viewing real-time logging information in ETW. This provides a significant advantage over parsing text-based log files that are not updated in real time.
+
+Satisfies: SRG-APP-000092-WSR-000055, SRG-APP-000108-WSR-000166, SRG-APP-000358-WSR-000063"
+          solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 server name.
+
+Click the 'Logging' icon.
+
+Under Log Event Destination, select the 'Both log file and ETW event' radio button.
+
+Under the 'Actions' pane, click 'Apply'."
+          reference   : "800-171|3.3.4,800-171r3|03.03.04a.,800-53|AU-4(1),800-53|AU-5a.,800-53|AU-14(1),800-53r5|AU-4(1),800-53r5|AU-5a.,800-53r5|AU-14(1),CAT|II,CCI|CCI-000139,CCI|CCI-001464,CCI|CCI-001851,CN-L3|7.1.3.3(e),CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ISO-27001-2022|A.8.15,ITSG-33|AU-4,ITSG-33|AU-5a.,ITSG-33|AU-14,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214401r879562_rule,STIG-ID|IISW-SV-000103,STIG-Legacy|SV-91379,STIG-Legacy|V-76683,SWIFT-CSCv1|6.4,Vuln-ID|V-214401"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000109 - An IIS 8.5 web server behind a load balancer or proxy server, must produce log records containing the source client IP and destination information."
+      info        : "Web server logging capability is critical for accurate forensic analysis. Without sufficient and accurate information, a correct replay of the events cannot be determined.
+
+Ascertaining the correct source, e.g. source IP, of the events is important during forensic analysis. Correctly determining the source of events will add information to the overall reconstruction of the logable event. By determining the source of the event correctly, analysis of the enterprise can be undertaken to determine if events tied to the source occurred in other areas within the enterprise.
+
+A web server behind a load balancer or proxy server, when not configured correctly, will record the load balancer or proxy server as the source of every logable event. When looking at the information forensically, this information is not helpful in the investigation of events. The web server must record with each event the client source of the event.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Access the proxy server through which inbound web traffic is passed and configure settings to pass web traffic to the IIS 8.5 web server transparently."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02a.,800-53|AU-3,800-53r5|AU-3d.,CAT|II,CCI|CCI-000133,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214402r879566_rule,STIG-ID|IISW-SV-000109,STIG-Legacy|SV-91381,STIG-Legacy|V-76685,SWIFT-CSCv1|6.4,Vuln-ID|V-214402"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify IIS 8.5 installed."
+          value_type  : POLICY_TEXT
+          value_data  : "^Version 8\.5[\s]*$"
+          reg_key     : "HKLM\Software\Microsoft\Inetstp"
+          reg_item    : "VersionString"
+          check_type  : CHECK_REGEX
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition auto:"FAILED" type:"AND">
+            <custom_item>
+              type            : AUDIT_POWERSHELL
+              description     : "Verify Request Header is set to 'Warning'"
+              value_type      : POLICY_TEXT
+              value_data      : "Warning"
+              powershell_args : "$output=(Get-WebConfiguration -filter 'system.applicationhost/sites/sitedefaults/logfile/customFields' | select -expandproperty collection | where {$_.sourceType -eq 'RequestHeader'} | select sourceName | format-table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+              check_type      : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type            : AUDIT_POWERSHELL
+              description     : "Verify Request Header is set to 'Connection'"
+              value_type      : POLICY_TEXT
+              value_data      : "Connection"
+              powershell_args : "$output=(Get-WebConfiguration -filter 'system.applicationhost/sites/sitedefaults/logfile/customFields' | select -expandproperty collection | where {$_.sourceType -eq 'RequestHeader'} | select sourceName | format-table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+              check_type      : CHECK_REGEX
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "IISW-SV-000110 - The IIS 8.5 web server must produce log records that contain sufficient information to establish the outcome (success or failure) of IIS 8.5 web server events - success or failure of IIS 8.5 web server events"
+              info        : "Web server logging capability is critical for accurate forensic analysis. Without sufficient and accurate information, a correct replay of the events cannot be determined.
+
+Ascertaining the success or failure of an event is important during forensic analysis. Correctly determining the outcome will add information to the overall reconstruction of the logable event. By determining the success or failure of the event correctly, analysis of the enterprise can be undertaken to determine if events tied to the event occurred in other areas within the enterprise.
+
+Without sufficient information establishing the success or failure of the logged event, investigation into the cause of event is severely hindered. The success or failure also provides a means to measure the impact of an event and help authorized personnel to determine the appropriate response. Log record content that may be necessary to satisfy the requirement of this control includes, but is not limited to, time stamps, source and destination IP addresses, user/process identifiers, event descriptions, application-specific events, success/fail indications, file names involved, access control, or flow control rules invoked."
+              solution    : "Access the IIS 8.5 web server IIS Manager.
+Click the IIS 8.5 web server name.
+Under 'IIS', double-click the 'Logging' icon.
+Verify the 'Format:' under 'Log File' is configured to 'W3C'.
+Select the 'Fields' button.
+Under 'Custom Fields', click the 'Add Field...' button.
+For each field being added, give a name unique to what the field is capturing.
+Click on the 'Source Type' drop-down list and select 'Request Header'.
+Click on the 'Source' drop-down list and select 'Connection'.
+Click 'OK' to add.
+
+Click on the 'Source Type' drop-down list and select 'Request Header'.
+Click on the 'Source' drop-down list and select 'Warning'.
+Click 'OK' to add.
+Click 'Apply' under the 'Actions' pane."
+              reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02a.,800-53|AU-3,800-53r5|AU-3e.,CAT|II,CCI|CCI-000134,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214403r879567_rule,STIG-ID|IISW-SV-000110,STIG-Legacy|SV-91383,STIG-Legacy|V-76687,SWIFT-CSCv1|6.4,Vuln-ID|V-214403"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+
+        <if>
+          <condition auto:"FAILED" type:"AND">
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify 'User Agent' field is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "useragent"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify 'User Name' field is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "username"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify 'Referer' field is selected"
+              value_type  : POLICY_TEXT
+              value_data  : "Referer"
+              appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.logExtFileFlags"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type            : AUDIT_POWERSHELL
+              description     : "Verify Response Header is set to 'Authorization'"
+              value_type      : POLICY_TEXT
+              value_data      : "Authorization"
+              powershell_args : "$output=(Get-WebConfiguration -filter 'system.applicationhost/sites/sitedefaults/logfile/customFields' | select -expandproperty collection | where {$_.sourceType -eq 'RequestHeader'} | select sourceName | format-table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+              check_type      : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type            : AUDIT_POWERSHELL
+              description     : "Verify Response Header is set to 'Content-Type'"
+              value_type      : POLICY_TEXT
+              value_data      : "Content-Type"
+              powershell_args : "$output=(Get-WebConfiguration -filter 'system.applicationhost/sites/sitedefaults/logfile/customFields' | select -expandproperty collection | where {$_.sourceType -eq 'ResponseHeader'} | select sourceName | format-table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+              check_type      : CHECK_REGEX
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "IISW-SV-000111 - The IIS 8.5 web server must produce log records containing sufficient information to establish the identity of any user/subject or process associated with an event."
+              info        : "Web server logging capability is critical for accurate forensic analysis. Without sufficient and accurate information, a correct replay of the events cannot be determined.
+
+Determining user accounts, processes running on behalf of the user, and running process identifiers also enable a better understanding of the overall event. User tool identification is also helpful to determine if events are related to overall user access or specific client tools.
+
+Log record content that may be necessary to satisfy the requirement of this control includes: time stamps, source and destination addresses, user/process identifiers, event descriptions, success/fail indications, file names involved, and access control or flow control rules invoked."
+              solution    : "Access the IIS 8.5 web server IIS Manager.
+Click the IIS 8.5 web server name.
+Under 'IIS', double-click the 'Logging' icon.
+Verify the 'Format:' under 'Log File' is configured to 'W3C'.
+Select the 'Fields' button.
+Under 'Standard Fields', select 'User Agent', 'User Name', and 'Referrer'.
+Under 'Custom Fields', select the following fields:
+Click on the 'Source Type' drop-down list and select 'Request Header'.
+Click on the 'Source' drop-down list and select 'Authorization'.
+Click 'OK' to add.
+
+Click on the 'Source' drop-down list and select 'Content-Type'.
+Click on the 'Source Type' drop-down list and select 'Response Header'.
+Click 'OK' to add.
+Click 'OK'.
+Click 'Apply' under the 'Actions' pane."
+              reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02a.,800-53|AU-3,800-53r5|AU-3f.,CAT|II,CCI|CCI-001487,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214404r879568_rule,STIG-ID|IISW-SV-000111,STIG-Legacy|SV-91385,STIG-Legacy|V-76689,SWIFT-CSCv1|6.4,Vuln-ID|V-214404"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "IISW-SV-000110 - The IIS 8.5 web server must produce log records that contain sufficient information to establish the outcome (success or failure) of IIS 8.5 web server events."
+          info        : "Web server logging capability is critical for accurate forensic analysis. Without sufficient and accurate information, a correct replay of the events cannot be determined.
+
+Ascertaining the success or failure of an event is important during forensic analysis. Correctly determining the outcome will add information to the overall reconstruction of the logable event. By determining the success or failure of the event correctly, analysis of the enterprise can be undertaken to determine if events tied to the event occurred in other areas within the enterprise.
+
+Without sufficient information establishing the success or failure of the logged event, investigation into the cause of event is severely hindered. The success or failure also provides a means to measure the impact of an event and help authorized personnel to determine the appropriate response. Log record content that may be necessary to satisfy the requirement of this control includes, but is not limited to, time stamps, source and destination IP addresses, user/process identifiers, event descriptions, application-specific events, success/fail indications, file names involved, access control, or flow control rules invoked."
+          solution    : "Access the IIS 8.5 web server IIS Manager.
+Click the IIS 8.5 web server name.
+Under 'IIS', double-click the 'Logging' icon.
+Verify the 'Format:' under 'Log File' is configured to 'W3C'.
+Select the 'Fields' button.
+Under 'Custom Fields', click the 'Add Field...' button.
+For each field being added, give a name unique to what the field is capturing.
+Click on the 'Source Type' drop-down list and select 'Request Header'.
+Click on the 'Source' drop-down list and select 'Connection'.
+Click 'OK' to add.
+
+Click on the 'Source Type' drop-down list and select 'Request Header'.
+Click on the 'Source' drop-down list and select 'Warning'.
+Click 'OK' to add.
+Click 'Apply' under the 'Actions' pane."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02a.,800-53|AU-3,800-53r5|AU-3e.,CAT|II,CCI|CCI-000134,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214403r879567_rule,STIG-ID|IISW-SV-000110,STIG-Legacy|SV-91383,STIG-Legacy|V-76687,SWIFT-CSCv1|6.4,Vuln-ID|V-214403"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+
+        <report type:"PASSED">
+          description : "IISW-SV-000111 - The IIS 8.5 web server must produce log records containing sufficient information to establish the identity of any user/subject or process associated with an event."
+          info        : "Web server logging capability is critical for accurate forensic analysis. Without sufficient and accurate information, a correct replay of the events cannot be determined.
+
+Determining user accounts, processes running on behalf of the user, and running process identifiers also enable a better understanding of the overall event. User tool identification is also helpful to determine if events are related to overall user access or specific client tools.
+
+Log record content that may be necessary to satisfy the requirement of this control includes: time stamps, source and destination addresses, user/process identifiers, event descriptions, success/fail indications, file names involved, and access control or flow control rules invoked."
+          solution    : "Access the IIS 8.5 web server IIS Manager.
+Click the IIS 8.5 web server name.
+Under 'IIS', double-click the 'Logging' icon.
+Verify the 'Format:' under 'Log File' is configured to 'W3C'.
+Select the 'Fields' button.
+Under 'Standard Fields', select 'User Agent', 'User Name', and 'Referrer'.
+Under 'Custom Fields', select the following fields:
+Click on the 'Source Type' drop-down list and select 'Request Header'.
+Click on the 'Source' drop-down list and select 'Authorization'.
+Click 'OK' to add.
+
+Click on the 'Source' drop-down list and select 'Content-Type'.
+Click on the 'Source Type' drop-down list and select 'Response Header'.
+Click 'OK' to add.
+Click 'OK'.
+Click 'Apply' under the 'Actions' pane."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.02a.,800-53|AU-3,800-53r5|AU-3f.,CAT|II,CCI|CCI-001487,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214404r879568_rule,STIG-ID|IISW-SV-000111,STIG-Legacy|SV-91385,STIG-Legacy|V-76689,SWIFT-CSCv1|6.4,Vuln-ID|V-214404"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000115 - The log information from the IIS 8.5 web server must be protected from unauthorized modification or deletion."
+      info        : "A major tool in exploring the website use, attempted use, unusual conditions, and problems are the access and error logs. In the event of a security incident, these logs can provide the SA and the web manager with valuable information. Failure to protect log files could enable an attacker to modify the log file data or falsify events to mask an attacker's activity.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Click the 'Logging' icon.
+
+Click the 'Browse' button and navigate to the directory where the log files are stored.
+
+Right-click the log file name to review and click 'Properties'.
+
+Click the 'Security' tab.
+
+Set the log file permissions for the appropriate group(s).
+
+Click 'OK'.
+
+Select 'Apply' in the 'Actions' pane."
+      reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9,800-53r5|AU-9a.,CAT|II,CCI|CCI-000162,CCI|CCI-000163,CCI|CCI-000164,CN-L3|7.1.2.3(d),CN-L3|7.1.3.3(f),CN-L3|8.1.3.5(c),CN-L3|8.1.4.3(c),CSF|PR.PT-1,CSF2.0|PR.DS-10,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9,NESA|M5.2.3,NESA|M5.5.2,NESA|T3.6.4,NESA|T8.2.9,NIAv2|SM5,NIAv2|SM6,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|10.3.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214405r879578_rule,STIG-ID|IISW-SV-000115,STIG-Legacy|SV-91391,STIG-Legacy|V-76695,Vuln-ID|V-214405"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000116 - The log data and records from the IIS 8.5 web server must be backed up onto a different system or media."
+      info        : "Protection of log data includes assuring log data is not accidentally lost or deleted. Backing up log records to an unrelated system or onto separate media than the system the web server is actually running on helps to assure that, in the event of a catastrophic system failure, the log records will be retained.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure system backups to include the directory paths of all IIS 8.5 web server and website log files."
+      reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9(2),800-53r5|AU-9(2),CAT|II,CCI|CCI-001348,CN-L3|8.1.3.5(d),CN-L3|8.1.4.3(c),CSF|PR.PT-1,CSF2.0|PR.DS-10,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(2),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SS13e,PCI-DSSv3.2.1|10.5.3,PCI-DSSv3.2.1|10.5.4,PCI-DSSv4.0|10.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214406r879582_rule,STIG-ID|IISW-SV-000116,STIG-Legacy|SV-91393,STIG-Legacy|V-76697,Vuln-ID|V-214406"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000117 - The IIS 8.5 web server must not perform user management for hosted applications."
+      info        : "User management and authentication can be an essential part of any application hosted by the web server. Along with authenticating users, the user management function must perform several other tasks like password complexity, locking users after a configurable number of failed logons, and management of temporary and emergency accounts; and all of this must be done enterprise-wide.
+
+The web server contains a minimal user management function, but the web server user management function does not offer enterprise-wide user management, and user management is not the primary function of the web server. User management for the hosted applications should be done through a facility that is built for enterprise-wide user management, like LDAP and Active Directory.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Reconfigure any hosted applications on the IIS 8.5 web server to perform user management outside the IIS 8.5 web server.
+
+Document how the hosted application user management is accomplished."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214407r879587_rule,STIG-ID|IISW-SV-000117,STIG-Legacy|SV-91395,STIG-Legacy|V-76699,SWIFT-CSCv1|2.3,Vuln-ID|V-214407"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <custom_item>
+      type                 : AUDIT_POWERSHELL
+      description          : "IISW-SV-000118 - The IIS 8.5 web server must only contain functions necessary for operation."
+      info                 : "A web server can provide many features, services, and processes. Some of these may be deemed unnecessary or too unsecure to run on a production DoD system.
+
+The web server must provide the capability to disable, uninstall, or deactivate functionality and services that are deemed to be non-essential to the web server mission or can adversely impact server performance.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution             : "Remove all unapproved programs and roles from the production IIS 8.5 web server."
+      reference            : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214408r879587_rule,STIG-ID|IISW-SV-000118,STIG-Legacy|SV-91397,STIG-Legacy|V-76701,SWIFT-CSCv1|2.3,Vuln-ID|V-214408"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type           : POLICY_TEXT
+      value_data           : "ManualReviewRequired"
+      powershell_args      : "Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher | Sort-Object -Unique DisplayName | Format-Table -AutoSize"
+      only_show_cmd_output : YES
+      severity             : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Check for Application Request Routing installed"
+          value_type      : POLICY_TEXT
+          value_data      : ".*Application Request Routing.*"
+          powershell_args : "Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object {$_.DisplayName -clike '*Application Request Routing*'} | Select-Object DisplayName, DisplayVersion, Publisher | Sort-Object -Unique DisplayName | Format-Table -AutoSize"
+          check_type      : CHECK_REGEX
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "IISW-SV-000119 - The IIS 8.5 web server must not be both a website server and a proxy server."
+          info            : "A web server should be primarily a web server or a proxy server but not both, for the same reasons that other multi-use servers are not recommended. Scanning for web servers that will also proxy requests into an otherwise protected network is a very common attack making the attack anonymous."
+          solution        : "Open the IIS 8.5 Manager.
+
+Under the 'Connections' pane on the left side of the management console, select the IIS 8.5 web server.
+
+Under the IIS installed features, 'Application Request Routing Cache' is present, double-click the icon to open the feature.
+
+From the right 'Actions' pane, under 'Proxy', select 'Server Proxy Settings...'.
+
+In the 'Application Request Routing' settings window, remove the check from the 'Enable proxy' check box.
+
+Click 'Apply' in the 'Actions' pane."
+          reference       : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214409r879587_rule,STIG-ID|IISW-SV-000119,STIG-Legacy|SV-91399,STIG-Legacy|V-76703,SWIFT-CSCv1|2.3,Vuln-ID|V-214409"
+          see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          value_type      : POLICY_TEXT
+          value_data      : "False"
+          powershell_args : "Get-WebConfigurationProperty 'system.webserver/proxy' -name 'enabled' | Select Value | Format-table -HideTableHeaders"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "IISW-SV-000119 - The IIS 8.5 web server must not be both a website server and a proxy server."
+          info        : "A web server should be primarily a web server or a proxy server but not both, for the same reasons that other multi-use servers are not recommended. Scanning for web servers that will also proxy requests into an otherwise protected network is a very common attack making the attack anonymous."
+          solution    : "Open the IIS 8.5 Manager.
+
+Under the 'Connections' pane on the left side of the management console, select the IIS 8.5 web server.
+
+Under the IIS installed features, 'Application Request Routing Cache' is present, double-click the icon to open the feature.
+
+From the right 'Actions' pane, under 'Proxy', select 'Server Proxy Settings...'.
+
+In the 'Application Request Routing' settings window, remove the check from the 'Enable proxy' check box.
+
+Click 'Apply' in the 'Actions' pane."
+          reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214409r879587_rule,STIG-ID|IISW-SV-000119,STIG-Legacy|SV-91399,STIG-Legacy|V-76703,SWIFT-CSCv1|2.3,Vuln-ID|V-214409"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000120 - All IIS 8.5 web server sample code, example applications, and tutorials must be removed from a production IIS 8.5 server."
+      info        : "Web server documentation, sample code, example applications, and tutorials may be an exploitable threat to a web server. A production web server may only contain components that are operationally necessary (i.e., compiled code, scripts, web content, etc.). Delete all directories containing samples and any scripts used to execute the samples.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Remove any executable sample code, example applications, or tutorials which are not explicitly used by a production website."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|I,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214410r879587_rule,STIG-ID|IISW-SV-000120,STIG-Legacy|SV-91401,STIG-Legacy|V-76705,SWIFT-CSCv1|2.3,Vuln-ID|V-214410"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "IISW-SV-000121 - The accounts created by uninstalled features (i.e., tools, utilities, specific, etc.) must be deleted from the IIS 8.5 server."
+      info            : "When accounts used for web server features such as documentation, sample code, example applications, tutorials, utilities, and services are created even though the feature is not installed, they become an exploitable threat to a web server.
+
+These accounts become inactive, are not monitored through regular use, and passwords for the accounts are not created or updated. An attacker, through very little effort, can use these accounts to gain access to the web server and begin investigating ways to elevate the account privileges.
+
+The accounts used for web server features not installed must not be created and must be deleted when these features are uninstalled.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Access the IIS 8.5 web server.
+
+Access 'Apps' menu. Under 'Administrative Tools', select 'Computer Management'.
+
+In left pane, expand 'Local Users and Groups' and click on 'Users'.
+
+Delete any local accounts which were created by features which have been uninstalled or are not used."
+      reference       : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214411r879587_rule,STIG-ID|IISW-SV-000121,STIG-Legacy|SV-91403,STIG-Legacy|V-76707,SWIFT-CSCv1|2.3,Vuln-ID|V-214411"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : ""
+      powershell_args : "Get-WmiObject -Class Win32_UserAccount | Select-Object Name"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "IISW-SV-000156 - All accounts installed with the IIS 8.5 web server software and tools must have passwords assigned and default passwords changed."
+      info            : "During installation of the web server software, accounts are created for the web server to operate properly. The accounts installed can have either no password installed or a default password, which will be known and documented by the vendor and the user community.
+
+The first things an attacker will try when presented with a logon screen are the default user identifiers with default passwords. Installed applications may also install accounts with no password, making the logon even easier. Once the web server is installed, the passwords for any created accounts should be changed and documented. The new passwords must meet the requirements for all passwords, i.e., upper/lower characters, numbers, special characters, time until change, reuse policy, etc.
+
+Service accounts or system accounts that have no logon capability do not need to have passwords set or changed.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Access the IIS 8.5 web server.
+
+Access Apps menu. Under Administrative Tools, select Computer Management.
+
+In left pane, expand 'Local Users and Groups' and click on 'Users'.
+
+Change passwords for any local accounts are present and are used by IIS 8.5 verify with System Administrator that default passwords have been changed.
+
+Develop an internal process for changing passwords on a regular basis."
+      reference       : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214438r879887_rule,STIG-ID|IISW-SV-000156,STIG-Legacy|SV-91461,STIG-Legacy|V-76765,SWIFT-CSCv1|2.3,Vuln-ID|V-214438"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : ""
+      powershell_args : "Get-CimInstance -ClassName Win32_Useraccount -Filter 'LocalAccount=True and Disabled=False'"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type                 : AUDIT_POWERSHELL
+      description          : "IISW-SV-000123 - The IIS 8.5 web server must be reviewed on a regular basis to remove any Operating System features, utility programs, plug-ins, and modules not necessary for operation."
+      info                 : "Just as running unneeded services and protocols is a danger to the web server at the lower levels of the OSI model, running unneeded utilities and programs is also a danger at the application layer of the OSI model. Office suites, development tools, and graphical editors are examples of such programs that are troublesome.
+
+Individual productivity tools have no legitimate place or use on an enterprise, production web server and they are also prone to their own security risks. The web server installation process must provide options allowing the installer to choose which utility programs, services, and modules are to be installed or removed. By having a process for installation and removal, the web server is guaranteed to be in a more stable and secure state than if these services and programs were installed and removed manually.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution             : "Remove all utility programs, Operating System features or modules which are installed but are not necessary for web server operation."
+      reference            : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214412r879587_rule,STIG-ID|IISW-SV-000123,STIG-Legacy|SV-91405,STIG-Legacy|V-76709,SWIFT-CSCv1|2.3,Vuln-ID|V-214412"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type           : POLICY_TEXT
+      value_data           : "ManualReviewRequired"
+      powershell_args      : "Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher | Sort-Object -Unique DisplayName | Format-Table -AutoSize"
+      only_show_cmd_output : YES
+      severity             : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify exe extension is not included"
+          value_type      : POLICY_TEXT
+          value_data      : "No entries found"
+          powershell_args : "$output=(Get-WebConfiguration -Filter system.webServer/staticContent/mimeMap | Where-object {$_.fileExtension -eq '.exe' } | Select-object fileExtension | Format-Table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+        </custom_item>
+
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify dll extension is not included"
+          value_type      : POLICY_TEXT
+          value_data      : "No entries found"
+          powershell_args : "$output=(Get-WebConfiguration -Filter system.webServer/staticContent/mimeMap | Where-object {$_.fileExtension -eq '.dll' } | Select-object fileExtension | Format-Table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+        </custom_item>
+
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify com extension is not included"
+          value_type      : POLICY_TEXT
+          value_data      : "No entries found"
+          powershell_args : "$output=(Get-WebConfiguration -Filter system.webServer/staticContent/mimeMap | Where-object {$_.fileExtension -eq '.com' } | Select-object fileExtension | Format-Table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+        </custom_item>
+
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify bat extension is not included"
+          value_type      : POLICY_TEXT
+          value_data      : "No entries found"
+          powershell_args : "$output=(Get-WebConfiguration -Filter system.webServer/staticContent/mimeMap | Where-object {$_.fileExtension -eq '.bat' } | Select-object fileExtension | Format-Table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+        </custom_item>
+
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify csh extension is not included"
+          value_type      : POLICY_TEXT
+          value_data      : "No entries found"
+          powershell_args : "$output=(Get-WebConfiguration -Filter system.webServer/staticContent/mimeMap | Where-object {$_.fileExtension -eq '.csh' } | Select-object fileExtension | Format-Table -HideTableHeaders); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "IISW-SV-000124 - The IIS 8.5 web server must have Multipurpose Internet Mail Extensions (MIME) that invoke OS shell programs disabled - MIME that invoke OS shell programs disabled"
+          info        : "Controlling what a user of a hosted application can access is part of the security posture of the web server. Any time a user can access more functionality than is needed for the operation of the hosted application poses a security issue. A user with too much access can view information that is not needed for the user's job role, or the user could use the function in an unintentional manner.
+
+A MIME tells the web server what type of program, various file types, and extensions are and what external utilities or programs are needed to execute the file type.
+
+A shell is a program that serves as the basic interface between the user and the operating system, so hosted application users must not have access to these programs. Shell programs may execute shell escapes and can then perform unauthorized activities that could damage the security posture of the web server."
+          solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under IIS, double-click the 'MIME Types' icon.
+
+From the 'Group by:' drop-down list, select 'Content Type'.
+
+From the list of extensions under 'Application', remove MIME types for OS shell program extensions, to include at a minimum, the following extensions:
+
+.exe
+.dll
+.com
+.bat
+.csh
+
+Under the 'Actions' pane, click 'Apply'."
+          reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214413r879587_rule,STIG-ID|IISW-SV-000124,STIG-Legacy|SV-91407,STIG-Legacy|V-76711,SWIFT-CSCv1|2.3,Vuln-ID|V-214413"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "IISW-SV-000125 - The IIS 8.5 web server must have Web Distributed Authoring and Versioning (WebDAV) disabled."
+      info            : "A web server can be installed with functionality that, just by its nature, is not secure. Web Distributed Authoring (WebDAV) is an extension to the HTTP protocol that, when developed, was meant to allow users to create, change, and move documents on a server, typically a web server or web share. Allowing this functionality, development, and deployment is much easier for web authors.
+
+WebDAV is not widely used and has serious security concerns because it may allow clients to modify unauthorized files on the web server."
+      solution        : "Access Server Manager on the IIS 8.5 web server.
+
+Click the IIS 8.5 web server name.
+
+Click on 'Manage'.
+
+Select 'Add Roles and Features'.
+
+Click 'Next' on the 'Before you begin' dialog box.
+
+Select 'Role-based or feature-based installation' on the 'Installation Type' dialog box and click on 'Next'.
+
+Select the IIS 8.5 web server on the 'Server Selection' dialog box.
+
+From the 'Windows Features' dialog box, navigate to 'World Wide Web Services' >> 'Common HTTP Features'.
+
+De-select 'WebDAV Publishing' and click 'Next' to complete removing the WebDAV Publishing feature from the IIS 8.5 web server."
+      reference       : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-214414r879587_rule,STIG-ID|IISW-SV-000125,STIG-Legacy|SV-91409,STIG-Legacy|V-76713,SWIFT-CSCv1|2.3,Vuln-ID|V-214414"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : "false"
+      powershell_args : "get-windowsfeature | where-object { $_.name -eq 'web-dav-publishing' } | select-object installed | format-table -hidetableheaders"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000129 - The IIS 8.5 web server must perform RFC 5280-compliant certification path validation."
+      info        : "This check verifies the server certificate is actually a DoD-issued certificate used by the organization being reviewed. This is used to verify the authenticity of the website to the user. If the certificate is not issued by the DoD or if the certificate has expired, then there is no assurance the use of the certificate is valid. The entire purpose of using a certificate is, therefore, compromised.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Double-click the 'Server Certificate' icon.
+
+Import a valid DoD certificate and remove any non-DoD certificates."
+      reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5(2)(a),800-53r5|IA-5(2)(b)(1),CAT|II,CCI|CCI-000185,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(2)(a),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-214415r879612_rule,STIG-ID|IISW-SV-000129,STIG-Legacy|SV-91411,STIG-Legacy|V-76715,Vuln-ID|V-214415"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "IISW-SV-000130 - Java software installed on a production IIS 8.5 web server must be limited to .class files and the Java Virtual Machine."
+      info            : "Mobile code in hosted applications allows the developer to add functionality and displays to hosted applications that are fluid, as opposed to a static web page. The data presentation becomes more appealing to the user, is easier to analyze, and navigation through the hosted application and data is much less complicated.
+
+Some mobile code technologies in use in today's applications are: Java, JavaScript, ActiveX, PDF, Postscript, Shockwave movies, Flash animations, and VBScript. The DoD has created policies that define the usage of mobile code on DoD systems. The usage restrictions and implementation guidance apply to both the selection and use of mobile code installed on organizational servers and mobile code downloaded and executed on individual workstations.
+
+Source code for a Java program is, many times, stored in files with either .java or .jpp file extensions. From the .java and .jpp files the Java compiler produces a binary file with an extension of .class. The .java or .jpp file could therefore reveal sensitive information regarding an application's logic and permissions to resources on the server."
+      solution        : "Remove all files from the web server with both .java and .jpp extensions."
+      reference       : "800-171|3.13.13,800-171r3|03.13.13,800-53|SC-18(1),800-53r5|SC-18(1),CAT|II,CCI|CCI-001166,CSF|DE.CM-5,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-18(1),NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,Rule-ID|SV-214416r879627_rule,STIG-ID|IISW-SV-000130,STIG-Legacy|SV-91413,STIG-Legacy|V-76717,Vuln-ID|V-214416"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : "No entries found"
+      powershell_args : "$output=(get-childitem c:\ -include *.java,*.jpp -recurse -ErrorAction SilentlyContinue); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000131 - IIS 8.5 Web server accounts accessing the directory tree, the shell, or other operating system functions and utilities must only be administrative accounts."
+      info        : "As a rule, accounts on a web server are to be kept to a minimum. Only administrators, web managers, developers, auditors, and web authors require accounts on the machine hosting the web server. This is in addition to the anonymous web user account. The resources to which these accounts have access must also be closely monitored and controlled. Only the SA needs access to all the system's capabilities, while the web administrator and associated staff require access and control of the web content and web server configuration files. The anonymous web user account must not have access to system resources as that account could then control the server.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Ensure non-administrators are not allowed access to the directory tree, the shell, or other operating system functions and utilities.
+
+All non-administrator access to shell scripts and operating system functions must be mission essential and documented."
+      reference   : "800-171|3.13.3,800-53|SC-2,800-53r5|SC-2,CAT|I,CCI|CCI-001082,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-2,ITSG-33|SC-2a.,NESA|T3.4.1,NIAv2|SS15b,Rule-ID|SV-214417r879631_rule,STIG-ID|IISW-SV-000131,STIG-Legacy|SV-91415,STIG-Legacy|V-76719,Vuln-ID|V-214417"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "IISW-SV-000132 - The IIS 8.5 web server must separate the hosted applications from hosted web server management functionality."
+      info            : "The separation of user functionality from web server management can be accomplished by moving management functions to a separate IP address or port. To further separate the management functions, separate authentication methods and certificates should be used.
+
+By moving the management functionality, the possibility of accidental discovery of the management functions by non-privileged users during hosted application use is minimized.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Develop a method to manage the hosted applications, either by moving its management functions off of the IIS 8.5 web server or by accessing the application's management via a uniquely assigned IP address."
+      reference       : "800-171|3.13.3,800-53|SC-2,800-53r5|SC-2,CAT|II,CCI|CCI-001082,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-2,ITSG-33|SC-2a.,NESA|T3.4.1,NIAv2|SS15b,Rule-ID|SV-214418r879631_rule,STIG-ID|IISW-SV-000132,STIG-Legacy|SV-91417,STIG-Legacy|V-76721,Vuln-ID|V-214418"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : ""
+      powershell_args : "$output=(get-webapplication | select-object path); foreach-object { if(!$output){ $result='No entries found' } else { $result=$output }; $result };"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_IIS_APPCMD
+      description : "IISW-SV-000134 - The IIS 8.5 web server must use cookies to track session state."
+      info        : "Cookies are used to exchange data between the web server and the client. Cookies, such as a session cookie, may contain session information and user credentials used to maintain a persistent connection between the user and the hosted application since HTTP/HTTPS is a stateless protocol.
+
+Cookies associate session information with client information for the duration of a user's connection to a website. Using cookies is a more efficient way to track session state than any of the methods that do not use cookies because cookies do not require any redirection."
+      solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under 'ASP.Net', double-click on the 'Session State' icon.
+
+Under 'Cookie Settings', select 'Use Cookies' from the 'Mode' drop-down list.
+
+Click 'Apply' in the 'Actions' pane."
+      reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23(1),800-53|SC-23(3),800-53r5|SC-23(1),800-53r5|SC-23(3),CAT|II,CCI|CCI-001185,CCI|CCI-001664,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23(1),ITSG-33|SC-23(3),NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-214419r879638_rule,STIG-ID|IISW-SV-000134,STIG-Legacy|SV-91421,STIG-Legacy|V-76725,Vuln-ID|V-214419"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "UseCookies"
+      appcmd_args : "list config /section:system.web/sessionState /text:cookieless"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "Verify 'Use Cookies' mode is enabled for sessionState"
+          value_type  : POLICY_TEXT
+          value_data  : "UseCookies"
+          appcmd_args : "list config /section:system.web/sessionState /text:cookieless"
+        </custom_item>
+
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "Verify Time-out is configured for 20 minutes or less"
+          value_type  : POLICY_TEXT
+          value_data  : "([1-9]|1[0-9]|20)"
+          appcmd_args : "list config /section:system.web/sessionState /text:timeout"
+          check_type  : CHECK_REGEX
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "IISW-SV-000135 - The IIS 8.5 web server must limit the amount of time a cookie persists."
+          info        : "ASP.NET provides a session state, which is available as the HttpSessionState class, as a method of storing session-specific information that is visible only within the session. ASP.NET session state identifies requests from the same browser during a limited time window as a session, and provides the ability to persist variable values for the duration of that session.
+
+Cookies associate session information with client information for the duration of a user's connection to a website. Using cookies is a more efficient way to track session state than any of the methods that do not use cookies because cookies do not require any redirection."
+          solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under the 'ASP.NET' section, select 'Session State'.
+
+Under 'Cookie Settings', select the 'Use Cookies' mode from the 'Mode:' drop-down list.
+
+Under 'Time-out (in minutes), enter a value of '20 or less'."
+          reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23(3),800-53r5|SC-23(3),CAT|II,CCI|CCI-001664,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23(3),NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-214420r879638_rule,STIG-ID|IISW-SV-000135,STIG-Legacy|SV-91423,STIG-Legacy|V-76727,Vuln-ID|V-214420"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000136 - The IIS 8.5 web server must augment re-creation to a stable and known baseline."
+      info        : "Making certain that the web server has not been updated by an unauthorized user is always a concern. Adding patches, functions, and modules that are untested and not part of the baseline opens the possibility for security risks. The web server must offer, and not hinder, a method that allows for the quick and easy reinstallation of a verified and patched baseline to guarantee the production web server is up-to-date and has not been modified to add functionality or expose security risks.
+
+When the web server does not offer a method to roll back to a clean baseline, external methods, such as a baseline snapshot or virtualizing the web server, can be used.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Prepare documentation for disaster recovery methods for the IIS 8.5 web server in the event of the necessity for rollback.
+
+Document and test the disaster recovery methods designed."
+      reference   : "800-53|SC-24,800-53r5|SC-24,CAT|II,CCI|CCI-001190,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-24,ITSG-33|SC-24a.,QCSC-v1|5.2.1,Rule-ID|SV-214421r879640_rule,STIG-ID|IISW-SV-000136,STIG-Legacy|SV-91425,STIG-Legacy|V-76729,Vuln-ID|V-214421"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "Verify .NET is installed."
+          value_type  : POLICY_TEXT
+          value_data  : 'v[234].*'
+          appcmd_args : 'list config /section:system.applicationHost/applicationPools /text:ApplicationPoolDefaults.managedRuntimeVersion'
+          check_type  : CHECK_REGEX
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition auto:"FAILED" type:"AND">
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify the Validation method is set to 'HMACSHA256' or stronger"
+              value_type  : POLICY_TEXT
+              value_data  : '^HMACSHA(256|384|512)$'
+              appcmd_args : 'list config /section:system.web/machineKey /text:validation'
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify the Encryption method is set to 'Auto'"
+              value_type  : POLICY_TEXT
+              value_data  : 'auto'
+              appcmd_args : 'list config /section:system.web/machineKey /text:decryption'
+              check_type  : CHECK_REGEX
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "IISW-SV-000137 - The production IIS 8.5 web server must utilize SHA2 encryption for the Machine Key."
+              info        : "The Machine Key element of the ASP.NET web.config specifies the algorithm and keys that ASP.NET will use for encryption. The Machine Key feature can be managed to specify hashing and encryption settings for application services such as view state, forms authentication, membership and roles, and anonymous identification. Ensuring a strong encryption method can mitigate the risk of data tampering in crucial functional areas such as forms authentication cookies, or view state."
+              solution    : "If .NET is not installed, this is Not Applicable.
+
+Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Double-click the 'Machine Key' icon in the web server Home Pane.
+
+Set the Validation method to 'HMACSHA256' or stronger.
+Set the Encryption method to 'Auto'.
+
+Click 'Apply' in the 'Actions' pane."
+              reference   : "800-171|3.13.16,800-171r3|03.13.08,800-53|SC-28,800-53r5|SC-28,CAT|II,CCI|CCI-001199,CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSF|PR.DS-1,CSF2.0|PR.DS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.33,ITSG-33|SC-28,ITSG-33|SC-28a.,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-214422r879642_rule,STIG-ID|IISW-SV-000137,STIG-Legacy|SV-91427,STIG-Legacy|V-76731,Vuln-ID|V-214422"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "IISW-SV-000137 - The production IIS 8.5 web server must utilize SHA2 encryption for the Machine Key."
+          info        : "The Machine Key element of the ASP.NET web.config specifies the algorithm and keys that ASP.NET will use for encryption. The Machine Key feature can be managed to specify hashing and encryption settings for application services such as view state, forms authentication, membership and roles, and anonymous identification. Ensuring a strong encryption method can mitigate the risk of data tampering in crucial functional areas such as forms authentication cookies, or view state."
+          solution    : "If .NET is not installed, this is Not Applicable.
+
+Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Double-click the 'Machine Key' icon in the web server Home Pane.
+
+Set the Validation method to 'HMACSHA256' or stronger.
+Set the Encryption method to 'Auto'.
+
+Click 'Apply' in the 'Actions' pane."
+          reference   : "800-171|3.13.16,800-171r3|03.13.08,800-53|SC-28,800-53r5|SC-28,CAT|II,CCI|CCI-001199,CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSF|PR.DS-1,CSF2.0|PR.DS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.33,ITSG-33|SC-28,ITSG-33|SC-28a.,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-214422r879642_rule,STIG-ID|IISW-SV-000137,STIG-Legacy|SV-91427,STIG-Legacy|V-76731,Vuln-ID|V-214422"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : AUDIT_IIS_APPCMD
+      description : "IISW-SV-000138 - Directory Browsing on the IIS 8.5 web server must be disabled."
+      info        : "Directory browsing allows the contents of a directory to be displayed upon request from a web client. If directory browsing is enabled for a directory in IIS, users could receive a web page listing the contents of the directory. If directory browsing is enabled the risk of inadvertently disclosing sensitive content is increased."
+      solution    : "If the Directory Browsing IIS Feature is disabled, this is Not Applicable.
+
+Open the IIS 8.5 Manager.
+Click the IIS 8.5 web server name.
+Double-click the 'Directory Browsing' icon.
+Under the 'Actions' pane click 'Disabled'.
+Under the 'Actions' pane, click 'Apply'."
+      reference   : "800-53|SI-10,800-53r5|SI-10,CAT|II,CCI|CCI-001310,CN-L3|8.1.4.4(d),CSF2.0|PR.DS-10,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-10,ITSG-33|SI-10a.,NESA|T7.3.1,NESA|T7.3.2,NIAv2|SS6e,Rule-ID|SV-214423r879652_rule,STIG-ID|IISW-SV-000138,STIG-Legacy|SV-91429,STIG-Legacy|V-76733,Vuln-ID|V-214423"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "false"
+      appcmd_args : "list config /section:directoryBrowse /text:enabled"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : REG_CHECK
+          description : "Check for Indexing enabled in registry"
+          value_type  : POLICY_TEXT
+          value_data  : "HKLM\SYSTEM\CurrentControlSet\Control\ContentIndex\Catalogs"
+          reg_option  : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : REG_CHECK
+          description : "IISW-SV-000139 - The IIS 8.5 web server Indexing must only index web content."
+          info        : "The indexing service can be used to facilitate a search function for websites. Enabling indexing may facilitate a directory traversal exploit and reveal unwanted information to a malicious user. Indexing must be limited to web document directories only.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "Run MMC.
+
+Add the Indexing Service snap-in.
+
+Edit the indexed directories to only include web document directories."
+          reference   : "800-53|SI-11a.,800-53r5|SI-11a.,CAT|II,CCI|CCI-001312,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-11b.,Rule-ID|SV-214424r879655_rule,STIG-ID|IISW-SV-000139,STIG-Legacy|SV-91431,STIG-Legacy|V-76735,Vuln-ID|V-214424"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          value_type  : POLICY_TEXT
+          value_data  : "HKLM\SYSTEM\CurrentControlSet\Control\ContentIndex\Catalogs"
+          reg_option  : MUST_NOT_EXIST
+          severity    : MEDIUM
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "IISW-SV-000139 - The IIS 8.5 web server Indexing must only index web content."
+          info        : "The indexing service can be used to facilitate a search function for websites. Enabling indexing may facilitate a directory traversal exploit and reveal unwanted information to a malicious user. Indexing must be limited to web document directories only."
+          solution    : "Run MMC.
+
+Add the Indexing Service snap-in.
+
+Edit the indexed directories to only include web document directories."
+          reference   : "800-53|SI-11a.,800-53r5|SI-11a.,CAT|II,CCI|CCI-001312,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-11b.,Rule-ID|SV-214424r879655_rule,STIG-ID|IISW-SV-000139,STIG-Legacy|SV-91431,STIG-Legacy|V-76735,Vuln-ID|V-214424"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : AUDIT_IIS_APPCMD
+      description : "IISW-SV-000140 - Warning and error messages displayed to clients must be modified to minimize the identity of the IIS 8.5 web server, patches, loaded modules, and directory paths."
+      info        : "HTTP error pages contain information that could enable an attacker to gain access to an information system. Failure to prevent the sending of HTTP error pages with full information to remote requesters exposes internal configuration information to potential attackers."
+      solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Double-click the 'Error Pages' icon.
+
+Click on any error message and click 'Edit Feature Setting' from the 'Actions' Pane. This will apply to all error messages.
+
+Set Feature Setting to 'Detailed errors for local requests and custom error pages for remote requests'."
+      reference   : "800-53|SI-11a.,800-53r5|SI-11a.,CAT|II,CCI|CCI-001312,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-11b.,Rule-ID|SV-214425r879655_rule,STIG-ID|IISW-SV-000140,STIG-Legacy|SV-91433,STIG-Legacy|V-76737,Vuln-ID|V-214425"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "DetailedLocalOnly"
+      appcmd_args : "list config /section:system.webServer/httpErrors /text:errorMode"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Check for Web Management Service"
+          value_type      : POLICY_TEXT
+          value_data      : "true"
+          powershell_args : "get-windowsfeature | where-object { $_.name -eq 'web-mgmt-service' } | select-object installed | format-table -hidetableheaders"
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : REGISTRY_SETTING
+              description : "Check for Management Service remote connections enabled"
+              value_type  : POLICY_DWORD
+              value_data  : "1"
+              reg_key     : "HKLM\Software\Microsoft\WebManagement\Server"
+              reg_item    : "EnableRemoteManagement"
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"WARNING">
+              description : "IISW-SV-000142 - The IIS 8.5 web server must restrict inbound connections from nonsecure zones."
+              info        : "Remote access to the web server is any access that communicates through an external, non-organization-controlled network. Remote access can be used to access hosted applications or to perform management functions.
+
+A web server can be accessed remotely and must be capable of restricting access from what the DoD defines as nonsecure zones. Nonsecure zones are defined as any IP, subnet, or region that is defined as a threat to the organization. The nonsecure zones must be defined for public web servers logically located in a DMZ, as well as private web servers with perimeter protection devices. By restricting access from nonsecure zones, through internal web server access list, the web server can stop or slow denial of service (DoS) attacks on the web server.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+              solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under 'Management', double-click 'Management Service'.
+
+Stop the Web Management Service under the 'Actions' pane.
+
+Configure only known, secure IP ranges are configured as 'Allow'.
+
+Select 'Apply' in 'Actions' pane.
+
+Restart the Web Management Service under the 'Actions' pane."
+              reference   : "800-171|3.1.12,800-171r3|03.01.12,800-53|AC-17(1),800-53r5|AC-17(1),CAT|II,CCI|CCI-002314,CN-L3|8.1.4.4(c),CN-L3|8.1.10.6(i),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.8.16,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(1),NESA|T5.4.4,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-256987r903134_rule,STIG-ID|IISW-SV-000142,STIG-Legacy|SV-91437,STIG-Legacy|V-76741,SWIFT-CSCv1|2.6,Vuln-ID|V-256987"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+            </report>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "IISW-SV-000142 - The IIS 8.5 web server must restrict inbound connections from nonsecure zones."
+              info        : "Remote access to the web server is any access that communicates through an external, non-organization-controlled network. Remote access can be used to access hosted applications or to perform management functions.
+
+A web server can be accessed remotely and must be capable of restricting access from what the DoD defines as nonsecure zones. Nonsecure zones are defined as any IP, subnet, or region that is defined as a threat to the organization. The nonsecure zones must be defined for public web servers logically located in a DMZ, as well as private web servers with perimeter protection devices. By restricting access from nonsecure zones, through internal web server access list, the web server can stop or slow denial of service (DoS) attacks on the web server."
+              solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under 'Management', double-click 'Management Service'.
+
+Stop the Web Management Service under the 'Actions' pane.
+
+Configure only known, secure IP ranges are configured as 'Allow'.
+
+Select 'Apply' in 'Actions' pane.
+
+Restart the Web Management Service under the 'Actions' pane."
+              reference   : "800-171|3.1.12,800-171r3|03.01.12,800-53|AC-17(1),800-53r5|AC-17(1),CAT|II,CCI|CCI-002314,CN-L3|8.1.4.4(c),CN-L3|8.1.10.6(i),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.8.16,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(1),NESA|T5.4.4,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-256987r903134_rule,STIG-ID|IISW-SV-000142,STIG-Legacy|SV-91437,STIG-Legacy|V-76741,SWIFT-CSCv1|2.6,Vuln-ID|V-256987"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+            </report>
+          </else>
+        </if>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "IISW-SV-000142 - The IIS 8.5 web server must restrict inbound connections from nonsecure zones."
+          info        : "Remote access to the web server is any access that communicates through an external, non-organization-controlled network. Remote access can be used to access hosted applications or to perform management functions.
+
+A web server can be accessed remotely and must be capable of restricting access from what the DoD defines as nonsecure zones. Nonsecure zones are defined as any IP, subnet, or region that is defined as a threat to the organization. The nonsecure zones must be defined for public web servers logically located in a DMZ, as well as private web servers with perimeter protection devices. By restricting access from nonsecure zones, through internal web server access list, the web server can stop or slow denial of service (DoS) attacks on the web server."
+          solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under 'Management', double-click 'Management Service'.
+
+Stop the Web Management Service under the 'Actions' pane.
+
+Configure only known, secure IP ranges are configured as 'Allow'.
+
+Select 'Apply' in 'Actions' pane.
+
+Restart the Web Management Service under the 'Actions' pane."
+          reference   : "800-171|3.1.12,800-171r3|03.01.12,800-53|AC-17(1),800-53r5|AC-17(1),CAT|II,CCI|CCI-002314,CN-L3|8.1.4.4(c),CN-L3|8.1.10.6(i),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.8.16,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(1),NESA|T5.4.4,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-256987r903134_rule,STIG-ID|IISW-SV-000142,STIG-Legacy|SV-91437,STIG-Legacy|V-76741,SWIFT-CSCv1|2.6,Vuln-ID|V-256987"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000143 - The IIS 8.5 web server must provide the capability to immediately disconnect or disable remote access to the hosted applications."
+      info        : "During an attack on the web server or any of the hosted applications, the system administrator may need to disconnect or disable access by users to stop the attack.
+
+The web server must provide a capability to disconnect users to a hosted application without compromising other hosted applications unless deemed necessary to stop the attack. Methods to disconnect or disable connections are to stop the application service for a specified hosted application, stop the web server, or block all connections through web server access list.
+
+The web server capabilities used to disconnect or disable users from connecting to hosted applications and the web server must be documented to make certain that, during an attack, the proper action is taken to conserve connectivity to any other hosted application if possible and to make certain log data is conserved for later forensic analysis.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Prepare documented procedures for shutting down an IIS 8.5 website in the event of an attack.
+
+The procedure should, at a minimum, provide the following steps:
+
+Determine the respective website for the application at risk of an attack.
+
+Access the IIS 8.5 web server IIS Manager.
+
+Select the respective website.
+
+In the 'Actions' pane, under 'Manage Website', click on 'Stop'.
+
+If necessary, stop all websites.
+
+If necessary, stop the IIS 8.5 web server by selecting the web server in the IIS Manager.
+
+In the 'Actions' pane, under 'Manage Server', click on 'Stop'."
+      reference   : "800-171|3.1.1,800-171|3.1.2,800-171r3|03.01.12,800-53|AC-17(9),800-53r5|AC-17(9),CAT|II,CCI|CCI-002322,CN-L3|8.1.4.4(c),CN-L3|8.1.10.6(i),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17,NESA|T5.4.5,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-214428r879693_rule,STIG-ID|IISW-SV-000143,STIG-Legacy|SV-91439,STIG-Legacy|V-76743,SWIFT-CSCv1|2.3,Vuln-ID|V-214428"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <custom_item>
+      type        : FILE_PERMISSIONS
+      description : "IISW-SV-000144 - IIS 8.5 web server system files must conform to minimum file permission requirements."
+      info        : "This check verifies the key web server system configuration files are owned by the SA or the web administrator controlled account. These same files that control the configuration of the web server, and thus its behavior, must also be accessible by the account running the web service. If these files are altered by a malicious user, the web server would no longer be under the control of its managers and owners; properties in the web server configuration could be altered to compromise the entire server platform."
+      solution    : "Open Explorer and navigate to the inetpub directory.
+Right-click 'inetpub' and select 'Properties'.
+Click the 'Security' tab.
+Set the following permissions:
+
+SYSTEM: Full control
+Administrators: Full control
+TrustedInstaller: Full control
+ALL APPLICATION PACKAGES (built-in security group): Read and execute
+Users: Read and execute, list folder contents
+CREATOR OWNER: special permissions to subkeys"
+      reference   : "800-171|3.1.7,800-171r3|03.01.07a.,800-53|AC-6(10),800-53r5|AC-6(10),CAT|II,CCI|CCI-002235,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSF|PR.AC-4,CSF2.0|PR.AA-05,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ITSG-33|AC-6,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-214429r879717_rule,STIG-ID|IISW-SV-000144,STIG-Legacy|SV-91441,STIG-Legacy|V-76745,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-214429"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : FILE_ACL
+      value_data  : "inetpub"
+      file        : "@INETPUB_DIR@"
+    </custom_item>
+
+    <custom_item>
+      type        : AUDIT_IIS_APPCMD
+      description : "IISW-SV-000145 - The IIS 8.5 web server must use a logging mechanism that is configured to allocate log record storage capacity large enough to accommodate the logging requirements of the IIS 8.5 web server."
+      info        : "In order to make certain that the logging mechanism used by the web server has sufficient storage capacity in which to write the logs, the logging mechanism needs to be able to allocate log record storage capacity.
+
+The task of allocating log record storage capacity is usually performed during initial installation of the logging mechanism. The system administrator will usually coordinate the allocation of physical drive space with the web server administrator along with the physical location of the partition and disk. Refer to NIST SP 800-92 for specific requirements on log rotation and storage dependent on the impact of the web server."
+      solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under 'IIS' double-click on the 'Logging' icon.
+
+If necessary, in the 'Logging' configuration box, re-designate a log path to a location able to house the logs.
+
+Under 'Log File Rollover', de-select the 'Do not create new log files' setting.
+
+Configure a schedule to rollover log files on a regular basis."
+      reference   : "800-53|AU-4,800-53r5|AU-4,CAT|II,CCI|CCI-001849,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214430r879730_rule,STIG-ID|IISW-SV-000145,STIG-Legacy|SV-91443,STIG-Legacy|V-76747,Vuln-ID|V-214430"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "MaxSize"
+      appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.logfile.Period"
+      check_type  : CHECK_NOT_REGEX
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_PERMISSIONS
+      description : "IISW-SV-000147 - Access to web administration tools must be restricted to the web manager and the web managers designees."
+      info        : "A web server can be modified through parameter modification, patch installation, upgrades to the web server or modules, and security parameter changes. With each of these changes, there is the potential for an adverse effect such as a DoS, web server instability, or hosted application instability.
+
+To limit changes to the web server and limit exposure to any adverse effects from the changes, files such as the web server application files, libraries, and configuration files must have permissions and ownership set properly to only allow privileged users access.
+
+The key web service administrative and configuration tools must only be accessible by the web server staff. All users granted this authority will be documented and approved by the ISSO. Access to the IIS Manager will be limited to authorized users and administrators.
+
+Satisfies: SRG-APP-000380-WSR-000072, SRG-APP-000435-WSR-000147, SRG-APP-000033-WSR-000169"
+      solution    : "Restrict access to the web administration tool to only the web manager and the web manager's designees."
+      reference   : "800-171|3.1.1,800-171|3.4.5,800-171r3|03.01.02,800-171r3|03.04.05,800-53|AC-3,800-53|CM-5(1),800-53|SC-5,800-53r5|AC-3,800-53r5|CM-5(1)(a),800-53r5|SC-5a.,CAT|II,CCI|CCI-000213,CCI|CCI-001813,CCI|CCI-002385,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|DE.CM-1,CSF|PR.AC-4,CSF|PR.DS-4,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|CM-5(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|GS8e,NIAv2|GS10c,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|7.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-214431r879753_rule,STIG-ID|IISW-SV-000147,STIG-Legacy|SV-91445,STIG-Legacy|V-76749,TBA-FIISB|31.1,Vuln-ID|V-214431"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : FILE_ACL
+      value_data  : "inetmgr"
+      file        : "%systemroot%\System32\inetsrv\InetMgr.exe"
+    </custom_item>
+
+    <custom_item>
+      type                 : AUDIT_POWERSHELL
+      description          : "IISW-SV-000148 - The IIS 8.5 web server must not be running on a system providing any other role."
+      info                 : "Web servers provide numerous processes, features, and functionalities that utilize TCP/IP ports. Some of these processes may be deemed unnecessary or too unsecure to run on a production system.
+
+The web server must provide the capability to disable or deactivate network-related services that are deemed to be non-essential to the server mission, are too unsecure, or are prohibited by the PPSM CAL and vulnerability assessments.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution             : "Remove all unapproved programs and roles from the production web server."
+      reference            : "800-171|3.4.7,800-171r3|03.04.06d.,800-53|CM-7(1)(b),800-53r5|CM-7(1)(b),CAT|II,CCI|CCI-001762,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7(1),NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,Rule-ID|SV-214432r879756_rule,STIG-ID|IISW-SV-000148,STIG-Legacy|SV-91447,STIG-Legacy|V-76751,SWIFT-CSCv1|2.3,Vuln-ID|V-214432"
+      see_also             : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type           : POLICY_TEXT
+      value_data           : "ManualReviewRequired"
+      powershell_args      : "Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher | Sort-Object -Unique DisplayName | Format-Table -AutoSize"
+      only_show_cmd_output : YES
+      severity             : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "Verify Web Printers directory does not exist"
+          value_type  : POLICY_TEXT
+          value_data  : "%windir%\web\printers"
+          file_option : MUST_NOT_EXIST
+        </custom_item>
+
+        <custom_item>
+          type              : AUDIT_POWERSHELL
+          description       : "Verify 'Print Services' Role has been removed"
+          value_type        : POLICY_TEXT
+          value_data        : ""
+          powershell_args   : 'get-wmiobject -namespace root\\cimv2 -class win32_serverfeature -filter "id=136" | select Id,Name | format-list'
+          powershell_option : CAN_BE_NULL
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "IISW-SV-000149 - The Internet Printing Protocol (IPP) must be disabled on the IIS 8.5 web server - IPP must be disabled on the IIS 8.5 web server"
+          info        : "The use of Internet Printing Protocol (IPP) on an IIS web server allows client's access to shared printers. This privileged access could allow remote code execution by increasing the web servers attack surface. Additionally, since IPP does not support SSL, it is considered a risk and will not be deployed."
+          solution    : "Click 'Start', then click 'Administrative Tools', and then click 'Server Manager'.
+
+Expand the roles node, then right-click 'Print Services', and then select 'Remove Roles Services'.
+
+If the Internet Printing option is checked, clear the check box, click 'Next', and then click 'Remove' to complete the wizard."
+          reference   : "800-171|3.4.7,800-171r3|03.04.06d.,800-53|CM-7(1)(b),800-53r5|CM-7(1)(b),CAT|II,CCI|CCI-001762,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7(1),NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,Rule-ID|SV-214433r879756_rule,STIG-ID|IISW-SV-000149,STIG-Legacy|SV-91449,STIG-Legacy|V-76753,SWIFT-CSCv1|2.3,Vuln-ID|V-214433"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify 'UriMaxUriBytes' registry key is configured"
+          value_type  : POLICY_DWORD
+          value_data  : [MIN..MAX]
+          reg_key     : "HKLM\System\Currentcontrolset\Services\Http\Parameters"
+          reg_item    : "UriMaxUriBytes"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify 'URIEnableCache' registry key is configured"
+          value_type  : POLICY_DWORD
+          value_data  : [MIN..MAX]
+          reg_key     : "HKLM\System\Currentcontrolset\Services\Http\Parameters"
+          reg_item    : "URIEnableCache"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify 'UriScavengerPeriod' registry key is configured"
+          value_type  : POLICY_DWORD
+          value_data  : [MIN..MAX]
+          reg_key     : "HKLM\System\Currentcontrolset\Services\Http\Parameters"
+          reg_item    : "UriScavengerPeriod"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "IISW-SV-000151 - The IIS 8.5 web server must be tuned to handle the operational requirements of the hosted application."
+          info        : "A Denial of Service (DoS) can occur when the web server is so overwhelmed that it can no longer respond to additional requests. A web server not properly tuned may become overwhelmed and cause a DoS condition even with expected traffic from users. To avoid a DoS, the web server must be tuned to handle the expected traffic for the hosted applications."
+          solution    : "Access the IIS 8.5 web server registry.
+
+Verify the following values are present and configured. The required setting depends upon the requirements of the application. These settings have to be explicitly configured to show a conscientious tuning has been made.
+
+Navigate to HKLM\SYSTEM\CurrentControlSet\Services\HTTP\Parameters\
+
+Configure the following registry keys to levels to accommodate the hosted applications.
+
+'URIEnableCache'
+'UriMaxUriBytes'
+'UriScavengerPeriod'"
+          reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|II,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,CSF2.0|DE.CM-01,CSF2.0|PR.IR-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-214434r879806_rule,STIG-ID|IISW-SV-000151,STIG-Legacy|SV-91451,STIG-Legacy|V-76755,Vuln-ID|V-214434"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : AUDIT_IIS_APPCMD
+      description : "IISW-SV-000152 - IIS 8.5 web server session IDs must be sent to the client using TLS."
+      info        : "The HTTP protocol is a stateless protocol. To maintain a session, a session identifier is used. The session identifier is a piece of data that is used to identify a session and a user. If the session identifier is compromised by an attacker, the session can be hijacked. By encrypting the session identifier, the identifier becomes more difficult for an attacker to hijack, decrypt, and use before the session has expired."
+      solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Under 'Management' section, double-click the 'Configuration Editor' icon.
+
+From the 'Section:' drop-down list, select 'system.webServer/asp'.
+
+Expand the 'session' section.
+
+Select 'True' for the 'keepSessionIdSecure' setting.
+
+Select 'Apply' from the 'Actions' pane."
+      reference   : "800-171|3.13.8,800-171r3|03.13.08,800-53|SC-8,800-53r5|SC-8,CAT|II,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,CSF2.0|PR.DS-02,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.20,ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-214435r879810_rule,STIG-ID|IISW-SV-000152,STIG-Legacy|SV-91453,STIG-Legacy|V-76757,Vuln-ID|V-214435"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "true"
+      appcmd_args : "list config /section:system.webServer/asp /text:session.keepSessionIdSecure"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify a REG_DWORD value of 0 for DisabledByDefault on TLS 1.2"
+          value_type  : POLICY_DWORD
+          value_data  : "0"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\Tls 1.2\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify REG_DWORD value of 1 for Enabled on TLS 1.2"
+          value_type  : POLICY_DWORD
+          value_data  : "1"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\Tls 1.2\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify a REG_DWORD value of 1 for DisabledByDefault on TLS 1.0"
+          value_type  : POLICY_DWORD
+          value_data  : "1"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\Tls 1.0\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify REG_DWORD value of 0 for Enabled on TLS 1.0"
+          value_type  : POLICY_DWORD
+          value_data  : "0"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\Tls 1.0\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify REG_DWORD value of 0 for Enabled on TLS 1.1"
+          value_type  : POLICY_DWORD
+          value_data  : "0"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\Tls 1.1\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify a REG_DWORD value of 1 for DisabledByDefault on TLS 1.1"
+          value_type  : POLICY_DWORD
+          value_data  : "1"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\Tls 1.1\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify a REG_DWORD value of 1 for DisabledByDefault on SSL 2.0"
+          value_type  : POLICY_DWORD
+          value_data  : "1"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\SSL 2.0\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify REG_DWORD value of 0 for Enabled on SSL 2.0"
+          value_type  : POLICY_DWORD
+          value_data  : "0"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\SSL 2.0\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify a REG_DWORD value of 1 for DisabledByDefault on SSL 3.0"
+          value_type  : POLICY_DWORD
+          value_data  : "1"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\SSL 3.0\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Verify REG_DWORD value of 0 for Enabled on SSL 3.0"
+          value_type  : POLICY_DWORD
+          value_data  : "0"
+          reg_key     : "HKLM\System\Currentcontrolset\Control\Securityproviders\Schannel\Protocols\SSL 3.0\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "IISW-SV-000153 - An IIS 8.5 web server must maintain the confidentiality of controlled information during transmission through the use of an approved TLS version."
+          info        : "Transport Layer Security (TLS) encryption is a required security setting for a private web server. Encryption of private information is essential to ensuring data confidentiality. If private information is not encrypted, it can be intercepted and easily read by an unauthorized party. A private web server must use a FIPS 140-2-approved TLS version, and all non-FIPS-approved SSL versions must be disabled.
+
+NIST SP 800-52 specifies the preferred configurations for government systems."
+          solution    : "Access the IIS 8.5 Web Server.
+
+Navigate to:
+HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server
+
+Create a REG_DWORD named 'DisabledByDefault' with a value of '0'.
+Create a REG_DWORD named 'Enabled' with a  value of '1'.
+
+Navigate to:
+HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server
+HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server
+HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server
+HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server
+
+For each protocol:
+Create a REG_DWORD named 'DisabledByDefault' with a value of '1'.
+Create a REG_DWORD named 'Enabled' with a  value of '0'."
+          reference   : "800-171|3.13.8,800-171r3|03.13.08,800-53|SC-8,800-53r5|SC-8,CAT|I,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,CSF2.0|PR.DS-02,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.20,ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-214436r903078_rule,STIG-ID|IISW-SV-000153,STIG-Legacy|SV-91455,STIG-Legacy|V-76759,Vuln-ID|V-214436"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <report type:"WARNING">
+      description : "IISW-SV-000154 - A web server must maintain the confidentiality of controlled information during transmission through the use of an approved TLS version."
+      info        : "Transport Layer Security (TLS) is a required transmission protocol for a web server hosting controlled information. The use of TLS provides confidentiality of data in transit between the web server and client. FIPS 140-2-approved TLS versions must be enabled and non-FIPS-approved SSL versions must be disabled.
+
+NIST SP 800-52 defines the approved TLS versions for government applications.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure the web server to use an approved TLS version according to NIST SP 800-52 and to disable all non-approved versions."
+      reference   : "800-171|3.13.8,800-171r3|03.13.08,800-53|SC-8,800-53r5|SC-8,CAT|II,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,CSF2.0|PR.DS-02,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.20,ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-214437r879810_rule,STIG-ID|IISW-SV-000154,STIG-Legacy|SV-91457,STIG-Legacy|V-76761,Vuln-ID|V-214437"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "Verify the 'Allow unspecified CGI modules' is not configured"
+          value_type  : POLICY_TEXT
+          value_data  : "false"
+          appcmd_args : "list config -section:IsapiCgiRestriction -text:notListedCgisAllowed"
+        </custom_item>
+
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "Verify the 'Allow unspecified ISAPI modules' is not configured"
+          value_type  : POLICY_TEXT
+          value_data  : "false"
+          appcmd_args : "list config -section:IsapiCgiRestriction -text:notListedIsapisAllowed"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "IISW-SV-000158 - Unspecified file extensions on a production IIS 8.5 web server must be removed."
+          info        : "By allowing unspecified file extensions to execute, the web servers attack surface is significantly increased. This increased risk can be reduced by only allowing specific ISAPI extensions or CGI extensions to run on the web server."
+          solution    : "Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Double-click the 'ISAPI and CGI restrictions' icon.
+
+Click 'Edit Feature Settings'.
+
+Remove the check from the 'Allow unspecified CGI modules' and the 'Allow unspecified ISAPI modules' check boxes.
+
+Click OK."
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214440r879887_rule,STIG-ID|IISW-SV-000158,STIG-Legacy|SV-91465,STIG-Legacy|V-76769,SWIFT-CSCv1|2.3,Vuln-ID|V-214440"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify Exchange is installed (service present and running)."
+          value_type      : POLICY_TEXT
+          value_data      : ".*ExchangeRunning.*"
+          powershell_args : "if ((Get-Service -Name 'MSExchangeServiceHost' -ErrorAction SilentlyContinue).Status -eq 'Running') {'ExchangeRunning'} else {'NotRunning'}"
+          check_type      : CHECK_REGEX
+        </custom_item>
+
+        <custom_item>
+          type        : REG_CHECK
+          description : "Verify WSUS server role is installed (registry)."
+          value_type  : POLICY_TEXT
+          value_data  : "HKLM\Software\Microsoft\Update Services\Server\Setup"
+          reg_option  : MUST_EXIST
+        </custom_item>
+
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify WSUS server role is installed (service present, any state)."
+          value_type      : POLICY_TEXT
+          value_data      : ".*WSUSInstalled.*"
+          powershell_args : "if (Get-Service -Name 'WsusService' -ErrorAction SilentlyContinue) {'WSUSInstalled'} else {'NotInstalled'}"
+          check_type      : CHECK_REGEX
+        </custom_item>
+
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "Verify SharePoint is installed"
+          value_type  : POLICY_TEXT
+          value_data  : "sharepoint"
+          appcmd_args : "list site /state:Started /text:name"
+          check_type  : CHECK_REGEX
+        </custom_item>
+
+        <custom_item>
+          type        : AUDIT_IIS_APPCMD
+          description : "Verify ASP.NET is installed."
+          value_type  : POLICY_TEXT
+          value_data  : "v[234].*"
+          appcmd_args : 'list config /section:system.applicationHost/applicationPools /text:ApplicationPoolDefaults.managedRuntimeVersion'
+          check_type  : CHECK_REGEX
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "IISW-SV-000159 - The IIS 8.5 web server must have a global authorization rule configured to restrict access."
+          info        : "Authorization rules can be configured at the server, website, folder (including Virtual Directories), or file level. It is recommended that URL Authorization be configured to only grant access to the necessary security principals. Configuring a global Authorization rule that restricts access ensures inheritance of the settings down through the hierarchy of web directories. This will ensure access to current and future content is only granted to the appropriate principals, mitigating risk of unauthorized access."
+          solution    : 'Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Double-click the \'.NET Authorization Rules\' icon.
+
+Alter the list as necessary to ensure \'All Users\' is set to \'Allow\' and \'Anonymous Users\' is set to \'Deny\'.
+
+Remove any other line items.'
+          reference   : "800-171|3.1.1,800-171r3|03.01.02,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|PR.AC-4,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,STIG-ID|IISW-SV-000159,TBA-FIISB|31.1"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+
+      <else>
+        <if>
+          <condition auto:"FAILED" type:"AND">
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify 'allow all users' is set"
+              value_type  : POLICY_TEXT
+              value_data  : '<allow .*users="\\*".*\\/>'
+              appcmd_args : "list config /section:system.web/authorization"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify 'deny anonymous users' is set"
+              value_type  : POLICY_TEXT
+              value_data  : '<deny .*users="\\?".*\\/>'
+              appcmd_args : "list config /section:system.web/authorization"
+              check_type  : CHECK_REGEX
+            </custom_item>
+
+            <custom_item>
+              type        : AUDIT_IIS_APPCMD
+              description : "Verify no unauthorized authorization rules exist (any allow not keyed on '*', or any deny not keyed on '?', is a finding)."
+              value_type  : POLICY_TEXT
+              value_data  : '<allow(?![^>]*users="\\*")[^>]*\\/>|<deny(?![^>]*users="\\?")[^>]*\\/>'
+              appcmd_args : "list config /section:system.web/authorization"
+              check_type  : CHECK_NOT_REGEX
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "IISW-SV-000159 - The IIS 8.5 web server must have a global authorization rule configured to restrict access."
+              info        : "Authorization rules can be configured at the server, website, folder (including Virtual Directories), or file level. It is recommended that URL Authorization be configured to only grant access to the necessary security principals. Configuring a global Authorization rule that restricts access ensures inheritance of the settings down through the hierarchy of web directories. This will ensure access to current and future content is only granted to the appropriate principals, mitigating risk of unauthorized access."
+              solution    : 'Open the IIS 8.5 Manager.
+
+Click the IIS 8.5 web server name.
+
+Double-click the \'.NET Authorization Rules\' icon.
+
+Alter the list as necessary to ensure \'All Users\' is set to \'Allow\' and \'Anonymous Users\' is set to \'Deny\'.
+
+Remove any other line items.'
+              reference   : "800-171|3.1.1,800-171r3|03.01.02,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|PR.AC-4,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,STIG-ID|IISW-SV-000159,TBA-FIISB|31.1"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "Verify SMTP-Server is installed"
+          value_type      : POLICY_TEXT
+          value_data      : ".*Installed.*"
+          powershell_args : "Get-WindowsFeature | Where {$_.Name -eq 'SMTP-Server'} | SELECT 'InstallState' | Format-List"
+          check_type      : CHECK_REGEX
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type            : AUDIT_POWERSHELL
+          description     : "IISW-SV-000161 - An IIS Server configured to be a SMTP relay must require authentication."
+          info            : "Anonymous SMTP relays are strictly prohibited. An anonymous SMTP relay can be a vector for many types of malicious activity not limited to server exploitation for the sending of SPAM mail, access to emails, phishing, DoS attacks, etc. Enabling TLS, authentication, and strictly assigning IP addresses that can communicate with the relay greatly reduce the risk of the implementation.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution        : "Configure the relay server with a specific allowed IP address, from the same network as the relay, and implement TLS."
+          reference       : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-228573r879587_rule,STIG-ID|IISW-SV-000161,STIG-Legacy|SV-111855,STIG-Legacy|V-102893,SWIFT-CSCv1|2.3,Vuln-ID|V-228573"
+          see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+          value_type      : POLICY_TEXT
+          value_data      : ".*Installed.*"
+          powershell_args : "Get-WindowsFeature | Where {$_.Name -eq 'SMTP-Server'} | SELECT 'InstallState' | Format-List"
+          check_type      : CHECK_REGEX
+          severity        : MEDIUM
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "IISW-SV-000161 - An IIS Server configured to be a SMTP relay must require authentication."
+          info        : "Anonymous SMTP relays are strictly prohibited. An anonymous SMTP relay can be a vector for many types of malicious activity not limited to server exploitation for the sending of SPAM mail, access to emails, phishing, DoS attacks, etc. Enabling TLS, authentication, and strictly assigning IP addresses that can communicate with the relay greatly reduce the risk of the implementation."
+          solution    : "Configure the relay server with a specific allowed IP address, from the same network as the relay, and implement TLS."
+          reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-228573r879587_rule,STIG-ID|IISW-SV-000161,STIG-Legacy|SV-111855,STIG-Legacy|V-102893,SWIFT-CSCv1|2.3,Vuln-ID|V-228573"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : AUDIT_IIS_APPCMD
+      description : "IISW-SV-000200 - The IIS 8.5 MaxConnections setting must be configured to limit the number of allowed simultaneous session requests."
+      info        : "Resource exhaustion can occur when an unlimited number of concurrent requests are allowed on a website, facilitating a Denial of Service attack. Mitigating this kind of attack will include limiting the number of concurrent HTTP/HTTPS requests per IP address and may include, where feasible, limiting parameter values associated with keepalive (i.e., a parameter used to limit the amount of time a connection may be inactive)."
+      solution    : "Access the IIS 8.5 IIS Manager.
+
+Click the IIS 8.5 server.
+
+Select 'Configuration Editor' under the 'Management' section.
+
+From the 'Section:' drop-down list at the top of the configuration editor, locate 'system.applicationHost/sites'.
+
+Expand 'siteDefaults'.
+Expand 'limits'.
+
+Set the 'maxconnections' parameter to a value greater than zero."
+      reference   : "800-53|AC-10,800-53r5|AC-10,CAT|II,CCI|CCI-000054,CSF2.0|PR.AA-05,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-10,NESA|T5.5.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-214442r879511_rule,STIG-ID|IISW-SV-000200,STIG-Legacy|SV-104771,STIG-Legacy|V-95633,Vuln-ID|V-214442"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "^[1-9]+[0-9]*$"
+      appcmd_args : "list config /section:system.applicationHost/sites /text:siteDefaults.limits.maxConnections"
+      check_type  : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "IISW-SV-009999 - The version of IIS running on the system must be a supported version."
+      info        : "Security flaws with software applications are discovered daily. Vendors are constantly updating and patching their products to address newly discovered security vulnerabilities. Organizations (including any contractor to the organization) are required to promptly install security-relevant software updates (e.g., patches, service packs, and hot fixes). Flaws discovered during security assessments, continuous monitoring, incident response activities, or information system error handling must also be addressed expeditiously.
+
+Organization-defined time periods for updating security-relevant software may vary based on a variety of factors including, for example, the security category of the information system or the criticality of the update (i.e., severity of the vulnerability related to the discovered flaw).
+
+This requirement will apply to software patch management solutions used to install patches across the enclave and to applications themselves that are not part of that patch management solution. For example, many browsers today provide the capability to install their own patch software. Patch criticality, as well as system criticality will vary. Therefore, the tactical situations regarding the patch management process will also vary. This means that the time period used must be a configurable parameter. Time frames for application of security-relevant software updates may be dependent upon the Information Assurance Vulnerability Management (IAVM) process.
+
+The application will be configured to check for and install security-relevant software updates within an identified time period from the availability of the update. The specific time period will be defined by an authoritative source (e.g., IAVM, CTOs, DTMs, and STIGs).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Upgrade to a supported version."
+      reference   : "800-171|3.14.1,800-171r3|03.14.01b.,800-53|SI-2c.,800-53r5|SI-2c.,CAT|I,CCI|CCI-002605,CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSF|ID.RA-1,CSF|PR.IP-12,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-02,DISA_Benchmark|IIS_8-5_Server_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.8,ISO-27001-2022|A.8.32,ITSG-33|SI-2,NESA|T7.6.2,NESA|T7.7.1,NIAv2|AM38,NIAv2|AM39,NIAv2|SS14b,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.3,QCSC-v1|11.2,Rule-ID|SV-258446r928857_rule,STIG-ID|IISW-SV-009999,SWIFT-CSCv1|2.2,Vuln-ID|V-258446"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "MANUAL_REVIEW_REQUIRED"
+      reg_key     : "HKLM\Software\Microsoft\Inetstp"
+      reg_item    : "VersionString"
+      check_type  : CHECK_REGEX
+      severity    : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_IIS_8.5_Web_Server_v2r7.audit from DISA Microsoft IIS 8.5 Server v2r7 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_IIS_8-5_Y23M10_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

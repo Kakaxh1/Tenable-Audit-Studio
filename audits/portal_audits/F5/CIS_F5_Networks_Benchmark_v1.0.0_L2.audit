@@ -1,0 +1,219 @@
+#TRUSTED 319b8a4e39ac92ee087f128debdea7bf3a93398cf09fa3486736572ca36e802b97d8c8e28a122bf1729ae7daf9799bcfe3910e644e6340bb5b6491e7e8a69fff90b7a27a506a414b521769a79001bb8ca0051059c9e9771fc84794ec79c0573cb9c744689d7c34a87f3c51e943bb03bdbfd8a229840c7f688662b75d373af049305838c832508fb163274bf08cacc7399b28e96d839d166c6d86a19aceedeb3af7da0b2939d13121de89fe20b82b3d10bcf780ffb909c641563ee70b083b4daa519450aea320fbc8620b98da643fa377ad9d09963cd0c983149b2621c29e0abd858e8aa636b8bd645bd98b6dbc425c9ca12e016b3c91786cf9037ac77dc3fb57591f706f8af3f1b573cc6a3638d21c7a43dde18da450117be9f8d1286990224b3728bfd998234eaf5a5eee4679f9a13991f8fd2af8d3b2377502d88cc30d353c7723acf23802520911a8d41f6d15ae9daf6d9e237b739a52044316575db04b84fef2cd44c11945e48410a40bcf80ab90a9899ad1b4b1ee8fcf6126d3b10ca3a0450f957fc76b84272f2a96c2aae81e7f1bccbcdbc5cd35c70ff2c091923c432d86496b972a1bb8bcd4aac3eff42c0024daab0a8ba57207b18b282f1a2585f0a54b6f875e056559b4ab835f4cd01fa4d8dc9bca4ed2e232e7892cbc375d79691d9df1df037d60df3b2253482811bdc1a97f4c9a8c8f3db2dca9bcfb900ddd2429
+#TRUST-RSA-SHA256 726752ef4bff85db25263b62e49bd522272d0ffbc64976b7553eac71aadf9a37e755e047cd85bf9a79b06e5613cef7ecf87355e8fc0d97c0f8c8345a14e24c2ef13b268edc313eba1afea24c0fb2279fad853a60c68c669d811d8e0d79d3b965bb122db16a7e2bedd40ce980adb241970e13df65caea00ca227f7b193831ee5468db9e2393816f1b6f601fc6a64c9f575efb1752a3c49cb3a12fdc7c0fdd8ca0437ed2521bc239cd48b8225b40d78b9e5ce01484007eb5210f8e1cce897e40950c16b0cfcf0bab8c4912a6de177881c22a66a92f567a585bc6e0edf8e4ce8a8f1f6c47e5ebce8aa21bde1232207ace91faa569c42dc9ee80a9d54d0039377edb498b75f4cd5faeb0d4f5428e2954e134818db49fb3fdd08839e692df67c7ef0eaba0525890ed253dc788327f62bd1d4621af03a1421ebc112d102254a266b94f3c2edc4a78523f4e94c6297b82e9c75c77d856a9465ba02275d090467a01a95b8cd74222943bf5109b5fbf65dcf46d50dc28a499aa96626d43302de88b0821d514829f004df7e127189cd2d615c5c973e26acf7370509f8acc88cf05b27f571ccb51d12d2b3507e0584b8fd8b89bfa813af2c2d1ad3d1f155ffaac797ca0eb683ed10e8ebd7e38bca9b7b9212426949a1f8db13f282880fa78d23b308c8017a3ddd111b047d31542a824b113fa86579c376755ca9a126a01e50db6529d0ac106
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.5 $
+# $Date: 2025/09/09 $
+#
+# description : This .audit is designed against the CIS F5 Networks Benchmark 1.0.0
+#
+#<ui_metadata>
+#<display_name>CIS F5 Networks v1.0.0 L2</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>F5 Networks</name>
+#  <profile>L2</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/files/3587</link>
+#</spec>
+#<labels>cis,f5,f5_networks</labels>
+#<benchmark_refs>CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"F5">
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Service Type"
+      context     : "auth radius "
+      regex       : "service-type"
+      expect      : "service-type authenticate-only"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Service Type"
+      f5_command     : "/tm/auth/radius"
+      json_transform : ".items[] | \"Service Type: \(.serviceType) \""
+      expect         : "^[\s]*Service Type:[\s]*authenticate-only[\s]*$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.1 Ensure that Remote Radius is used for Authentication Only"
+      info        : "To specify the authentication mechanism that F5 systems use for external (remote) users
+
+Uncontrolled and illegitimate authentication could provide access to unauthorized users"
+      solution    : "1-Log in to the Configuration utility using the administrator account.
+
+2-Navigate to System > Users > Authentication.
+
+3-In the Authentication section, click Change.
+
+4-Select Remote - RADIUS from the User Directory drop-down menu.
+
+5-Define the RADIUS server configuration settings, including the port and shared secret settings:
+
+6- For \"Service Type\": select \"Authentication Only\"
+
+7-Click Finished.
+
+Impact:
+
+Uncontrolled and illegitimate authentication mechanism provides access to illegitimates remote users on the systems. It is important to make sure of the right Authentication mechanism used. Radius is configured as Authentication Only. Radius in turns query LDAP for remote users authentication and authorization."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53r5|AC-2(1),CN-L3|7.1.3.2(d),CSCv7|5.1,CSCv8|5.6,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),LEVEL|2A,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+      see_also    : "https://workbench.cisecurity.org/files/3587"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for redundant remote authentication servers"
+      context     : "^auth radius-server"
+      regex       : "server"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for redundant remote authentication servers"
+      f5_command     : "/tm/auth/radius-server"
+      json_transform : ".items[] | \"Radius Servers: \(.server) \""
+      expect         : "^Manual Review Required$"
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.2 Ensure redundant remote authentication servers are configured"
+      info        : "Having multiple points of authentication is important in the event that the primary remote authentication source goes down.
+
+To make sure the redundant Radius servers are configured
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "1-Log in to the Configuration utility using the administrator account.
+
+2-Navigate to System > Users > Authentication.
+
+3-In the Authentication section, click Change.
+
+4-Select Remote - RADIUS from the User Directory drop-down menu.
+
+5-Define the RADIUS server configuration settings, including the port and shared secret settings:
+
+6-For \"Service Type\": select \"Authentication Only\"
+
+7-This should be completed for Primary RADIUS server as well as for Secondary RADIUS server.
+
+8-Click Finished.
+
+Impact:
+
+Having a single Authentication server reduce the availability for systems operators and admins to perform their tasks and support when the Radius server is down"
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53r5|AC-2(1),CN-L3|7.1.3.2(d),CSCv7|5.1,CSCv8|5.6,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),LEVEL|2M,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+      see_also    : "https://workbench.cisecurity.org/files/3587"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for fallback"
+      context     : "auth source"
+      regex       : "fallback"
+      expect      : "fallback false"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for fallback"
+      f5_command     : "/tm/auth/source"
+      json_transform : ".fallback"
+      expect         : "false"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.3 Ensure that \"Fallback to local\" option is disabled for Remote Authentication Settings"
+      info        : "To prevent the system from checking local DB for remote users authentication"
+      solution    : "1. Log in to the Configuration utility.
+
+2. Go to System > Users > Authentication.
+
+3. Select Change.
+
+4. Select the Fallback to Local check box.
+
+5. Select Finished.
+
+Impact:
+
+Though the impact might be low, it is a good practice to segregate remote users from local and to limit local users' usage."
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.16.01,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|4.6,CSCv8|4.1,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-09,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO-27001-2022|A.8.30,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3587"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for default role"
+      context     : "auth remote-user"
+      regex       : "default-role"
+      expect      : "default-role no-access"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for default role"
+      f5_command     : "/tm/auth/remote-user"
+      json_transform : ".defaultRole"
+      expect         : "no-access"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.4 Ensure External Users' role is set to \"No Access\""
+      info        : "To set a default role for remote users Authentication and authorization for remote users are handled by third party system"
+      solution    : "1. Log in to the Configuration utility.
+
+2. Go to System > Users > Authentication.
+
+3. Under External Users , click \"Change\".
+
+4. Set Role to \"No Access\".
+
+Impact:
+
+Providing remote users with a preconfigured role might allow unauthorized access to these users."
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.16.01,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|4.6,CSCv8|4.1,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-09,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO-27001-2022|A.8.30,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|2A,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3587"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+</check_type>

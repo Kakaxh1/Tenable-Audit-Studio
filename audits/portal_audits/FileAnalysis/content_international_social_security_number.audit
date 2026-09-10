@@ -1,0 +1,55 @@
+#TRUSTED 0214eccb1f0d22fa22f8cb18454921898e24eb077558f1913cfd11d0c0aab4a88ba01b0601ee09ca3334003bbf664e7cee1d80c086221ec9a626fa5bf3299d863b571e35d7ffba68996845d61857aee788097397dd9726f3030115dd20382a05ab29be9dbc73bd40acc0f2b960080653098a51214fc05b0c8c636a1a98530be0add57f99e1b633229df5a0b3165b98af92e941e5bab87bda1ec711fff58fbb014c7eaea88d9bcd9b037e35c65a25589b51d64f6fd269f96c01c10f0bca0e5859c3cedd46b8d8cb826720ebca0d937f42a109b7c5327b9e01993c928abd45ab4d9b9c56f689bdaf45ef2e1129980a87a3da4814082dc4d7e53770b2e361d593e1cddde9e29f1a28f5a71b98e46478458e32426877d912715a67128518599f9fa9b7f3260655fa3e31cb276638da67770f4fa695d728084eabd0c3c1e258778817cccb14d2162eef359bfd91f9742c1ba9d86b82c376dd195a2d3abe090278b84af6abe8be9d0609599dc74ccc279f02a9d8425bf4bdc71b05251a2b73a5e8303a41bad8d8e1bd15034974274487727b598a80b3add196a6269141f0eb136dbd80b30c64432be04829d16878a625e951b6dc7704e703323e5ea9ad23c5ff71785eb11cfa128f09f76ad2a1a9dc6698193c1ac790b6bde7174cccc58c0ad46bd39ff5992533a1a4736374d7abd62c9bc4b3d74a0766f53d3163f8c2a39451964af2
+#TRUST-RSA-SHA256 1be8330070760ab9fd1a6575e5ca78038eced6a96bb5d92c9af89f6667d6745f9710ce42ad379bc0a83c1b04312547c1d13c9d00cc17c4d90dab9df5317d0a98db5fb647fc6308e52f3ff8544c123515e5a3acedcaa02cb445349ef597318f2ff253cbea8571a8110c89005a715f45558129a691c1c9578e5b48c3d46532116119bf76f56bf65bfdfae204fb9b3b7c7b2cd3f59bc374919103958c977c0817d3bbba11c2714142f0f5115875609f96b276e82f1a736ee1f32c0e57da82ec20459ffb69de430c71ab126d6ffdad0443fb0c3aaa09330a34b40666c7bc334c57fc7c669d2b1042506b9f5f4713f662671e6ffa7de0c7f10bcfba4e87cc23c22a67b0fc1308f42dfcd1626934a65741a9d9c78184857bc06cf44054fa4d50829f4874802f580d0dc9b3e875b3ab5482a1973a10a547220788ad455d2f1f07fbbd64b879c75eb8103d1c95fb2821d0d03598819d6c3fa33daea65a07e6bcca3f8e6d76ba83cdd5e61919f15cff797b28a5bcb51fa0de0eb6c4b8af833dd9f2da3a93fd5045ca229ebda12fbb6c2ddcd25bcf64b9f14f9506a7b6e1aaadb3d3c1d71d9526792865809f1e000eeb050d338cb7c31eebede822c9c52d609b9944448a2582c42034f150d910928575d5b3b0fd89f774c36f4deb36c34e94bfd5b41ab3e04f9f963343cbdc56b7ad42ba4e5059ee32a41a40ddc5b74e6c5911538935ecf6
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.10 $
+# $Date: 2025/01/06 $
+#
+# Description	: This .audit file searches the first 50k bytes of all text, Word,
+# 			  Excel and PDF files for evidence of:
+# 			  - a French Social Security Number (numero de securite sociale).
+# 			  - a UK National Insurance Number
+#
+#<ui_metadata>
+#<display_name>TNS File Analysis - Social Security Number (International)</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>File Analysis - Social Security Number (International)</name>
+#  <version>1.0.0</version>
+#</spec>
+#<labels>filecontent,content,international,social,security,number,agent</labels>
+#</ui_metadata>
+
+<check_type:"FileContent">
+
+<item>
+  type           : FILE_CONTENT_CHECK
+  description    : "PII - File contains a French Social Security Number"
+  file_extension : "txt" | "doc" | "xls" | "pdf"
+  regex          : "([^0-9-]|^)[12][0-9]{2}(0[1-9]|1[0-2]|20)((0[1-9]|2[1-9AB]|[3-9][0-9]|9[0-59])(00[1-9]|0[1-9][0-9]|[1-8][0-9][0-9]|9[0-8][0-9]|990)|(9[78][0-9])(0[1-9]|[2-8][0-9]|90))(00[1-9]|0[1-9][0-9]|[1-9][0-9][0-9])[ /-]?(0[1-9]|[2-8][0-9]|9[0-7])([^0-9-]|$)"
+  expect         : "(n..? |num..?ro )?(de )?(s..?curit..? sociale|SS)" | "Security Number" | "SSN" | "SOCIAL SECURITY" | "social security" | "SS#" | "Social" | "INSEE"
+  max_size       : "50K"
+  regex_replace  : "\0"
+</item>
+
+<item>
+  type           : FILE_CONTENT_CHECK
+  description    : "PII - File contains a UK National Insurance Number"
+  file_extension : "txt" | "doc" | "xls" | "pdf"
+  regex          : "([^_0-9-]|^)([ACEHJ-MOPRSW-Y][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-Y])[0-9]{6}[A-D]?([^_}$A-Z0-9-]|$)"
+  expect         : "National Insurance Number" | "NI Number" | "NIN"
+  max_size       : "50K"
+  regex_replace  : "\0"
+</item>
+
+</check_type>

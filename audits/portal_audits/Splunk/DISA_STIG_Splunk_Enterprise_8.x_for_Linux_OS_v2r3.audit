@@ -1,0 +1,615 @@
+#TRUSTED 76648d95a9617b1ff9fbf3db7d79747f22e26221245c5af40e4580daeba7d4a74e0e278732676122609b7d37805d7a9852c48683ce9c51600bf0888a732b8987ef202b4443fb965391e94d18c65ac2798effded93e523c6fca5fb5345efa3cfd18f747cce47870b973cb4814b7419174da287408c3e1b2c92fa3a02a3f1c19b2247ac088ba5f3fc043f66e26334dd2207ef27d3f87e60371a3644c4bd316fb2d26946b23eed0e7fa136ddab7c2594fbd3fffffa628527ea256c3c33624f86c797674bc9a462e420682317421d42ff391b9200929d7fae6dc8248fa9166a54a0a5d768f63f512f54f3cde832ec16dd058bcf074f829a9802acc4a176ed25f13b01894b5a57a631dc9cc1e37c3551b888e42ce674563037844cf9cbbfb8603d70c7a313cb4572a2d421d1de6f52453976898137dfdce06efe00f2501c04dea6e049cf0973ec5609907dd0228ca95823d4f300196f4247dbc96306d15a6ef7d9c9e3780552f86894877a99fe125ea40343dd4d15479e14fb7a189b21d0624a71b2f25841cd7214bc4a5fe3e0f6da66c7986ae4597b2b4b0825381297038782bec5436151d766cbcb63693c995cc9c542c098d3928297961010c6dc70a68cec7b559b23e7b8e5abc285e611b5a7ce429b2ffff7da1f64795fea1e180d38a4025361d52c89776773c51644ff256dff6ba7879b1a70d323f658276f51bbd93458595d1
+#TRUST-RSA-SHA256 97f4a95515bb698e653c2b232382566443180ef92c9585309e7bc031c160c9f02f643a8b228ef42fd52dceb70e1d54e780ab895e9170a85fb40c155046e2ca1f189db3594dd3d1557fcb01604025234d7224dd2c8f7fbca0187e072041729ae906957cd8847ff03cf63c33c5caa90336f2381dab61b41f9e9ce8055bfbd47a717b8e1f0aa4e1ddb7032f60727a198ac75b3ca7952fb660f5f270586091537f1f3ab5e7117aa79ba044ad3b8eba9c78a4560d75248229fd5c1230d8f134af71fa4f3d625aa015a1c03ffc356d23d75cab514ee416dc15c9c01bdd0278af56c2719865ced0afb462bcfba6395d93c3a25a8e6b3d9281ff53a62b8d3b0f62ba2e96ef295faae29e961f1c454598ea7595d918b56332c63267679aea03f3033a72ceddbe8ed6d23638a862200591ec8371d1d04de8098407330016cd98d9613486c970890cbac9a9ac403b992afac6fc016867ecaab49f0200943fb358e5d734374547dc1989dd242e09f834028dcdb422ebc0a83a7195f19605fbd9586b0b1b917230e2d49760c5290bac812d5d015d90d1be31456bf7a501a2dfd5cc3da4c6b136aff91366b9f13f3d83af5fdc1b0215393970dbd38fd46ba38b4fea8192429fa2c6a1deecac4fafab404a3c4aac3862c7c128c0416992f0ec9f43efa798cd10a5edd320e8b1e9462321ad3abb4ab6df7633b367e4e4635c2ea918ba245eb88252
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/01/13 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Splunk Enterprise 8.x for Linux v2r3 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Splunk Enterprise 8.x for Linux v2r3 STIG OS</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Splunk Enterprise 8.x for Linux</name>
+#  <profile>OS Linux</profile>
+#  <version>2.3.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip</link>
+#</spec>
+#<labels>splunk_8_linux,disa</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>SPLUNK_HOME</name>
+#    <default>/opt/splunk</default>
+#    <description>Splunk home path</description>
+#    <info>The full path to the domain home with no trailing slash.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>MIN_PASSWORD_LENGTH</name>
+#    <default>(1[5-9]|[2-9][0-9]|[1-9][0-9]{2,})</default>
+#    <description>Minimum Password Length</description>
+#    <info>The minimum password length for users. The default value is 15 or more.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : FILE_CHECK
+      description : "Splunk is installed"
+      file        : "@SPLUNK_HOME@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_Splunk_Enterprise_8.x_for_Linux_OS_v2r3.audit from DISA Splunk Enterprise 8.x for Linux v2r3 STIG"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000010 - Splunk Enterprise idle session timeout must be set to not exceed 15 minutes."
+      info        : "Automatic session termination after a period of inactivity addresses the potential for a malicious actor to exploit the unattended session. Closing any unattended sessions reduces the attack surface to the application.
+
+Satisfies: SRG-APP-000295-AU-000190, SRG-APP-000389-AU-000180"
+      solution    : "This configuration is performed on the machine used as a search head, which may be a separate machine in a distributed environment.
+
+If the web.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify/Add the following lines in the web.conf file:
+
+tools.session.timeout = 15"
+      reference   : "800-171|3.1.11,800-171r3|03.01.11,800-171r3|03.05.01b.,800-53|AC-12,800-53|IA-11,800-53r5|AC-12,800-53r5|SC-11b.,CAT|II,CCI|CCI-002038,CCI|CCI-002361,CCI|CCI-004895,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),HIPAA|164.312(d),ITSG-33|AC-12,NIAv2|NS49,QCSC-v1|13.2,Rule-ID|SV-251657r1043182_rule,STIG-ID|SPLK-CL-000010,Vuln-ID|V-251657"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/web.conf"
+      regex       : "^[\\s]*tools.session.timeout[\\s]*="
+      expect      : "^[\\s]*tools.session.timeout[\\s]*=[\\s]*(1[0-5]|[0-9])[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "lockoutAttempts"
+          file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+          regex       : "^[\\s]*lockoutAttempts[\\s]*="
+          expect      : "^[\\s]*lockoutAttempts[\\s]*=[\\s]*[1-3][\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "lockoutThresholdMins"
+          file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+          regex       : "^[\\s]*lockoutThresholdMins[\\s]*="
+          expect      : "^[\\s]*lockoutThresholdMins[\\s]*=[\\s]*(1[5-9]|[2-9][0-9])[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "SPLK-CL-000060 - Splunk Enterprise must enforce the limit of three consecutive invalid logon attempts by a user during a 15-minute time period."
+          info        : "By limiting the number of failed login attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute forcing, is reduced. Limits are imposed by locking the account.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication. The mitigation settings in this requirement apply in the event a local account is created."
+          solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+lockoutAttempts = 3
+lockoutThresholdMins = 15"
+          reference   : "800-171|3.1.8,800-171r3|03.01.08a.,800-53|AC-7a.,800-53r5|AC-7a.,CAT|II,CCI|CCI-000044,CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,Rule-ID|SV-251659r960840_rule,STIG-ID|SPLK-CL-000060,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2,Vuln-ID|V-251659"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000070 - Splunk Enterprise must automatically lock the account until the locked account is released by an administrator when three unsuccessful login attempts in 15 minutes are exceeded."
+      info        : "By limiting the number of failed login attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute forcing, is reduced. Limits are imposed by locking the account."
+      solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+lockoutUsers = True or 1"
+      reference   : "800-171|3.1.8,800-171r3|03.01.08b.,800-53|AC-7b.,800-53r5|AC-7b.,CAT|II,CCI|CCI-002238,CN-L3|7.1.2.7(f),CN-L3|7.1.3.1(c),CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-7b.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.7,PCI-DSSv4.0|8.3.4,Rule-ID|SV-251660r961368_rule,STIG-ID|SPLK-CL-000070,TBA-FIISB|36.2.4,TBA-FIISB|45.1.2,Vuln-ID|V-251660"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+      regex       : "^[\\s]*lockoutUsers[\\s]*="
+      expect      : "^[\\s]*lockoutUsers[\\s]*=[\\s]*(1|[Tt][Rr][Uu][Ee])[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000090 - Splunk Enterprise must be configured to protect the log data stored in the indexes from alteration."
+      info        : "Without non-repudiation, it is impossible to positively attribute an action to an individual (or process acting on behalf of an individual).
+
+The records stored by Splunk Enterprise must be protected against alteration. A hash is one way of performing this function. The server must not allow the removal of identifiers or date/time, or it must severely restrict the ability to do so."
+      solution    : "If the indexes.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the indexes.conf file under each index:
+
+enableDataIntegrityControl = 1 or True"
+      reference   : "800-53|AU-10,800-53r5|AU-10,CAT|II,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251662r960864_rule,STIG-ID|SPLK-CL-000090,Vuln-ID|V-251662"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/indexes.conf"
+      regex       : "^[\\s]*enableDataIntegrityControl[\\s]*="
+      expect      : "^[\\s]*enableDataIntegrityControl[\\s]*=[\\s]*(1|[Tt][Rr][Uu][Ee])[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000120 - The System Administrator (SA) and Information System Security Manager (ISSM) must configure the retention of the log records based on the defined security plan."
+      info        : "If authorized individuals do not have the ability to modify auditing parameters in response to a changing threat environment, the organization may not be able to respond effectively and important forensic information may be lost.
+
+The organization must define and document log retention requirements for each device and host and then configure Splunk Enterprise to comply with the required retention period.
+
+This requirement enables organizations to extend or limit auditing as necessary to meet organizational requirements. Auditing that is limited to conserve information system resources may be extended to address certain threat situations."
+      solution    : "Edit the following file in the Splunk installation folder:
+
+$SPLUNK_HOME/etc/system/local/indexes.conf
+
+Set frozenTimePeriodInSecs to the defined retention period for each index location."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03,800-53|AU-12(3),800-53r5|AU-12(3),CAT|III,CCI|CCI-001914,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251665r960891_rule,STIG-ID|SPLK-CL-000120,SWIFT-CSCv1|6.4,Vuln-ID|V-251665"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/indexes.conf"
+      regex       : "^[\\s]*frozenTimePeriodInSecs[\\s]*="
+      expect      : "Manual Review Required"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "SPLK-CL-000190 - Splunk Enterprise installation directories must be secured."
+      info        : "If audit data were to become compromised, then competent forensic analysis and discovery of the true source of potentially malicious system activity is difficult if not impossible to achieve. In addition, access to audit records provides information an attacker could potentially use to his or her advantage.
+
+To ensure the veracity of audit data, the information system and/or the application must protect audit information from any and all unauthorized access. This includes read, write, and copy access.
+
+This requirement can be achieved through multiple methods which will depend upon system architecture and design. Commonly employed methods for protecting audit information include least privilege permissions as well as restricting the location and number of log file repositories.
+
+Additionally, applications with user interfaces to audit records should not allow for the unfettered manipulation of or access to those records via the application. If the application provides access to the audit data, the application becomes accountable for ensuring audit information is protected from unauthorized access.
+
+Audit information includes all information (e.g., audit records, audit settings, and audit reports) needed to successfully audit information system activity.
+
+Satisfies: SRG-APP-000118-AU-000100, SRG-APP-000119-AU-000110, SRG-APP-000120-AU-000120, SRG-APP-000121-AU-000130, SRG-APP-000122-AU-000140, SRG-APP-000123-AU-000150"
+      solution    : "Only the 'splunk' and root users should have access to the Splunk Enterprise installation directories.
+
+chown splunk user $SPLUNK_HOME and $SPLUNK_ETC
+chgrp splunk user $SPLUNK_HOME and $SPLUNK_ETC
+chmod 700 $SPLUNK_HOME and $SPLUNK_ETC"
+      reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9,800-53r5|AU-9,800-53r5|AU-9a.,CAT|II,CCI|CCI-000162,CCI|CCI-000163,CCI|CCI-000164,CCI|CCI-001493,CCI|CCI-001494,CCI|CCI-001495,CN-L3|7.1.2.3(d),CN-L3|7.1.3.3(f),CN-L3|8.1.3.5(c),CN-L3|8.1.4.3(c),CSF|PR.PT-1,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9,NESA|M5.2.3,NESA|M5.5.2,NESA|T3.6.4,NESA|T8.2.9,NIAv2|SM5,NIAv2|SM6,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|10.3.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251672r960930_rule,STIG-ID|SPLK-CL-000190,Vuln-ID|V-251672"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@"
+      owner       : "splunk" || "root"
+      mask        : "077"
+      group       : "splunk" || "root"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000340 - Splunk Enterprise must be configured to enforce password complexity by requiring that at least one uppercase character be used."
+      info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account is created."
+      solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+minPasswordUppercase = 1"
+      reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000192,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251681r1015831_rule,STIG-ID|SPLK-CL-000340,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-251681"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+      regex       : "^[\\s]*minPasswordUppercase[\\s]*="
+      expect      : "^[\\s]*minPasswordUppercase[\\s]*=[\\s]*[1-9][0-9]*[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000350 - Splunk Enterprise must be configured to enforce password complexity by requiring that at least one lowercase character be used."
+      info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account is created."
+      solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+minPasswordLowercase = 1"
+      reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000193,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251682r1015832_rule,STIG-ID|SPLK-CL-000350,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-251682"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+      regex       : "^[\\s]*minPasswordLowercase[\\s]*="
+      expect      : "^[\\s]*minPasswordLowercase[\\s]*=[\\s]*[1-9][0-9]*[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000360 - Splunk Enterprise must be configured to enforce password complexity by requiring that at least one numeric character be used."
+      info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor of several that determine how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account is created."
+      solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+minPasswordDigit = 1"
+      reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000194,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251683r1015833_rule,STIG-ID|SPLK-CL-000360,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-251683"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+      regex       : "^[\\s]*minPasswordDigit[\\s]*="
+      expect      : "^[\\s]*minPasswordDigit[\\s]*=[\\s]*[1-9][0-9]*[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000370 - Splunk Enterprise must be configured to enforce a minimum 15-character password length."
+      info        : "The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.
+
+Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks. Password length is one factor of several that helps to determine strength and how long it takes to crack a password. The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.
+
+Use of more characters in a password helps to exponentially increase the time and/or resources required to compromise the password.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account is created."
+      solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+minPasswordLength = 15 or more"
+      reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000205,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251684r1015834_rule,STIG-ID|SPLK-CL-000370,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-251684"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+      regex       : "^[\\s]*minPasswordLength[\\s]*="
+      expect      : "^[\\s]*minPasswordLength[\\s]*=[\\s]*@MIN_PASSWORD_LENGTH@[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000380 - Splunk Enterprise must be configured to enforce password complexity by requiring that at least one special character be used."
+      info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor in determining how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+Special characters are those characters that are not alphanumeric. Examples include: ~ ! @ # $ % ^ *.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account is created."
+      solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+minPasswordSpecial = 1"
+      reference   : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-001619,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251685r1015835_rule,STIG-ID|SPLK-CL-000380,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-251685"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+      regex       : "^[\\s]*minPasswordSpecial[\\s]*="
+      expect      : "^[\\s]*minPasswordSpecial[\\s]*=[\\s]*[1-9][0-9]*[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "SPLK-CL-000400 - Splunk Enterprise must be configured to enforce a 60-day maximum password lifetime restriction."
+      info        : "Any password, no matter how complex, can eventually be cracked. Therefore, passwords need to be changed at specific intervals. If the application does not limit the lifetime of passwords and force users to change their passwords, there is the risk that the system and/or application passwords could be compromised.
+
+This requirement does not include emergency administration accounts that are meant for access to the application in case of failure. These accounts are not required to have maximum password lifetime restrictions.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account is created."
+      solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+expirePasswordDays = 60"
+      reference   : "800-171|3.5.2,800-171r3|03.05.07d.,800-53|IA-5(1)(d),800-53r5|IA-5(1)(h),CAT|III,CCI|CCI-000199,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(d),NESA|T5.2.3,NIAv2|AM20,NIAv2|AM21,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251687r1043190_rule,STIG-ID|SPLK-CL-000400,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.2,Vuln-ID|V-251687"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+      regex       : "^[\\s]*expirePasswordDays[\\s]*="
+      expect      : "^[\\s]*expirePasswordDays[\\s]*=[\\s]*([1-5]?[0-9]|60)[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "enablePasswordHistory"
+          file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+          regex       : "^[\\s]*enablePasswordHistory[\\s]*="
+          expect      : "^[\\s]*enablePasswordHistory[\\s]*=[\\s]*[Tt][Rr][Uu][Ee][\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "passwordHistoryCount"
+          file        : "@SPLUNK_HOME@/etc/system/local/authentication.conf"
+          regex       : "^[\\s]*passwordHistoryCount[\\s]*="
+          expect      : "^[\\s]*passwordHistoryCount[\\s]*=[\\s]*([5-9]|[0-9]{2,})[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "SPLK-CL-000410 - Splunk Enterprise must be configured to prohibit password reuse for a minimum of five generations."
+          info        : "Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+To meet password policy requirements, passwords need to be changed at specific policy-based intervals.
+
+If the information system or application allows the user to consecutively reuse their password when that password has exceeded its defined lifetime, the end result is a password that is not changed as per policy requirements.
+
+In most enterprise environments, this requirement is usually mitigated by a properly configured external authentication system, like LDAP. Splunk local authentication takes precedence over other forms of authentication, and cannot be disabled. The mitigation settings in this requirement apply in the event a local account is created."
+          solution    : "If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Modify the following lines in the authentication.conf file under the [splunk_auth]:
+
+enablePasswordHistory = True
+passwordHistoryCount = 5"
+          reference   : "800-171|3.5.7,800-171r3|03.05.07b.,800-53|IA-5(1)(b),800-53r5|IA-5(1)(b),CAT|III,CCI|CCI-004061,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(b),NESA|T5.2.3,NIAv2|AM22d,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251688r1015267_rule,STIG-ID|SPLK-CL-000410,SWIFT-CSCv1|4.1,Vuln-ID|V-251688"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "inputs.conf sslVersions"
+          file            : "@SPLUNK_HOME@/etc/system/local/inputs.conf"
+          regex           : "^[\\s]*sslVersions[\\s]*="
+          expect          : "^[\\s]*sslVersions[\\s]*=[\\s]*tls1\.2[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "inputs.conf ciphersuite"
+          file            : "@SPLUNK_HOME@/etc/system/local/inputs.conf"
+          regex           : "^[\\s]*ciphersuite[\\s]*="
+          expect          : "^[\\s]*ciphersuite[\\s]*=[\\s]*ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "inputs.conf ecdhCurves"
+          file            : "@SPLUNK_HOME@/etc/system/local/inputs.conf"
+          regex           : "^[\\s]*ecdhCurves[\\s]*="
+          expect          : "^[\\s]*ecdhCurves[\\s]*=[\\s]*prime256v1,[\\s]*secp384r1,[\\s]*secp521r1[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "outputs.conf sslVersions"
+          file            : "@SPLUNK_HOME@/etc/system/local/outputs.conf"
+          regex           : "^[\\s]*sslVersions[\\s]*="
+          expect          : "^[\\s]*sslVersions[\\s]*=[\\s]*tls1\.2[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "outputs.conf ciphersuite"
+          file            : "@SPLUNK_HOME@/etc/system/local/outputs.conf"
+          regex           : "^[\\s]*ciphersuite[\\s]*="
+          expect          : "^[\\s]*ciphersuite[\\s]*=[\\s]*ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "outputs.conf ecdhCurves"
+          file            : "@SPLUNK_HOME@/etc/system/local/outputs.conf"
+          regex           : "^[\\s]*ecdhCurves[\\s]*="
+          expect          : "^[\\s]*ecdhCurves[\\s]*=[\\s]*prime256v1,[\\s]*secp384r1,[\\s]*secp521r1[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "server.conf sslVersions"
+          file        : "@SPLUNK_HOME@/etc/system/local/server.conf"
+          regex       : "^[\\s]*sslVersions[\\s]*="
+          expect      : "^[\\s]*sslVersions[\\s]*=[\\s]*tls1\.2[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "server.conf ciphersuite"
+          file        : "@SPLUNK_HOME@/etc/system/local/server.conf"
+          regex       : "^[\\s]*ciphersuite[\\s]*="
+          expect      : "^[\\s]*ciphersuite[\\s]*=[\\s]*ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:AES256-GCM-SHA384:AES128-GCM-SHA256:AES128-SHA256[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "server.conf ecdhCurves"
+          file        : "@SPLUNK_HOME@/etc/system/local/server.conf"
+          regex       : "^[\\s]*ecdhCurves[\\s]*="
+          expect      : "^[\\s]*ecdhCurves[\\s]*=[\\s]*prime256v1,[\\s]*secp384r1,[\\s]*secp521r1[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "web.conf sslVersions"
+          file            : "@SPLUNK_HOME@/etc/system/local/web.conf"
+          regex           : "^[\\s]*sslVersions[\\s]*="
+          expect          : "^[\\s]*sslVersions[\\s]*=[\\s]*tls1\.2[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "web.conf ciphersuite"
+          file            : "@SPLUNK_HOME@/etc/system/local/web.conf"
+          regex           : "^[\\s]*ciphersuite[\\s]*="
+          expect          : "^[\\s]*ciphersuite[\\s]*=[\\s]*ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system          : "Linux"
+          type            : FILE_CONTENT_CHECK
+          description     : "web.conf ecdhCurves"
+          file            : "@SPLUNK_HOME@/etc/system/local/web.conf"
+          regex           : "^[\\s]*ecdhCurves[\\s]*="
+          expect          : "^[\\s]*ecdhCurves[\\s]*=[\\s]*prime256v1,[\\s]*secp384r1,[\\s]*secp521r1[\\s]*$"
+          file_required   : NO
+          string_required : NO
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "ldap.conf TLS_PROTOCOL_MIN"
+          file        : "/etc/openldap/ldap.conf"
+          regex       : "^[\\s]*TLS_PROTOCOL_MIN[\\s]+"
+          expect      : "^[\\s]*TLS_PROTOCOL_MIN[\\s]+3\.3[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "ldap.conf TLS_CIPHER_SUITE"
+          file        : "/etc/openldap/ldap.conf"
+          regex       : "^[\\s]*TLS_CIPHER_SUITE[\\s]+"
+          expect      : "^[\\s]*TLS_CIPHER_SUITE[\\s]+ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256[\\s]*$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "SPLK-CL-000430 - Splunk Enterprise must use TLS 1.2 and SHA-2 or higher cryptographic algorithms."
+          info        : "Without cryptographic integrity protections, information can be altered by unauthorized users without detection.
+
+To protect the integrity of the authenticator and authentication mechanism used for the cryptographic module used by the network device, the application, operating system, or protocol must be configured to use one of the following hash functions for hashing the password or other authenticator in accordance with SP 800-131Ar1: SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, and SHA3-512.
+
+Splunk Enterprise, by default, is compliant with this requirement. But since the settings can be overridden, the check and fix text in this requirement is necessary."
+          solution    : "Edit the following files in the $SPLUNK_HOME/etc/system/local folder:
+
+inputs.conf: Fix is applicable to the indexer, which may be a separate machine in a distributed environment.
+
+If the following lines do not exist, then the settings are compliant. If they exist, they must match the settings below or be removed:
+
+sslVersions = tls1.2
+cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+ecdhCurves = prime256v1, secp384r1, secp521r1
+
+outputs.conf: Check is applicable to the forwarder which is always a separate machine in the environment.
+
+If the following lines do not exist, then the settings are compliant. If they exist, they must match the settings below or be removed:
+
+sslVersions = tls1.2
+cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+ecdhCurves = prime256v1, secp384r1, secp521r1
+
+server.conf
+
+If the following lines do not exist, then the settings are compliant. If they exist, they must match the settings below or be removed:
+
+sslVersions = tls1.2
+sslVersionsForClient = tls1.2
+cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:AES256-GCM-SHA384:AES128-GCM-SHA256:AES128-SHA256
+ecdhCurves = prime256v1, secp384r1, secp521r1
+
+web.conf: Check is applicable to search head or deployment server, which may be a separate machine in a distributed environment.
+
+If the following lines do not exist, then the settings are compliant. If they exist, they must match the settings below or be removed:
+
+sslVersions = tls1.2
+cipherSuite = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+ecdhCurves = prime256v1, secp384r1, secp521r1
+
+Check the following file in the /etc/openldap folder:
+
+ldap.conf
+
+Check for the following lines, set to match the settings below:
+
+#TLS_PROTOCOL_MIN: 3.1 for TLSv1.0, 3.2 for TLSv1.1, 3.3 for TLSv1.2.
+TLS_PROTOCOL_MIN 3.3
+TLS_CIPHER_SUITE ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+
+Note: Splunk Enterprise must operate in FIPS mode to limit the algorithms allowed."
+          reference   : "800-53|IA-7,800-53r5|IA-7,CAT|I,CCI|CCI-000803,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),ITSG-33|IA-7,ITSG-33|IA-7a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T7.4.1,QCSC-v1|13.2,Rule-ID|SV-251689r1082345_rule,STIG-ID|SPLK-CL-000430,Vuln-ID|V-251689"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000510 - Splunk Enterprise must use a version supported by the vendor."
+      info        : "Running unsupported software increases risk of unresolved vulnerabilities and system damage. Software must be currently maintained by the vendor to patch vulnerabilities.
+
+  NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Upgrade to a version supported by the vendor."
+      reference   : "800-171|3.14.1,800-171r3|03.14.01b.,800-53|SI-2c.,800-53r5|SI-2c.,CAT|I,CCI|CCI-002605,CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSF|ID.RA-1,CSF|PR.IP-12,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-02,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.8,ISO-27001-2022|A.8.32,ITSG-33|SI-2,NESA|T7.6.2,NESA|T7.7.1,NIAv2|AM38,NIAv2|AM39,NIAv2|SS14b,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.3,QCSC-v1|11.2,Rule-ID|SV-274465r1099924_rule,STIG-ID|SPLK-CL-000510,SWIFT-CSCv1|2.2,Vuln-ID|V-274465"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_Splunk_Enterprise_8.x_for_Linux_OS_v2r3.audit from DISA Splunk Enterprise 8.x for Linux v2r3 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</check_type>

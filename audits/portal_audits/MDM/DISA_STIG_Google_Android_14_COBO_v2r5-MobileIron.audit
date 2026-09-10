@@ -1,0 +1,1051 @@
+#TRUSTED 780a84c2c25b786a593dcc5849daab68ce51a8d1c0693dd0471ea98c8e366020fa8f2960e964935d40ce1c9e73a7968fbad07214b64a0e20cc5985157c2ba9f21cabe553f074771db81486656180dd4da78e8ec47bda67218f5bb42d8c562db04daaa1e962c399cb058fc5f5fea83d82c047d72d7b8af16ccabb223e2bb21ca72d4edc8550695e61da52045e6f308d62dcec115fb1285a2083bdf4e882d6dc316e4a69252542f26c8a79b26771043d4dca301f6ff51ddaa61d218f86180af031781f51bfdc6feb6e00b9a1d7828c18242ef65ca9eb31e747ecde3516cef8e2c587da8e36d1e6eb58e9639df06fbad31bdd23ea0089b4f0e72af21e32add1ea3558ee06f93b8d63eb882e655326fb09839d211bbc1e4dcd0846d05a06ebca446561b711aa53d84ae25d3bf03bb9b5c8093bbed62b6d2707b33d35919fac15af9e349ca8529a528bb2c01bfd9c0249b97619c241a9af7e113c46dbfd741c6ebaeaba7ff29b44d6c14efcdee93c1010dbd89b5b922949f198f30cbef80dbb52e5f0419e2ab72f52d7f459417ef643a06a0ac608541e8e936f355636295e0de25adeb0d086e5c8323d69dc464cafdda8f300d2d104af0ebf010faad492c48ca5480feaf70ea3fa2adcff280ebc5cab656e67017301ba2970e8d7b9a9b7fa5ec48e08e35a1a697d6baa6cd9cedbd4116f7eeee4fc1a1d71cf7b15b214b8398b8fa092
+#TRUST-RSA-SHA256 578b26c77856e31e5d7f498023d00e06328e10c8f716c3fdf7d8f63cf868a3f7d75c41e5cb9d1b612b31391a7838b24fb65b86be9dd32717c59f31efb1e4f86c4b80ff70680765fbbe31a531db79485abb9340fa9c9b3ca416186c9bff2ff1cbffaf206994843681015310bb3b647e3a80822170e6b2dd2091cc44da65b30ec74576ff8ed8bf2fb0ec4e92c6376d053b504695e832fc74f13c47c60178b73413e1ff99ca58e144b5575cb305ff62ba3eff55db4a4d08d23a839c944dd519758972ab927e6fafcd3e1870df6c412c346f5941bb9083ab759ccd4258de50cf3f24ae340a789cd63610ef21c173b8e6b1724f2874a544b8c7c56cb5e80f96815a75532272c1051a2ab930c1b81a507e677bae2e501dde8b1b5aa77b3b34456e799577d9f22088c73a195710c7a54682cd8246b24ae28e58408850dfcbf725a36231e507dfac433d49c873f2b30f6eb97b678bc4aa830199b4a15887d785274c3186d152380d09ac735e3f021b6f95d049172a44db1f653e6fd9f38edd1360f3dbdb55fb3b5b783ba983960900a0066f33e0c61afe2a8d709eb17cb938b4ea57cb1654d60e606c394725d3e233dd7b777d1b10f66da4e21b172bd8bd45115a70f1d9cb4cb16e5adac07307675474953818ad9edcafd35caed298362497180d8f72b8a55ef1736f7fd668af9a97f58b35d33393908a1decabb8e0bc5c3b10ed50bd06
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/07/14 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Google Android 14 COBO v2r5 STIG.
+#
+#<ui_metadata>
+#<display_name>MobileIron - DISA Google Android 14 COBO STIG v2r5</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Google Android 14</name>
+#  <profile>COBO MobileIron</profile>
+#  <version>2.5.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip</link>
+#</spec>
+#<labels>mdm,mobileiron,android,google</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>WHITELIST</name>
+#    <default>.*</default>
+#    <description>Device Application Whitelist</description>
+#    <info>This is a comma separated whitelist of applications. Only these applications may be present on the device. Use a variable value of '.*' if this check is N/A for your organization, otherwise use a format like 'application_name1,application_name2,etc'.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BLACKLIST</name>
+#    <default>!@#$%$#@!</default>
+#    <description>Device Application Blacklist</description>
+#    <info>This is a comma separated blacklist of applications. None of these applications may be present on the device. Use a variable value of !@#$%$#@!' if this check is N/A for your organization, otherwise use a format like 'application_name1,application_name2,etc'.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"MDM" mdm_type:MOBILEIRON>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-006000 - Google Android 14 must be configured to enforce a minimum password length of six characters."
+  info           : "Password strength is a measure of the effectiveness of a password in resisting guessing and brute force attacks. The ability to crack a password is a function of how many attempts an adversary is permitted, how quickly an adversary can do each attempt, and the size of the password space. The longer the minimum length of the password, the larger the password space. Having a too-short minimum password length significantly reduces password strength, increasing the chance of password compromise and resulting in device and data compromise.
+
+SFR ID: FMT_SMF_EXT.1.1 #1a"
+  solution       : "Configure the Google Android 14 device to enforce a minimum password length of six characters.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen' settings.
+2. Open 'Password constraints'.
+3. Open 'Minimum password quality'.
+4. Choose Numeric Complex, Alphabetic, Alphanumeric, or Complex.
+5. Open 'Minimum password length'.
+6. Enter in the number of characters as '6'.
+
+COPE:
+
+1. Open 'Lock screen' settings.
+2. Open 'Password constraints'.
+3. Select 'Personal Profile'.
+4. Open 'Minimum password quality'.
+5. Choose Numeric Complex, Alphabetic, Alphanumeric, or Complex.
+6. Open 'Minimum password length'.
+7. Enter in the number of characters as '6'."
+  reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-258378r985879_rule,STIG-ID|GOOG-14-006000,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-258378"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                 "Policy: " + .policyName + " - Passcode Length = \(.policyRules.SECURITY_PWD_LENGTH // "Not Defined")"'
+  regex          : "Passcode Length ="
+  expect         : "Passcode Length = ([6-9]|[1-8][0-9]|9[0-9])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-006100 - Google Android 14 must be configured to not allow passwords that include more than four repeating or sequential characters - Alphanumeric"
+  info           : "Password strength is a measure of the effectiveness of a password in resisting guessing and brute force attacks. Passwords that contain repeating or sequential characters are significantly easier to guess than those that do not contain repeating or sequential characters. Therefore, disallowing repeating or sequential characters increases password strength and decreases risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #1b"
+  solution       : "Configure the Google Android 14 device to prevent passwords from containing more than four repeating or sequential characters.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen' settings.
+2. Open 'Password constraints'.
+3. Set password quality to 'Numeric (Complex)'.
+
+COPE:
+
+1. Open 'Password constraints'.
+2. Select 'Personal Profile'.
+3. Set password quality to 'Numeric (Complex)'.
+
+Note: Alphabetic, Alphanumeric, and Complex are also acceptable selections, but these selections will cause the user to select a complex password, which is not required by the STIG."
+  reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-258379r985880_rule,STIG-ID|GOOG-14-006100,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-258379"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Passcode Type = \(.policyRules.SECURITY_PWD_TYPE // "Not Defined")"'
+  regex          : "Passcode Type ="
+  expect         : "Passcode Type = Alphanumeric"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-006100 - Google Android 14 must be configured to not allow passwords that include more than four repeating or sequential characters - Complex Characters"
+  info           : "Password strength is a measure of the effectiveness of a password in resisting guessing and brute force attacks. Passwords that contain repeating or sequential characters are significantly easier to guess than those that do not contain repeating or sequential characters. Therefore, disallowing repeating or sequential characters increases password strength and decreases risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #1b"
+  solution       : "Configure the Google Android 14 device to prevent passwords from containing more than four repeating or sequential characters.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen' settings.
+2. Open 'Password constraints'.
+3. Set password quality to 'Numeric (Complex)'.
+
+COPE:
+
+1. Open 'Password constraints'.
+2. Select 'Personal Profile'.
+3. Set password quality to 'Numeric (Complex)'.
+
+Note: Alphabetic, Alphanumeric, and Complex are also acceptable selections, but these selections will cause the user to select a complex password, which is not required by the STIG."
+  reference      : "800-171|3.5.7,800-171r3|03.05.07a.,800-53|IA-5(1)(a),800-53r5|IA-5(1)(h),CAT|II,CCI|CCI-004066,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-258379r985880_rule,STIG-ID|GOOG-14-006100,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-258379"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Passcode Minimum Complex Characters = \(.policyRules.SECURITY_PWD_MIN_COMPLEX_CHAR // "Not Defined")"'
+  regex          : "Passcode Minimum Complex Characters ="
+  expect         : "Passcode Minimum Complex Characters = ([2-9]|[3-9][0-9])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-006300 - Google Android 14 must be configured to lock the display after 15 minutes (or less) of inactivity - or less of inactivity."
+  info           : "The screen lock timeout must be set to a value that helps protect the device from unauthorized access. Having a too-long timeout would increase the window of opportunity for adversaries who gain physical access to the mobile device through loss, theft, etc. Such devices are much more likely to be in an unlocked state when acquired by an adversary, thus granting immediate access to the data on the mobile device. The maximum timeout period of 15 minutes has been selected to balance functionality and security; shorter timeout periods may be appropriate depending on the risks posed to the mobile device.
+
+SFR ID: FMT_SMF_EXT.1.1 #2b"
+  solution       : "Configure the Google Android 14 device to enable a screen-lock policy of 15 minutes for the max period of inactivity.
+
+Note: Google Android 14 Settings User Interface (UI) does not support the 15-minute increment, but this value can be set by the MDM.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen restrictions'.
+2. Set 'Max time to screen lock' to '900'.
+Note: The units are in seconds.
+
+COPE:
+
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Set 'Max time to screen lock' to 900'.
+Note: The units are in seconds."
+  reference      : "800-171|3.1.10,800-171r3|03.01.10a.,800-53|AC-11a.,800-53r5|AC-11a.,CAT|II,CCI|CCI-000057,CN-L3|8.1.4.1(b),DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11a.,NESA|T2.3.8,NESA|T2.3.9,NIAv2|AM23a,NIAv2|AM23b,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,Rule-ID|SV-258381r971318_rule,STIG-ID|GOOG-14-006300,Vuln-ID|V-258381"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Device Lock Timeout = \(.policyRules.SECURITY_GRACE_PERIOD // "Not Defined")"'
+  regex          : "Device Lock Timeout ="
+  expect         : "Device Lock Timeout = ([1-9]|1[0-5])"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-006400 - Google Android 14 must be configured to not allow more than 10 consecutive failed authentication attempts."
+  info           : "The more attempts an adversary has to guess a password, the more likely the adversary will enter the correct password and gain access to resources on the device. Setting a limit on the number of attempts mitigates this risk. Setting the limit at 10 or less gives authorized users the ability to make a few mistakes when entering the password but still provides adequate protection against dictionary or brute force attacks on the password.
+
+SFR ID: FMT_SMF_EXT.1.1 #2c, FIA_AFL_EXT.1.5"
+  solution       : "Configure the Google Android 14 device to allow only 10 or fewer consecutive failed authentication attempts.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen' settings.
+2. Open 'Lock screen restrictions'.
+3. Set 'Max password failures for local wipe' to a number between 1 and 10.
+
+COPE:
+
+1. Open 'Lock screen' settings.
+2. Open 'Lock screen restrictions'.
+3. Select 'Personal Profile'.
+4. Set 'Max password failures for local wipe' to a number between 1 and 10."
+  reference      : "800-171|3.1.8,800-171r3|03.01.08a.,800-53|AC-7a.,800-53r5|AC-7a.,CAT|II,CCI|CCI-000044,CN-L3|8.1.4.1(b),CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,Rule-ID|SV-258382r958388_rule,STIG-ID|GOOG-14-006400,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2,Vuln-ID|V-258382"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="SECURITY") |
+                  "Policy: " + .policyName + " - Maximum Number of Failed Attempts = \(.policyRules.SECURITY_PWD_MAX_FAILED_ATTEMPTS // "Not Defined")"'
+  regex          : "Maximum Number of Failed Attempts ="
+  expect         : "Maximum Number of Failed Attempts = ([1-9]|10)"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-006500 - Google Android 14 must be configured to enforce an application installation policy by specifying one or more authorized application repositories, including [selection: DOD-approved commercial app repository, MDM server, mobile application store]."
+  info           : "Forcing all applications to be installed from authorized application repositories can prevent unauthorized and malicious applications from being installed and executed on mobile devices. Allowing such installations and executions could cause a compromise of DOD data accessible by these unauthorized/malicious applications.
+
+SFR ID: FMT_SMF_EXT.1.1 #8a"
+  solution       : "Configure the Google Android 14 device to disable unauthorized application repositories.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow install unknown sources' to 'ON'.
+3. Toggle 'Disallow installs from unknown sources globally' to 'ON'."
+  reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258383r959010_rule,STIG-ID|GOOG-14-006500,SWIFT-CSCv1|2.3,Vuln-ID|V-258383"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[] | select(.active=="true") | select(.profileType=="LOCKDOWN") | "Policy: " + .policyName + " - Lockdown Unknown Sources = \(.policyRules.LOCKDOWN_UNKNOWN_SOURCES // "Not Defined")"'
+  regex          : "Lockdown Unknown Sources ="
+  expect         : "Lockdown Unknown Sources = On"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "GOOG-14-006600 - Google Android 14 must be configured to enforce an application installation policy by specifying an application allowlist that restricts applications by the following characteristics: [selection: list of digital signatures, cryptographic hash values, names, application version]."
+  info             : "The application allowlist, in addition to controlling the installation of applications on the MD, must control user access/execution of all core and preinstalled applications, or the MD must provide an alternate method of restricting user access/execution to core and preinstalled applications.
+
+Core application: Any application integrated into the OS by the OS or MD vendors.
+
+Preinstalled application: Additional noncore applications included in the OS build by the OS vendor, MD vendor, or wireless carrier.
+
+Requiring all authorized applications to be in an application allowlist prevents the execution of any applications (e.g., unauthorized, malicious) that are not part of the allowlist. Failure to configure an application allowlist properly could allow unauthorized and malicious applications to be downloaded, installed, and executed on the mobile device, causing a compromise of DOD data accessible by these applications.
+
+The application allowlist, in addition to controlling the installation of applications on the MD, must control user access/execution of all core applications (included in the OS by the OS vendor) and preinstalled applications (provided by the MD vendor and wireless carrier), or the MD must provide an alternate method of restricting user access/execution to core and preinstalled applications.
+
+SFR ID: FMT_SMF_EXT.1.1 #8b"
+  solution         : "Configure the Google Android 14 device to use an application allowlist.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Go to the Android app catalog for managed Google Play.
+2. Select apps to be available (only approved apps).
+3. Push updated policy to the device.
+
+Note: Managed Google Play is an allowed App Store."
+  reference        : "800-171|3.4.7,800-171r3|03.04.06,800-53|CM-7(2),800-53r5|CM-7(2),CAT|II,CCI|CCI-001764,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7(2),NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,Rule-ID|SV-258384r958804_rule,STIG-ID|GOOG-14-006600,SWIFT-CSCv1|2.3,Vuln-ID|V-258384"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | whitelist |
+                 if (length > 0) then
+                    hostname + " has one or more non-whitelisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " All items were whitelisted."
+                 end'
+  regex            : ''
+  expect           : 'All items were whitelisted.'
+  bw_list          : "@WHITELIST@"
+  output_all_lines : YES
+</custom_item>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "GOOG-14-006700 - Google Android 14 allowlist must be configured to not include applications with the following characteristics:"
+  info             : "
+- Backs up mobile device (MD) data to non-DOD cloud servers (including user and application access to cloud backup services);
+- Transmits MD diagnostic data to non-DOD servers;
+- Voice assistant application if available when MD is locked;
+- Voice dialing application if available when MD is locked;
+- Allows synchronization of data or applications between devices associated with user;
+- Payment processing;
+- Allows unencrypted (or encrypted but not FIPS 140-2/140-3 validated) data sharing with other MDs or printers;
+- Backs up own data to a remote system;
+- Renders TV shows and movies.
+Requiring all authorized applications to be in an application allowlist prevents the execution of any applications (e.g., unauthorized, malicious) that are not part of the allowlist. Failure to configure an application allowlist properly could allow unauthorized and malicious applications to be downloaded, installed, and executed on the mobile device, causing a compromise of DOD data accessible by these applications. Applications with the listed characteristics have features that can cause the compromise of sensitive DOD data or have features with no known application in the DOD environment.
+
+Application note: The application allowlist, in addition to controlling the installation of applications on the MD, must control user access/execution of all core and preinstalled applications, or the MD must provide an alternate method of restricting user access/execution to core and preinstalled applications.
+
+Core application: Any application integrated into the OS by the OS or MD vendors.
+
+Preinstalled application: Additional noncore applications included in the OS build by the OS vendor, MD vendor, or wireless carrier.
+
+SFR ID: FMT_SMF_EXT.1.1 #8b"
+  solution         : "Configure the Google Android 14 device application allowlist to exclude applications with the following characteristics:
+- Backs up MD data to non-DOD cloud servers (including user and application access to cloud backup services);
+- Transmits MD diagnostic data to non-DOD servers;
+- Voice assistant application (if available) when MD is locked;
+- Voice dialing application (if available) when MD is locked;
+- Allows synchronization of data or applications between devices associated with user;
+- Payment processing;
+- Allows unencrypted (or encrypted but not FIPS 140-2/140-3 validated) data sharing with other MDs, display screens (screen mirroring), or printers;
+- Backs up own data to a remote system;
+- Renders TV shows and movies.
+
+On the EMM console:
+
+1. Go to the Android app catalog for managed Google Play.
+2. Before selecting an app, review the app details and privacy policy to ensure the app does not include prohibited characteristics.
+
+Managed Google Play is always an allowlisted App Store."
+  reference        : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53|IA-7,800-53r5|CM-6b.,800-53r5|IA-7,CAT|II,CCI|CCI-000366,CCI|CCI-000803,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,ITSG-33|IA-7,ITSG-33|IA-7a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T3.2.1,NESA|T7.4.1,QCSC-v1|13.2,Rule-ID|SV-258385r1134348_rule,STIG-ID|GOOG-14-006700,SWIFT-CSCv1|2.3,Vuln-ID|V-258385"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | blacklist |
+                 if (length > 0) then
+                    hostname + " has one or more blacklisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " No blacklisted items found."
+                 end'
+  regex            : ''
+  expect           : 'No blacklisted items found.'
+  bw_list          : "@BLACKLIST@"
+  output_all_lines : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-009400 - Google Android 14 must be configured to disable all Bluetooth profiles except for HSP (Headset Profile), HFP (Hands-Free Profile), SPP (Serial Port Profile), A2DP (Advanced Audio Distribution Profile), AVRCP (Audio/Video Remote Control Profile), and PBAP (Phone Book Access Profile) - SPP."
+  info           : "Some Bluetooth profiles provide the capability for remote transfer of sensitive DOD data without encryption or otherwise do not meet DOD IT security policies and therefore must be disabled.
+
+SFR ID: FMT_SMF_EXT.1.1/BLUETOOTH BT-8
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution       : "Configure the Google Android 14 device to disable Bluetooth or if the AO has approved the use of Bluetooth (for example, for car hands-free use), train the user to connect to only authorized Bluetooth devices using only HSP, HFP, or SPP Bluetooth capable devices (UBE).
+
+To disable Bluetooth use the following procedure:
+
+On the EMM console:
+
+COBO:
+
+1. Open 'User restrictions' section.
+2. Toggle 'Disallow Bluetooth' to 'ON'.
+
+COPE:
+
+1. Open 'User restrictions on parent' section.
+2. Toggle 'Disallow Bluetooth' to 'ON'.
+
+The user training requirement is satisfied in requirement GOOG-14-009800."
+  reference      : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-171r3|03.04.06d.,800-53|CM-7a.,800-53|CM-7(1)(b),800-53r5|CM-7a.,800-53r5|CM-7(1)(b),CAT|III,CCI|CCI-000381,CCI|CCI-001761,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,ITSG-33|CM-7(1),NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-258395r958478_rule,STIG-ID|GOOG-14-009400,SWIFT-CSCv1|2.3,Vuln-ID|V-258395"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                "Policy: " + .policyName + " - Bluetooth Status = \(.policyRules.LOCKDOWN_BLUETOOTH // "Not Defined")"'
+  regex          : "Bluetooth Status ="
+  expect         : "Bluetooth Status = off"
+  severity       : MEDIUM
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-14-009500 - Google Android 14 must be configured to disable ad hoc wireless client-to-client connection capability."
+  info        : "Ad hoc wireless client-to-client connections allow mobile devices to communicate with each other directly, circumventing network security policies and making the traffic invisible. This could allow the exposure of sensitive DOD data and increase the risk of downloading and installing malware on the DOD mobile device.
+
+SFR ID: FMT_SMF_EXT.1.1/WLAN
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android devices to disallow Wi-Fi Direct.
+
+On the management tool, in the user restrictions, set 'Wi-Fi Direct' to 'Disallow'.
+
+Wi-Fi Direct connections and pairing between devices will become unavailable."
+  reference   : "800-53|SC-40,800-53r5|SC-40,CAT|II,CCI|CCI-002536,CN-L3|8.1.3.1(d),CN-L3|8.1.10.6(j),CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),QCSC-v1|5.2.1,Rule-ID|SV-258396r1042510_rule,STIG-ID|GOOG-14-009500,Vuln-ID|V-258396"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-006800 - Google Android 14 must be configured to not display the following (work profile) notifications when the device is locked: [selection:"
+  info        : "a. email notifications
+b. calendar appointments
+c. contact associated with phone call notification
+d. text message notification
+e. other application-based notifications
+f. all notifications] - work profile notifications when the device is locked: [selection:
+Many mobile devices display notifications on the lock screen so that users can obtain relevant information in a timely manner without having to frequently unlock the phone to determine if there are new notifications. However, in many cases, these notifications can contain sensitive information. When they are available on the lock screen, an adversary can see them merely by being in close physical proximity to the device. Configuring the mobile operating system (MOS) to not send notifications to the lock screen mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #18
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 14 device to not display (work profile) notifications when the device is locked.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen' settings.
+2. Open 'Lock screen restrictions'.
+3. Toggle 'Disable unredacted notifications'.
+
+COPE:
+
+1. Open 'Lock screen' settings.
+2. Open 'Lock screen restrictions'.
+3. Select 'Work Profile'.
+4. Toggle 'Disable unredacted notifications'."
+  reference   : "800-171|3.1.10,800-171r3|03.01.10,800-53|AC-11(1),800-53r5|AC-11(1),CAT|II,CCI|CCI-000060,CN-L3|8.1.4.1(b),DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ISO-27001-2022|A.7.7,ISO-27001-2022|A.8.1,ISO/IEC-27001|A.11.2.8,ITSG-33|AC-11(1),NIAv2|AM23c,NIAv2|AM23d,PCI-DSSv3.2.1|8.1.8,PCI-DSSv4.0|8.2.8,Rule-ID|SV-258386r958404_rule,STIG-ID|GOOG-14-006800,Vuln-ID|V-258386"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-007200 - Google Android 14 must be configured to disable trust agents - NOTE: This requirement is not applicable (NA) for specific biometric authentication factors included in the product's Common Criteria evaluation."
+  info        : "Trust agents allow a user to unlock a mobile device without entering a passcode when the mobile device is, for example, connected to a user-selected Bluetooth device or in a user-selected location. This technology would allow unauthorized users to have access to DOD sensitive data if compromised. By not permitting the use of nonpassword authentication mechanisms, users are forced to use passcodes that meet DOD passcode requirements.
+
+SFR ID: FMT_SMF_EXT.1.1 #22, FIA_UAU.5.1
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 14 device to disable trust agents.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen restrictions'.
+2. Toggle 'Disable trust agents' to 'ON'.
+
+COPE:
+
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Toggle 'Disable trust agents' to 'ON'.
+4. Select 'Work Profile'.
+5. Toggle 'Disable trust agents' to 'ON'."
+  reference   : "800-171|3.5.3,800-171r3|03.05.03,800-53|IA-2(1),800-53r5|IA-2(1),CAT|II,CCI|CCI-000765,CN-L3|7.1.2.7(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(1),NESA|T5.4.2,NIAv2|AM36,NIAv2|VL3c,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-258387r985881_rule,STIG-ID|GOOG-14-007200,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-258387"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-007400 - Google Android 14 must be configured to disable developer modes."
+  info           : "Developer modes expose features of the mobile operating system (MOS) that are not available during standard operation. An adversary may leverage a vulnerability inherent in a developer mode to compromise the confidentiality, integrity, and availability of DOD sensitive information. Disabling developer modes mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #26"
+  solution       : "Configure the Google Android 14 device to disable developer modes.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow debugging features' to 'ON'.
+
+COPE:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow debugging features' to 'ON'.
+3. Open 'Set user restrictions on parent'.
+4. Toggle 'Disallow debugging features' to 'ON'."
+  reference      : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-258388r958478_rule,STIG-ID|GOOG-14-007400,SWIFT-CSCv1|2.3,Vuln-ID|V-258388"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                "Policy: " + .policyName + " - Developer Unlock = \(.policyRules.LOCKDOWN_ALLOW_DEVELOPER_UNLOCK // "Not Defined")"'
+  regex          : "Developer Unlock ="
+  expect         : "Developer Unlock = off"
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-14-007700 - Google Android 14 must be configured to display the DOD advisory warning message at startup or each time the user unlocks the device."
+  info        : "Before granting access to the system, the mobile operating system is required to display the DOD-approved system use notification message or banner that provides privacy and security notices consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance. Required banners help ensure that DOD can audit and monitor the activities of mobile device users without legal restriction.
+
+System use notification messages can be displayed when individuals first access or unlock the mobile device. The banner must be implemented as a 'click-through' banner at device unlock (to the extent permitted by the operating system). A 'click-through' banner prevents further activity on the information system unless and until the user executes a positive action to manifest agreement by clicking on a box indicating 'OK.'
+
+The approved DOD text must be used exactly as required in the Knowledge Service referenced in DODI 8500.01. For devices accommodating banners of 1300 characters, the banner text is:
+
+You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+-At any time, the USG may inspect and seize data stored on this IS.
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+
+For devices with severe character limitations, the banner text is:
+
+I've read & consent to terms in IS user agreem't.
+
+The administrator must configure the banner text exactly as written without any changes.
+
+SFR ID: FMT_SMF_EXT.1.1 #36
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the DOD warning banner by either of the following methods (required text is found in the Vulnerability Discussion):
+
+1. By placing the DOD warning banner text in the user agreement signed by each Google Android 14 device user (preferred method).
+2. By configuring the warning banner text on the EMM console and installing the banner on each Google Android 14 mobile device.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Lock screen restrictions'.
+2. Select 'Lock screen message'.
+3. Enter in message.
+
+COPE:
+
+1. Open 'Lock screen restrictions'.
+2. Select 'Personal Profile'.
+3. Select 'Lock screen message'.
+4. Enter in message."
+  reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,CAT|III,CCI|CCI-000048,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-258389r958390_rule,STIG-ID|GOOG-14-007700,TBA-FIISB|45.2.4,Vuln-ID|V-258389"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-008400 - Google Android 14 must be configured to disable USB mass storage mode."
+  info           : "USB mass storage mode enables the transfer of data and software from one device to another. This software can include malware. When USB mass storage is enabled on a mobile device, it becomes a potential vector for malware and unauthorized data exfiltration. Prohibiting USB mass storage mode mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #39"
+  solution       : "Configure the Google Android 14 device to disable USB mass storage mode.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'User restrictions'.
+2. Open 'Set user restrictions'.
+3. Toggle 'Disallow USB file transfer' to 'ON'.
+
+COPE:
+
+1. Open 'User restrictions'.
+2. Open 'Set user restrictions on parent'.
+3. Toggle 'Disallow USB file transfer' to 'ON'."
+  reference      : "800-53|SC-41,800-53r5|SC-41,CAT|II,CCI|CCI-002546,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),QCSC-v1|5.2.1,Rule-ID|SV-258391r958896_rule,STIG-ID|GOOG-14-008400,Vuln-ID|V-258391"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - USB Mass Storage Enabled = \(.policyRules.LOCKDOWN_USB_MASS_STORAGE // "Not Defined")"'
+  regex          : "USB Mass Storage Enabled ="
+  expect         : "USB Mass Storage Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-008500 - Google Android 14 must be configured to not allow backup of [all applications, configuration data] to locally connected systems."
+  info           : "Data on mobile devices is protected by numerous mechanisms, including user authentication, access control, and cryptography. When the data is backed up to an external system (either locally connected or cloud based), many if not all of these mechanisms are no longer present. This leaves the backed-up data vulnerable to attack. Disabling backup to external systems mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #40"
+  solution       : "Configure the Google Android 14 device to disable backup to locally connected systems.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open 'Device owner management'.
+2. Toggle 'Enable backup service' to 'OFF'."
+  reference      : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CAT|II,CCI|CCI-001090,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,Rule-ID|SV-258392r1137817_rule,STIG-ID|GOOG-14-008500,Vuln-ID|V-258392"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - USB Media Player Enabled = \(.policyRules.LOCKDOWN_USB_MEDIA_PLAYER // "Not Defined")"'
+  regex          : "USB Media Player Enabled ="
+  expect         : "USB Media Player Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-008600 - Google Android 14 must be configured to not allow backup of [all applications, configuration data] to remote systems."
+  info           : "Backups to remote systems (including cloud backup) can leave data vulnerable to breach on the external systems, which often offer less protection than the mobile operating system (MOS). Where the remote backup involves a cloud-based solution, the backup capability is often used to synchronize data across multiple devices. In this case, DOD devices may synchronize DOD sensitive information to a user's personal device or other unauthorized computers that are vulnerable to breach. Disallowing remote backup mitigates this risk.
+
+SFR ID: FMT_SMF_EXT.1.1 #40"
+  solution       : "Configure the Google Android 14 device to disable backup to remote systems (including commercial clouds).
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open 'Device owner management'.
+2. Toggle 'Enable backup service' to 'OFF'.
+
+Note: Since personal accounts cannot be added to the work profile (GOOG-14-009800), this control only impacts personal profile accounts. Site can allow backup based on local policy."
+  reference      : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CAT|II,CCI|CCI-001090,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,Rule-ID|SV-258393r1137819_rule,STIG-ID|GOOG-14-008600,Vuln-ID|V-258393"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Google Backup Enabled = \(.policyRules.LOCKDOWN_GOOGLE_BACKUP // "Not Defined")"'
+  regex          : "Google Backup Enabled ="
+  expect         : "Google Backup Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-009000 - Google Android 14 must be configured to disable multiuser modes."
+  info           : "Multiuser mode allows multiple users to share a mobile device by providing a degree of separation between user data. To date, no mobile device with multiuser mode features meets DOD requirements for access control, data separation, and nonrepudiation for user accounts. In addition, the MDFPP does not include design requirements for multiuser account services. Disabling multiuser mode mitigates the risk of not meeting DOD multiuser account security policies.
+
+SFR ID: FMT_SMF_EXT.1.1 #47a"
+  solution       : "Configure the Google Android 14 device to disable multi-user modes.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open 'User restrictions'.
+2. Open 'Set user restrictions'.
+3. Toggle 'Disallow modify accounts' to 'ON'."
+  reference      : "800-171|3.1.1,800-171|3.4.2,800-171r3|03.01.01a.,800-171r3|03.04.02a.,800-53|AC-2a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CCI|CCI-002110,CN-L3|7.1.3.2(d),CN-L3|8.1.10.6(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.IP-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.9,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2a.,ITSG-33|CM-6b.,NESA|T3.2.1,NESA|T5.2.1,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|1.1.5,PCI-DSSv4.0|1.1.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-258394r959010_rule,STIG-ID|GOOG-14-009000,SWIFT-CSCv1|2.3,Vuln-ID|V-258394"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Allow the user to create and modify accounts = \(.policyRules.LOCKDOWN_AFW_MODIFY_ACCOUNTS // "Not Defined")"'
+  regex          : "Allow the user to create and modify accounts ="
+  expect         : "Allow the user to create and modify accounts = Off"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-14-002800 - Google Android 14 must be configured to enable audit logging."
+  info        : "Audit logs enable monitoring of security-relevant events and subsequent forensics when breaches occur. To be useful, administrators must have the ability to view the audit logs.
+
+SFR ID: FMT_SMF_EXT.1.1 #32
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 14 device to enable audit logging.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open 'Device owner management' section.
+2. Toggle 'Enable security logging' to 'ON'."
+  reference   : "800-171|3.3.1,800-171r3|03.03.05,800-53|AU-6(4),800-53r5|AU-6(4),CAT|II,CCI|CCI-000154,CN-L3|7.1.3.3(d),CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.DP-4,CSF|PR.PT-1,CSF|RS.AN-1,CSF|RS.CO-2,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|PR.PS-04,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.25,ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.15,ITSG-33|AU-6(4),NESA|M5.2.5,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,Rule-ID|SV-258377r959010_rule,STIG-ID|GOOG-14-002800,SWIFT-CSCv1|6.4,Vuln-ID|V-258377"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-007800 - Google Android 14 must be configured to generate audit records for the following auditable events: Detected integrity violations."
+  info        : "Audit logs enable monitoring of security-relevant events and subsequent forensics when breaches occur. They help identify attacks so that breaches can be prevented or limited in their scope. They facilitate analysis to improve performance and security. The Requirement Statement lists key events for which the system must generate an audit record.
+
+Note: This requirement applies only to integrity violation detections that can be logged by the audit logging component.
+
+SFR ID: FMT_SMF_EXT.1.1 #37
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 14 device to generate audit records for the following auditable events: Detected integrity violations.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open 'Device owner management' section.
+2. Toggle 'Enable security logging' to 'ON'."
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12a.,800-53r5|AU-12a.,CAT|II,CCI|CCI-000169,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12a.,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-258390r958442_rule,STIG-ID|GOOG-14-007800,SWIFT-CSCv1|6.4,Vuln-ID|V-258390"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-009800 - Google Android 14 users must complete required training."
+  info        : "The security posture of Google devices requires the device user to configure several required policy rules on their device. User-Based Enforcement (UBE) is required for these controls. In addition, if the authorizing official (AO) has approved the use of an unmanaged personal space, the user must receive training on risks. If a user is not aware of their responsibilities and does not comply with UBE requirements, the security posture of the Google mobile device may become compromised, and DOD sensitive data may become compromised.
+
+SFR ID: NA
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "All Google Android 14 device users must complete training on the following training topics (users must acknowledge that they have reviewed training via a signed User Agreement or similar written record):
+- Operational security concerns introduced by unmanaged applications/unmanaged personal space, including applications using global positioning system (GPS) tracking.
+- Need to ensure no DOD data is saved to the personal space or transmitted from a personal app (for example, from personal email).
+- If the Purebred key management app is used, users are responsible for maintaining positive control of their credentialed device at all times. The DOD PKI certificate policy requires subscribers to maintain positive control of the devices that contain private keys and to report any loss of control so the credentials can be revoked. Upon device retirement, turn-in, or reassignment, ensure that a factory data reset is performed prior to device handoff. Follow mobility service provider decommissioning procedures as applicable.
+- How to configure the following UBE controls (users must configure the control) on the Google device:
+ **Secure use of Calendar Alarm.
+ **Local screen mirroring and Mirroring procedures (authorized/not authorized for use).
+ **Do not upload DOD contacts via smart call and caller ID services.
+ **Do not remove DOD intermediate and root PKI digital certificates.
+ **Disable Wi-Fi Sharing.
+ **Do not configure a DOD network (work) VPN profile on any third-party VPN client installed in the personal space.
+ **If Bluetooth connections are approved for mobile device, types of allowed connections (for example car hands-free, but not Bluetooth wireless keyboard).
+ **How to perform a full device wipe.
+**Use default Wi-Fi hotspot password: 15-character complex Wi-Fi hotspot preshared password enabled ('WPA2/WPA3-personal').
+- AO guidance on acceptable use and restrictions, if any, on downloading and installing personal apps and data (music, photos, etc.) in the Google device personal space."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258397r1042512_rule,STIG-ID|GOOG-14-009800,SWIFT-CSCv1|2.3,Vuln-ID|V-258397"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-009900 - Google Android 14 must be configured to enforce that Wi-Fi Sharing is disabled."
+  info           : "Wi-Fi Sharing is an optional configuration of Wi-Fi Tethering/Mobile Hotspot, which allows the device to share its Wi-Fi connection with other wirelessly connected devices instead of its mobile (cellular) connection.
+
+Wi-Fi Sharing grants the 'other' device access to a corporate Wi-Fi network and may possibly bypass the network access control mechanisms. This risk can be partially mitigated by requiring the use of a preshared key for personal hotspots.
+
+SFR ID: FMT_SMF_EXT.1.1 / WLAN #3"
+  solution       : "Configure the Google Android 14 device to disable Wi-Fi Sharing.
+
+Mobile Hotspot must be enabled to enable Wi-Fi Sharing. If the AO has not approved Mobile Hotspot, and it has been disabled on the EMM console, no further action is needed.
+
+If Mobile Hotspot is being used, use the following procedure to disable Wi-Fi Sharing:
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow config tethering' to 'ON'.
+
+COPE:
+
+1. Open 'Set user restrictions on parent'.
+2. Toggle 'Disallow config tethering' to 'ON'."
+  reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258398r959010_rule,STIG-ID|GOOG-14-009900,SWIFT-CSCv1|2.3,Vuln-ID|V-258398"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - WiFi Tethering Enabled = \(.policyRules.LOCKDOWN_WIFI_TETHERING // "Not Defined")"'
+  regex          : "WiFi Tethering Enabled ="
+  expect         : "WiFi Tethering Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-14-010000 - Google Android 14 must have the DOD root and intermediate PKI certificates installed."
+  info        : "DOD root and intermediate PKI certificates are used to verify the authenticity of PKI certificates of users and web services. If the root and intermediate certificates are not available, an adversary could falsely sign a certificate in such a way that it could not be detected. Providing access to the DOD root and intermediate PKI certificates greatly diminishes the risk of this attack.
+
+SFR ID: FMT_SMF_EXT.1.1 #11
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 14 device to install DOD root and intermediate certificates.
+
+On the EMM console upload DOD root and intermediate certificates as part of a device and/or work profile.
+
+The current DOD root and intermediate PKI certificates may be obtained in self-extracting zip files at http://cyber.mil/pki-pke (for NIPRNet)."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258399r959010_rule,STIG-ID|GOOG-14-010000,SWIFT-CSCv1|2.3,Vuln-ID|V-258399"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<custom_item>
+  type             : APP_INFO_BY_DEVICE
+  description      : "GOOG-14-010200 - The Google Android 14 work profile must be configured to enforce the system application disable list."
+  info             : "The system application disable list controls user access to/execution of all core and preinstalled applications.
+
+Core application: Any application integrated into Google Android 14 by Google.
+
+Preinstalled application: Additional noncore applications included in the Google Android 14 build by Google or the wireless carrier.
+
+Some system applications can compromise DOD data or upload users' information to non-DOD-approved servers. A user must be blocked from using such applications that exhibit behavior that can result in compromise of DOD data or DOD user information.
+
+The site administrator must analyze all preinstalled applications on the device and disable all applications not approved for DOD use by configuring the system application disable list.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution         : "Configure the Google Android 14 device to enforce the system application disable list.
+
+The required configuration is the default configuration when the device is enrolled. If the device configuration is changed, use the following procedure to bring the device back into compliance:
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Apps management' section.
+2. Select 'Hide apps'.
+3. Enter package names of apps to hide.
+
+COPE:
+
+1. Open 'Apps management' section.
+2. Select 'Hide apps on parent'.
+3. Enter package names of apps to hide.
+
+Configure a list of approved Google core and preinstalled apps in the core app allowlist."
+  reference        : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258400r959010_rule,STIG-ID|GOOG-14-010200,SWIFT-CSCv1|2.3,Vuln-ID|V-258400"
+  see_also         : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform   : '(.apps | map(.reportedAppName)) | blacklist |
+                 if (length > 0) then
+                    hostname + " has one or more blacklisted item(s):\n  - " + join("\n  - ")
+                 else
+                    hostname + " No blacklisted items found."
+                 end'
+  regex            : ''
+  expect           : 'No blacklisted items found.'
+  bw_list          : "@BLACKLIST@"
+  output_all_lines : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-14-010600 - Google Android 14 must be configured to disallow configuration of date and time."
+  info        : "Determining the correct time a particular application event occurred on a system is critical when conducting forensic analysis and investigating system events.
+
+Periodically synchronizing internal clocks with an authoritative time source is necessary to correctly correlate the timing of events that occur across the enterprise. The three authoritative time sources for Google Android 14 are an authoritative time server that is synchronized with redundant United States Naval Observatory (USNO) time servers as designated for the appropriate DOD network (NIPRNet or SIPRNet), or the Global Positioning System (GPS), or the wireless carrier.
+
+Time stamps generated by the audit system in Google Android 14 must include both date and time. The time may be expressed in Coordinated Universal Time (UTC), a modern continuation of Greenwich Mean Time (GMT), or local time with an offset from UTC.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 14 device to set auto network time.
+
+On the EMM console:
+
+COBO:
+
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow config date time' to 'ON'.
+
+COPE:
+
+1. Open 'Set user restrictions on parent'.
+2. Toggle 'Disallow config date time' to 'ON'."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258401r959010_rule,STIG-ID|GOOG-14-010600,SWIFT-CSCv1|2.3,Vuln-ID|V-258401"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-010800 - Android 14 devices must have the latest available Google Android 14 operating system installed."
+  info        : "Required security features are not available in earlier operating system versions. In addition, there may be known vulnerabilities in earlier versions.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Install the latest released version of the Google Android 14 operating system on all managed Google devices.
+
+Note: Google Android device operating system updates are released directly by Google or can be distributed via the EMM. Check each device manufacturer and/or carriers for current updates."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258402r959010_rule,STIG-ID|GOOG-14-010800,SWIFT-CSCv1|2.3,Vuln-ID|V-258402"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-010900 - Android 14 devices must be configured to disable the use of third-party keyboards."
+  info           : "Many third-party keyboard applications are known to contain malware.
+
+SFR ID: FMT_SMF_EXT.1.1 #47"
+  solution       : "Configure the Google Android 14 device to disallow the use of third-party keyboards.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open 'Input methods'.
+2. Tap 'Set input methods'.
+3. Select only the approved keyboard.
+
+Additionally, Admins can configure application allowlists for Google Play that do not have any third-party keyboards for user installation."
+  reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258403r959010_rule,STIG-ID|GOOG-14-010900,SWIFT-CSCv1|2.3,Vuln-ID|V-258403"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - Input restrictions = \(.policyRules.LOCKDOWN_AFW_RESTRICT_INPUT_METHODS // "Not Defined")"'
+  regex          : "Input restrictions ="
+  expect         : "Input restrictions = on"
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-14-011000 - Android 14 devices must be configured to enable Common Criteria Mode (CC Mode) - CC Mode."
+  info        : "The CC Mode feature is a superset of other features and behavioral changes that are mandatory MDFPP requirements. If CC mode is not implemented, the device will not be operating in the NIAP-certified compliant CC Mode of operation.
+
+CC Mode implements the following behavioral/functional changes: How the Bluetooth and Wi-Fi keys are stored using different types of encryption.
+
+SFR ID: FMT_SMF_EXT.1.1 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android 14 device to implement CC Mode.
+
+On the EMM console:
+
+COBO and COPE:
+
+1. Open Device owner management.
+2. Toggle 'Enable Common Criteria mode' to 'ON'."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-258404r959010_rule,STIG-ID|GOOG-14-011000,SWIFT-CSCv1|2.3,Vuln-ID|V-258404"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<custom_item>
+  type           : FULL_PROFILE_INFO
+  description    : "GOOG-14-012200 - Google Android 14 must be configured to disable all data signaling over [assignment: list of externally accessible hardware ports (for example, USB)] - for example, USB]."
+  info           : "If a user is able to configure the security setting, the user could inadvertently or maliciously set it to a value that poses unacceptable risk to DOD information systems. An adversary could exploit vulnerabilities created by the weaker configuration to compromise DOD sensitive information.
+
+SFR ID: FMT_MOF_EXT.1.2 #24"
+  solution       : "Configure Google Android 14 device to disable the USB port (except for charging the device).
+
+COPE and COBO:
+
+On the EMM console:
+1. Open 'Set user restrictions'.
+2. Toggle 'Enable USB' to 'OFF'."
+  reference      : "800-171|3.1.7,800-171r3|03.01.07a.,800-53|AC-6(10),800-53r5|AC-6(10),CAT|II,CCI|CCI-002235,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSF|PR.AC-4,CSF2.0|PR.AA-05,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ITSG-33|AC-6,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-258405r959010_rule,STIG-ID|GOOG-14-012200,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-258405"
+  see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+  json_transform : '.[]|select(.active=="true")|select(.profileType=="LOCKDOWN")|
+                  "Policy: " + .policyName + " - USB Mass Storage Enabled = \(.policyRules.LOCKDOWN_USB_MASS_STORAGE // "Not Defined")"'
+  regex          : "USB Mass Storage Enabled ="
+  expect         : "USB Mass Storage Enabled = Off"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "GOOG-14-012300 - The Google Android 14 must allow only the administrator (EMM) to install/remove DOD root and intermediate PKI certificates - EMM to install/remove DOD root and intermediate PKI certificates."
+  info        : "DOD root and intermediate PKI certificates are used to verify the authenticity of PKI certificates of users and web services. If the user is allowed to remove root and intermediate certificates, the user could allow an adversary to falsely sign a certificate in such a way that it could not be detected. Restricting the ability to remove DOD root and intermediate PKI certificates to the Administrator mitigates this risk.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Google Android 14 device to prevent a user from removing DOD root and intermediate PKI certificates.
+
+On the EMM console:
+1. Open 'Set user restrictions'.
+2. Toggle 'Disallow config credentials' to 'ON'."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02,800-171r3|03.04.02a.,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|II,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-258406r959010_rule,STIG-ID|GOOG-14-012300,SWIFT-CSCv1|2.3,Vuln-ID|V-258406"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-012400 - Google Android 14 must allow only the administrator (MDM) to perform the following management function: Disable Phone Hub - MDM to perform the following management function: Disable Phone Hub."
+  info        : "It may be possible to transfer work profile data on a DOD Android device to an unauthorized Chromebook if the user has the same Google Account set up on the Chromebook and in the work profile on the Android device. This may result in the exposure of sensitive DOD data.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Google Android 14 device to disable the nearby notification streaming policy to disable Phone Hub.
+
+COPE and COBO:
+
+On the EMM console:
+1. Open 'Nearby notification streaming policy'.
+2. Set 'Nearby notification streaming policy' to 'Disabled'.
+3. Open 'Nearby app streaming policy'.
+4. Set 'Nearby app streaming policy' to 'Disabled'."
+  reference   : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CAT|III,CCI|CCI-001090,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,Rule-ID|SV-258407r959010_rule,STIG-ID|GOOG-14-012400,Vuln-ID|V-258407"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-013000 - Google Android 14 must disable the user's ability to wipe the device."
+  info        : "This feature must be disabled to comply with DOD electronic records retention requirements for mobile devices. Otherwise, mobile device users could wipe the device, which would violate DOD policy.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Google Android 14 device to disable the ability of the user to wipe the Android device. Enable the admin to inject a recovery account on the device so they can unlock FRP.
+
+On the MDM console:
+
+Disallow factory reset:
+
+COBO:
+
+1. Open user restrictions.
+2. Enable 'Disallow Factory Reset'.
+
+Set factory reset protection policy:
+
+COBO:
+
+1. Device owner management >> Set factory reset protection.
+2. From Accounts Section: Add Account >> Enter recovery account >> press 'Ok'.
+3. From Enabled Section: Select 'Enabled' to enable FRP policy.
+4. Press 'Save' to confirm all changes.
+
+Configuration API: factoryResetDisabled, frpAdminEmails[ ]"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-276960r1183801_rule,STIG-ID|GOOG-14-013000,SWIFT-CSCv1|2.3,Vuln-ID|V-276960"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-013200 - Google Android 14 must disable wireless printing."
+  info        : "Wireless printing allows the printing of sensitive DOD documents to non-DOD controlled printers, which may lead to the exposure of sensitive DOD information.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure Google Android 14 device to disable wireless printing.
+
+On the MDM console, do the following:
+
+COBO and COPE:
+
+1. Open user restrictions.
+2. Enable 'Disallow printing'.
+
+Configuration API: PRINTING_DISALLOWED"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-276962r1134318_rule,STIG-ID|GOOG-14-013200,SWIFT-CSCv1|2.3,Vuln-ID|V-276962"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-013300 - Google Android 14 must disable screen capture."
+  info        : "The screen capture feature could lead to the exposure of sensitive DOD information.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Install a configuration profile to disable screen capture.
+
+On the MDM console, do the following:
+
+COBO and COPE:
+
+1. Open Camera, screen capture, and audio section.
+2. Enable the 'Disable Screen Capture' setting.
+
+Configuration API: screenCaptureDisabled"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-276963r1134321_rule,STIG-ID|GOOG-14-013300,SWIFT-CSCv1|2.3,Vuln-ID|V-276963"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-013400 - Google Android 14 devices must have a Mobile Threat Detection (MTD) app installed."
+  info        : "DOD mobile devices are in constant risk of cyber threats. MTD apps mitigate these risks by providing real-time threat detection, malware prevention, and vulnerability analysis.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Install an MTD app on managed Google Android devices."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-276964r1134324_rule,STIG-ID|GOOG-14-013400,SWIFT-CSCv1|2.3,Vuln-ID|V-276964"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-013500 - Google Android 14 must implement the management setting: disable Camera."
+  info        : "Authorizing official (AO) approval is required before the mobile device camera can be enabled for a specific user or group of users, based on a risk assessment of the operational environment. Camera use may lead to the exposure of sensitive DOD information in some operational environments.
+
+SFR ID: FMT_MOF_EXT.1.2 #47
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "If the AO has not approved the use of Google device camera, configure Android 14 to disable the device camera.
+
+On the MDM console:
+
+COBO and COPE:
+
+1. Open Camera.
+2. Select 'Disable camera'.
+
+Configuration API: cameraDisabled"
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-276965r1134327_rule,STIG-ID|GOOG-14-013500,SWIFT-CSCv1|2.3,Vuln-ID|V-276965"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "GOOG-14-013600 - The Google Android device must be configured to disable Wi-Fi Aware for Work Profile apps."
+  info        : "Wi-Fi Aware allows direct connections between nearby devices for fast data transfer, video streaming, and multiplayer gaming. It allows full peer-to-peer device discovery and communication where two or more devices are publishing and/or subscribing to the same known service name. There is risk that sensitive DOD information could be transferred from a DOD mobile device to a non-DOD device or from Work Profile apps on a DOD device to Personal Profile apps on a non-DOD device.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the Google Android device to disable Wi-Fi Aware for all Work Profile apps.
+
+On the EMM console:
+
+For each Work Profile app, configure the NEARBY_WIFI_DEVICE permission to 'deny' to block the use of Wi-Fi Aware if the app supports this feature. If the app does not support Wi-Fi Aware, a NEARBY_WIFI_DEVICE permission may not be available."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Google_Android_14_COBO_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-278361r1134562_rule,STIG-ID|GOOG-14-013600,SWIFT-CSCv1|2.3,Vuln-ID|V-278361"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Google_Android_14_Y26M05_STIG.zip"
+</report>
+
+</check_type>

@@ -1,0 +1,733 @@
+#TRUSTED 555c002463f827a8aa6c206d9604d3da3337bc834ae752c9f28f8f4a171b31d58adbf5583912faa6e01cd10fcf074c08de46c1ddc23ef4251307ef8a25f3f2153dbcb3d6da6d1466c9de09ab7b65b3dd759420a34285105049967292e55aae93b17012daa758f419fd12dc33096289a50c807d2bf19d14e4092d96ca80fc4892697def4e07d94c5d799d4534fdf284d670f44927d62d919c35f40365ffd0da95458082651ed2fbb5cdc3110e86402c4c083399076ab88a2a3ebe374c3273edbd8cab919ccee2603463d05528d9d5e4fcab163d5463822fc0a9f184c168083d8a2d5fe74e34972cceccfaa829d2fb08a6866c4fd600939cf95bac17a59714272bf621151364e7da62ab4d44f3f3c2cc26ae16d300c372e364eac9e60ea506ccd53327a34fd4bdbfdd63c12f1ede3e82b7ed6eb19ecd5738c182a7263eb69d3d6f981b6d5a0dcf0f6052c129d24bb6181ad4634b3d813f17f6f98b205ba04ca21fa21c711169d19f12a507c6159186255820a2486197976a302c5db612a95f046008a1ab8d3a3ba4c63920c6ebcce18e9889ff5a1d69bda7513e766e14c0085335b670725c605f6c8d33b4af9f935fb55e0695c14311724d393e23519a8680b5574da8a707c14161786b6878f206a5b24ffcb97f8497ff7850b461d89209eeeef1f8fa684dae073e0d79a927901b87b3821cad6265c68598b70137e254f4472d0d
+#TRUST-RSA-SHA256 9275140d821c31074cf18a5b8a9f841845c9b4a542a4cbbf0803c0bfee73332b5ac7f11a8d898f7df2ad38a73d5da158403e5c5a286fe5b74ab603f48e8e2d41b2c1c6e59556aa2045e7e3fcd10cfc675a463b104c2f765b785dc4ca416e74184240923743058561cd2e9b5ebbda941ce60192f4bd645fe52efebcab5ef968decd6a79249312a3afba1c093677c8fcb83e490ec37a10d432772de632b6df96bbfaeb85a1c48b5d405e657c4e2f3a616e3023f3e8a52df1d887c2a15f58b98faff4d4e5af1cd19984bf786c5534084c0867af18ae7f270ca39edc4a6170824b8c258437861992b24bb336b856b725f43e8eca85639b8bc1436d902285653c3385948eae8a6100e0dc3a2d2ae2fbcdd77f995edf865e5416e0358dc9fdc67b2cadd183c14d6035630fbe8fc0518c0830dd1b65826db37d7dba51a3e1220f6f8e17aa66ae6e9d67e7c3aebc235631bfd4a7dba300e434de7b546c28a8d3b28d1612e6bded972171c30ae080adbba58f76a0a1875ffa65e37046f2175c2cc3e8fbaa2b5c0badae49cd67c2d4fbb1b5bbe9d7e2199995e7f8d3020c34be9169e56f31b3c1149ad24eeca6e08210ecfdab82030fc2c07631470e25cfd468ecb0842c19e1e43fe1da66cd09f64f6e68eaa619b62791b8fb7231e2211a3d36998e33e0ef64ea7c3c19afbffa039605d50a39d33cb61faa5b0aaccaa1d15684eef5d92ac3
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/04/28 $
+#
+# description : This .audit is designed against the DISA Microsoft SQL Server 2022 Database STIG v1r3
+#
+#<ui_metadata>
+#<display_name>DISA Microsoft SQL Server 2022 Database STIG v1r3</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Microsoft SQL Server 2022 Database</name>
+#  <version>1.3.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip</link>
+#</spec>
+#<labels>disa</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"MS_SQLDB">
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check windows auth"
+      sql_request : "SELECT CASE SERVERPROPERTY('IsIntegratedSecurityOnly') WHEN 1 THEN 'Windows Authentication' WHEN 0 THEN 'Windows and SQL Server Authentication' END as [Authentication Mode]"
+      sql_types   : STRING
+      sql_expect  : "Windows Authentication"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check contained database authentication"
+      sql_request : "EXEC sp_configure 'contained database authentication';"
+      sql_types   : STRING, REGEX, REGEX, INTEGER, INTEGER
+      sql_expect  : "contained database authentication", ".+", ".+", 0, 0
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check authorized accounts"
+      sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT name FROM sys.database_principals WHERE type_desc = ''SQL_USER'' AND authentication_type_desc = ''DATABASE'';'"
+      sql_types   : STRING_OR_NULL
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "SQLD-22-000100 - SQL Server must integrate with an organization-level authentication/access mechanism providing account management and automation for all users, groups, roles, and any other principals."
+      info        : "Enterprise environments make account management for applications and databases challenging and complex. A manual process for account management functions adds the risk of a potential oversight or other error. Managing accounts for the same person in multiple places is inefficient and prone to problems with consistency and synchronization.
+
+A comprehensive application account management process that includes automation helps to ensure that accounts designated as requiring attention are consistently and promptly addressed.
+
+Examples include using automation to act on multiple accounts designated as inactive, suspended, or terminated, or by disabling accounts located in noncentralized account stores, such as multiple servers. Account management functions can also include assignment of group or role membership; identifying account type; specifying user access authorizations (i.e., privileges); account removal, update, or termination; and administrative alerts. Using automated mechanisms can include, for example: using email or text messaging to notify account managers when users are terminated or transferred; using the information system to monitor account usage; and using automated telephone notification to report atypical system account usage.
+
+SQL Server must be configured to automatically use organization-level account management functions, and these functions must immediately enforce the organization's current account policy.
+
+Automation may comprise differing technologies that when placed together contain an overall mechanism supporting an organization's automated account management requirements.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "If mixed mode is required, document the need and justification; describe the measures taken to ensure the use of SQL Server authentication is kept to a minimum; describe the measures taken to safeguard passwords; list or describe the SQL Logins used; and obtain official approval.
+
+If mixed mode is not required, disable it as follows:
+
+In the SSMS Object Explorer, right-click on the server instance, select Properties >> Security page. Click the radio button for \"Windows Authentication Mode\", and then click \"OK\".
+
+Restart the SQL Server instance.
+
+OR
+
+Run the statement:
+
+USE [master]
+EXEC xp_instance_regwrite N'HKEY_LOCAL_MACHINE', N'Software\\Microsoft\\MSSQLServer\\MSSQLServer', N'LoginMode', REG_DWORD, 2
+GO
+
+Restart the SQL Server instance.
+
+For each account being managed by SQL Server but not requiring it, drop or disable the SQL Database user. Replace it with an appropriately configured account, as needed.
+
+To drop a User in the SSMS Object Explorer:
+
+Navigate to Databases >> Security Users. Right-click on the username and then click \"Delete\".
+
+To drop a User via a query:
+
+USE database_name;
+DROP USER <user_name>;"
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53r5|AC-2(1),CAT|I,CCI|CCI-000015,CN-L3|7.1.3.2(d),CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-271118r1107970_rule,STIG-ID|SQLD-22-000100,Vuln-ID|V-271118"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "SQLD-22-000300 - SQL Server must enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies."
+  info        : "Authentication with a DOD-approved PKI certificate does not necessarily imply authorization to access the DBMS. To mitigate the risk of unauthorized access to sensitive information by entities that have been issued certificates by DOD-approved PKIs, all DOD systems, including databases, must be properly configured to implement access control policies.
+
+Successful authentication must not automatically give an entity access to an asset or security boundary. Authorization procedures and controls must be implemented to ensure each authenticated entity also has a validated and current authorization. Authorization is the process of determining whether an entity, once authenticated, is permitted to access a specific asset. Information systems use access control policies and enforcement mechanisms to implement this requirement.
+
+Access control policies include identity-based policies, role-based policies, and attribute-based policies. Access enforcement mechanisms include access control lists, access control matrices, and cryptography. These policies and mechanisms must be employed by the application to control access between users (or processes acting on behalf of users) and objects (e.g., devices, files, records, processes, programs, and domains) in the information system.
+
+This requirement is applicable to access control enforcement applications, a category that includes database management systems. If SQL Server does not follow applicable policy when approving access, it may be in conflict with networks or other applications in the information system. This may result in users either gaining or being denied access inappropriately and in conflict with applicable policy.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure SQL Server settings and access controls to permit user access only to objects and data that the user is authorized to view or interact with, and to prevent access to all other objects and data.
+
+Use GRANT, REVOKE, DENY, ALTER ROLE ... ADD MEMBER ... and/or ALTER ROLE .... DROP MEMBER statements to add and remove permissions on database-level securables, bringing them into line with the documented requirements."
+  reference   : "800-171|3.1.1,800-171r3|03.01.02,800-53|AC-3,800-53r5|AC-3,CAT|I,CCI|CCI-000213,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|PR.AC-4,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-271119r1137654_rule,STIG-ID|SQLD-22-000300,TBA-FIISB|31.1,Vuln-ID|V-271119"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+</report>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-000500 - SQL Server must protect against a user falsely repudiating by using system-versioned tables (Temporal Tables)."
+  info        : "Nonrepudiation of actions taken is required to maintain data integrity. Examples of particular actions taken by individuals include creating information, sending a message, approving information (e.g., indicating concurrence or signing a contract), and receiving a message.
+
+Nonrepudiation protects against later claims by a user of not having created, modified, or deleted a particular data item or collection of data in the database.
+
+In designing a database, the organization must define the types of data and the user actions that must be protected from repudiation. The implementation must then include building audit features into the application data tables and configuring SQL servers' audit tools to capture the necessary audit trail. Design and implementation also must ensure that applications pass individual user identification to SQL Server, even where the application connects to the DBMS with a standard, shared account.
+
+Applications should use temporal tables to track the changes and history of sensitive data.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Alter sensitive tables to use system versioning.
+
+ --Alter non-temporal table to define periods for system versioning
+ ALTER TABLE <MyTableName>
+ ADD PERIOD FOR SYSTEM_TIME (SysStartTime, SysEndTime),
+ SysStartTime datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL
+     DEFAULT SYSUTCDATETIME(),
+ SysEndTime datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL
+     DEFAULT CONVERT(DATETIME2, '9999-12-31 23:59:59.99999999') ;
+
+ --Enable system versioning with 1 year retention for historical data
+ ALTER TABLE <MyTableName>
+ SET (SYSTEM_VERSIONING = ON (HISTORY_RETENTION_PERIOD = 1 YEAR)) ;
+
+https://docs.microsoft.com/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-2022#system_versionin"
+  reference   : "800-53|AU-10,800-53r5|AU-10,CAT|II,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-271121r1109177_rule,STIG-ID|SQLD-22-000500,Vuln-ID|V-271121"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT SCHEMA_NAME(T.schema_id) AS schema_name, T.name AS table_name, T.temporal_type_desc, SCHEMA_NAME(H.schema_id) + '.' + H.name AS history_table FROM sys.tables T JOIN sys.tables H ON T.history_table_id = H.object_id WHERE T.temporal_type != 0 ORDER BY schema_name, table_name"
+  sql_types   : STRING_OR_NULL, NULL, NULL, NULL
+  sql_expect  : "^Manual Review Required$", NULL, NULL, NULL
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-000600 - SQL Server must protect against a user falsely repudiating by ensuring databases are not in a trust relationship."
+  info        : "Nonrepudiation of actions taken is required to maintain data integrity. Examples of particular actions taken by individuals include creating information, sending a message, approving information (e.g., indicating concurrence or signing a contract), and receiving a message.
+
+Nonrepudiation protects against later claims by a user of not having created, modified, or deleted a particular data item or collection of data in the database.
+
+In designing a database, the organization must define the types of data and the user actions that must be protected from repudiation. The implementation must then include building audit features into the application data tables and configuring the DBMS's audit tools to capture the necessary audit trail. Design and implementation also must ensure that applications pass individual user identification to the DBMS, even where the application connects to the DBMS with a standard, shared account.
+
+SQL Server provides the ability for high privileged accounts to impersonate users in a database using the TRUSTWORTHY feature. This will allow members of the fixed database role to impersonate any user within the database."
+  solution    : "Disable trustworthy on the database.
+
+ALTER DATABASE [<database name>] SET TRUSTWORTHY OFF;"
+  reference   : "800-53|AU-10,800-53r5|AU-10,CAT|II,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-271122r1109180_rule,STIG-ID|SQLD-22-000600,Vuln-ID|V-271122"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT [DatabaseName] = d.name, [DatabaseOwner] = login.name, [IsTrustworthy] = CASE WHEN d.is_trustworthy_on = 0 THEN 'No' WHEN d.is_trustworthy_on = 1 THEN 'Yes' END,[IsOwnerPrivilege] = CASE WHEN role.name IN ('sysadmin','securityadmin') OR permission.permission_name = 'CONTROL SERVER' THEN 'YES' ELSE 'No' END FROM sys.databases d LEFT JOIN sys.server_principals login ON d.owner_sid = login.sid LEFT JOIN sys.server_role_members rm ON login.principal_id = rm.member_principal_id LEFT JOIN sys.server_principals role ON rm.role_principal_id = role.principal_id LEFT JOIN sys.server_permissions permission ON login.principal_id = permission.grantee_principal_id WHERE d.name <> 'msdb'"
+  sql_types   : REGEX, REGEX, STRING, REGEX
+  sql_expect  : ".+", ".+", "No", ".+"
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "review database roles and membership"
+      sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT R.name AS role_name, RM.name AS role_member_name, RM.type_desc FROM sys.database_principals R JOIN sys.database_role_members DRM ON R.principal_id = DRM.role_principal_id JOIN sys.database_principals RM ON DRM.member_principal_id = RM.principal_id WHERE R.type = ''R'' AND R.name = ''db_owner'' ORDER BY role_member_name;'"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "review roles and users with audit permissions"
+      sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT PERM.permission_name, DP.name AS principal_name, DP.type_desc AS principal_type, DBRM.role_member_name FROM sys.database_permissions PERM JOIN sys.database_principals DP ON PERM.grantee_principal_id = DP.principal_id LEFT OUTER JOIN (SELECT R.principal_id AS role_principal_id, R.name AS role_name, RM.name AS role_member_name FROM sys.database_principals R JOIN sys.database_role_members DRM ON R.principal_id = DRM.role_principal_id JOIN sys.database_principals RM ON DRM.member_principal_id = RM.principal_id WHERE R.type = ''R'') DBRM ON DP.principal_id = DBRM.role_principal_id WHERE PERM.permission_name IN (''CONTROL'',''ALTER ANY DATABASE AUDIT'') ORDER BY permission_name, principal_name, role_member_name'"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "SQLD-22-000700 - SQL Server must allow only the information system security manager (ISSM) (or individuals or roles appointed by the ISSM) to select which auditable events are to be audited."
+      info        : "Without the capability to restrict which roles and individuals can select which events are audited, unauthorized personnel may be able to prevent or interfere with the auditing of critical events.
+
+Suppression of auditing could permit an adversary to evade detection.
+
+Misconfigured audits can degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Create a database role specifically for audit maintainers, and give it permission to maintain audits without granting it unnecessary permissions. (The role name used below is an example; other names may be used.)
+
+CREATE ROLE DATABASE_AUDIT_MAINTAINERS;
+GO
+
+GRANT ALTER ANY DATABASE AUDIT TO DATABASE_AUDIT_MAINTAINERS;
+GO
+
+Use REVOKE and/or DENY and/or ALTER ROLE ... DROP MEMBER ... statements to remove the ALTER ANY DATABASE AUDIT permission from all users. Then, for each authorized database user, run the statement:
+
+ALTER ROLE DATABASE_AUDIT_MAINTAINERS ADD MEMBER;
+GO
+
+Use REVOKE and/or DENY and/or ALTER SERVER ROLE ... DROP MEMBER ... statements to remove CONTROL DATABASE permission from logins that do not need it."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03,800-53|AU-12b.,800-53r5|AU-12b.,CAT|II,CCI|CCI-000171,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12b.,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-271124r1109215_rule,STIG-ID|SQLD-22-000700,SWIFT-CSCv1|6.4,Vuln-ID|V-271124"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-001200 - SQL Server must limit privileges to change software modules, to include stored procedures, functions, and triggers, and links to software external to SQL Server."
+  info        : "If the system were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals that are part of a robust change management process.
+
+Accordingly, only qualified and authorized individuals must be allowed to obtain access to information system components for purposes of initiating changes, including upgrades and modifications.
+
+Unmanaged changes that occur to the database software libraries or configuration can lead to unauthorized or compromised installations.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Transfer ownership of database schemas to authorized database principals.
+
+ALTER AUTHORIZATION ON SCHEMA::[<Schema Name>] TO [<Principal Name>]"
+  reference   : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(6),800-53r5|CM-5(6),CAT|II,CCI|CCI-001499,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(6),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-271143r1167490_rule,STIG-ID|SQLD-22-001200,Vuln-ID|V-271143"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT s.name AS schema_name, p.name AS owning_principal FROM sys.schemas s JOIN sys.database_principals p ON s.principal_id = p.principal_id WHERE p.name != 'dbo' AND (s.name != p.name or p.name not in ( 'db_accessadmin' , 'db_backupoperator' , 'db_datareader' , 'db_datawriter' , 'db_ddladmin' , 'db_denydatareader' , 'db_denydatawriter' , 'db_owner' , 'db_securityadmin' , 'guest' , 'INFORMATION_SCHEMA' , 'sys' , 'TargetServersRole' , 'SQLAgentUserRole' , 'SQLAgentReaderRole' , 'SQLAgentOperatorRole' , 'DatabaseMailUserRole' , 'db_ssisadmin' , 'db_ssisltduser' , 'db_ssisoperator' , 'replmonitor' , '##MS_SSISServerCleanupJobLogin##')) ORDER BY schema_name;"
+  sql_types   : STRING
+  sql_expect  : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-001300 - Database objects (including but not limited to tables, indexes, storage, stored procedures, functions, triggers, links to software external to SQL Server, etc.) must be owned by database/DBMS principals authorized for ownership."
+  info        : "Within the database, object ownership implies full privileges to the owned object, including the privilege to assign access to the owned objects to other subjects. Database functions and procedures can be coded using definer's rights. This allows anyone who uses the object to perform the actions if they were the owner. If not properly managed, this can lead to privileged actions being taken by unauthorized individuals.
+
+Conversely, if critical tables or other objects in SQL Server rely on unauthorized owner accounts, these objects may be lost when an account is removed.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Document and obtain approval for any account(s) authorized for object ownership. If necessary, use the ALTER AUTHORIZATION command to change object ownership to an authorized account.
+
+Example provided below.
+
+ALTER AUTHORIZATION ON OBJECT::test.table TO AuthorizedUser;
+
+https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-authorization-transact-sql"
+  reference   : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(6),800-53r5|CM-5(6),CAT|II,CCI|CCI-001499,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(6),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-271146r1109183_rule,STIG-ID|SQLD-22-001300,Vuln-ID|V-271146"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "with objects_cte as ( SELECT o.name, o.type_desc, CASE WHEN o.principal_id is null then s.principal_id ELSE o.principal_id END as principal_id FROM sys.objects o INNER JOIN sys.schemas s ON o.schema_id = s.schema_id WHERE o.is_ms_shipped = 0 ) SELECT cte.name, cte.type_desc, dp.name as ObjectOwner FROM objects_cte cte INNER JOIN sys.database_principals dp ON cte.principal_id = dp.principal_id ORDER BY dp.name, cte.name;"
+  sql_types   : STRING
+  sql_expect  : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check permissions"
+      sql_request : "SELECT P.type_desc AS principal_type, P.name AS principal_name, O.type_desc, CASE class WHEN 0 THEN DB_NAME() WHEN 1 THEN OBJECT_SCHEMA_NAME(major_id) + '.' + OBJECT_NAME(major_id) WHEN 3 THEN SCHEMA_NAME(major_id) ELSE class_desc + '(' + CAST(major_id AS nvarchar) + ')' END AS securable_name, DP.state_desc, DP.permission_name FROM sys.database_permissions DP JOIN sys.database_principals P ON DP.grantee_principal_id = P.principal_id LEFT OUTER JOIN sys.all_objects O ON O.object_id = DP.major_id AND O.type IN ('TR','TA','P','X','RF','PC','IF','FN','TF','U') WHERE DP.type IN ('AL','ALTG') AND DP.class IN (0, 1, 53)"
+      sql_types   : STRING
+      sql_expect  : "ManualReviewRequired"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "check roles"
+      sql_request : "SELECT R.name AS role_name, M.type_desc AS principal_type, M.name AS principal_name FROM sys.database_principals R JOIN sys.database_role_members DRM ON R.principal_id = DRM.role_principal_id JOIN sys.database_principals M ON DRM.member_principal_id = M.principal_id WHERE R.name IN ('db_ddladmin','db_owner') AND M.name <> 'dbo'"
+      sql_types   : STRING
+      sql_expect  : "ManualReviewRequired"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "SQLD-22-001400 - The role(s)/group(s) used to modify database structure (including but not limited to tables, indexes, storage, etc.) and logic modules (stored procedures, functions, triggers, links to software external to SQL Server, etc.) must be restricted to authorized users."
+      info        : "If SQL Server were to allow any user to make changes to database structure or logic, those changes might be implemented without undergoing the appropriate testing and approvals that are part of a robust change management process.
+
+Accordingly, only qualified and authorized individuals must be allowed to obtain access to information system components for purposes of initiating changes, including upgrades and modifications.
+
+Unmanaged changes that occur to the database software libraries or configuration can lead to unauthorized or compromised installations.
+
+DBMS functionality and the nature and requirements of databases will vary; so, while users are not permitted to install unapproved software, there may be instances where the organization allows the user to install approved software packages such as from an approved software repository. The requirements for production servers will be more restrictive than those used for development and research.
+
+The DBMS must enforce software installation by users based on what types of software installations are permitted (e.g., updates and security patches to existing software) and what types of installations are prohibited (e.g., software whose pedigree regarding being potentially malicious is unknown or suspect) by the organization.
+
+In the case of a database management system, this requirement covers stored procedures, functions, triggers, views, etc.
+
+Satisfies: SRG-APP-000133-DB-000362, SRG-APP-000133-DB-000179, SRG-APP-000378-DB-000365
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Document and obtain approval for any nonadministrative users who require the ability to create, alter, or replace logic modules.
+
+Revoke the ALTER permission from unauthorized users and roles:
+
+REVOKE ALTER ON [<Object Name>] FROM [<Principal Name>]"
+      reference   : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(6),800-53r5|CM-5(6),800-53r5|CM-11(2),CAT|II,CCI|CCI-001499,CCI|CCI-003980,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(6),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-271147r1111078_rule,STIG-ID|SQLD-22-001400,Vuln-ID|V-271147"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "recovery model"
+      sql_request : "USE [master]; SELECT name, recovery_model_desc FROM sys.databases ORDER BY name;"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "backup history"
+      sql_request : "USE [msdb]; SELECT database_name, CASE type WHEN 'D' THEN 'Full' WHEN 'I' THEN 'Differential' WHEN 'L' THEN 'Log' ELSE type END AS backup_type, is_copy_only, backup_start_date, backup_finish_date FROM dbo.backupset WHERE backup_start_date >= dateadd(day, - 30, getdate()) ORDER BY database_name, backup_start_date DESC"
+      sql_types   : STRING
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "SQLD-22-001500 - In the event of a system failure, hardware loss or disk failure, SQL Server must be able to restore necessary databases with least disruption to mission processes."
+      info        : "Failure to a known state can address safety or security in accordance with the mission/business needs of the organization. Failure to a known secure state helps prevent a loss of confidentiality, integrity, or availability in the event of a failure of the information system or a component of the system. In the event of a system failure, SQL Server must be able to bring the database back to a consistent state.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Modify the system security plan to include whether the database is static, the correct recovery model to be used, the backup schedule, and the plan for testing database restoration.
+
+In SQL Server Management Studio Object Explorer, right-click on the name of the database; select Properties >> Options page. Set the Recovery Model field (near the top of the page) to the correct value.
+
+In Object Explorer, expand >> SQL Server Agent >> Jobs. Create, modify, and delete jobs to implement the backup schedule. (Alternatively, this may be done using T-SQL code or third-party backup software.)
+
+Correct any issues that have been causing backups to fail.
+
+Test the restoration of the database at least once a year; correct any issues that cause it to fail. Maintain a record of these tests."
+      reference   : "800-53|SC-24,800-53r5|SC-24,CAT|II,CCI|CCI-001665,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-24,ITSG-33|SC-24a.,QCSC-v1|5.2.1,Rule-ID|SV-271168r1109218_rule,STIG-ID|SQLD-22-001500,Vuln-ID|V-271168"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-001600 - The Database Master Key encryption password must meet DOD password complexity requirements."
+  info        : "Weak passwords may be easily guessed. When passwords are used to encrypt keys used for encryption of sensitive data, the confidentiality of all data encrypted using that key is at risk.
+
+Current DOD passwords require the following:
+- minimum of 15 characters;
+- at least one uppercase character;
+- one lowercase character;
+- one special character;
+- one numeric character, and
+- at least eight characters changed from the previous password.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Assign an encryption password to the Database Master Key that is a minimum of 15 characters with at least one uppercase character, one lowercase character, one special character, one numeric character, and at least eight characters changed from the previous password. To change the Database Master Key encryption password:
+
+USE [database name];
+ALTER MASTER KEY REGENERATE WITH ENCRYPTION BY PASSWORD = 'new password';
+
+Note: Do not change the Database Master Key encryption method until the effects are thoroughly reviewed. Changing the master key encryption causes all encryption using the Database Master Key to be decrypted and reencrypted. This action should not be taken during a high-demand time.
+
+Refer to the SQL Server documentation found here prior to reencrypting the Database Master Key:
+https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/create-a-database-master-key?"
+  reference   : "800-171|3.13.16,800-171r3|03.13.08,800-53|SC-28,800-53r5|SC-28,CAT|II,CCI|CCI-001199,CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSF|PR.DS-1,CSF2.0|PR.DS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.33,ITSG-33|SC-28,ITSG-33|SC-28a.,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-271169r1109188_rule,STIG-ID|SQLD-22-001600,Vuln-ID|V-271169"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT DB_NAME() AS DatabaseName, COUNT(name) FROM sys.symmetric_keys s, sys.key_encryptions k WHERE s.name = ''##MS_DatabaseMasterKey##'' AND s.symmetric_key_id = k.key_id AND k.crypt_type in (''ESKP'', ''ESP2'', ''ESP3'');'"
+  sql_types   : REGEX, INTEGER
+  sql_expect  : ".+", 0
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-001700 - The Database Master Key must be encrypted by the Service Master Key, where a Database Master Key is required and another encryption method has not been specified."
+  info        : "When not encrypted by the Service Master Key, system administrators or application administrators may access and use the Database Master Key to view sensitive data that they are not authorized to view. Where alternate encryption means are not feasible, encryption by the Service Master Key may be necessary. To help protect sensitive data from unauthorized access by DBAs, mitigations may be required. Mitigations may include automatic alerts or other audit events when the Database Master Key is accessed outside of the application or by a DBA account.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Where possible, encrypt the Database Master Key with a password known only to the application administrator.
+
+Where not possible, configure additional audit events or alerts to detect unauthorized access to the Database Master Key by users not authorized to view sensitive data."
+  reference   : "800-171|3.13.16,800-171r3|03.13.08,800-53|SC-28,800-53r5|SC-28,CAT|II,CCI|CCI-001199,CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSF|PR.DS-1,CSF2.0|PR.DS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.33,ITSG-33|SC-28,ITSG-33|SC-28a.,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-271170r1109190_rule,STIG-ID|SQLD-22-001700,Vuln-ID|V-271170"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT name FROM [master].sys.databases WHERE is_master_key_encrypted_by_server = 1 AND state = 0;"
+  sql_types   : STRING_OR_NULL
+  sql_expect  : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<report type:"WARNING">
+  description : "SQLD-22-001800 - The certificate used for encryption must be backed up and stored in a secure location that is not on the SQL Server."
+  info        : "Backup and recovery of the certificate used for encryption is critical to the complete recovery of the database. Not having this key can lead to loss of data during recovery.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Document and implement procedures to safely back up and store the Certificate used for encryption. Include in the procedures methods to establish evidence of backup and storage, and careful, restricted access and restoration of the Certificate. Also, include provisions to store the backup off-site.
+
+BACKUP CERTIFICATE 'CertificateName' TO FILE = 'path_to_file' WITH PRIVATE KEY (FILE = 'path_to_pvk', ENCRYPTION BY PASSWORD = 'password');
+
+As this requires a password, ensure it is not exposed to unauthorized persons or stored as plain text."
+  reference   : "800-171|3.13.16,800-171r3|03.13.08,800-53|SC-28,800-53r5|SC-28,CAT|II,CCI|CCI-001199,CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSF|PR.DS-1,CSF2.0|PR.DS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.33,ITSG-33|SC-28,ITSG-33|SC-28a.,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-271171r1109192_rule,STIG-ID|SQLD-22-001800,Vuln-ID|V-271171"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "SQLD-22-001900 - SQL Server must isolate security functions from nonsecurity functions."
+  info        : "An isolation boundary provides access control and protects the integrity of the hardware, software, and firmware that perform security functions.
+
+Security functions are the hardware, software, and/or firmware of the information system responsible for enforcing the system security policy and supporting the isolation of code and data on which the protection is based.
+
+Developers and implementers can increase the assurance in security functions by employing well-defined security policy models; structured, disciplined, and rigorous hardware and software development techniques; and sound system/security engineering principles.
+
+Database Management Systems typically separate security functionality from nonsecurity functionality via separate databases or schemas. Database objects or code implementing security functionality should not be commingled with objects or code implementing application logic. When security and nonsecurity functionality are commingled, users who have access to nonsecurity functionality may be able to access security functionality.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Check documentation and locate security-related database objects and code in a separate database, schema, table, or other separate security domain from database objects and code implementing application logic.
+
+Schemas are analogous to separate namespaces or containers used to store database objects. Security permissions apply to schemas, making them an important tool for separating and protecting database objects based on access rights. Schemas reduce the work required, and improve the flexibility, for security-related administration of a database.
+
+User-schema separation allows for more flexibility in managing database object permissions. A schema is a named container for database objects, which allows the user group objects into separate namespaces.
+
+Where possible, locate security-related database objects and code in a separate database, schema, or other separate security domain from database objects and code implementing application logic. In all cases, use GRANT, REVOKE, DENY, ALTER ROLE ... ADD MEMBER ... and/or ALTER ROLE .... DROP MEMBER statements to add and remove permissions on server-level and database-level security-related objects to provide effective isolation.
+
+Consider submitting a request to the vendor for changes to a COTS database when database structure does not isolate security functions and cannot be altered directly by the database administrators without loss of official support."
+  reference   : "800-53|SC-3,800-53r5|SC-3,CAT|II,CCI|CCI-001084,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-3,ITSG-33|SC-3a.,NESA|T3.4.1,NESA|T4.3.1,NESA|T4.3.2,Rule-ID|SV-271172r1109195_rule,STIG-ID|SQLD-22-001900,Vuln-ID|V-271172"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "SQLD-22-002000 - Database contents must be protected from unauthorized and unintended information transfer by enforcement of a data transfer policy."
+  info        : "Applications, including DBMSs, must prevent unauthorized and unintended information transfer via shared system resources.
+
+Data used for the development and testing of applications often involves copying data from production. It is important that specific procedures exist for this process, including the conditions under which such transfer may take place, where the copies may reside, and the rules for ensuring sensitive data are not exposed.
+
+Copies of sensitive data must not be misplaced or left in a temporary location without the proper controls.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Modify any code used for moving data from production to development/test systems to comply with the organization-defined data transfer policy, and to ensure copies of production data are not left in unsecured locations."
+  reference   : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CAT|II,CCI|CCI-001090,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,Rule-ID|SV-271173r1137656_rule,STIG-ID|SQLD-22-002000,Vuln-ID|V-271173"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "SQLD-22-002100 - SQL Server must check the validity of all data inputs except those specifically identified by the organization."
+  info        : "Invalid user input occurs when a user inserts data or characters into an application's data entry fields and the application is unprepared to process that data. This results in unanticipated application behavior, potentially leading to an application or information system compromise. Invalid user input is one of the primary methods employed when attempting to compromise an application.
+
+With respect to database management systems, one class of threat is known as SQL Injection, or more generally, code injection. It takes advantage of the dynamic execution capabilities of various programming languages, including dialects of SQL. Potentially, the attacker can gain unauthorized access to data, including security settings, and severely corrupt or destroy the database.
+
+Even when no such hijacking takes place, invalid input that gets recorded in the database, whether accidental or malicious, reduces the reliability and usability of the system. Available protections include data types, referential constraints, uniqueness constraints, range checking, and application-specific logic. Application-specific logic can be implemented within the database in stored procedures and triggers, where appropriate.
+
+This calls for inspection of application source code, which will require collaboration with the application developers. It is recognized that in many cases, the database administrator (DBA) is organizationally separate from the application developers, and may have limited, if any, access to source code. Nevertheless, protections of this type are so important to the secure operation of databases that they must not be ignored. At a minimum, the DBA must attempt to obtain assurances from the development organization that this issue has been addressed and must document what has been discovered.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Use parameterized queries, constraints, foreign keys, etc., to validate data input. Modify SQL Server to properly use the correct column data types as required in the database.
+
+Consider submitting a request to the vendor for changes to a COTS database when code is discovered that could create invalid inputs and cannot be altered directly by the database administrators without loss of official support."
+  reference   : "800-53|SI-10,800-53r5|SI-10,CAT|II,CCI|CCI-001310,CN-L3|8.1.4.4(d),CSF2.0|PR.DS-10,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-10,ITSG-33|SI-10a.,NESA|T7.3.1,NESA|T7.3.2,NIAv2|SS6e,Rule-ID|SV-271176r1109200_rule,STIG-ID|SQLD-22-002100,Vuln-ID|V-271176"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "SQLD-22-002400 - SQL Server must provide nonprivileged users with error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries."
+  info        : "Any DBMS or associated application providing too much information in error messages on the screen or printout risks compromising the data and security of the system. The structure and content of error messages need to be carefully considered by the organization and development team.
+
+Databases can inadvertently provide a wealth of information to an attacker through improperly handled error messages. In addition to sensitive business or personal information, database errors can provide host names, IP addresses, usernames, and other system information not required for troubleshooting but very useful to someone targeting the system.
+
+Carefully consider the structure/content of error messages. The extent to which information systems are able to identify and handle error conditions is guided by organizational policy and operational requirements. Information that could be exploited by adversaries includes, for example, logon attempts with passwords entered by mistake as the username, mission/business information that can be derived from (if not stated explicitly by) information recorded, and personal information, such as account numbers, social security numbers, and credit card numbers.
+
+This calls for inspection of application source code, which will require collaboration with the application developers. It is recognized that in many cases, the database administrator (DBA) is organizationally separate from the application developers, and may have limited, if any, access to source code. Nevertheless, protections of this type are so important to the secure operation of databases that they must not be ignored. At a minimum, the DBA must attempt to obtain assurances from the development organization that this issue has been addressed and must document what has been discovered.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Adjust database code to remove any information not required for explaining the error to an end user.
+
+Consider enabling trace flag 3625 to mask certain system-level error information returned to nonadministrative users.
+
+1. Launch SQL Server Configuration Manager >> SQL Services.
+2. Open the instance properties.
+3. Select the \"Service Parameters\" tab.
+4. Enter \"-T3625\".
+5. Click \"Add\" and then click \"OK\".
+6. Restart SQL instance."
+  reference   : "800-53|SI-11a.,800-53r5|SI-11a.,CAT|II,CCI|CCI-001312,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-11b.,Rule-ID|SV-271179r1108921_rule,STIG-ID|SQLD-22-002400,Vuln-ID|V-271179"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "SQLD-22-002600 - SQL Server must associate organization-defined types of security labels having organization-defined security label values with information in process, transit, or storage."
+  info        : "Without the association of security labels to information, there is no basis for SQL Server to make security-related access-control decisions.
+
+Security labels are abstractions representing the basic properties or characteristics of an entity (e.g., subjects and objects) with respect to safeguarding information.
+
+These labels are typically associated with internal data structures (e.g., tables, rows) within the database and are used to enable the implementation of access control and flow control policies; reflect special dissemination, handling, or distribution instructions; or support other aspects of the information security policy.
+
+One example includes marking data as classified or CUI. These security labels may be assigned manually or during data processing, but, either way, it is imperative these assignments are maintained while the data is in storage. If the security labels are lost when the data is stored, there is the risk of a data compromise.
+
+The mechanism used to support security labeling may be a feature of SQL Server, a third-party product, or custom application code.
+
+Satisfies: SRG-APP-000311-DB-000308, SRG-APP-000314-DB-000310
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Deploy SQL Server Row-Level Security (refer to link below) or a third-party software, or add custom data structures, data elements, and application code, to provide reliable security labeling of information.
+
+https://msdn.microsoft.com/en-us/library/dn765131.aspx"
+  reference   : "800-53|AC-16a.,800-53r5|AC-16a.,CAT|II,CCI|CCI-002262,CCI|CCI-002263,CCI|CCI-002264,CSF|PR.AC-4,CSF2.0|PR.AA-05,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.8.2.1,ISO/IEC-27001|A.8.2.2,ITSG-33|AC-16a.,NESA|T1.3.2,NESA|T1.3.3,NIAv2|SS28,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-271184r1138541_rule,STIG-ID|SQLD-22-002600,Vuln-ID|V-271184"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+</report>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "schemas not owned by the schema or dbo"
+      sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT name AS schema_name, USER_NAME(principal_id) AS schema_owner FROM sys.schemas WHERE schema_id <> principal_id AND principal_id <> 1'"
+      sql_types   : STRING_OR_NULL
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "objects owned by an individual principal"
+      sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT object_id, name AS securable, USER_NAME(principal_id) AS object_owner, type_desc FROM sys.objects WHERE is_ms_shipped = 0 AND principal_id IS NOT NULL ORDER BY type_desc, securable, object_owner'"
+      sql_types   : STRING_OR_NULL
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "database users with right to assign additional permissions"
+      sql_request : "EXEC sp_MSforeachdb 'USE [?]; SELECT U.type_desc, U.name AS grantee, DP.class_desc AS securable_type, CASE DP.class WHEN 0 THEN DB_NAME() WHEN 1 THEN OBJECT_NAME(DP.major_id) WHEN 3 THEN SCHEMA_NAME(DP.major_id) ELSE CAST(DP.major_id AS nvarchar) END AS securable, permission_name, state_desc FROM sys.database_permissions DP JOIN sys.database_principals U ON DP.grantee_principal_id = U.principal_id WHERE DP.state = ''W'' ORDER BY grantee, securable_type, securable'"
+      sql_types   : STRING_OR_NULL
+      sql_expect  : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "SQLD-22-002800 - SQL Server must enforce discretionary access control (DAC) policies, as defined by the data owner, over defined subjects and objects."
+      info        : "DAC is based on the notion that individual users are \"owners\" of objects and therefore have discretion over who should be authorized to access the object and in which mode (e.g., read or write). Ownership is usually acquired because of creating the object or via specified ownership assignment. DAC allows the owner to determine who will have access to objects they control. An example of DAC includes user-controlled table permissions.
+
+When discretionary access control policies are implemented, subjects are not constrained regarding what actions they can take with information for which they have already been granted access. Thus, subjects that have been granted access to information are not prevented from passing (i.e., the subjects have the discretion to pass) the information to other subjects or objects.
+
+A subject that is constrained in its operation by Mandatory Access Control policies is still able to operate under the less rigorous constraints of this requirement. Thus, while Mandatory Access Control imposes constraints preventing a subject from passing information to another subject operating at a different sensitivity level, this requirement permits the subject to pass the information to any subject at the same sensitivity level.
+
+The policy is limited by the information system boundary. Once the information is passed outside of the control of the information system, additional means may be required to ensure the constraints remain in effect. While the older, more traditional definitions of DAC require identity-based access control, that limitation is not required for this use of DAC.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "To correct object ownership:
+
+ALTER AUTHORIZATION ON <Securable> TO <Principal>
+
+To revoke any unauthorized permissions:
+
+REVOKE [Permission] ON <Securable> FROM <Principal>"
+      reference   : "800-171|3.1.1,800-171r3|03.01.02,800-53|AC-3(4),800-53r5|AC-3(4),CAT|II,CCI|CCI-002165,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|PR.AC-4,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3(4),NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-271186r1109206_rule,STIG-ID|SQLD-22-002800,TBA-FIISB|31.1,Vuln-ID|V-271186"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-002900 - Execution of stored procedures and functions that use execute as must be restricted to necessary cases only."
+  info        : "In certain situations, to provide required functionality, a DBMS must execute internal logic (stored procedures, functions, triggers, etc.) and/or external code modules with elevated privileges. However, if the privileges required for execution are at a higher level than the privileges assigned to organizational users invoking the functionality applications/programs, those users are indirectly provided with greater privileges than assigned by organizations.
+
+Privilege elevation must be used only where necessary and protected from misuse.
+
+This calls for inspection of application source code, which will require collaboration with the application developers. It is recognized that in many cases, the database administrator (DBA) is organizationally separate from the application developers, and may have limited, if any, access to source code. Nevertheless, protections of this type are so important to the secure operation of databases that they must not be ignored. At a minimum, the DBA must attempt to obtain assurances from the development organization that this issue has been addressed and must document what has been discovered."
+  solution    : "Alter stored procedures and functions to remove the \"EXECUTE AS\" statement."
+  reference   : "800-171|3.1.5,800-171r3|03.01.05a.,800-53|AC-6(8),800-53r5|AC-6(8),CAT|II,CCI|CCI-002233,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSF|PR.AC-4,CSF2.0|PR.AA-05,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ITSG-33|AC-6,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-271188r1167492_rule,STIG-ID|SQLD-22-002900,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-271188"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "USE master; SELECT S.name AS schema_name, O.name AS module_name, USER_NAME( CASE M.execute_as_principal_id WHEN -2 THEN COALESCE(O.principal_id, S.principal_id) ELSE M.execute_as_principal_id END ) AS execute_as FROM sys.sql_modules M JOIN sys.objects O ON M.object_id = O.object_id JOIN sys.schemas S ON O.schema_id = S.schema_id WHERE execute_as_principal_id IS NOT NULL and O.name not in ( 'fn_sysdac_get_username', 'fn_sysutility_ucp_get_instance_is_mi', 'sp_send_dbmail', 'sp_SendMailMessage', 'sp_syscollector_create_collection_set', 'sp_syscollector_delete_collection_set', 'sp_syscollector_disable_collector', 'sp_syscollector_enable_collector', 'sp_syscollector_get_collection_set_execution_status', 'sp_syscollector_run_collection_set', 'sp_syscollector_start_collection_set', 'sp_syscollector_update_collection_set', 'sp_syscollector_upload_collection_set', 'sp_syscollector_verify_collector_state', 'sp_syspolicy_add_policy', 'sp_syspolicy_add_policy_category_subscription', 'sp_syspolicy_delete_policy', 'sp_syspolicy_delete_policy_category_subscription', 'sp_syspolicy_update_policy', 'sp_sysutility_mi_add_ucp_registration', 'sp_sysutility_mi_disable_collection', 'sp_sysutility_mi_enroll', 'sp_sysutility_mi_initialize_collection', 'sp_sysutility_mi_remove', 'sp_sysutility_mi_remove_ucp_registration', 'sp_sysutility_mi_upload', 'sp_sysutility_mi_validate_enrollment_preconditions', 'sp_sysutility_ucp_add_mi', 'sp_sysutility_ucp_add_policy', 'sp_sysutility_ucp_calculate_aggregated_dac_health', 'sp_sysutility_ucp_calculate_aggregated_mi_health', 'sp_sysutility_ucp_calculate_computer_health', 'sp_sysutility_ucp_calculate_dac_file_space_health', 'sp_sysutility_ucp_calculate_dac_health', 'sp_sysutility_ucp_calculate_filegroups_with_policy_violations', 'sp_sysutility_ucp_calculate_health', 'sp_sysutility_ucp_calculate_mi_file_space_health', 'sp_sysutility_ucp_calculate_mi_health', 'sp_sysutility_ucp_configure_policies', 'sp_sysutility_ucp_create', 'sp_sysutility_ucp_delete_policy', 'sp_sysutility_ucp_delete_policy_history', 'sp_sysutility_ucp_get_policy_violations', 'sp_sysutility_ucp_initialize', 'sp_sysutility_ucp_initialize_mdw', 'sp_sysutility_ucp_remove_mi', 'sp_sysutility_ucp_update_policy', 'sp_sysutility_ucp_update_utility_configuration', 'sp_sysutility_ucp_validate_prerequisites', 'sp_validate_user', 'syscollector_collection_set_is_running_update_trigger', 'sysmail_help_status_sp' ) ORDER BY schema_name, module_name"
+  sql_types   : NULL, NULL, NULL
+  sql_expect  : NULL, NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-003100 - SQL Server must enforce access restrictions associated with changes to the configuration of the database(s)."
+  info        : "Failure to provide logical access restrictions associated with changes to configuration may have significant effects on the overall security of the system.
+
+When dealing with access restrictions pertaining to change control, it should be noted that any changes to the hardware, software, and/or firmware components of the information system can potentially have significant effects on the overall security of the system.
+
+Accordingly, only qualified and authorized individuals should be allowed to obtain access to system components for the purposes of initiating changes, including upgrades and modifications."
+  solution    : "Remove unauthorized users from roles:
+
+ALTER ROLE DROP MEMBER user;
+
+https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-role-transact-sql?
+
+Set the owner of the database to an authorized login:
+
+ALTER AUTHORIZATION ON database::DatabaseName TO login;
+
+https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-authorization-transact-sql?"
+  reference   : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(1),800-53r5|CM-5(1)(a),CAT|II,CCI|CCI-001813,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(1),NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.3,QCSC-v1|7.2,Rule-ID|SV-271195r1109208_rule,STIG-ID|SQLD-22-003100,Vuln-ID|V-271195"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT D.name AS database_name, SUSER_SNAME(D.owner_sid) AS owner_name, FRM.is_fixed_role_member FROM sys.databases D OUTER APPLY ( SELECT MAX(fixed_role_member) AS is_fixed_role_member FROM ( SELECT IS_SRVROLEMEMBER(R.name, SUSER_SNAME(D.owner_sid)) AS fixed_role_member FROM sys.server_principals R WHERE is_fixed_role = 1 ) A ) FRM WHERE D.database_id > 4 AND (FRM.is_fixed_role_member = 1 OR FRM.is_fixed_role_member IS NULL) ORDER BY database_name "
+  sql_types   : NULL, NULL, NULL
+  sql_expect  : NULL, NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-003200 - SQL Server must use NSA-approved cryptography to protect classified information in accordance with the data owner's requirements."
+  info        : "Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data. The application must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated.
+
+It is the responsibility of the data owner to assess the cryptography requirements in light of applicable federal laws, Executive Orders, directives, policies, regulations, and standards.
+
+NSA-approved cryptography for classified networks is hardware based. This requirement addresses the compatibility of a DBMS with the encryption devices."
+  solution    : "Configure cryptographic functions to use NSA-approved cryptography compliant algorithms.
+
+Use DOD code-signing certificates to create asymmetric keys stored in the database used to encrypt sensitive data stored in the database.
+
+Run the following SQL script to create a certificate:
+
+USE
+CREATE CERTIFICATE
+ ENCRYPTION BY PASSWORD = <'password'>
+ FROM FILE = <'path/file_name'>
+ WITH SUBJECT = 'name of person creating key',
+ EXPIRY_DATE = '<'expiration date: yyyymmdd'>'
+
+Run the following SQL script to create a symmetric key and assign an existing certificate:
+
+USE
+CREATE SYMMETRIC KEY <'key name'>
+ WITH ALGORITHM = AES_256
+ ENCRYPTION BY CERTIFICATE
+
+For Transparent Data Encryption (TDE):
+
+USE master;
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '';
+CREATE CERTIFICATE . . .;
+USE ;
+CREATE DATABASE ENCRYPTION KEY
+WITH ALGORITHM = AES_256
+ENCRYPTION BY SERVER CERTIFICATE ;
+ALTER DATABASE
+SET ENCRYPTION ON;"
+  reference   : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CAT|I,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2,Rule-ID|SV-271199r1117186_rule,STIG-ID|SQLD-22-003200,Vuln-ID|V-271199"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT DISTINCT name, algorithm_desc FROM sys.symmetric_keys WHERE key_algorithm NOT IN ('D3','A3') ORDER BY name;"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-003300 - SQL Server must implement cryptographic mechanisms to prevent unauthorized modification or disclosure of organization-defined information at rest (to include, at a minimum, PII and classified information) on organization-defined information system components."
+  info        : "DBMSs handling data requiring \"data at rest\" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. These cryptographic mechanisms may be native to the DBMS or implemented via additional software or operating system/file system settings, as appropriate to the situation.
+
+Selection of a cryptographic mechanism is based on the need to protect the integrity of organizational information. The strength of the mechanism is commensurate with the security category and/or classification of the information. Organizations have the flexibility to either encrypt all information on storage devices (i.e., full disk encryption) or encrypt specific data structures (e.g., files, records, or fields).
+
+The decision whether and what to encrypt rests with the data owner and is also influenced by the physical measures taken to secure the equipment and media on which the information resides.
+
+Satisfies: SRG-APP-000429-DB-000387
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Where full-disk encryption is required, configure Windows and/or the storage system to provide this.
+
+Where TDE is required, create a master key, obtain a certificate protected by the master key, create a database encryption key and protect it by the certificate, and then set the database to use encryption. For guidance from MSDN on how to do this, refer to: https://msdn.microsoft.com/en-us/library/bb934049.aspx.
+
+Where table/column encryption is required, enable encryption on the tables/columns in question. For guidance from the Microsoft Developer Network on how to do this with Always Encrypted, refer to: https://msdn.microsoft.com/en-us/library/mt163865.aspx."
+  reference   : "800-171|3.13.16,800-171r3|03.13.08,800-53|SC-28(1),800-53r5|SC-28(1),CAT|I,CCI|CCI-002475,CCI|CCI-002476,CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSF|PR.DS-1,CSF2.0|PR.DS-01,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.33,ITSG-33|SC-28(1),PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-271201r1192914_rule,STIG-ID|SQLD-22-003300,TBA-FIISB|28.1,Vuln-ID|V-271201"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT db.name AS DatabaseName, db.is_encrypted AS IsEncrypted, CASE WHEN dm.encryption_state = 0 THEN 'No database encryption key present, no encryption' WHEN dm.encryption_state = 1 THEN 'Unencrypted' WHEN dm.encryption_state = 2 THEN 'Encryption in progress' WHEN dm.encryption_state = 3 THEN 'Encrypted' WHEN dm.encryption_state = 4 THEN 'Key change in progress' WHEN dm.encryption_state = 5 THEN 'Decryption in progress' WHEN dm.encryption_state = 6 THEN 'Protection change in progress' END AS EncryptionState, dm.encryption_state AS EncryptionStateCode, dm.key_algorithm AS KeyAlgorithm, dm.key_length AS KeyLength FROM sys.databases db LEFT OUTER JOIN sys.dm_database_encryption_keys dm ON db.database_id = dm.database_id WHERE db.database_id NOT IN (1,2,3,4)"
+  sql_types   : STRING
+  sql_expect  : "^Manual Review Required$"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "SQLD-22-004250 - SQL Server must protect against a user falsely repudiating by ensuring that only unique Active Directory user accounts can connect to the database."
+  info        : "Nonrepudiation is required to maintain data integrity. Examples of particular actions taken by individuals include creating information, sending a message, approving information (e.g., indicating concurrence or signing a contract), and receiving a message.
+
+Nonrepudiation protects against later claims by a user of not having created, modified, or deleted a particular data item or collection of data in the database.
+
+In designing a database, the organization must define the types of data and the user actions that must be protected from repudiation. The implementation must then include building audit features into the application data tables and configuring SQL Server's audit tools to capture the necessary audit trail. Design and implementation also must ensure that applications pass individual user identification to SQL Server, even where the application connects to the DBMS with a standard, shared account.
+
+If the computer account of a remote computer is granted access to a SQL Server database, any service or scheduled task running as NT AUTHORITY\\SYSTEM or NT AUTHORITY\\NETWORK SERVICE can log into the instance and perform actions. These actions cannot be traced back to a specific user or process.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Ensure all logins are uniquely identifiable and authenticate all users who log on to the system. This likely would be done using a combination of Active Directory with unique accounts and the SQL Server by ensuring mapping to individual accounts. Verify server documentation to ensure accounts are documented and unique.
+
+Remove any undocumented accounts or shared accounts that cannot be individually authenticated."
+  reference   : "800-53|AU-10,800-53r5|AU-10,CAT|II,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|MS_SQL_Server_2022_Database_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-283667r1192917_rule,STIG-ID|SQLD-22-004250,Vuln-ID|V-283667"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2022_Y26M04_STIG.zip"
+  sql_request : "SELECT name FROM sys.database_principals WHERE type in ('U','G') AND name LIKE '%$'"
+  sql_types   : NULL
+  sql_expect  : NULL
+  severity    : MEDIUM
+</custom_item>
+
+</check_type>

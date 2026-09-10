@@ -1,0 +1,549 @@
+#TRUSTED 6cc315e7d6874ad901ba24618d669997f47e5254c7436904083e036d557164e4ccd1c6081e5d09ff8e97b5fbfd4ecc333efc4cf30e2809f3446d2d6a49b737b8c061f3780818c9642be1af631686ba211e8fff417a28dc1c6b26b1d4fa23b8d74c6d9cff79dc52ba2cb4945bbe2cd28cab25d5c4ff4f50ba04235e92d4d0e9c58c50829cebc48e8ab2abcf65826c2138ce2d84ccc40decf9f7836e384d64355cf1321214d61fad8f7f607d77ce0cdcd107bfa76b62cf98441d02b0e9235e7e8fc77ae2a4aa48aafb59f06342fbcd312beee75974a03d0fc7112107030e189675e83423e7bc0881c68f1d513e7e4def384230896710054973a9a4704759f2619eb60b2236b5d88aefaf6af4b7405bb5f3eb816d803ec09b8df406ef1f8a434c8e2d7ea6357381c4bbadd6c2838300bd2969222dca902f0d23d1b3ed895d5e011232a18c353bc5e5ed77eacb8169b23001d8e783622cf6802b183bd99e7ef3e6be10fddf0dbe48201ac224697ab3d719f2bd2e317c795f5b3e8480ff35b1bbf77686712d6e88f8b97f52c66e32976de77a1123adbd22fc160f28b59f32e69d6b92551d75df53d07bb3326eca7653e133ea0880e98ccb650895e4d3f34f555a7f40214cc08a44e1819578f335375c4985aa50a1d7773ad53ded209cdcc8d07b5049b3cea5aa76792cec7c7d7a6705b541da6641a9ea41b0c7c523c39bf077b70cac
+#TRUST-RSA-SHA256 0bb2da419877d574a04391db15fc00fc401576d20c4faf61cad4293a89e7f2ceb7e6e024e4ba9ba2b75a8b821de4a8eee5f22cef0945a05c23646520ee8da11b24f73d231aa92e66baa18f9b1195e9405988311370afa9997cf95af3edacb4a3e90a749f42b529f18f8620bb3a75621d0d6428d5c0185fe085a9ec7b6775b9a610bab510d5391fd95d4ee781ab41d5d9fef0302edc7f8c0414ec652c649b816f51dd7edce86a6840a8a959b9f8f6533b1ef22f12875859004bd1a350cc0659fce5f88392b2569de1199ed8be22f82d0b93b5f485d46f349accce11a3947e8a6f1d03570f8577219faa6458bddad1f9c29cf3584b39992fd0f2e1cc8ba3e2bdd032c87965deb6647dae8cfc36103a70e7d561a234b5d161898a606579951365a1c28f70ecb8f4f47bc0e6d8dbed539944ca2fe7b7bb7c762e46884c2bac4697e5514d14e188b612ed6920ed82c86e9562e362da34310751a711674656e7a7ada731deae1755f206cacf6e52c15a6ab4b53b8f8c567a3fb36f325b88e14c538cbea479b4b63df9d270f4041bef4cb69c9e8328118e8013b617319b6359b5e9c9da2be0af10fdfad40bfb1f75d41e96ce223f94d74bf4badf6830de2ba2a79359f9d87f8a68c02acd9b79ba64df6733c7f622d1e6b629bd76e3542f173b6acbc40af95551a460707bb4f28a4b095aac3d271be4ddd6f0916f74776d83bd03cf5e58
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/01/13 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Splunk Enterprise 8.x for Linux v2r3 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Splunk Enterprise 8.x for Linux v2r3 STIG REST API</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Splunk Enterprise 8.x for Linux</name>
+#  <profile>REST API</profile>
+#  <version>2.3.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip</link>
+#</spec>
+#<labels>splunk,disa</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>SPLUNK_VERSION</name>
+#    <default>8</default>
+#    <description>Splunk Version</description>
+#    <info>Splunk Version</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Splunk">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Splunk is installed and the correct version"
+      request        : "SplunkGetServerInfo"
+      json_transform : ".generator.version"
+      expect         : "^@SPLUNK_VERSION@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_Splunk_Enterprise_8.x_for_Linux_REST_API_v2r3.audit from DISA Splunk Enterprise 8.x for Linux v2r3 STIG"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000020 - Splunk Enterprise must notify the system administrator (SA) and information system security officer (ISSO) when account events are received (creation, deletion, modification, or disabling) - creation, deletion, modification, or disabling."
+      info        : "Once an attacker establishes access to an application, the attacker often attempts to create a persistent method of re-establishing access. One way to accomplish this is for the attacker to simply create a new account. Sending notification of account creation events to the system administrator and ISSO is one method for mitigating this risk.
+
+To address access requirements, many application developers choose to integrate their applications with enterprise-level authentication/access/auditing mechanisms that meet or exceed access control policy requirements. Such integration allows the application developer to off-load those access control functions and focus on core application features and functionality.
+
+Satisfies: SRG-APP-000291-AU-000200, SRG-APP-000292-AU-000420, SRG-APP-000294-AU-000430, SRG-APP-000294-AU-000440
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure Splunk Enterprise, using the reporting and notification tools, to notify the SA and ISSO when account events are received for all devices and hosts within its scope of coverage."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53|AC-2(4),800-53r5|AC-2(1),CAT|III,CCI|CCI-000015,CCI|CCI-001683,CCI|CCI-001684,CCI|CCI-001685,CCI|CCI-001686,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-251658r1015830_rule,STIG-ID|SPLK-CL-000020,TBA-FIISB|36.2.3,Vuln-ID|V-251658"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000080 - Splunk Enterprise must display the Standard Mandatory DOD Notice and Consent Banner before granting access to the server."
+      info        : "Display of the DOD-approved use notification before granting access to the application ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via logon interfaces with human users and are not required when such human interfaces do not exist.
+
+The banner must be formatted in accordance with DTM-08-060. Use the following verbiage for applications that can accommodate banners of 1300 characters:
+
+'You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.'
+
+Use the following verbiage for operating systems that have severe limitations on the number of characters that can be displayed in the banner:
+
+'I've read & consent to terms in IS user agreem't.'
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This configuration is performed on the machine used as a search head, which may be a separate machine in a distributed environment.
+
+Configure Splunk Enterprise to display the Mandatory DOD Notice and Consent Banner by modifying the web.conf file.
+
+Add/modify the line:
+login_content = <script>function DoDBanner() {alert('You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.\nBy using this IS (which includes any device attached to this IS), you consent to the following conditions:\n-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.\n-At any time, the USG may inspect and seize data stored on this IS.\n-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.\n-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.\n-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.');}DoDBanner();</script>
+
+The string in the above line will be the text of the DOD consent banner."
+      reference   : "800-171|3.1.9,800-171r3|03.01.09,800-53|AC-8a.,800-53r5|AC-8a.,CAT|III,CCI|CCI-000048,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.5,ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-251661r960843_rule,STIG-ID|SPLK-CL-000080,TBA-FIISB|45.2.4,Vuln-ID|V-251661"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <custom_item>
+      type        : REST_API
+      description : "SPLK-CL-000100 - Splunk Enterprise must be configured to aggregate log records from organization-defined devices and hosts within its scope of coverage."
+      info        : "If the application is not configured to collate records based on the time when the events occurred, the ability to perform forensic analysis and investigations across multiple components is significantly degraded. Centralized log aggregation must also include logs from databases and servers (e.g., Windows) that do not natively send logs using the syslog protocol."
+      solution    : "Configure Splunk Enterprise to aggregate log records from organization-defined devices and hosts within its scope of coverage, as defined in the site security plan."
+      reference   : "800-171|3.3.1,800-171r3|03.03.03,800-53|AU-12(1),800-53r5|AU-6(4),800-53r5|AU-12(1),CAT|III,CCI|CCI-000174,CCI|CCI-003821,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12(1),PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251663r992039_rule,STIG-ID|SPLK-CL-000100,SWIFT-CSCv1|6.4,Vuln-ID|V-251663"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      request     : "SplunkGetDataInputsAll"
+      expect      : "Manual Review Required"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000110 - In a distributed environment, Splunk Enterprise indexers must be configured to ingest log records from its forwarders."
+      info        : "Log servers (e.g., syslog servers) are often used on network segments to consolidate from the devices and hosts on that network segment. However, this does not achieve compliance with the DoD requirement for a centralized enclave log server.
+
+To comply with this requirement, create a central log server that aggregates multiple log servers, or use another method to ensure log analysis and management is centrally managed and available to enterprise forensics and analysis tools. This server is often called a log aggregator, SIEM, or events server.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "On the forwarders, configure the outputs.conf with the information of the indexer that the data will be sent to for analysis.
+
+On the indexer, configure the inputs.conf file with the information of the forwarders that are sending the data for analysis."
+      reference   : "800-171|3.3.1,800-171r3|03.03.03,800-53|AU-12(1),800-53r5|AU-12(1),CAT|II,CCI|CCI-000174,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12(1),PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251664r960873_rule,STIG-ID|SPLK-CL-000110,SWIFT-CSCv1|6.4,Vuln-ID|V-251664"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000130 - Splunk Enterprise must be configured to retain the DoD-defined attributes of the log records sent by the devices and hosts."
+      info        : "Log records can be generated from various components within the application (e.g., process, module). Certain specific application functionalities may be audited as well. The list of audited events is the set of events for which audits are to be generated. This set of events is typically a subset of the list of all events for which the system is capable of generating log records.
+
+DoD has defined a list of information or attributes that must be included in the log record, including date, time, source, destination, module, severity level (category of information), etc. Other log record content that may be necessary to satisfy the requirement of this policy includes, for example, time stamps, source and destination addresses, user/process identifiers, event descriptions, success/fail indications, filenames involved, and access control or flow control rules invoked.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure Splunk Enterprise to retain the DoD-defined attributes of the log records sent by the devices and hosts.
+
+Use Splunk Enterprise to modify the props.conf file to include the DoD-defined attributes."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03a.,800-53|AU-12a.,800-53r5|AU-12a.,CAT|II,CCI|CCI-000169,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12a.,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251666r960879_rule,STIG-ID|SPLK-CL-000130,SWIFT-CSCv1|6.4,Vuln-ID|V-251666"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000140 - Splunk Enterprise must allow only the individuals appointed by the information system security manager (ISSM) to have full admin rights to the system - ISSM to have full admin rights to the system."
+      info        : "Without restricting which roles and individuals can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Provide the list of individuals assigned by the ISSM to be members of the admin role to the Splunk Enterprise administrator.
+
+Provide the list of individuals assigned by the ISSM to be members of the admin role to the LDAP administrator to add to the LDAP group mapped to the admin role.
+
+Create user accounts and assign the admin role for users provided in the lists."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.03,800-53|AU-12b.,800-53r5|AU-9b.,800-53r5|AU-12b.,CAT|III,CCI|CCI-000171,CCI|CCI-003831,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-12b.,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251667r992040_rule,STIG-ID|SPLK-CL-000140,SWIFT-CSCv1|6.4,Vuln-ID|V-251667"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000150 - Splunk Enterprise must be configured to offload log records onto a different system or media than the system being audited."
+      info        : "Information stored in one location is vulnerable to accidental or incidental deletion or alteration.
+
+Offloading is a common process in information systems with limited audit storage capacity. Although this may be part of the operating system function, for the enterprise events management system, this is most often a function managed through the application since it is a critical function and requires the use of a large amount of external storage.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This configuration is performed on the machine used as a forwarder, which is always a separate machine regardless of environment.
+
+On the forwarders, configure the outputs.conf with the information of the indexer that the data will be sent to for analysis.
+
+This configuration is performed on the machine used as the assigned indexer to the forwarder in a distributed environment.
+
+On the indexer, configure the inputs.conf file with the information of the forwarders that are sending the data for analysis."
+      reference   : "800-53|AU-4(1),800-53r5|AU-4(1),CAT|II,CCI|CCI-001851,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.6,ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251668r961395_rule,STIG-ID|SPLK-CL-000150,Vuln-ID|V-251668"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000160 - Splunk Enterprise must be configured to send an immediate alert to the system administrator (SA) and information system security officer (ISSO) (at a minimum) when allocated log record storage volume reaches 75 percent of the repository maximum log record storage capacity - at a minimum when allocated log record storage volume reaches 75 percent of the repository maximum log record storage capacity."
+      info        : "If security personnel are not notified immediately upon storage volume utilization reaching 75 percent, they are unable to plan for storage capacity expansion.
+
+Although this may be part of the operating system function, for the enterprise events management system, this is most often a function managed through the application since it is a critical function and requires the use of a large amount of external storage.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform the following fixes.
+
+1. Edit the file in the Splunk installation folder:
+
+$SPLUNK_HOME/etc/system/local/server.conf
+
+Add the following lines:
+
+[diskUsage]
+minFreeSpace = xxxx
+
+Set the value to 25 percent of the size of the storage volume. For example, 25 percent of a 100GB drive is 25GB, and the value set would be 25000, as the value is in megabytes.
+
+2. Examine the file in the Splunk installation folder:
+
+$SPLUNK_HOME/etc/system/local/health.conf
+
+Add the following lines:
+
+[alert_action:email]
+disabled = 0
+action.to =
+action.cc =
+
+Set the email addresses of the ISSO and SA to be able to receive alerts. This email address can be a group address (example alerts@domain.com) that contain the addresses of the ISSO and SA.
+
+3. In the Splunk console, select Settings >> Health Report Manager >> feature:disk_space.
+
+Set the Red setting to 1, and Yellow setting to 2."
+      reference   : "800-171|3.3.4,800-171r3|03.03.04,800-53|AU-5(1),800-53r5|AU-5(1),CAT|III,CCI|CCI-001855,CN-L3|7.1.3.7(e),CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-5(1),NESA|T3.3.1,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251669r961398_rule,STIG-ID|SPLK-CL-000160,TBA-FIISB|37.3.2,Vuln-ID|V-251669"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000170 - Splunk Enterprise must notify the System Administrator (SA) and Information System Security Officer (ISSO) (at a minimum) of all audit failure events, such as loss of communications with hosts and devices, or if log records are no longer being received."
+      info        : "It is critical for the appropriate personnel to be aware if a system is at risk of failing to process audit logs as required. Without a real-time alert, security personnel may be unaware of an impending failure of the audit function and application operation may be adversely affected.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure Splunk Enterprise, using the reporting and notification tools, to create a report with notification to the SA and ISSO of any audit failure events, such as loss of communication or logs no longer being collected."
+      reference   : "800-171|3.3.4,800-171r3|03.03.04,800-53|AU-5(2),800-53r5|AU-5(2),CAT|III,CCI|CCI-001858,CN-L3|7.1.3.3(e),CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-5(2),NESA|T3.6.2,NIAv2|GS7f,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251670r961401_rule,STIG-ID|SPLK-CL-000170,Vuln-ID|V-251670"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000180 - Splunk Enterprise must notify the System Administrator (SA) or Information System Security Officer (ISSO) if communication with the host and devices within its scope of coverage is lost."
+      info        : "If the system were to continue processing after audit failure, actions could be taken on the system that could not be tracked and recorded for later forensic analysis. To perform this function, some type of heartbeat configuration with all of the devices and hosts must be configured.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the Splunk instance is used for Tier 2 CSSP (formerly CND-SP) or JRSS analysis, this check is N/A.
+
+Configure Splunk Enterprise, using the reporting and notification tools, to create a report with notification to the SA and ISSO of any audit failure events, such as loss of communication or logs no longer being collected."
+      reference   : "800-171|3.3.4,800-171r3|03.03.04,800-53|AU-5(4),800-53r5|AU-5(4),CAT|III,CCI|CCI-001861,CN-L3|7.1.3.3(e),CSF|PR.PT-1,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-5(4),NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251671r1001259_rule,STIG-ID|SPLK-CL-000180,Vuln-ID|V-251671"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000250 - Splunk Enterprise must be configured to back up the log records repository at least every seven days onto a different system or system component other than the system or component being audited."
+      info        : "Protection of log data includes ensuring log data is not accidentally lost or deleted. Backing up log records to a different system or onto separate media than the system being audited on an organizationally defined frequency helps to ensure that in the event of a catastrophic system failure, the log records will be retained.
+
+This helps to ensure that a compromise of the information system being audited does not also result in a compromise of the log records.
+
+This requirement only applies to applications that have a native backup capability for log records. Operating system backup requirements cover applications that do not provide native backup functions.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Implement a backup plan for the Splunk log data, following the Splunk documentation on backing up indexed data. Use the underlying OS backup tools, or another approved backup tool."
+      reference   : "800-171|3.3.8,800-171r3|03.03.08,800-53|AU-9(2),800-53r5|AU-9(2),CAT|III,CCI|CCI-001348,CN-L3|8.1.3.5(d),CN-L3|8.1.4.3(c),CSF|PR.PT-1,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.15,ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(2),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SS13e,PCI-DSSv3.2.1|10.5.3,PCI-DSSv3.2.1|10.5.4,PCI-DSSv4.0|10.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-251673r960948_rule,STIG-ID|SPLK-CL-000250,Vuln-ID|V-251673"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000260 - Splunk Enterprise must be configured to retain the identity of the original source host or device where the event occurred as part of the log record."
+      info        : "In this case the information producer is the device based on IP address or some other identifier of the device producing the information. The source of the record must be bound to the record using cryptographic means.
+
+Some events servers allow the administrator to retain only portions of the record sent by devices and hosts.
+
+This requirement applies to log aggregation servers with the role of fulfilling the DoD requirement for a central log repository. The syslog, SIEM, or other event servers must retain this information with each log record to support incident investigations.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure Splunk Enterprise to retain the identity of the original source host or device where the event occurred.
+
+Use Splunk Enterprise to modify the props.conf file to include the identity of the original source host or device where the event occurred."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251674r961863_rule,STIG-ID|SPLK-CL-000260,SWIFT-CSCv1|2.3,Vuln-ID|V-251674"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000280 - Splunk Enterprise must be configured with a report to notify the System Administrator (SA) and Information System Security Officer (ISSO), at a minimum, when an attack is detected on multiple devices and hosts within its scope of coverage."
+      info        : "Detecting when multiple systems are showing anomalies can often indicate an attack. Notifying appropriate personnel can initiate a proper response and mitigation of the attack.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure Splunk Enterprise, using the Reporting and Alert tools, to notify the SA and ISSO, at a minimum, when an attack is detected on multiple devices and hosts within its scope of coverage."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251676r961863_rule,STIG-ID|SPLK-CL-000280,SWIFT-CSCv1|2.3,Vuln-ID|V-251676"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000270 - Splunk Enterprise must use TCP for data transmission."
+      info           : "If the UDP protocol is used for communication, then data packets that do not reach the server are not detected as a data loss. The use of TCP to transport data improves delivery reliability, adds data integrity, and gives the option to encrypt the traffic."
+      solution       : "This configuration is performed on the machine used as an indexer, which may be a separate machine in a distributed environment.
+
+Navigate to $SPLUNK_HOME/etc/system/local/
+
+Modify the inputs.conf file to replace any input that is using a UDP port with a TCP port."
+      reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251675r961863_rule,STIG-ID|SPLK-CL-000270,SWIFT-CSCv1|2.3,Vuln-ID|V-251675"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      request        : "SplunkGetDataInputsUDP"
+      json_transform : "if ((.entry | length) == 0) then \"pass\" else \"fail\" end"
+      expect         : "pass"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "SPLK-CL-000290 - Analysis, viewing, and indexing functions, services, and applications used as part of Splunk Enterprise must be configured to comply with DoD-trusted path and access requirements."
+      info           : "Access to Splunk Enterprise for analysis, viewing, indexing functions, services, and applications, such as analysis tools and other vendor-provided applications, must be secured. Software used to perform additional functions, which resides on the server, must also be secured or could provide a vector for unauthorized access to the events repository."
+      solution       : "Edit the following files in the installation to configure Splunk to use SSL certificates:
+
+This configuration is performed on the machine used as an indexer, which may be a separate machine in a distributed environment.
+
+$SPLUNK_HOME/etc/system/local/inputs.conf
+
+[splunktcp-ssl:9997]
+disabled = 0
+
+[SSL]
+serverCert = <path to the DoD approved certificate in PEM format>
+sslPassword = <password for the certificate>
+
+This configuration is performed on the machine used as a forwarder, which is always a separate machine regardless of environment.
+
+$SPLUNK_HOME/etc/system/local/outputs.conf
+
+[tcpout:group1]
+disabled = 0
+clientCert = <path to the DoD approved certificate in PEM format>
+sslPassword = <password for the certificate>
+
+This configuration is performed on the machine used as a search head, which may be a separate machine in a distributed environment.
+
+Edit the following file in the installation to configure Splunk to use SSL certificates:
+
+$SPLUNK_HOME/etc/opt/system/local/web.conf
+
+[settings]
+enableSplunkWebSSL = 1
+privKeyPath = <path to the private key generated for the DoD approved certificate>
+serverCert = <path to the DoD approved certificate in PEM format>"
+      reference      : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-251677r961863_rule,STIG-ID|SPLK-CL-000290,SWIFT-CSCv1|2.3,Vuln-ID|V-251677"
+      see_also       : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+      request        : "SplunkGetServerSettings"
+      json_transform : ".entry[].content.enableSplunkWebSSL"
+      expect         : "true"
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000300 - When Splunk Enterprise is distributed over multiple servers, each server must be configured to disable non-essential capabilities."
+      info        : "Applications are capable of providing a wide variety of functions and services. Some of the functions and services may not be necessary to support the configuration. This becomes more of an issue in distributed environments, where the application functions are spread out over multiple servers. These unnecessary capabilities or services are often overlooked and therefore may remain unsecured. They increase the risk to the platform by providing additional attack vectors.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "If the Splunk Installation is not distributed among multiple servers, this fix is N/A.
+
+Select Settings >> Monitoring Console.
+
+In the Monitoring Console, select Settings >> General Setup.
+
+Set the Mode type based on the implementation design.
+
+If Mode is set to Distributed, set each instance only with the server roles necessary for the desired functions."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06a.,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-251678r960963_rule,STIG-ID|SPLK-CL-000300,SWIFT-CSCv1|2.3,Vuln-ID|V-251678"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000320 - Splunk Enterprise must use organization-level authentication to uniquely identify and authenticate users."
+      info        : "To assure accountability and prevent unauthenticated access, organizational users must be uniquely identified and authenticated to prevent potential misuse and compromise of the system.
+
+Sharing of accounts prevents accountability and non-repudiation. Organizational users must be uniquely identified and authenticated for all accesses.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This configuration is performed on the machine used as a search head or a deployment server, which may be a separate machine in a distributed environment.
+
+Navigate to the $SPLUNK_HOME/etc/system/local/ directory.
+
+Edit the authentication.conf file.
+
+If the authentication.conf file does not exist, copy the file from $SPLUNK_HOME/etc/system/default to the $SPLUNK_HOME/etc/system/local directory.
+
+Configure minimum settings similar to the example below for using LDAP or SAML.
+
+If using LDAP:
+
+[authentication]
+authType = LDAP
+authSettings = <ldap_strategy>
+
+[<ldap_strategy>]
+host = <LDAP server>
+port = <LDAP port>
+sslEnabled = 1
+
+Edit the following file in the $SPLUNK_HOME/etc/openldap folder:
+
+ldap.conf
+
+Configure the following lines for your certificate.
+
+TLS_REQCERT
+TLS_CACERT <path to SSL certificate>
+TLS_PROTOCOL_MIN 3.3
+TLS_CIPHER_SUITE ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-
+SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-
+AES128-SHA256:ECDHE-RSA-AES128-SHA256
+
+If using SAML:
+
+[authentication]
+authType = SAML
+authSettings = <saml_strategy>
+[<saml_strategy>]
+entityId = <saml entity>
+idpSSOUrl = <saml URL>
+idpCertPath = <path to certificate>
+
+After configuring LDAP or SAML, open the Splunk Web console.
+
+Select Settings >> Access Controls >> Users.
+
+Create appropriate LDAP and SAML users and groups for the environment.
+
+Delete any user account with Authentication system set to Splunk, with the exception of one emergency account of last resort. Splunk will prevent the user from deleting an LDAP or SAML account."
+      reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2,800-53r5|IA-2,CAT|I,CCI|CCI-000764,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251679r1051115_rule,STIG-ID|SPLK-CL-000320,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-251679"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000330 - Splunk Enterprise must use HTTPS/SSL for access to the user interface."
+      info        : "A replay attack may enable an unauthorized user to gain access to the application. Authentication sessions between the authenticator and the application validating the user credentials must not be vulnerable to a replay attack.
+
+Anti-replay is a cryptographically based mechanism; thus, it must use FIPS-approved algorithms. An authentication process resists replay attacks if it is impractical to achieve a successful authentication by recording and replaying a previous authentication message. Note that the anti-replay service is implicit when data contains monotonically increasing sequence numbers and data integrity is assured. Use of DoD PKI is inherently compliant with this requirement for user and device access. Use of Transport Layer Security (TLS), including application protocols, such as HTTPS and DNSSEC, that use TLS/SSL as the underlying security protocol is also complaint.
+
+Configure the information system to use the hash message authentication code (HMAC) algorithm for authentication services to Kerberos, SSH, web management tool, and any other access method.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This configuration is performed on the machine used as a search head or a deployment server, which may be a separate machine in a distributed environment.
+
+Edit the following file in the installation to configure Splunk to use SSL certificates:
+
+$SPLUNK_HOME/etc/system/local/web.conf
+
+[settings]
+enableSplunkWebSSL = 1
+privKeyPath = <path to the private key generated for the DoD approved certificate>
+serverCert = <path to the DoD approved certificate in PEM format>"
+      reference   : "800-171|3.5.4,800-171r3|03.05.04,800-53|IA-2(8),800-53r5|IA-2(8),CAT|II,CCI|CCI-001941,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(8),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251680r960993_rule,STIG-ID|SPLK-CL-000330,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-251680"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000390 - Splunk Enterprise must be installed in FIPS mode to implement NIST FIPS-approved cryptography for all cryptographic functions."
+      info        : "FIPS 140-2 precludes the use of unvalidated cryptography for the cryptographic protection of sensitive or valuable data within Federal systems. Unvalidated cryptography is viewed by NIST as providing no protection to the information or data. In effect, the data would be considered unprotected plaintext. If the agency specifies that the information or data be cryptographically protected, then FIPS 140-2 is applicable. In essence, if cryptography is required, it must be validated. Cryptographic modules that have been approved for classified use may be used in lieu of modules that have been validated against the FIPS 140-2 standard.
+
+Satisfies: SRG-APP-000172-AU-002550, SRG-APP-000179-AU-002670, SRG-APP-000514-AU-002890
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "FIPS 140-2 mode must be enabled during initial installation. If not enabled, it requires a reinstall or upgrade of the application.
+
+Add the following line to the $SPLUNK_HOME/etc/splunk-launch.conf file during the installation process and before the initial start of Splunk Enterprise:
+
+SPLUNK_COMMON_CRITERIA=1
+SPLUNK_FIPS=1
+# Do not generate python byte code
+PYTHONDONTWRITEBYTECODE=1
+
+This will enable FIPS mode before the initial startup."
+      reference   : "800-171|3.5.10,800-171|3.13.11,800-171r3|03.05.07c.,800-171r3|03.13.11,800-53|IA-5(1)(c),800-53|IA-7,800-53|SC-13,800-53r5|IA-5(1)(c),800-53r5|IA-7,800-53r5|SC-13b.,CAT|I,CCI|CCI-000197,CCI|CCI-000803,CCI|CCI-002450,CSF|PR.AC-1,CSF|PR.DS-5,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|IA-5(1)(c),ITSG-33|IA-7,ITSG-33|IA-7a.,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T5.2.3,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY6,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,Rule-ID|SV-251686r961029_rule,STIG-ID|SPLK-CL-000390,SWIFT-CSCv1|4.1,TBA-FIISB|26.1,Vuln-ID|V-251686"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000450 - Splunk Enterprise must only allow the use of DOD-approved certificate authorities for cryptographic functions."
+      info        : "Untrusted Certificate Authorities (CA) can issue certificates, but they may be issued by organizations or individuals that seek to compromise DOD systems or by organizations with insufficient security controls. If the CA used for verifying the certificate is not a DOD-approved CA, trust of this CA has not been established.
+
+The DOD will only accept PKI certificates obtained from a DOD-approved internal or external certificate authority.
+
+Splunk Enterprise contains built-in certificates that are common across all Splunk installations, and are for initial deployment. These should not be used in any production environment.
+
+It is also recommended that the production certificates be stored in another location away from the Splunk default certificates, as that folder gets replaced on any upgrade of the application. An example would be to use a folder named /etc/system/DODcerts under the Splunk installation root folder.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Request a DOD-approved certificate and a copy of the DOD root CA public certificate, and place the files in a location for Splunk use.
+
+Configure the certificate files to the PEM format, using the Splunk Enterprise system documentation."
+      reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23(5),800-53r5|SC-17b.,800-53r5|SC-23(5),800-53r5|SC-28(3),CAT|II,CCI|CCI-002470,CCI|CCI-004909,CCI|CCI-004910,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-251690r992050_rule,STIG-ID|SPLK-CL-000450,Vuln-ID|V-251690"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000460 - Splunk Enterprise must be configured to protect the confidentiality and integrity of transmitted information."
+      info        : "Without protection of the transmitted information, confidentiality and integrity may be compromised since unprotected communications can be intercepted and either read or altered.
+
+This requirement applies only to those applications that are either distributed or can allow access to data non-locally. Use of this requirement will be limited to situations where the data owner has a strict requirement for ensuring data integrity and confidentiality is maintained at every step of the data transfer and handling process. When transmitting data, applications need to leverage transmission protection mechanisms, such as TLS, SSL VPNs, or IPsec.
+
+Communication paths outside the physical protection of a controlled boundary are exposed to the possibility of interception and modification. Protecting the confidentiality and integrity of organizational information can be accomplished by physical means (e.g., employing physical distribution systems) or by logical means (e.g., employing cryptographic techniques). If physical means of protection are employed, then logical means (cryptography) do not have to be employed, and vice versa.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Edit the following files in the installation to configure Splunk to use SSL certificates:
+
+This configuration is performed on the machine used as an indexer, which may be a separate machine in a distributed environment.
+
+$SPLUNK_HOME/etc/system/local/inputs.conf
+
+[splunktcp-ssl:9997]
+disabled = 0
+
+[SSL]
+serverCert = <path to the DoD approved certificate in PEM format>
+sslPassword = <password for the certificate>
+
+This configuration is performed on the machine used as a forwarder, which is always a separate machine regardless of environment.
+
+$SPLUNK_HOME/etc/system/local/outputs.conf
+
+[tcpout:group1]
+disabled = 0
+clientCert = <path to the DoD approved certificate in PEM format>
+sslPassword = <password for the certificate>"
+      reference   : "800-171|3.13.8,800-171r3|03.13.08,800-53|SC-8,800-53r5|SC-8,CAT|I,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,CSF2.0|PR.DS-02,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.20,ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-251691r961632_rule,STIG-ID|SPLK-CL-000460,Vuln-ID|V-251691"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SPLK-CL-000490 - Splunk Enterprise must accept the DOD CAC or other PKI credential for identity management and personal authentication."
+      info        : "The use of PIV credentials facilitates standardization and reduces the risk of unauthorized access.
+
+DOD has mandated the use of the CAC to support identity management and personal authentication for systems covered under Homeland Security Presidential Directive (HSPD) 12, as well as a primary component of layered protection for national security systems. DOD has approved other methods of PKI, including YubiKey, RSA tokens, etc.
+
+If the application cannot meet this requirement, the risk may be mitigated through use of an authentication server.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Configure an SSO proxy service using Apache, IIS, F5, SAML, etc., to provide PKI credentials to Splunk Enterprise.
+
+Examples for Apache and F5 are provided using the supplemental documentation included in this package to be used in addition to the Splunk documentation."
+      reference   : "800-171|3.5.1,800-171r3|03.05.01a.,800-53|IA-2(12),800-53r5|IA-2(6)(b),800-53r5|IA-2(12),CAT|I,CCI|CCI-001953,CCI|CCI-004047,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Splunk_Enterprise_8-x_for_Linux_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2,ITSG-33|IA-2a.,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-251692r992052_rule,STIG-ID|SPLK-CL-000490,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-251692"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_Splunk_Enterprise_8.x_for_Linux_REST_API_v2r3.audit from DISA Splunk Enterprise 8.x for Linux v2r3 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Splunk_Enterprise_8-x_for+Linux_V2R3_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</check_type>

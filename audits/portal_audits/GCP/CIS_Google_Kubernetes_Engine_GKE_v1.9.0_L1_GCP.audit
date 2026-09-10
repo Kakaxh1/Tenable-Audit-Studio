@@ -1,0 +1,886 @@
+#TRUSTED 521e6049ee1c8a3e14f4d8491446e259e7d87de47a205c64c4bada83f9f556c4eab0449a110ea04c2d4a40d692b02d684e4ae643b3109359eb1056d832720f7e572e4458a688d73954557aa20bad7595742580a1edc1db3cf1fcc635520a24afbe15c76500f3f811f08d868a034fb31b89e8fab443ebedce7283691bae82425d7a36d52b3b1f023b11d81aef333d5e940603402b99b9009ee603563cdc5153e7d46d6e0287dc3cc2d98618cb77c50c83e757e7fc1362bfa79308d128272c83c812fd6a558aec665150139ff7d3ca9dcbb62ceb62e912d8b90ba057c2a4ebe609df53e8b54e90151f2da5c6f0b67bf876f2c2b5d8b9cd40044daa12e2eb102e1f31271661aa522945243b268aa1c92279a3e6ef74f1262b77f3752d59da0fa546130bea3b16f4b5bcb67a60397504f6f3691127dd6aa22a023e2af00ff5f7b6da58afa7018a423027d20bebe93ad9f8d4ba87efd1ae59a067727fb5ca984fad510a0839396a685fd03b17cf2f5dffbb997c91be554d8b5b352dba8531566544be9d46116a52788ddd3f35dbfe3922c54bf1f56082a2a64fd702bd0d8d650481ea537b19e6101dd796edb90c1365654b0122b5f5838af2afe70239d3da68eaa037c61418266c89791448e737813825d9b6c04a7083342411e3fea342bae54075d0aaf0dc257baa7f1a72c7932efdccbe820d520aebe6510a1f4c94c199d3e44695
+#TRUST-RSA-SHA256 a19b720967001d5f37d1cbb4815beddb03867e4e7f43d8f28eb3fe4cf407b620ffdb5cb6cde64560a9d27c3b70447f2ecce76bae22c77bc08fd66dc570ca0d3bd44813ff774819b92cd0966e7732bb07fde5f1798fa91a7bb41e25136c2c10a197ed81e7320dc5d908e610505eec83de422c809dfd01ddfae58924b5d09ea140e0b1644f498458eeb519647613f87e9c7ac888c54c9c39e376f7094685afe8422f87493beb294dd8e1543fb38ab4c83f13cf785230fa2f4227c6d720183b9d6ecc33f5f59b2665e1bc75805cc7f58416b31cc8107510b665c4d6bf6bf3d649f6b27c17d98cca351e3c3dd234a2ec9918035ae9fc5a92c5365f0e1b67268e09682e4b70fb6b601a48457da083037075445b4b4dee2d9a61a21b5ab53fbec609d6bb891ea9118fb3bf1bd8f17316ff3e78073d33756e6a1f0e13d43d625e53e11de7511a49425b28e7c1428ae17f8c1c6febfb7a5cc505e2e8cf74906461a852876eafcd6ab0d800c93095ff30fe586dd59cb082b046ac6469c93e8d9b401a8085d6f16b6e825fd2ba215d7e74b50f88f9810a29402e4ffef08bde28b52af8cefa1544ac76a42f6ab4818243eebadd8ba36e637819a8d07f6b84b43cb4d0bb4c8a164a0d681b8a8844993017ec20f0678b708852fb9d79d99ef55d4257284b11d416729348280159203e15ea05f5d3de62e864a21665c6d368e6d09d9de6b941b4
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/03/06 $
+#
+# description : This .audit is designed against the CIS Google Kubernetes Engine (GKE) Benchmark 1.9.0
+#
+#<ui_metadata>
+#<display_name>CIS Google Kubernetes Engine GKE v1.9.0 L1 GCP</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Google Kubernetes Engine GKE</name>
+#  <profile>L1</profile>
+#  <version>1.9.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/24112</link>
+#</spec>
+#<labels>cis,kubernetes</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"GCP">
+
+<custom_item>
+  type           : REST_API
+  description    : "4.1.1 Ensure that the cluster-admin role is only used where required"
+  info           : "The RBAC role cluster-admin provides wide-ranging powers over the environment and should be used only where and when needed.
+
+Kubernetes provides a set of default roles where RBAC is used. Some of these roles such as cluster-admin provide wide-ranging privileges which should only be applied where absolutely necessary. Roles such as cluster-admin allow super-user access to perform any action on any resource. When used in a ClusterRoleBinding, it gives full control over every resource in the cluster and in all namespaces. When used in a RoleBinding, it gives full control over every resource in the rolebinding's namespace, including the namespace itself.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution       : "Identify all clusterrolebindings to the cluster-admin role. Check if they are used and if they need this role or if they could use a role with fewer privileges.
+
+Where possible, first bind users to a lower-privileged role and then remove the clusterrolebinding to the cluster-admin role :
+
+kubectl delete clusterrolebinding [name]
+
+Impact:
+
+Care should be taken before removing any clusterrolebindings from the environment to ensure they were not required for operation of the cluster. Specifically, modifications should not be made to clusterrolebindings with the system: prefix as they are required for the operation of system components."
+  reference      : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listClusterRolebindings"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+  regex          : "Role: cluster-admin"
+  expect         : "^Manual Review Required$"
+  severity       : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Cluster Role Bindings"
+      request        : "listClusterRolebindings"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+      regex          : "Subject: system:authenticated"
+      expect         : "Role: system:(basic-user|discovery|public-info-viewer)"
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Role Bindings"
+      request        : "listRoleBindings"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+      regex          : "Subject: system:authenticated"
+      not_expect     : "Subject: system:authenticated"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "4.1.10 Avoid non-default bindings to system:authenticated"
+      info        : "Avoid non-default ClusterRoleBindings and RoleBindings with the group system:authenticated, except the ClusterRoleBindings system:basic-user, system:discovery, and system:public-info-viewer.
+
+Google's approach to authentication is to make authenticating to Google Cloud and GKE as simple and secure as possible without adding complex configuration steps. The group system:authenticated includes all users with a Google account, which includes all Gmail accounts. Consider your authorization controls with this extended group scope when granting permissions. Thus, group system:authenticated is not recommended for non-default use.
+
+GKE assigns the group system:authenticated to API server requests made by any user who is signed in with a Google Account, including all Gmail accounts. In practice, this isn't meaningfully different from system:unauthenticated because anyone can create a Google Account.
+
+Binding a role to the group system:authenticated gives any user with a Google Account, including all Gmail accounts, the permissions granted by that role and is strongly discouraged."
+      solution    : "Identify all non-default clusterrolebindings and rolebindings to the group system:authenticated . Check if they are used and review the permissions associated with the binding using the commands in the Audit section above or refer to GKE documentation.
+
+Strongly consider replacing non-default, unsafe bindings with an authenticated, user-defined group. Where possible, bind to non-default, user-defined groups with least-privilege roles.
+
+If there are any non-default, unsafe bindings to the group system:authenticated, proceed to delete them after consideration for cluster operations with only necessary, safer bindings.
+
+kubectl delete clusterrolebinding
+[CLUSTER_ROLE_BINDING_NAME] kubectl delete rolebinding
+[ROLE_BINDING_NAME]
+--namespace
+[ROLE_BINDING_NAMESPACE]
+
+Impact:
+
+Authenticated users in group system:authenticated should be treated similarly to users in system:unauthenticated, having privileges and permissions associated with roles associated with the configured bindings.
+
+Care should be taken before removing any non-default clusterrolebindings or rolebindings from the environment to ensure they were not required for operation of the cluster. Leverage a more specific and authenticated user for cluster operations."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSCv7|16.8,CSCv8|5.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,LEVEL|1A,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "4.1.2 Minimize access to secrets"
+  info        : "The Kubernetes API stores secrets, which may be service account tokens for the Kubernetes API or credentials used by workloads in the cluster. Access to these secrets should be restricted to the smallest possible group of users to reduce the risk of privilege escalation.
+
+Inappropriate access to secrets stored within the Kubernetes cluster can allow for an attacker to gain additional access to the Kubernetes cluster or external resources whose credentials are stored as secrets.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Where possible, remove get, list or watch access to secret objects in the cluster.
+
+Impact:
+
+Care should be taken not to remove access to secrets to system components which require this for their operation"
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.16.01,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.2,CSCv8|4.1,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-09,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO-27001-2022|A.8.30,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Cluster Roles"
+      request        : "listClusterRoles"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .metadata.name as $roleName | .rules[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($roleName), API Groups: \(.apiGroups), Resources: \(.resources), Verbs: \(.verbs)\""
+      regex          : "\*"
+      not_expect     : "\*"
+      severity       : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Roles"
+      request        : "listRoles"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .metadata.name as $roleName | .rules[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($roleName), API Groups: \(.apiGroups), Resources: \(.resources), Verbs: \(.verbs)\""
+      regex          : "\*"
+      not_expect     : "\*"
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "4.1.3 Minimize wildcard use in Roles and ClusterRoles"
+      info        : "Kubernetes Roles and ClusterRoles provide access to resources based on sets of objects and actions that can be taken on those objects. It is possible to set either of these to be the wildcard \"*\", which matches all items.
+
+Use of wildcards is not optimal from a security perspective as it may allow for inadvertent access to be granted when new resources are added to the Kubernetes API either as CRDs or in later versions of the product.
+
+The principle of least privilege recommends that users are provided only the access required for their role and nothing more. The use of wildcard rights grants is likely to provide excessive rights to the Kubernetes API.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Where possible replace any use of wildcards in clusterroles and roles with specific objects or actions."
+      reference   : "800-171|3.5.2,800-171r3|03.05.07,800-53|IA-5(1),800-53r5|IA-5(1),CSCv7|4.4,CSCv8|5.2,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(1),LEVEL|1M,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "4.1.4 Ensure that default service accounts are not actively used"
+  info        : "The default service account should not be used to ensure that rights granted to applications can be more easily audited and reviewed.
+
+Kubernetes provides a default service account which is used by cluster workloads where no specific service account is assigned to the pod.
+
+Where access to the Kubernetes API from a pod is required, a specific service account should be created for that pod, and rights granted to that service account.
+
+The default service account should be configured such that it does not provide a service account token and does not have any explicit rights assignments.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Create explicit service accounts wherever a Kubernetes workload requires specific access to the Kubernetes API server.
+
+Modify the configuration of each default service account to include this value
+
+automountServiceAccountToken: false
+
+Impact:
+
+All workloads which require access to the Kubernetes API will require an explicit service account to be created."
+  reference   : "800-171|3.1.1,800-171r3|03.01.01f.,800-53|AC-2(3),800-53r5|AC-2(3),CN-L3|7.1.3.2(e),CN-L3|8.1.4.2(c),CSCv7|4.3,CSCv7|5.2,CSCv7|16.9,CSCv8|5.3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.6,ITSG-33|AC-2(3),LEVEL|1A,NIAv2|AM26,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,TBA-FIISB|36.2.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<report type:"WARNING">
+  description : "4.1.5 Ensure that Service Account Tokens are only mounted where necessary"
+  info        : "Service accounts tokens should not be mounted in pods except where the workload running in the pod explicitly needs to communicate with the API server
+
+Mounting service account tokens inside pods can provide an avenue for privilege escalation attacks where an attacker is able to compromise a single pod in the cluster.
+
+Avoiding mounting these tokens removes this attack avenue.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Modify the definition of pods and service accounts which do not need to mount service account tokens to disable it.
+
+Impact:
+
+Pods mounted without service account tokens will not be able to communicate with the API server, except where the resource is available to unauthenticated principals."
+  reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|14.7,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.1.6 Avoid use of system:masters group"
+  info           : "The special group system:masters should not be used to grant permissions to any user or service account, except where strictly necessary (e.g. bootstrapping access prior to RBAC being fully available)
+
+The system:masters group has unrestricted access to the Kubernetes API hard-coded into the API server source code. An authenticated user who is a member of this group cannot have their access reduced, even if all bindings and cluster role bindings which mention it, are removed.
+
+When combined with client certificate authentication, use of this group can allow for irrevocable cluster-admin level credentials to exist for a cluster.
+
+GKE includes the CertificateSubjectRestriction admission controller which rejects requests for the system:masters group.
+
+CertificateSubjectRestriction \"This admission controller observes creation of CertificateSigningRequest resources that have a spec.signerName of kubernetes.io/kube-apiserver-client. It rejects any request that specifies a 'group' (or 'organization attribute') of system:masters.\" https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#certificatesubjectrestriction"
+  solution       : "Remove the system:masters group from all users in the cluster.
+
+Impact:
+
+Once the RBAC system is operational in a cluster system:masters should not be specifically required, as ordinary bindings from principals to the cluster-admin cluster role can be made where unrestricted access is required."
+  reference      : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listClusterRolebindings"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+  regex          : "Subject: system:masters"
+  not_expect     : "Subject: system:masters"
+</custom_item>
+
+<report type:"WARNING">
+  description : "4.1.7 Limit use of the Bind, Impersonate and Escalate permissions in the Kubernetes cluster"
+  info        : "Cluster roles and roles with the impersonate, bind or escalate permissions should not be granted unless strictly required. Each of these permissions allow a particular subject to escalate their privileges beyond those explicitly granted by cluster administrators
+
+The impersonate privilege allows a subject to impersonate other users gaining their rights to the cluster. The bind privilege allows the subject to add a binding to a cluster role or role which escalates their effective permissions in the cluster. The escalate privilege allows a subject to modify cluster roles to which they are bound, increasing their rights to that level.
+
+Each of these permissions has the potential to allow for privilege escalation to cluster-admin level.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Where possible, remove the impersonate, bind and escalate rights from subjects.
+
+Impact:
+
+There are some cases where these permissions are required for cluster service operation, and care should be taken before removing these permissions from system service accounts."
+  reference   : "800-171|3.1.5,800-171|3.1.6,800-171r3|03.01.06a.,800-171r3|03.01.06b.,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.18,ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Role Bindings"
+      request        : "listRoleBindings"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+      regex          : "Subject: system:unauthenticated"
+      not_expect     : "Subject: system:unauthenticated"
+      severity       : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Cluster Role Bindings"
+      request        : "listClusterRolebindings"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .value.items[] | .roleRef as $role | .subjects[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Role: \($role.name), Subject: \(.name)\""
+      regex          : "Subject: system:unauthenticated"
+      expect         : "Role: system:public-info-viewer"
+      match_all      : YES
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "4.1.9 Avoid non-default bindings to system:unauthenticated"
+      info        : "Avoid non-default ClusterRoleBindings and RoleBindings with the group system:unauthenticated, except the ClusterRoleBinding system:public-info-viewer.
+
+Kubernetes assigns the group system:unauthenticated to API server requests that have no authentication information provided. Binding a role to this group gives any unauthenticated user the permissions granted by that role and is strongly discouraged.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Identify all non-default clusterrolebindings and rolebindings to the group system:unauthenticated . Check if they are used and review the permissions associated with the binding using the commands in the Audit section above or refer to GKE documentation https://cloud.google.com/kubernetes-engine/docs/best-practices/rbac#detect-prevent-default.
+
+Strongly consider replacing non-default, unsafe bindings with an authenticated, user-defined group. Where possible, bind to non-default, user-defined groups with least-privilege roles.
+
+If there are any non-default, unsafe bindings to the group system:unauthenticated, proceed to delete them after consideration for cluster operations with only necessary, safer bindings.
+
+kubectl delete clusterrolebinding
+[CLUSTER_ROLE_BINDING_NAME] kubectl delete rolebinding
+[ROLE_BINDING_NAME]
+--
+namespace
+[ROLE_BINDING_NAMESPACE]
+
+Impact:
+
+Unauthenticated users will have privileges and permissions associated with roles associated with the configured bindings.
+
+Care should be taken before removing any non-default clusterrolebindings or rolebindings from the environment to ensure they were not required for operation of the cluster. Leverage a more specific and authenticated user for cluster operations."
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSCv7|16.8,CSCv8|5.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,LEVEL|1A,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "4.2.1 Ensure that the cluster enforces Pod Security Standard Baseline profile or stricter for all namespaces."
+  info        : "The Pod Security Standard Baseline profile defines a baseline for container security. You can enforce this by using the built-in Pod Security Admission controller.
+
+Without an active mechanism to enforce the Pod Security Standard Baseline profile, it is not possible to limit the use of containers with access to underlying cluster nodes, via mechanisms like privileged containers, or the use of hostPath volume mounts.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Ensure that Pod Security Admission is in place for every namespace which contains user workloads.
+
+Run the following command to enforce the Baseline profile in a namespace:
+
+kubectl label namespace <namespace-name> pod-security.kubernetes.io/enforce=baseline
+
+Impact:
+
+Enforcing a baseline profile will limit the use of containers."
+  reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.1,CSCv7|5.2,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<report type:"WARNING">
+  description : "4.3.1 Ensure that the CNI in use supports Network Policies"
+  info        : "There are a variety of CNI plugins available for Kubernetes. If the CNI in use does not support Network Policies it may not be possible to effectively restrict traffic in the cluster.
+
+Kubernetes network policies are enforced by the CNI plugin in use. As such it is important to ensure that the CNI plugin supports both Ingress and Egress network policies.
+
+See also recommendation 5.6.7.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "To use a CNI plugin with Network Policy, enable Network Policy in GKE, and the CNI plugin will be updated. See recommendation 5.6.7.
+
+Impact:
+
+None"
+  reference   : "800-171|3.4.8,800-171r3|03.04.08,800-53|CM-7(5),800-53r5|SR-11,CSCv7|18.4,CSCv8|16.5,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.19,ISO/IEC-27001|A.12.5.1,ISO/IEC-27001|A.12.6.2,ITSG-33|CM-7,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,SWIFT-CSCv1|2.3,TBA-FIISB|44.2.2,TBA-FIISB|49.2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<report type:"WARNING">
+  description : "4.6.1 Create administrative boundaries between resources using namespaces"
+  info        : "Use namespaces to isolate your Kubernetes objects.
+
+Limiting the scope of user permissions can reduce the impact of mistakes or malicious activities. A Kubernetes namespace allows you to partition created resources into logically named groups. Resources created in one namespace can be hidden from other namespaces. By default, each resource created by a user in Kubernetes cluster runs in a default namespace, called default . You can create additional namespaces and attach resources and users to them. You can use Kubernetes Authorization plugins to create policies that segregate access to namespace resources between different users.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Follow the documentation and create namespaces for objects in your deployment as you need them.
+
+Impact:
+
+You need to switch between namespaces for administration."
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171r3|03.13.01,800-53|SC-7,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|12,CSCv8|13,CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,LEVEL|1M,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.10.1 Ensure Kubernetes Web UI is Disabled"
+  info           : "Note: The Kubernetes web UI (Dashboard) does not have admin access by default in GKE 1.7 and higher. The Kubernetes web UI is disabled by default in GKE 1.10 and higher. In GKE 1.15 and higher, the Kubernetes web UI add-on KubernetesDashboard is no longer supported as a managed add-on.
+
+The Kubernetes Web UI (Dashboard) has been a historical source of vulnerability and should only be deployed when necessary.
+
+You should disable the Kubernetes Web UI (Dashboard) when running on Kubernetes Engine. The Kubernetes Web UI is backed by a highly privileged Kubernetes Service Account.
+
+The Google Cloud Console provides all the required functionality of the Kubernetes Web UI and leverages Cloud IAM to restrict user access to sensitive cluster controls and settings."
+  solution       : "Using Google Cloud Console:
+
+Currently not possible, due to the add-on having been removed. Must use the command line.
+
+Using Command Line:
+
+To disable the Kubernetes Dashboard on an existing cluster, run the following command:
+
+gcloud container clusters update <cluster_name> --location <location> --update-addons=KubernetesDashboard=DISABLED
+
+Impact:
+
+Users will be required to manage cluster resources using the Google Cloud Console or the command line. These require appropriate permissions. To use the command line, this requires the installation of the command line client, kubectl, on the user's device (this is already included in Cloud Shell) and knowledge of command line operations."
+  reference      : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|2.2,CSCv7|18.4,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Kubernetes Dashboard - Disabled: \(.addonsConfig.kubernetesDashboard.disabled)\""
+  regex          : "Kubernetes Dashboard - Disabled"
+  expect         : "Kubernetes Dashboard - Disabled: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.10.2 Ensure that Alpha clusters are not used for production workloads"
+  info           : "Alpha clusters are not covered by an SLA and are not production-ready.
+
+Alpha clusters are designed for early adopters to experiment with workloads that take advantage of new features before those features are production-ready. They have all Kubernetes API features enabled, but are not covered by the GKE SLA, do not receive security updates, have node auto-upgrade and node auto-repair disabled, and cannot be upgraded. They are also automatically deleted after 30 days."
+  solution       : "Alpha features cannot be disabled. To remediate, a new cluster must be created.
+
+Using Google Cloud Console
+
+ - Go to Kubernetes Engine by visiting https://console.cloud.google.com/kubernetes/
+ - Click CREATE CLUSTER, and choose \"SWITCH TO STANDARD CLUSTER\" in the upper right corner of the screen.
+ - Under Features in the the CLUSTER section, \"Enable Kubernetes alpha features in this cluster\" will not be available by default and to use Kubernetes alpha features in this cluster, first disable release channels.Note: It will only be available if the cluster is created with a Static version for the Control plane version, along with both Automatically upgrade nodes to the next available version and Enable auto-repair being checked under the Node pool details for each node.
+ - Configure the other settings as required and click CREATE.
+
+Using Command Line:
+
+Upon creating a new cluster
+
+gcloud container clusters create <cluster name> --location <location>
+
+Do not use the --enable-kubernetes-alpha argument.
+
+Impact:
+
+Users and workloads will not be able to take advantage of features included within Alpha clusters."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171r3|03.13.01,800-53|SC-7,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|18.9,CSCv8|16.8,CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Enable Kubernetes Alpha: \(.enableKubernetesAlpha)\""
+  regex          : "Enable Kubernetes Alpha"
+  expect         : "Enable Kubernetes Alpha: (null|false)"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "5.2.1 Ensure GKE clusters are not running using the Compute Engine default service account"
+  info        : "Create and use minimally privileged Service accounts to run GKE cluster nodes instead of using the Compute Engine default Service account. Unnecessary permissions could be abused in the case of a node compromise.
+
+A GCP service account (as distinct from a Kubernetes ServiceAccount) is an identity that an instance or an application can be used to run GCP API requests. This identity is used to identify virtual machine instances to other Google Cloud Platform services. By default, Kubernetes Engine nodes use the Compute Engine default service account. This account has broad access by default, as defined by access scopes, making it useful to a wide variety of applications on the VM, but it has more permissions than are required to run your Kubernetes Engine cluster.
+
+A minimally privileged service account should be created and used to run the Kubernetes Engine cluster instead of using the Compute Engine default service account, and create separate service accounts for each Kubernetes Workload (See recommendation 5.2.2).
+
+Kubernetes Engine requires, at a minimum, the node service account to have the monitoring.viewer, monitoring.metricWriter, and logging.logWriter roles. Additional roles may need to be added for the nodes to pull images from GCR.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Using Google Cloud Console:
+
+To create a minimally privileged service account:
+
+ - Go to Service Accounts by visiting: https://console.cloud.google.com/iam-admin/serviceaccounts.
+ - Click on CREATE SERVICE ACCOUNT.
+ - Enter Service Account Details.
+ - Click CREATE AND CONTINUE.
+ - Within Service Account permissions add the following roles:
+ - Logs Writer.
+ - Monitoring Metric Writer.
+ - `Monitoring Viewer.
+
+ - Click CONTINUE.
+ - Grant users access to this service account and create keys as required.
+ - Click DONE.
+
+To create a Node pool to use the Service account:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Click on the cluster name within which the Node pool will be launched.
+ - Click on ADD NODE POOL.
+ - Within the Node Pool details, select the Security subheading, and under `Identity defaults, select the minimally privileged service account from the Service Account drop-down.
+ - Click `CREATE to launch the Node pool.
+
+Note: The workloads will need to be migrated to the new Node pool, and the old node pools that use the default service account should be deleted to complete the remediation.
+
+Using Command Line:
+
+To create a minimally privileged service account:
+
+gcloud iam service-accounts create <node_sa_name> --display-name \"GKE Node Service Account\"
+export NODE_SA_EMAIL=gcloud iam service-accounts list --format='value(email)' --filter='displayName:GKE Node Service Account'
+
+Grant the following roles to the service account:
+
+export PROJECT_ID=gcloud config get-value project
+gcloud projects add-iam-policy-binding <project_id> --member serviceAccount:<node_sa_email> --role roles/monitoring.metricWriter
+gcloud projects add-iam-policy-binding <project_id> --member serviceAccount:<node_sa_email> --role roles/monitoring.viewer
+gcloud projects add-iam-policy-binding <project_id> --member serviceAccount:<node_sa_email> --role roles/logging.logWriter
+
+To create a new Node pool using the Service account, run the following command:
+
+gcloud container node-pools create <node_pool> --service-account=<sa_name>@<project_id>.iam.gserviceaccount.com--cluster=<cluster_name> --zone <compute_zone>
+
+Note: The workloads will need to be migrated to the new Node pool, and the old node pools that use the default service account should be deleted to complete the remediation.
+
+Impact:
+
+Instances are automatically granted the https://www.googleapis.com/auth/cloud-platform scope to allow full access to all Google Cloud APIs. This is so that the IAM permissions of the instance are completely determined by the IAM roles of the Service account. Thus if Kubernetes workloads were using cluster access scopes to perform actions using Google APIs, they may no longer be able to, if not permitted by the permissions of the Service account. To remediate, follow recommendation 5.2.2.
+
+The Service account roles listed here are the minimum required to run the cluster. Additional roles may be required to pull from a private instance of Google Container Registry (GCR)."
+  reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5,800-53r5|IA-5,CSCv7|4.3,CSCv8|4.7,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5,LEVEL|1A,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.5.1 Ensure Container-Optimized OS (cos_containerd) is used for GKE Node images"
+  info           : "Use Container-Optimized OS (cos_containerd) as a managed, optimized and hardened base OS that limits the host's attack surface.
+
+COS is an operating system image for Compute Engine VMs optimized for running containers. With COS, the containers can be brought up on Google Cloud Platform quickly, efficiently, and securely.
+
+Using COS as the node image provides the following benefits:
+
+ - Run containers out of the box: COS instances come pre-installed with the container runtime and cloud-init . With a COS instance, the container can be brought up at the same time as the VM is created, with no on-host setup required.
+ - Smaller attack surface: COS has a smaller footprint, reducing the instance's potential attack surface.
+ - Locked-down by default: COS instances include a locked-down firewall and other security settings by default."
+  solution       : "Using Google Cloud Console:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Select the Kubernetes cluster which does not use COS.
+ - Under the Node pools heading, select the Node Pool that requires alteration.
+ - Click EDIT.
+ - Under the Image Type heading click CHANGE.
+ - From the pop-up menu select Container-optimised OS with containerd (cos_containerd) (default) and click CHANGE
+ - Repeat for all non-compliant Node pools.
+
+Using Command Line:
+
+To set the node image to cos for an existing cluster's Node pool:
+
+gcloud container clusters upgrade <cluster_name> --image-type cos_containerd --location <location> --node-pool <node_pool_name>
+
+Impact:
+
+If modifying an existing cluster's Node pool to run COS, the upgrade operation used is long-running and will block other operations on the cluster (including delete) until it has run to completion.
+
+COS nodes also provide an option with containerd as the main container runtime directly integrated with Kubernetes instead of docker . Thus, on these nodes, Docker cannot view or access containers or images managed by Kubernetes. Applications should not interact with Docker directly. For general troubleshooting or debugging, use crictl instead."
+  reference      : "800-171|3.4.8,800-171r3|03.04.08,800-53|CM-7(5),800-53|CM-10,800-53r5|CM-7(5),800-53r5|CM-10,CSCv7|5.2,CSCv8|2.5,CSF|DE.CM-3,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.32,ISO-27001-2022|A.8.19,ISO/IEC-27001|A.12.5.1,ISO/IEC-27001|A.12.6.2,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|44.2.2,TBA-FIISB|49.2.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .nodePools[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Node Pool Name: \(.name), Image Type: \(.config.imageType)\""
+  regex          : "Image Type"
+  expect         : "Image Type: COS_CONTAINERD"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.5.4 When creating New Clusters - Automate GKE version management using Release Channels"
+  info           : "Subscribe to the Regular or Stable Release Channel to automate version upgrades to the GKE cluster and to reduce version management complexity to the number of features and level of stability required.
+
+Release Channels signal a graduating level of stability and production-readiness. These are based on observed performance of GKE clusters running that version and represent experience and confidence in the cluster version.
+
+The Regular release channel upgrades every few weeks and is for production users who need features not yet offered in the Stable channel. These versions have passed internal validation, but don't have enough historical data to guarantee their stability. Known issues generally have known workarounds.
+
+The Stable release channel upgrades every few months and is for production users who need stability above all else, and for whom frequent upgrades are too risky. These versions have passed internal validation and have been shown to be stable and reliable in production, based on the observed performance of those clusters.
+
+Critical security patches are delivered to all release channels."
+  solution       : "Currently, cluster Release Channels are only configurable at cluster provisioning time.
+
+Using Google Cloud Console:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Click CREATE, and choose CONFIGURE for the required cluster mode.
+ - Under the Control plane version heading, click the Release Channels button.
+ - Select the Regular or Stable channels from the Release Channel drop-down menu.
+ - Configure the rest of the cluster settings as required.
+ - Click CREATE.
+
+Using Command Line:Create a new cluster by running the following command:
+
+gcloud container clusters create <cluster_name> --location <location> --release-channel <release_channel>
+
+where <release_channel> is stable or regular, according to requirements.
+
+Impact:
+
+Once release channels are enabled on a cluster, they cannot be disabled. To stop using release channels, the cluster must be recreated without the --release-channel flag.
+
+Node auto-upgrade is enabled (and cannot be disabled), so the cluster is updated automatically from releases available in the chosen release channel."
+  reference      : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-171r3|03.11.02,800-171r3|03.14.01,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.4,CSCv7|3.5,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.8,ISO-27001-2022|A.8.32,ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Release Channel: \(.releaseChannel.channel)\""
+  regex          : "Release Channel:"
+  expect         : "Release Channel: (REGULAR|STABLE)"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.5.5 Ensure Shielded GKE Nodes are Enabled"
+  info           : "Shielded GKE Nodes provides verifiable integrity via secure boot, virtual trusted platform module (vTPM)-enabled measured boot, and integrity monitoring.
+
+Shielded GKE nodes protects clusters against boot- or kernel-level malware or rootkits which persist beyond infected OS.
+
+Shielded GKE nodes run firmware which is signed and verified using Google's Certificate Authority, ensuring that the nodes' firmware is unmodified and establishing the root of trust for Secure Boot. GKE node identity is strongly protected via virtual Trusted Platform Module (vTPM) and verified remotely by the master node before the node joins the cluster. Lastly, GKE node integrity (i.e., boot sequence and kernel) is measured and can be monitored and verified remotely."
+  solution       : "Note: From version 1.18, clusters will have Shielded GKE nodes enabled by default.
+
+Using Google Cloud Console:
+
+To update an existing cluster to use Shielded GKE nodes:
+
+ - Navigate to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Select the cluster which for which Shielded GKE Nodes is to be enabled.
+ - With in the Details pane, under the Security heading, click on the pencil icon named Edit Shields GKE nodes.
+ - Check the box named Enable Shield GKE nodes.
+ - Click SAVE CHANGES.
+
+Using Command Line:
+
+To migrate an existing cluster, the flag --enable-shielded-nodes needs to be specified in the cluster update command:
+
+gcloud container clusters update <cluster_name> --location <location> --enable-shielded-nodes
+
+Impact:
+
+After Shielded GKE Nodes is enabled in a cluster, any nodes created in a Node pool without Shielded GKE Nodes enabled, or created outside of any Node pool, aren't able to join the cluster.
+
+Shielded GKE Nodes can only be used with Container-Optimized OS (COS), COS with containerd, and Ubuntu node images."
+  reference      : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|5.3,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Shielded Nodes - Enabled: \(.shieldedNodes.enabled)\""
+  regex          : "Shielded Nodes - Enabled"
+  expect         : "Shielded Nodes - Enabled: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.5.6 Ensure Integrity Monitoring for Shielded GKE Nodes is Enabled"
+  info           : "Enable Integrity Monitoring for Shielded GKE Nodes to be notified of inconsistencies during the node boot sequence.
+
+Integrity Monitoring provides active alerting for Shielded GKE nodes which allows administrators to respond to integrity failures and prevent compromised nodes from being deployed into the cluster."
+  solution       : "Once a Node pool is provisioned, it cannot be updated to enable Integrity Monitoring. New Node pools must be created within the cluster with Integrity Monitoring enabled.
+
+Using Google Cloud Console
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list
+ - From the list of clusters, click on the cluster requiring the update and click ADD NODE POOL.
+ - Ensure that the 'Integrity monitoring' checkbox is checked under the 'Shielded options' Heading.
+ - Click SAVE.
+
+Workloads from existing non-conforming Node pools will need to be migrated to the newly created Node pool, then delete non-conforming Node pools to complete the remediation
+
+Using Command Line
+
+To create a Node pool within the cluster with Integrity Monitoring enabled, run the following command:
+
+gcloud container node-pools create <node_pool_name> --cluster <cluster_name> --location <location> --shielded-integrity-monitoring
+
+Workloads from existing non-conforming Node pools will need to be migrated to the newly created Node pool, then delete non-conforming Node pools to complete the remediation
+
+Impact:
+
+None."
+  reference      : "800-171|3.11.2,800-171|3.11.3,800-171r3|03.11.02,800-53|RA-5,800-53r5|RA-5,CSCv7|5.3,CSCv8|7.5,CSCv8|7.6,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.8,ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.7.1,PCI-DSSv3.2.1|6.1,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.7"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | .name as $clusterName | .nodePools[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \($clusterName), Node Pool Name: \(.name), Shielded Instance - Enable Integrity Monitoring: \(.config.shieldedInstanceConfig.enableIntegrityMonitoring)\""
+  regex          : "Shielded Instance - Enable Integrity Monitoring"
+  expect         : "Shielded Instance - Enable Integrity Monitoring: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.6.2 Ensure use of VPC-native clusters"
+  info           : "Create Alias IPs for the node network CIDR range in order to subsequently configure IP-based policies and firewalling for pods. A cluster that uses Alias IPs is called a VPC-native cluster.
+
+Using Alias IPs has several benefits:
+
+ - Pod IPs are reserved within the network ahead of time, which prevents conflict with other compute resources.
+ - The networking layer can perform anti-spoofing checks to ensure that egress traffic is not sent with arbitrary source IPs.
+ - Firewall controls for Pods can be applied separately from their nodes.
+ - Alias IPs allow Pods to directly access hosted services without using a NAT gateway."
+  solution       : "Alias IPs cannot be enabled on an existing cluster. To create a new cluster using Alias IPs, follow the instructions below.
+
+Using Google Cloud Console:
+
+If using Standard configuration mode:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list
+ - Click CREATE CLUSTER, and select Standard configuration mode.
+ - Configure your cluster as desired, then, click Networking under CLUSTER in the navigation pane.
+ - In the 'VPC-native' section, leave 'Enable VPC-native (using alias IP)' selected
+ - Click CREATE.
+
+Using Command Line
+
+To enable Alias IP on a new cluster, run the following command:
+
+gcloud container clusters create <cluster_name> --location <location> --enable-ip-alias
+
+Impact:
+
+You cannot currently migrate an existing cluster that uses routes for Pod routing to a cluster that uses Alias IPs.
+
+Cluster IPs for internal services remain only available from within the cluster. If you want to access a Kubernetes Service from within the VPC, but from outside of the cluster, use an internal load balancer."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171r3|03.13.01,800-53|CA-9,800-53|SC-7,800-53r5|CA-9,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|11,CSCv7|14.1,CSCv8|13.4,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Use IP Aliases: \(.ipAllocationPolicy.useIpAliases)\""
+  regex          : "Use IP Aliases"
+  expect         : "Use IP Aliases: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.6.5 Ensure clusters are created with Private Nodes"
+  info           : "Private Nodes are nodes with no public IP addresses. Disable public IP addresses for cluster nodes, so that they only have private IP addresses.
+
+Disabling public IP addresses on cluster nodes restricts access to only internal networks, forcing attackers to obtain local network access before attempting to compromise the underlying Kubernetes hosts."
+  solution       : "Once a cluster is created without enabling Private Nodes, it cannot be remediated. Rather the cluster must be recreated.
+
+Using Google Cloud Console:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Click CREATE CLUSTER.
+ - Configure the cluster as required then click Networking under CLUSTER in the navigation pane.
+ - Under IPv4 network access, click the Private cluster radio button.
+ - Configure the other settings as required, and click CREATE.
+
+Using Command Line:
+
+To create a cluster with Private Nodes enabled, include the --enable-private-nodes flag within the cluster create command:
+
+gcloud container clusters create <cluster_name> --enable-private-nodes
+
+Setting this flag also requires the setting of --enable-ip-alias and --master-ipv4-cidr=<master_cidr_range>.
+
+Impact:
+
+To enable Private Nodes, the cluster has to also be configured with a private master IP range and IP Aliasing enabled.
+
+Private Nodes do not have outbound access to the public internet. If you want to provide outbound Internet access for your private nodes, you can use Cloud NAT or you can manage your own NAT gateway.
+
+To access Google Cloud APIs and services from private nodes, Private Google Access needs to be set on Kubernetes Engine Cluster Subnets."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-171r3|03.13.01,800-171r3|03.13.06,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|12,CSCv8|4.4,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Enable Private Nodes: \(.privateClusterConfig.enablePrivateNodes)\""
+  regex          : "Enable Private Nodes"
+  expect         : "Enable Private Nodes: true"
+  match_all      : YES
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Logging Service"
+      request        : "listContainerClusters"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Logging Service: \(.loggingService)\""
+      regex          : "Logging Service"
+      expect         : "Logging Service: logging.googleapis.com/kubernetes"
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Monitoring Service"
+      request        : "listContainerClusters"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Monitoring Service: \(.monitoringService)\""
+      regex          : "Monitoring Service"
+      expect         : "Monitoring Service: monitoring.googleapis.com/kubernetes"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "5.7.1 Ensure Logging and Cloud Monitoring is Enabled"
+      info        : "Send logs and metrics to a remote aggregator to mitigate the risk of local tampering in the event of a breach.
+
+Exporting logs and metrics to a dedicated, persistent datastore such as Cloud Operations for GKE ensures availability of audit data following a cluster security event, and provides a central location for analysis of log and metric data collated from multiple sources."
+      solution    : "Using Google Cloud Console:To enable Logging:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Select the cluster for which Logging is disabled.
+ - Under the details pane, within the Features section, click on the pencil icon named Edit logging.
+ - Check the box next to Enable Logging.
+ - In the drop-down Components box, select the components to be logged.
+ - Click SAVE CHANGES, and wait for the cluster to update.
+
+To enable Cloud Monitoring:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Select the cluster for which Logging is disabled.
+ - Under the details pane, within the Features section, click on the pencil icon named Edit Cloud Monitoring.
+ - Check the box next to Enable Cloud Monitoring.
+ - In the drop-down Components box, select the components to be logged.
+ - Click SAVE CHANGES, and wait for the cluster to update.
+
+Using Command Line:To enable Logging for an existing cluster, run the following command:
+
+gcloud container clusters update <cluster_name> --location <location> --logging=<components_to_be_logged>
+
+See https://cloud.google.com/kubernetes-engine/docs/how-to/configure-metrics#available-metrics for a list of available metrics for logging.
+
+To enable Cloud Monitoring for an existing cluster, run the following command:
+
+gcloud container clusters update <cluster_name> --location <location> --monitoring=<components_to_be_logged>
+
+See https://cloud.google.com/kubernetes-engine/docs/concepts/about-logs#available-logs for a list of available logging values."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/24112"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.8.1 Ensure authentication using Client Certificates is Disabled"
+  info           : "Do not make use of client certificate authentication in GKE, as the credentials cannot be revoked. Instead, use another authentication method like OpenID Connect.
+
+With Client Certificate authentication, a client presents a certificate that the API server verifies with the specified Certificate Authority. In GKE, Client Certificates are signed by the cluster root Certificate Authority. When retrieved, the Client Certificate is only base64 encoded and not encrypted.
+
+GKE manages authentication via gcloud for you using the OpenID Connect token method, setting up the Kubernetes configuration, getting an access token, and keeping it up to date. This means Basic Authentication using static passwords and Client Certificate authentication, which both require additional management overhead of key management and rotation, are not necessary and should not be used where possible.
+
+When Client Certificate creation is disabled GKE will not provide a client certificate on cluster creation, however users will still be able to use the Certificate Signing Request (CSR) API to create new client certificates, if they have access to it."
+  solution       : "Currently, there is no way to remove a client certificate from an existing cluster. Thus a new cluster must be created.
+
+Using Google Cloud Console
+
+ - Go to Kubernetes Engine by visiting https://console.cloud.google.com/kubernetes/list
+ - Click CREATE CLUSTER
+ - Configure as required and the click on 'Availability, networking, security, and additional features' section
+ - Ensure that the 'Issue a client certificate' checkbox is not ticked
+ - Click CREATE.
+
+Using Command Line
+
+Create a new cluster without a Client Certificate:
+
+gcloud container clusters create [CLUSTER_NAME] \\
+ --no-issue-client-certificate
+
+In addition it's important to restrict access to the CSR API in Kubernetes to prevent users from using it to issue new client certificate credentials.
+
+Impact:
+
+Users will no longer be able to authenticate with the pre-provisioned x509 certificate. You should configure and use alternate authentication mechanisms, such as OpenID Connect tokens."
+  reference      : "800-171|3.1.1,800-171|3.1.5,800-171|3.3.8,800-171|3.3.9,800-171r3|03.01.01,800-171r3|03.01.02,800-171r3|03.01.05,800-171r3|03.01.05a.,800-171r3|03.01.05b.,800-171r3|03.03.08b.,800-53|AC-2,800-53|AC-3,800-53|AC-6,800-53|AC-6(1),800-53|AC-6(7),800-53|AU-9(4),800-53r5|AC-2,800-53r5|AC-5,800-53r5|AC-6,800-53r5|AC-6(1),800-53r5|AC-6(7),800-53r5|AU-9(4),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.3(d),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|16,CSCv8|6.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.5,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.4,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.4.2,ITSG-33|AC-2,ITSG-33|AC-3,ITSG-33|AC-6,ITSG-33|AC-6(1),ITSG-33|AU-9(4),ITSG-33|AU-9(4)(a),ITSG-33|AU-9(4)(b),LEVEL|1A,NESA|M1.1.3,NESA|M1.2.2,NESA|M5.2.3,NESA|M5.5.2,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|AM28,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|NS5j,NIAv2|SM5,NIAv2|SM6,NIAv2|SS13c,NIAv2|SS14e,NIAv2|SS15c,NIAv2|SS29,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.3.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Master Auth - Client Key Length: \(.masterAuth.clientKey | length)\""
+  regex          : "Master Auth - Client Key Length:"
+  expect         : "Master Auth - Client Key Length: 0"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.8.3 Ensure Legacy Authorization (ABAC) is Disabled"
+  info           : "Legacy Authorization, also known as Attribute-Based Access Control (ABAC) has been superseded by Role-Based Access Control (RBAC) and is not under active development.RBAC is the recommended way to manage permissions in Kubernetes.
+
+In Kubernetes, RBAC is used to grant permissions to resources at the cluster and namespace level. RBAC allows the definition of roles with rules containing a set of permissions, whilst the legacy authorizer (ABAC) in Kubernetes Engine grants broad, statically defined permissions. As RBAC provides significant security advantages over ABAC, it is recommended option for access control. Where possible, legacy authorization must be disabled for GKE clusters."
+  solution       : "Using Google Cloud Console:
+
+ - Go to Kubernetes Engine by visiting: https://console.cloud.google.com/kubernetes/list.
+ - Select Kubernetes clusters for which Legacy Authorization is enabled.
+ - Click EDIT.
+ - Set 'Legacy Authorization' to 'Disabled'.
+ - Click SAVE.
+
+Using Command Line:
+
+To disable Legacy Authorization for an existing cluster, run the following command:
+
+gcloud container clusters update <cluster_name> --location <location> --no-enable-legacy-authorization
+
+Impact:
+
+Once the cluster has the legacy authorizer disabled, the user must be granted the ability to create authorization roles using RBAC to ensure that the role-based access control permissions take effect."
+  reference      : "800-171|3.1.1,800-171|3.1.5,800-171|3.3.8,800-171|3.3.9,800-171r3|03.01.01,800-171r3|03.01.02,800-171r3|03.01.05,800-171r3|03.01.05a.,800-171r3|03.01.05b.,800-171r3|03.03.08b.,800-53|AC-2,800-53|AC-3,800-53|AC-6,800-53|AC-6(1),800-53|AC-6(7),800-53|AU-9(4),800-53r5|AC-2,800-53r5|AC-5,800-53r5|AC-6,800-53r5|AC-6(1),800-53r5|AC-6(7),800-53r5|AU-9(4),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.3(d),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|4,CSCv7|16,CSCv8|6.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.5,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.4,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.4.2,ITSG-33|AC-2,ITSG-33|AC-3,ITSG-33|AC-6,ITSG-33|AC-6(1),ITSG-33|AU-9(4),ITSG-33|AU-9(4)(a),ITSG-33|AU-9(4)(b),LEVEL|1A,NESA|M1.1.3,NESA|M1.2.2,NESA|M5.2.3,NESA|M5.5.2,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|AM28,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|NS5j,NIAv2|SM5,NIAv2|SM6,NIAv2|SS13c,NIAv2|SS14e,NIAv2|SS15c,NIAv2|SS29,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.3.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/24112"
+  request        : "listContainerClusters"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Cluster Name: \(.name), Legacy ABAC Enabled: \(.legacyAbac.enabled)\""
+  regex          : "Legacy ABAC Enabled:"
+  not_expect     : "Legacy ABAC Enabled: true"
+</custom_item>
+
+</check_type>

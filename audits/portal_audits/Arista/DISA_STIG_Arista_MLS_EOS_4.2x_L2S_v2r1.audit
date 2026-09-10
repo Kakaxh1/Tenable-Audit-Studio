@@ -1,0 +1,705 @@
+#TRUSTED a4849aa460a6a4062a2c5e1c56eaa8ee92e74b0ec585178ef360a926f7595590a498f8e598a11a63568330c395d238a31c9ce51ae2a1c47b84068af34b562540e40b9dca91d9e20336eb4d7da9beceed175a1e7b6f44461933345fb59e966ad2d5fa42763598e1caaf74a7374976cbc1c27e2721be359d8650303fab0bb2d4bc73b37212d620557d6a6b0a3ae85d2faf2d8ec6d6b07bbe9747dbdf220cd39a4973a8b81bc3a9e714397e40844757b8517bac2af9c5463959079afcdbe16b7f9bb207953b155b6e117793cdc047428c1c92d3c45a7b638b2cd61a58a4c23804df24a1ae939fcd3c3abda79067ea53f72fa9cba1907b8c610db243bcaf9f431b9c076aba1b027ef271511c57b01895f3f0043dc80d7bd9c5c50df854c52b7db55b349c8e9cc24f05cfefab4e6349f61588cbfdb36bca899895083b1d05df6fc4ab1d7e6805d920ca1bfc550ec7a32220bf1cf253c7dab57b2186b5aa53e7939a46fc7143d13de54c36c9a175edd39c293380d0cf35142c059604f3bdcaa976584f1fc72261a2b833d182ab5869458f47ff63dd4ec6ea31454ef79f20f6998b1f3bbde241271fb345e1d8d6e282709b1971b13e3dbfaa8c7ceab20a6735b76e3f5d6c3fbd0204379e7724aa5b677919448e0611e1732b9fe85be00a7c7e1b45f1935a6f61f26f4b71582ebe70f6e2c3308da3b7a6b632ae17ee7b75629a7f9c2844
+#TRUST-RSA-SHA256 2b2f7bf1981d7879cad8946df166ca2553c99a4aacd4b9dfc4df5e87aa37f8ce55c6b75c185be71e8897a424e5fc84790519f0404a8c85e16b0f657dc74bbca983508cc8972238b58e6cb2c8468e905c9d6c5266970bbeebc62ee73535760f7df78500ed2dee97e5f56da31f6a36a7bbd77235563060a2add8a215ab82ac3758200efb7e5dd251b015f4dca569e78273b08cc64b8914e51e27a7228668d96cbfac43e83e2474cf3d495b168f8f8af4aa525fa88c7e0be37f57aca41d7ac77116d8c82aaf49d7e29780f955db57a2ba4b9ffe961f1d661c01c447625d48ff2928975eb852f0254aa1a4b4594b71068cfc1ec9cb72f1de140d1af89591a428253c25e84e1fedfe5beda706074f43cc37ba0efd241f9d4831cb652291e2ed26cdd7e8f94482707dbbafcdccc9612e83f09d808d0639fde9709f7a7cb84dc75a57036513165267e77722de833afca198c4a1e15a412ee2a9a1b08219f4e339664ab831512e5509bd6dc97c659ec217868584dcd2c8ac18eda1221ab1695e0717099eea38c5233672366d0df64e7f02990f81dacf4159a70e36b6865b9a89e06ba6fa928c83a275cbb256bf9946c4cc7d44fa0d6526decc4e8cd60b0e94318191fbc3b6739986b5f890564bf79a8b354d9f185939a7161474c46fc6211f7572ec7c5641d71d7e9df447ca323f64e74ff407254450ff3140abb35d03f7870df8b52d85
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2024/08/13 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Arista MLS EOS 4.2x L2S v2r1 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Arista MLS EOS 4.2x L2S v2r1</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Arista MLS EOS 4.2x L2S</name>
+#  <version>2.1.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip</link>
+#</spec>
+#<labels>arista,disa,eos,mls</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>VRF_MANAGEMENT_NETWORK</name>
+#    <default>Management_Network</default>
+#    <description>Management VRF</description>
+#    <info>The name of the Management Network VRF</info>
+#    <value_type>SAFE_STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Arista">
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      description : "single item - pass"
+      expect      : "^[\s]*username admin .* role .+ secret (0|5|sha512) .+"
+    </custom_item>
+
+    <custom_item>
+      description : "dot1x informational"
+      regex       : "^[\s]*logging level"
+      expect      : "^[\s]*logging level DOT1X informational"
+    </custom_item>
+
+    <custom_item>
+      description : "aaa authentication"
+      regex       : "^[\s]*aaa authentication"
+      expect      : "^[\s]*aaa authentication dot1x default group radius"
+    </custom_item>
+
+    <custom_item>
+      description : "dot1x system-auth-control"
+      regex       : "^[\s]*dot1x"
+      expect      : "^[\s]*dot1x system-auth-control"
+    </custom_item>
+
+    <custom_item>
+      description : "interfaces"
+      context     : "^[\s]*interface Ethernet.+"
+      regex       : "dot1x"
+      expect      : "Manual Review Required"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000020 - The Arista MLS layer 2 switch must uniquely identify all network-connected endpoint devices before establishing any connection."
+      info        : "Controlling LAN access via 802.1x authentication can assist in preventing a malicious user from connecting an unauthorized PC to a switch port to inject or receive data from the network without detection.
+
+Satisfies: SRG-NET-000148-L2S-000015, SRG-NET-000343-L2S-000016
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure Arista MLS switch for 802.1X globally with the following mandatory parameters, and then configure non-data center access ports and all applicable interfaces.
+
+Step 1: Configure the Arista MLS switch for 802.1X globally using the following commands:
+
+!
+logging level DOT1X informational
+aaa authentication dot1x default group radius
+dot1x system-auth-control
+!
+
+Step 2: Configure the Arista switch for all non-data center access ports with 802.1X VLAN to an access/trunk port and set the 802.1X port access entity (PAE) to authenticator with the following commands:
+
+interface Ethernet4
+description 802.1X Host-Mode Access Port
+   switchport access vlan 100
+   dot1x pae authenticator
+   dot1x reauthentication
+   dot1x port-control auto
+   dot1x host-mode single-host
+   dot1x timeout quiet-period 10
+!
+
+Step 3: The Arista switch can be also configured for MAC-based authentication. Configuring MAB requires that every supplicant trying to gain access to the switch authenticator port is individually authenticated by MAC address as opposed to authenticating just one supplicant on a given VLAN or port with 802.1X, and then using the MAC address of these devices as username and password in the RADIUS request packets.
+
+!
+interface Ethernet7
+ description MAC-Based Authentication
+   speed 100full
+   dot1x pae authenticator
+   dot1x port-control auto
+   dot1x mac based authentication
+!"
+      reference   : "800-53|IA-3,800-53r5|IA-3,CAT|I,CCI|CCI-000778,CCI|CCI-001958,CSF|PR.AC-1,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-3,ITSG-33|IA-3a.,NESA|T5.4.3,QCSC-v1|13.2,Rule-ID|SV-255968r882246_rule,STIG-ID|ARST-L2-000020,TBA-FIISB|27.1,Vuln-ID|V-255968"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  description : "ARST-L2-000030 - The Arista MLS layer 2 switch must be configured for Storm Control to limit the effects of packet flooding types of denial-of-service (DoS) attacks."
+  info        : "Denial of service is a condition when a resource is not available for legitimate users. Packet flooding distributed DoS (DDoS) attacks are referred to as volumetric attacks and have the objective of overloading a network or circuit to deny or seriously degrade performance, which denies access to the services that normally traverse the network or circuit. Volumetric attacks have become relatively easy to launch by using readily available tools such as Low Orbit Ion Cannon or by using botnets.
+
+Measures to mitigate the effects of a successful volumetric attack must be taken to ensure that sufficient capacity is available for mission-critical traffic. Managing capacity may include, for example, establishing selected network usage priorities or quotas and enforcing them using rate limiting, Quality of Service (QoS), or other resource reservation control methods. These measures may also mitigate the effects of sudden decreases in network capacity that are the result of accidental or intentional physical damage to telecommunications facilities (such as cable cuts or weather-related outages).
+
+Satisfies: SRG-NET-000193-L2S-000020, SRG-NET-000362-L2S-000024, SRG-NET-000512-L2S-000001
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "The Arista MLS switch must be configured to implement a storm-control policy for traffic prioritization and bandwidth reservation.
+
+Storm-control on switch Ethernet interfaces can be configured to limit the packets based on broadcast, multicast, and unknown-unicast traffic:
+
+switch#configure
+switch(config)#internet et[X]
+interface Ethernet[X]
+switchport
+   storm-control broadcast level pps 5000
+   storm-control multicast level pps 5000
+   storm-control unknown-unicast level pps 5000"
+  reference   : "800-53|SC-5,800-53|SC-5(2),800-53r5|SC-5a.,800-53r5|SC-5b.,800-53r5|SC-5(2),CAT|II,CCI|CCI-001095,CCI|CCI-002385,CCI|CCI-004866,CSF|DE.CM-1,CSF|PR.DS-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,ITSG-33|SC-5(2),NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-255969r991773_rule,STIG-ID|ARST-L2-000030,SWIFT-CSCv1|6.4,Vuln-ID|V-255969"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "^[\s]*interface Ethernet.+"
+  regex       : "storm-control"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "ARST-L2-000050 - The Arista MLS switch must have Root Guard enabled on all switch ports connecting to access layer switches and hosts."
+  info        : "Spanning Tree Protocol (STP) does not provide any means for the network administrator to securely enforce the topology of the switched network. Any switch can be the root bridge in a network. However, a more optimal forwarding topology places the root bridge at a specific predetermined location. With the standard STP, any bridge in the network with a lower bridge ID takes the role of the root bridge. The administrator cannot enforce the position of the root bridge but can set the root bridge priority to 0 in an effort to secure the root bridge position.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "The Arista MLS switch must be configured for spanning-tree guard root mode on all ports connecting to the access layer interface.
+
+Configure Arista MLS switch Ethernet interface with the following commands:
+
+switch#config
+switch(config)interface Ethernet[X]
+switch(config-if-Et[X])#spanning-tree guard root
+switch(config-if-Et[X])#exit
+!"
+  reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|III,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-255970r882252_rule,STIG-ID|ARST-L2-000050,Vuln-ID|V-255970"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "^[\s]*interface Ethernet.+"
+  regex       : "spanning-tree"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "ARST-L2-000060 - The Arista MLS layer 2 switch must have BPDU Guard enabled on all switch ports connecting to access layer switches and hosts."
+  info        : "If a rogue switch is introduced into the topology and transmits a Bridge Protocol Data Unit (BPDU) with a lower bridge priority than the existing root bridge, it will become the new root bridge and cause a topology change, rendering the network in a suboptimal state. The STP PortFast BPDU guard enhancement allows network designers to enforce the STP domain borders and keep the active topology predictable. The devices behind the ports that have STP PortFast enabled are not able to influence the STP topology. At the reception of BPDUs, the BPDU guard operation disables the port that has PortFast configured. The BPDU guard transitions the port into a disabled state and sends a log message.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "The Arista MLS switch provides the capability to configure 'spanning-tree bpduguard'. Configure the Ethernet interface commands:
+
+config
+interface Ethernet[X]
+switch(config)#interface ethernet [X]
+switch(config-if-Et[X])#spanning-tree bpduguard enabled
+switch(config-if-Et[X])"
+  reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|II,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-255971r882255_rule,STIG-ID|ARST-L2-000060,Vuln-ID|V-255971"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "^[\s]*interface Ethernet.+"
+  regex       : "spanning-tree"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"OR">
+    <custom_item>
+      description : "spanning-tree global"
+      expect      : "spanning-tree (guard loop|loopguard) default"
+    </custom_item>
+
+    <custom_item>
+      description : "spanning-tree per interface"
+      context     : "interface Ethernet.+"
+      expect      : "spanning-tree guard loop"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000070 - The Arista MLS switch must have STP Loop Guard enabled on all nondesignated STP switch ports."
+      info        : "The Spanning Tree Protocol (STP) loop guard feature provides additional protection against STP loops. An STP loop is created when an STP blocking port in a redundant topology erroneously transitions to the forwarding state. In its operation, STP relies on continuous reception and transmission of BPDUs based on the port role. The designated port transmits BPDUs, and the nondesignated port receives BPDUs. When one of the ports in a physically redundant topology no longer receives BPDUs, the STP conceives that the topology is loop free. Eventually, the blocking port from the alternate or backup port becomes a designated port and moves to a forwarding state. This situation creates a loop. The loop guard feature makes additional checks. If BPDUs are not received on a nondesignated port and loop guard is enabled, that port is moved into the STP loop-inconsistent blocking state."
+      solution    : "Configure the Arista MLS switch for STP Loop Guard globally with the following command:
+
+switch(config)#spanning-tree guard loop default
+switch(config)#
+
+Alternatively, configure Loop Guard on each interface:
+
+switch(config-if-Eth6)# spanning-tree guard loop"
+      reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|II,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-255972r882258_rule,STIG-ID|ARST-L2-000070,Vuln-ID|V-255972"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      description : "ip dhcp snooping"
+      expect      : "^[\s]*ip dhcp snooping[\s]*$"
+    </custom_item>
+
+    <custom_item>
+      description : "ip dhcp snooping information option"
+      expect      : "^[\s]*ip dhcp snooping information option"
+    </custom_item>
+
+    <custom_item>
+      description : "ip dhcp snooping vlan <vlan-id>"
+      expect      : "^[\s]*ip dhcp snooping vlan .+"
+    </custom_item>
+
+    <custom_item>
+      description : "ip dhcp snooping information option circuit-id type 2 format"
+      expect      : "^[\s]*ip dhcp snooping information option circuit-id type 2 format"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000090 - The Arista MLS layer 2 switch must have DHCP snooping for all user VLANs to validate DHCP messages from untrusted sources."
+      info        : "In an enterprise network, devices under administrative control are trusted sources. These devices include the switches, routers, and servers in the network. Host ports and unknown DHCP servers are considered untrusted sources. An unknown DHCP server on the network on an untrusted port is called a spurious DHCP server, any device (PC, Wireless Access Point) that is loaded with DHCP server enabled. The DHCP snooping feature determines whether traffic sources are trusted or untrusted. The potential exists for a spurious DHCP server to respond to DHCPDISCOVER messages before the real server has time to respond. DHCP snooping allows switches on the network to trust the port a DHCP server is connected to and not trust the other ports.
+
+The DHCP snooping feature validates DHCP messages received from untrusted sources and filters out invalid messages as well as rate-limits DHCP traffic from trusted and untrusted sources. DHCP snooping feature builds and maintains a binding database, which contains information about untrusted hosts with leased IP addresses, and it utilizes the database to validate subsequent requests from untrusted hosts. Other security features, such as IP Source Guard and Dynamic Address Resolution Protocol (ARP) Inspection (DAI), also use information stored in the DHCP snooping binding database. Hence, it is imperative that the DHCP snooping feature is enabled on all user VLANs."
+      solution    : "Configure the Arista MLS switch to have DHCP snooping enabled globally and for all user VLANs to validate DHCP messages from untrusted sources.
+
+Step 1: Configure DHCP Snooping globally by using the following command:
+
+switch(config)# ip dhcp snooping
+
+Step 2: Configure DHCP Snooping to enable the insertion of option-82 in DHCP request packets. By default, option-82 is not enabled and without this, DHCP Snooping is not operational.
+
+switch(config)#ip dhcp snooping information option
+
+Step 3: Configure the Arista MLS switch to enable IP DHCP Snooping on the corresponding VLANs. By default, DHCP Snooping will not be enabled on any VLAN.
+
+switch(config)#ip dhcp snooping vlan <vlan-id>
+
+Step 4: Configure the following command to set the circuit-id information that will be sent in option-82. By default, Interface name and VLAN ID are sent. Remote circuit-id will always be the MAC address of the relay agent.
+
+switch# ip dhcp snooping information option circuit-id type 2 format
+  Hostname and interface name
+  Interface name and VLAN ID"
+      reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|II,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-255973r882261_rule,STIG-ID|ARST-L2-000090,Vuln-ID|V-255973"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      description : "vlan 1-3"
+      expect      : "no ip verify source vlan 1-3"
+    </custom_item>
+
+    <custom_item>
+      description : "interface switchport mode trunk"
+      context     : "interface Ethernet.+"
+      expect      : "switchport mode trunk"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description : "interface switchport trunk vlans"
+      context     : "interface Ethernet.+"
+      expect      : "switchport trunk allowed vlan .+"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description : "ip verify source"
+      context     : "interface Ethernet.+"
+      expect      : "ip verify source"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description : "ip source binding"
+      expect      : "ip source binding .+"
+      severity    : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000100 - The Arista MLS layer 2 switch must have IP Source Guard enabled on all user-facing or untrusted access switch ports."
+      info        : "IP Source Guard (IPSG) provides source IP address filtering on a layer 2 port to prevent a malicious host from impersonating a legitimate host by assuming the legitimate host's IP address. The feature uses dynamic DHCP snooping and static IP source binding to match IP addresses to hosts on untrusted Layer 2 access ports. Initially, all IP traffic on the protected port is blocked except for DHCP packets. After a client receives an IP address from the DHCP server, or after static IP source binding is configured by the administrator, all traffic with that IP source address is permitted from that client. Traffic from other hosts is denied. This filtering limits a host's ability to attack the network by claiming a neighbor host's IP address.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure the Arista MLS switch to have IPSG enabled on all user-facing or untrusted access switch ports.
+
+Step 1: The Arista MLS IPSG feature must be configured by applying filters to inbound IP packets based on their source MAC and IP addresses. The following example commands exclude VLAN IDs 1 through 3 from IPSG filtering. When enabled on a trunk port, IPSG filters the inbound IP packets on all allowed VLANs. IP packets received on VLANs 4 through 10 on Ethernet 36 will be filtered by IPSG, while those received on VLANs 1 through 3 are permitted.
+
+switch(config)#no ip verify source vlan 1-3
+switch(config)#interface ethernet 36
+switch(config-if-Et36)#switchport mode trunk
+switch(config-if-Et36)#switchport trunk allowed vlan 1-10
+switch(config-if-Et36)#ip verify source
+switch(config-if-Et36)#
+
+Step 2: By using the Arista MLS switch command, the switch binds the source IP-MAC binding entries to IP address 10.1.1.1, MAC address 0000.aaaa.1111, VLAN ID 4094, and Ethernet interface 36.
+
+switch(config)#ip source binding 10.1.1.1 0000.aaaa.1111 vlan 4094 interface ethernet 36
+switch(config)#"
+      reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|II,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-255974r882264_rule,STIG-ID|ARST-L2-000100,Vuln-ID|V-255974"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  description : "ARST-L2-000110 - The Arista MLS layer 2 switch must have Dynamic Address Resolution Protocol (ARP) Inspection (DAI) enabled on all user VLANs."
+  info        : "DAI intercepts Address Resolution Protocol (ARP) requests and verifies that each of these packets has a valid IP-to-MAC address binding before updating the local ARP cache and before forwarding the packet to the appropriate destination. Invalid ARP packets are dropped and logged. DAI determines the validity of an ARP packet based on valid IP-to-MAC address bindings stored in the DHCP snooping binding database. If the ARP packet is received on a trusted interface, the switch forwards the packet without any checks. On untrusted interfaces, the switch forwards the packet only if it is valid."
+  solution    : "Configure the Arista MLS switch to have static Address Resolution Protocol (ARP) Inspection to be enabled on all user VLANs.
+
+By default, Arista MLS switch static ARP Inspection is disabled on all VLANs. Static ARP inspection can be enabled on all specific user VLANs by using the following command:
+
+switch(config)#ip arp inspection vlan <vlan-list>"
+  reference   : "800-53|SC-5,800-53r5|SC-5a.,CAT|II,CCI|CCI-002385,CSF|DE.CM-1,CSF|PR.DS-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-5,ITSG-33|SC-5a.,NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-255975r882267_rule,STIG-ID|ARST-L2-000110,Vuln-ID|V-255975"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  expect      : "^[\s]*ip arp inspection vlan .+"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"OR">
+    <custom_item>
+      description : "vlan interface ip igmp"
+      context     : "interface Vlan.+"
+      regex       : "^[\s]*(ip igmp|pim ipv[46]|ip pim sparse-mode)"
+      expect      : "^[\s]*(ip igmp|pim ipv[46]|ip pim sparse-mode)"
+    </custom_item>
+
+    <custom_item>
+      description : "mld snooping"
+      expect      : "^[\s]*mld snooping"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000130 - The Arista MLS layer 2 switch must have IGMP or MLD Snooping configured on all VLANs."
+      info        : "IGMP and MLD snooping provides a way to constrain multicast traffic at Layer 2. By monitoring the IGMP or MLD membership reports sent by hosts within a VLAN, the snooping application can set up Layer 2 multicast forwarding tables to deliver specific multicast traffic only to interfaces connected to hosts interested in receiving the traffic, thereby significantly reducing the volume of multicast traffic that would otherwise flood the VLAN."
+      solution    : "Configure the Arista MLS switch for IGMP snooping for IPv4 and IPv6 multicast traffic for each VLAN.
+
+Configure the Arista MLS switch for IP PIM, which also enables IGMP on an Arista MLS switch VLAN or interface, by using the following command:
+
+switch(config)#int vlan8
+   ip igmp
+   pim ipv4 sparse-mode
+   pim ipv6 sparse-mode
+switch(config)#exit
+!
+
+Arista MLS switch alternative configuration for MLD snooping on an interface for version 1 and 2. Version 2 is the default MLD version.
+
+switch(config)# mld snooping
+switch(config-mld-snooping)# vlan 200
+!"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-255976r882270_rule,STIG-ID|ARST-L2-000130,SWIFT-CSCv1|2.3,Vuln-ID|V-255976"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  description : "ARST-L2-000140 - The Arista MLS layer 2 Arista MLS switch must implement Rapid STP where VLANs span multiple switches with redundant links."
+  info        : "Spanning Tree Protocol (STP) is implemented on bridges and switches to prevent layer 2 loops when a broadcast domain spans multiple bridges and switches and when redundant links are provisioned to provide high availability in case of link failures. Convergence time can be significantly reduced using Multiple Spanning-Tree (802.1s) instead of Rapid STP (802.1w) instead of STP (802.1d), resulting in improved availability. Multiple Spanning-Tree Protocol (MSTP) should be deployed by implementing either Rapid Per-VLAN-Spanning-Tree (Rapid-PVST) or Multiple Spanning-Tree MST, the latter scales topologies much better when there are many VLANs."
+  solution    : "Configure the Arista MLS switch for Multiple Spanning-tree (MST) or Rapid STP to be implemented at the access and distribution layers where VLANs span multiple switches.
+
+switch(config)#spanning-tree mode mstp
+
+The Arista MLS switch can alternatively be configured for spanning-tree mode RSTP to support a spanning-tree instance for each VLAN:
+
+switch(config)#
+spanning-tree mode rstp
+!"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-255977r882273_rule,STIG-ID|ARST-L2-000140,SWIFT-CSCv1|2.3,Vuln-ID|V-255977"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  expect      : "^[\s]*spanning-tree mode [rm]stp"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"OR">
+    <custom_item>
+      description : "global spanning-tree"
+      expect      : "^[\s]*spanning-tree (guard loop|loopguard) default"
+    </custom_item>
+
+    <custom_item>
+      description : "per interface spanning-tree"
+      context     : "interface Ethernet.+"
+      expect      : "^[\s]*spanning-tree guard loop"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000150 - The Arista MLS layer 2 switch must enable Unidirectional Link Detection (UDLD) to protect against one-way connections."
+      info        : "In topologies where fiber optic interconnections are used, physical misconnections can occur that allow a link to appear to be up when there is a mismatched set of transmit/receive pairs. When such a physical misconfiguration occurs, protocols such as STP can cause network instability. UDLD is a layer 2 protocol that can detect these physical misconfigurations by verifying that traffic is flowing bidirectionally between neighbors. Ports with UDLD enabled periodically transmit packets to neighbor devices. If the packets are not echoed back within a specific time frame, the link is flagged as unidirectional and the interface is shut down."
+      solution    : "Configure the Arista MLS switch to enable Loop Guard to prevent Unidirectional Link Detection (UDLD) and to protect against one-way connections.
+
+switch(config)#spanning-tree guard loop default
+switch(config)#
+
+Alternatively, configure Loop Guard on each interface:
+
+switch(config-if-Eth6)# spanning-tree guard loop
+
+Note: UDLD is a Cisco-proprietary protocol. However, other switch vendors, such as 3Com, Extreme, and D-Link, have similar functionality in their products, respectively: Device Link Detection Protocol (DLDP), Extreme Link Status Monitoring (ELSM), and D-Link Unidirectional Link Detection (DULD)."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-255978r882276_rule,STIG-ID|ARST-L2-000150,SWIFT-CSCv1|2.3,Vuln-ID|V-255978"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  description : "ARST-L2-000160 - The Arista MLS layer 2 switch must have all trunk links enabled statically."
+  info        : "When trunk negotiation is enabled via Dynamic Trunk Protocol (DTP), considerable time can be spent negotiating trunk settings (802.1q or ISL) when a node or interface is restored. While this negotiation is happening, traffic is dropped because the link is up from a layer 2 perspective. Packet loss can be eliminated by setting the interface statically to trunk mode, thereby avoiding dynamic trunk protocol negotiation and significantly reducing any outage when restoring a failed link or switch.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure static Ethernet interfaces for switchport trunk mode. Ensure required VLAN member tagged traffic is allowed and all other VLAN traffic will be dropped unless an associated untagged native VLAN for the Ethernet interface is allowed.
+
+switch#configure
+switch(config)#interface Ethernet6
+   description STIG Static Trunk
+   speed forced 10000full
+   switchport trunk native vlan 2102
+   switchport trunk allowed vlan 2100-2102
+   switchport mode trunk
+!
+switch(config)#interface Ethernet7
+   description STIG Static Trunk
+   speed forced 10000full
+   switchport trunk native vlan 3102
+   switchport trunk allowed vlan 3100-3102
+   switchport mode trunk
+!"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-255979r882279_rule,STIG-ID|ARST-L2-000160,SWIFT-CSCv1|2.3,Vuln-ID|V-255979"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "interface Ethernet.+"
+  regex       : "^[\s]*switchport"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "ARST-L2-000170 - The Arista MLS layer 2 switch must have all disabled switch ports assigned to an unused VLAN."
+  info        : "It is possible that a disabled port that is assigned to a user or management VLAN becomes enabled by accident or by an attacker and as a result gains access to that VLAN as a member.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure all Arista MLS switch ports not in use to be shut down and assigned to an unused VLAN.
+
+Step 1: Configure all unused ports to be shut down and assigned to an unused VLAN.
+
+switch(config)#interface ethernet 9
+switch(config-eth9)#shutdown
+switch(config-eth9)# description this port is intentionally shutdown
+switch(config-eth9)# switchport access vlan 999
+
+Step 2: Configure any trunk links to exclude the unused VLAN.
+
+switch(config)# interface ethernet 10
+switch(config-eth10)# switchport trunk native vlan 1000
+switch(config-eth9)# switchport trunk allowed vlan 2-998, 1001-4094
+switch(config-eth9)# switchport mode trunk"
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-53|SC-7,800-53r5|SC-7(29),CAT|II,CCI|CCI-004891,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-255980r991774_rule,STIG-ID|ARST-L2-000170,TBA-FIISB|43.1,Vuln-ID|V-255980"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "interface Ethernet.+"
+  regex       : "shutdown"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      description : "vlan 1 shutdown"
+      context     : "interface Vlan1$"
+      expect      : "^[\s]*shutdown"
+    </custom_item>
+
+    <custom_item>
+      description : "per interface vlan access"
+      context     : "interface Ethernet.+"
+      not_expect  : "^[\s]*switchport access vlan 1[\s]*$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000180 - The Arista MLS layer 2 switch must not have the default VLAN assigned to any host-facing switch ports."
+      info        : "In a VLAN-based network, switches use the default VLAN (i.e., VLAN 1) for in-band management and to communicate with other networking devices using Spanning-Tree Protocol (STP), Dynamic Trunking Protocol (DTP), VLAN Trunking Protocol (VTP), and Port Aggregation Protocol (PAgP)-all untagged traffic. As a consequence, the default VLAN may unwisely span the entire network if not appropriately pruned. If its scope is large enough, the risk of compromise can increase significantly."
+      solution    : "Configure the Arista MLS switch to remove the assignment of the default VLAN from all access switch ports.
+
+Step 1: Configure the Default VLAN 1 to shut down by using the following command:
+
+switch:(config#)interface vlan 1
+switch(config-int-vlan1)#shutdown
+
+Step 2: Configure all access switch ports to be placed in a VLAN other than the default (1):
+
+switch(config)#interface ethernet 8
+switch(config-eth8)#switchport access vlan 1000
+switch(config-eth8)#exit"
+      reference   : "800-171|3.13.1,800-171|3.13.5,800-53|SC-7,800-53r5|SC-7(29),CAT|II,CCI|CCI-004891,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-255981r991775_rule,STIG-ID|ARST-L2-000180,TBA-FIISB|43.1,Vuln-ID|V-255981"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      description : "vlan 1 state suspend"
+      context     : "^[\s]*vlan 1"
+      expect      : "state suspend"
+    </custom_item>
+
+    <custom_item>
+      description : "vlan brief status"
+      cmd         : "show vlan"
+      not_expect  : "^[\s]*1[\s]+.+[\s]+active"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000190 - The Arista MLS layer 2 switch must have the default VLAN pruned from all trunk ports that do not require it."
+      info        : "The default VLAN (i.e., VLAN 1) is a special VLAN used for control plane traffic such as Spanning-Tree Protocol (STP), Dynamic Trunking Protocol (DTP), VLAN Trunking Protocol (VTP), and Port Aggregation Protocol (PAgP). VLAN 1 is enabled on all trunks and ports by default. With larger campus networks, care needs to be taken about the diameter of the STP domain for the default VLAN. Instability in one part of the network could affect the default VLAN, thereby influencing control-plane stability and therefore STP stability for all other VLANs."
+      solution    : "Best practice for VLAN-based networks is to configure Arista MLS switch to prune unnecessary trunk links from gaining access to the default VLAN and ensure frames belonging to the default VLAN do not traverse trunks not requiring frames from the VLAN.
+
+Step 1: Configure the Arista MLS switch to ensure VLAN1 is pruned from all trunk and access ports that do not require it by using the following commands:
+
+switch(config)#vlan 1
+switch(config-vlan-1)#show active
+switch(config-vlan-1)#sh act
+vlan
+   !! STIG suspend vlan 1 #state suspend vlan 1
+switch(config-vlan-1)#exit
+
+Step 2: Configure the Arista MLS switch to allow VLAN trunking except default VLAN 1 and configure Ethernet port 1 to change the native VLAN to 1000.
+
+switch(config)#interface e10
+switch(config-eth1o)#switchport trunk native vlan 1000
+switch(config-eth1)#switchport trunk allowed vlan except 1
+
+Step 3: Alternatively, the Arista MLS switch can use trunk groups to determine which trunks service which VLANs:
+
+switch(config)#vlan 1
+switch(config-vlan-1)#trunk group DO_NOT_USE
+switch(config-vlan-1)#sh act
+vlan
+   !! STIG suspend vlan 1 #state suspend vlan 1
+   trunk group DO_NOT_USE
+hss474.10:51:12(config-vlan-1)#
+
+Step 4: On Arista MLS switch, ensure any unnecessary trunk links have not gained access to default VLAN 1; this can be verified with the command 'show vlan brief':
+
+switch(config)#sh vlan brief
+VLAN Name                             Status    Ports
+----- -------------------------------- --------- -------------------------------
+1     default
+8     VLAN0008                         active    Cpu
+25    VLAN0025                        active    Cpu
+100   VLAN0100                       active    Cpu
+1000  VLAN1000                      active    Eth1, Eth15, Eth16, Eth17
+4090  VLAN4090                      active    Eth2, Eth20, Eth32"
+      reference   : "800-171|3.13.1,800-171|3.13.5,800-53|SC-7,800-53r5|SC-7(29),CAT|II,CCI|CCI-004891,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-255982r991776_rule,STIG-ID|ARST-L2-000190,TBA-FIISB|43.1,Vuln-ID|V-255982"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      description : "vrf instance Management"
+      expect      : "vrf instance @VRF_MANAGEMENT_NETWORK@"
+    </custom_item>
+
+    <custom_item>
+      description : "interface management vrf"
+      context     : "interface Ethernet.+"
+      expect      : "vrf @VRF_MANAGEMENT_NETWORK@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "ARST-L2-000200 - The Arista MLS layer 2 switch must not use the default VLAN for management traffic."
+      info        : "Switches use the default VLAN (i.e., VLAN 1) for in-band management and to communicate with directly connected switches using Spanning-Tree Protocol (STP), Dynamic Trunking Protocol (DTP), VLAN Trunking Protocol (VTP), and Port Aggregation Protocol (PAgP)-all untagged traffic. As a consequence, the default VLAN may unwisely span the entire network if not appropriately pruned. If its scope is large enough, the risk of compromise can increase significantly."
+      solution    : "Step 1: Configure the Arista MLS switch for a VRF instance for Management Network access by using the following commands:
+
+switch(config)#vrf instance Management_Network
+switch(config-vrf-Management_Network)#exit
+
+Step 2: Configure the Ethernet port for VRF Management_Network and IP address for the management network traffic:
+
+switch(config-if-Et12)#vrf Management_Network
+switch(config-if-Et12)#ip address 10.10.40.254/30
+switch(config-if-Et12)#exit"
+      reference   : "800-53|CP-8,800-53r5|SC-47,CAT|II,CCI|CCI-004931,CSF|ID.BE-4,CSF|PR.PT-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(ii),ITSG-33|CP-8,ITSG-33|CP-8a.,NESA|T2.2.4,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-255983r991777_rule,STIG-ID|ARST-L2-000200,Vuln-ID|V-255983"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  description : "ARST-L2-000210 - The Arista MLS layer 2 switch must have all user-facing or untrusted ports configured as access switch ports."
+  info        : "Double encapsulation can be initiated by an attacker who has access to a switch port belonging to the native VLAN of the trunk port. Knowing the victim's MAC address and with the victim attached to a different switch belonging to the same trunk group, thereby requiring the trunk link and frame tagging, the malicious user can begin the attack by sending frames with two sets of tags. The outer tag that will have the attacker's VLAN ID (probably the well-known and omnipresent default VLAN) is stripped off by the switch, and the inner tag that will have the victim's VLAN ID is used by the switch as the next hop and sent out the trunk port.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the Arista MLS switch to disable trunking on all user-facing or untrusted switch ports.
+
+switch{config)#interface ethernet 13 - 15
+switch(config-if-Et13-15)#description disable trunking untrusted ports
+switch(config-if-Et13-15)#switchport mode access
+switch(config-if-Et13-15)#exit"
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-53|SC-7,800-53r5|SC-7(29),CAT|II,CCI|CCI-004891,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-255984r991778_rule,STIG-ID|ARST-L2-000210,TBA-FIISB|43.1,Vuln-ID|V-255984"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "interface Ethernet.+"
+  regex       : "switchport"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "ARST-L2-000220 - The Arista MLS layer 2 switch must have the native VLAN assigned to an ID other than the default VLAN for all 802.1q trunk links."
+  info        : "VLAN hopping can be initiated by an attacker who has access to a switch port belonging to the same VLAN as the native VLAN of the trunk link connecting to another switch that the victim is connected to. If the attacker knows the victim's MAC address, it can forge a frame with two 802.1q tags and a layer 2 header with the destination address of the victim. Since the frame will ingress the switch from a port belonging to its native VLAN, the trunk port connecting to the victim's switch will simply remove the outer tag because native VLAN traffic is to be untagged. The switch will forward the frame on to the trunk link unaware of the inner tag with a VLAN ID of which the victim's switch port is a member.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the interface trunk ports for the unique Native VLAN ID and configure the VLAN allowed by using the following commands:
+
+switch(config)#interface Ethernet10
+switch(config-eth10)#description #STIG VLAN 1 Pruning
+switch(config-eth10)# switchport trunk native vlan 1000
+switch(config-eth10)#switchport trunk allowed vlan 2-4094"
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-53|SC-7,800-53r5|SC-7(29),CAT|II,CCI|CCI-004891,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-255985r991779_rule,STIG-ID|ARST-L2-000220,TBA-FIISB|43.1,Vuln-ID|V-255985"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "interface Ethernet.+"
+  regex       : "switchport trunk"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "ARST-L2-000230 - The Arista MLS layer 2 switch must not have any switch ports assigned to the native VLAN."
+  info        : "Double encapsulation can be initiated by an attacker who has access to a switch port belonging to the native VLAN of the trunk port. Knowing the victim's MAC address and with the victim attached to a different switch belonging to the same trunk group, thereby requiring the trunk link and frame tagging, the malicious user can begin the attack by sending frames with two sets of tags. The outer tag that will have the attacker's VLAN ID (probably the well-known and omnipresent default VLAN) is stripped off by the switch, and the inner tag that will have the victim's VLAN ID is used by the switch as the next hop and sent out the trunk port.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the Arista MLS switch to ensure all access switch ports use a VLAN other than the native VLAN.
+
+Configure all access switch ports to a VLAN other than the designated native VLAN by using the following example:
+
+switch(config)#interface Ethernet 21
+switch(config-Eth21)# switchport access vlan xxxx"
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-53|SC-7,800-53r5|SC-7(29),CAT|III,CCI|CCI-004891,CN-L3|8.1.10.6(j),CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,DISA_Benchmark|Arista_MLS_EOS_4-2x_L2S_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,Rule-ID|SV-255986r991780_rule,STIG-ID|ARST-L2-000230,TBA-FIISB|43.1,Vuln-ID|V-255986"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_EOS_4-2x_Y24M07_STIG.zip"
+  context     : "interface Ethernet.+"
+  regex       : "switchport trunk"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+</check_type>

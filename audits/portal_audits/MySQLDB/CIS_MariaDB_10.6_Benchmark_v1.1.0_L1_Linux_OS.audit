@@ -1,0 +1,822 @@
+#TRUSTED 70289fa3065f27505612e30367d9b33b59ca9903b765aba827c7044fcc7b893d026b2dc5812061818f0215c23d4479549c34b27e3cccf9c1e6c81d6b6164fc49866393b044e6c564e2d7d802efa357c285841e2331ee4d27ad12895af0a7cad7182aed1cf3596179e62a17e1bf646f82b9b50ae89352cbbe3afcf6ab4499b685f2bd7278239ec08056c977a2ca5b7ba026850cd16c40b7163efcf08d736d7f6f627c7259fdfc2d9055b7817638759f1ca4c7de89ccd0aad38fca0897faf110b7f6a37877906ce2b3bd6f6b1c46ec7f8004b844c46344564d93db358ccc9a8caf843ea8dfe40ef23e1b0bdc9ae5f1aa93ed1bd5143f5cd7ac42c04f87b08778e60c633ac7c14a269933164aad6ce3e0823424198b24668ab1d28bd4875167db815c4e44b9e232a8f2308164e0960e5c3456785a2bab2c8234cfb18e318b9ecba44c1ec6e7a3be098dc786fd1a0fdc551e8ece3c69ae1c274a0defa9404f09b67c708fec855acc2cc7be61f2579067956abde96bb236c71c5d36e7d6eca9fd26bc186280abb0d805e066b179bef8b18d9bb5ac044dcaad7c13a33daa3ef5022f2e205ed27f23b47cc5fb597dbdfb88d749f5f70f2cb9bec04b9b1e3fbf3ef827a4e142e5895d5a857ef66b9248248ccbf467c653bfb07cb4ba438859e9c136bc9c8441af02497f4c8aa2241e91203ab92b8e745a3535e566f2f1c611c121702967
+#TRUST-RSA-SHA256 79af0dc2640883d56e5f74e71237d876fad551874c3f2154653c488337b19073c36f2866e8cb5994d93dd507e942068d77aa9cbee1eba108ac95470684772050763f6839e704328e00fd385d8cc0919b9af0d2089aa619597a6e1fd54c49dd02ba74343b0a2732b1fc38f8343e13e62bc972517e6bf8c032160c5fe98aa03a49a0cb4c6e3fabb50d2c6a8c029d393a5e0098fd8d39e3ba9f45b27120aded6b53d6c6e11f261f2f5ad36dd95f6e12e9a73e833e077a1b75190694a5695207416d88953bd78138926cb89f134d823a575e4cfafad8a3ca3435f7f5b4c8da6980e2968d01795fe529bf1744087029e8378605b80fcde3131f8d0ca0a6e7a7dd3a8654129149052940ad24f2d77e616d2185e6d46095353910ad902f3a4052ddd44feddb96c5716b0869bef6148b59e6f59ef2e83eddbb6e52746c530fa58ad20eda5faad17e956bbfedc62a7b0fabdfa76923954d4a9d588725037957583d10174837ec4b3c636f73dd317ff33a1913a24fac6001321d09effdcb679be4b4cf8f59c3089b233a930f7411473119c999e71b4bd977010114655be6538672a680454c2cfc2da3a09025a7ab717ca38c5f0ba7f904a746fdfdf37a3e9bf69f3393b352f9b3f40d50e07616041a75ccf704e9948de36e6e513ff76fb9d8fb190af59820c196d6f69c25c4071007d3376d2a6f023ec8d02aa5375c5d5002a5f4337804b9
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.2 $
+# $Date: 2025/01/06 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               CIS MariaDB 10.6 Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS MariaDB 10.6 on Linux L1 v1.1.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>MariaDB 10.6</name>
+#  <profile>L1 OS Linux</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/16527</link>
+#</spec>
+#<labels>database,cis,mariadb,mariadb_10.6,linux,distribution_independent_linux</labels>
+#<benchmark_refs>CCE,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>MYSQL_DATA</name>
+#    <default>/var/lib/mysql/</default>
+#    <description>MySQL Data Directory</description>
+#    <info>This is your MySQL data directory.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_USER</name>
+#    <default>mysql</default>
+#    <description>MySQL User Account</description>
+#    <info>This is your MySQL user account.</info>
+#    <value_type>UNIX_ACCT</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_GROUP</name>
+#    <default>mysql</default>
+#    <description>MySQL Group</description>
+#    <info>This is the group that the MySQL user belongs to.</info>
+#    <value_type>UNIX_ACCT</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_LOG_BIN</name>
+#    <default>/var/log/mysql/mysql-bin.log</default>
+#    <description>MySQL Log File Path</description>
+#    <info>This is your MySQL log file path</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_ERROR_LOG</name>
+#    <default>/var/log/mysql/error.log</default>
+#    <description>MySQL Error Log File</description>
+#    <info>This is your MySQL error log file.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_SLOW_QUERY_LOG</name>
+#    <default>/var/log/mysql/mariadb-slow.log</default>
+#    <description>MySQL Slow Query Log File</description>
+#    <info>This is your MySQL Slow Query log file.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_RELAY_LOG</name>
+#    <default>/var/log/mysql/mariadb-relay.log</default>
+#    <description>MySQL Replication Relay Log File</description>
+#    <info>This is your MySQL replication relay log file.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_GENERAL_LOG</name>
+#    <default>/var/log/mysql/mariadb-general.log</default>
+#    <description>MySQL General Log File</description>
+#    <info>This is your MySQL general log file.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>SSL_CERT_PATH</name>
+#    <default>/var/lib/mysql/certs/</default>
+#    <description>SSL Cert Path</description>
+#    <info>This is the path to your server's SSL certificate.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>PLUGIN_DIR_PATH</name>
+#    <default>/usr/lib/mysql/plugin/</default>
+#    <description>Plugins Directory Path</description>
+#    <info>This is the path to your server's plugins directory.</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>SERVER_AUDIT_FILE_PATH</name>
+#    <default>/var/lib/mysql/server_audit.log</default>
+#    <description>Server Audit path</description>
+#    <info>The path configured in server_audit_file_path</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>FILE_KEY_MANAGEMENT_FILENAME</name>
+#    <default>/var/lib/mysql/filekeymanagementfilename</default>
+#    <description>File Key Management Filename</description>
+#    <info>File Key Management Filename</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>FILE_KEY_MANAGEMENT_FILEKEY</name>
+#    <default>/var/lib/mysql/filekeymanagementfilekey</default>
+#    <description>File Key Management Filekey</description>
+#    <info>File Key Management Filekey</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>MARIADB_CNF</name>
+#    <default>/etc/mysql/mariadb.conf.d/50-server.cnf</default>
+#    <description>Path to the mariadb.cnf file</description>
+#    <info>Path to the maridb.cnf file</info>
+#    <value_type>UNIX_FILE_PATH</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Linux found"
+      cmd         : "uname -a"
+      expect      : "Linux"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_MariaDB_10.6_Benchmark_v1.1.0_L1_Linux_OS.audit from CIS MariaDB 10.6 Benchmark"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1 Place Databases on Non-System Partitions"
+      info        : "It is generally accepted that host operating systems should include different filesystem partitions for different purposes. One set of filesystems is typically called system partitions, and these are generally reserved for host system/application operation. The other set of filesystems is typically called 'non-system partitions', and such locations are generally reserved for storing data.
+
+Rationale:
+
+Moving the database off the system partition will reduce the probability of denial of service caused by exhaustion of available disk space to the operating system.
+
+Impact:
+
+Moving database files and directories to a non-system partition may be difficult depending on whether there was only a single partition when the operating system was set up and whether there are additional non-system partitions available.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Perform the following steps to remediate this setting for the datadir:
+
+Backup the database.
+
+Choose a non-system partition new location for MariaDB data.
+
+Stop mariadbd using a command like: service mariadb stop.
+
+Copy the data using a command like: cp -rp<datadir Value> <new location>.
+
+Set the datadir location to the new location in the MariaDB configuration file.
+
+Start mariadbd using a command like:
+
+service mariadb start
+
+Note: On some Linux distributions you may need to additionally modify apparmor settings. For example, on a Ubuntu 14.04.1 system edit the file /etc/apparmor.d/usr.sbin.mariadbd so that the datadir access is appropriate. The original might look like this:
+
+# Allow data dir access
+/var/lib/mysql/ r,
+/var/lib/mysql/** rwk,
+
+Alter those two paths to be the new location you chose above. For example, if that new location were /media/mysql, then the /etc/apparmor.d/usr.sbin.mysqld file should include something like this:
+
+# Allow data dir access
+/media/mysql/ r,
+/media/mysql/** rwk,
+
+Default Value:
+
+Not Applicable."
+      reference   : "800-171|3.13.4,800-53|SC-4,800-53r5|SC-4,CSCv7|2.10,CSCv8|3.12,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,LEVEL|1M"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "/usr/bin/df -h @MYSQL_DATA@"
+      expect      : "Manual Review Required"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.2 Use Dedicated Least Privileged Account for MariaDB Daemon/Service"
+      info        : "As with any service installed on a host, it can be provided with its own user context. Providing a dedicated user to the service provides the ability to precisely constrain the service within the larger host context.
+
+Rationale:
+
+Utilizing a least privilege account for MariaDB to execute as needed may reduce the impact of a MariaDB-born vulnerability. A restricted account will be unable to access resources unrelated to MariaDB, such as operating system configurations."
+      solution    : "Create a user which is only used for running MariaDB and directly related processes. This user must not have administrative rights to the system. Additionally, it's best to avoid providing shell access to such an account.
+Shell access can be removed using the following command at a terminal prompt:
+
+/usr/sbin/groupadd -g 27 -o -r mysql >/dev/null 2>&1 || :
+/usr/sbin/useradd -M -N -g mysql -o -r -d /var/lib/mysql -s /bin/false \
+    -c 'MariaDB Server' -u 27 mysql >/dev/null 2>&1 || :"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "/bin/ps -ef | /bin/egrep \"^@MYSQL_USER@.*$\""
+      expect      : "@MYSQL_USER@[\\s]+"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.4 Verify That the MYSQL_PWD Environment Variable is Not in Use"
+      info        : "MariaDB can read a default database password from an environment variable called MYSQL_PWD. Avoiding use of this environment variable can better safeguard the confidentiality of MariaDB credentials.
+
+Rationale:
+
+Using the MYSQL_PWD environment variable implies MariaDB credentials are stored as clear text."
+      solution    : "Check which users and/or scripts are setting MYSQL_PWD and change them to use a more secure method.
+For unattended logins, you should consider
+2) Different authentication methods (e.g., X509 certificate verification)
+
+Default Value:
+
+Not set."
+      reference   : "800-171|3.5.2,800-171|3.13.16,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|16.4,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "/bin/egrep MYSQL_PWD /proc/*/environ 2>&1 | /usr/bin/awk '{print} END {if (NR == 0) print \"none\"}'"
+      expect      : "none"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          system        : "Linux"
+          type          : FILE_CONTENT_CHECK_NOT
+          description   : "bashrc"
+          file          : "~/.bashrc"
+          regex         : "^[\\s]*MYSQL_PWD"
+          expect        : "^[\\s]*MYSQL_PWD"
+          file_required : NO
+        </custom_item>
+
+        <custom_item>
+          system        : "Linux"
+          type          : FILE_CONTENT_CHECK_NOT
+          description   : "profile"
+          file          : "~/.profile"
+          regex         : "^[\\s]*MYSQL_PWD"
+          expect        : "^[\\s]*MYSQL_PWD"
+          file_required : NO
+        </custom_item>
+
+        <custom_item>
+          system        : "Linux"
+          type          : FILE_CONTENT_CHECK_NOT
+          description   : "bash_profile"
+          file          : "~/.bash_profile"
+          regex         : "^[\\s]*MYSQL_PWD"
+          expect        : "^[\\s]*MYSQL_PWD"
+          file_required : NO
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.6 Verify That 'MYSQL_PWD' is Not Set in Users' Profiles"
+          info        : "MariaDB can read a default database password from an environment variable called MYSQL_PWD.
+
+Rationale:
+
+Use of the MYSQL_PWD environment variable implies MariaDB credentials are stored as clear text. Avoiding the use of this environment variable may increase assurance that the confidentiality of MariaDB credentials is preserved."
+          solution    : "Check which users and/or scripts are setting MYSQL_PWD and change them to use a more secure method.
+
+Default Value:
+
+Not set."
+          reference   : "800-171|3.5.2,800-171|3.13.16,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|16.4,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "2.1.1 Backup Policy in Place"
+      info        : "A backup policy should be in place.
+
+Rationale:
+
+Backing up MariaDB databases, including mysql, will help ensure the availability of data in the event of an incident. Without backups, it might be hard to recover from an incident.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Create a backup policy and backup schedule."
+      reference   : "800-171|3.8.9,800-53|CP-9,800-53|CP-10,800-53r5|CP-9,800-53r5|CP-10,CSCv7|10.1,CSCv8|11.2,CSF|PR.IP-4,CSF|RC.RP-1,CSF|RS.RP-1,CSF2.0|PR.DS-01,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|RC.RP,CSF2.0|RC.RP-01,CSF2.0|RC.RP-02,CSF2.0|RC.RP-03,CSF2.0|RC.RP-05,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(ii),ISO/IEC-27001|A.12.3.1,ITSG-33|CP-9,ITSG-33|CP-10,ITSG-33|CP-10a.,LEVEL|1M,NESA|M5.2.3,NESA|T2.2.4,QCSC-v1|5.2.3,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "/usr/bin/crontab -l"
+      expect      : "Manual Review Required"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.3 Do Not Specify Passwords in the Command Line"
+      info        : "When a command is executed on the command line, for example mariadb -u admin -p password, the password may be visible in the user's shell/command history or in the process list.
+
+Rationale:
+
+If the password is visible in the process list or user's shell/command history, an attacker will be able to access the MariaDB database using the stolen credentials.
+
+Impact:
+
+Depending on the remediation chosen, additional steps may need to be undertaken like:
+
+Entering a password when prompted.
+
+Ensuring the file permissions on .mariadb.cnf is restricted yet accessible by the user.
+
+Use a pluggable secure password store, e.g., a keychain.
+
+Additionally, not all scripts/applications may be able to use .mariadb.cnf.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "MariaDB Client:
+
+Use -p without password and then enter the password when prompted, use a properly secured .mariadb.cnf file, or store authentication information in encrypted format in .mylogin.cnf."
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|16.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "/usr/bin/ps -aux | /bin/egrep '(mysql|mariadb)' | /bin/grep -v grep"
+      expect      : "mysql -u .* -p.+"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "2.5 Ensure Non-Default, Unique Cryptographic Material is in Use"
+      info        : "The cryptographic material used by MariaDB, such as digital certificates and encryption keys, should be used only for MariaDB and only for one instance. Default cryptographic material should not be used since it is not unique to the instance.
+
+Rationale:
+
+If a cryptographic material is used on multiple MariaDB instances and/or systems, then a compromise of one may lead to the network traffic of all servers being compromised that use the same cryptographic material. If an attacker gains access to shared cryptographic material, including default material, the attacker can reuse that material to impersonate the MariaDB server or otherwise compromise its operations.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Generate new certificates, keys, and other cryptographic material as needed for each affected MariaDB instance."
+      reference   : "800-171|3.13.10,800-53|SC-12,800-53r5|SC-12,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.10.1.2,ITSG-33|SC-12,ITSG-33|SC-12a.,LEVEL|1M,NESA|T7.4.1,NESA|T7.4.2,NIAv2|CY2,NIAv2|CY8,NIAv2|CY9,QCSC-v1|5.2.2,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "/usr/bin/openssl x509 -in @SSL_CERT_PATH@/server-cert.pem -subject -noout | /usr/bin/grep Auto_Generated_Server_Certificate"
+      expect      : "Manual Review Required"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.1 Ensure 'datadir' Has Appropriate Permissions"
+      info        : "The data directory is the location of the MariaDB databases.
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB database. If someone other than the MariaDB user is allowed to read files from the data directory, it may be possible to read data from the mysql.user table which contains passwords. Additionally, the ability to create files can lead to denial of service, or might otherwise allow someone to gain access to specific data by manually creating a file with a view definition."
+      solution    : "Execute the following commands at a terminal prompt:
+
+chmod 750 <datadir>
+chown mysql:mysql <datadir>"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@MYSQL_DATA@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "027"
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.2 Ensure 'log_bin_basename' Files Have Appropriate Permissions"
+      info        : "MariaDB can operate using a variety of log files, each used for different purposes. These are the binary log (which can be encrypted), error log, slow query log, relay log, general log, and in the enterprise edition, the audit log (which can be encrypted). Because these are files on the host operating system, they are subject to the permissions and ownership structure provided by the host and may be accessible by users other than the MariaDB user. Additionally, using secure key management and at rest MariaDB encryption can further protect data from OS users.
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB logs.
+
+Impact:
+
+Changing the permissions and ownership of the relay logs and binary log files might have impact on external tools.
+
+If the permissions on the relay logs and binary log files are accidentally changed to exclude the user account which is used to run the MariaDB service, then this might break replication.
+
+The binary log file can be used for point-in-time recovery so this can also affect backup, restore, and disaster recovery procedures."
+      solution    : "Execute the following command for each log file location requiring corrected permissions and ownership:
+
+chmod 660 <log file>
+chown mysql:mysql <log file>"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@MYSQL_LOG_BIN@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "117"
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.3 Ensure 'log_error' Has Appropriate Permissions"
+      info        : "MariaDB can operate using a variety of log files, each used for different purposes. These are the binary log (which can be encrypted), error log, slow query log, relay log, general log, and in the enterprise edition, the audit log (which can be encrypted). Because these are files on the host operating system, they are subject to the permissions and ownership structure provided by the host and may be accessible by users other than the MariaDB user. Additionally, using secure key management and at rest MariaDB encryption can further protect data from OS users.
+
+Much of the information about the state of MariaDB exists in MariaDB, the MariaDB performance_schema or informations_schema. In cases where the information you need is within a running MariaDB, use these methods as they are more secure as they do not require OS login and access.
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB logs.
+
+Impact:
+
+Changing the permissions of the error log files might have impact on monitoring tools which use an error log file adapter."
+      solution    : "Execute the following command for each log file location requiring corrected permissions and ownership:
+
+chmod 600 <log file>
+chown mysql:mysql <log file>"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.6,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@MYSQL_ERROR_LOG@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "177"
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.4 Ensure 'slow_query_log' Has Appropriate Permissions"
+      info        : "MariaDB can operate using a variety of log files, each used for different purposes. These are the binary log (which can be encrypted), error log, slow query log, relay log, general log, and in the enterprise edition, the audit log (which can be encrypted). Because these are files on the host operating system, they are subject to the permissions and ownership structure provided by the host and may be accessible by users other than the MariaDB user. Additionally, using secure key management and at rest MariaDB encryption can further protect data from OS users.
+
+Much of the information about the state of MariaDB exists in MariaDB, the MariaDB performance_schema or informations_schema. If you can get the information you need from within MariaDB that is more secure as it does not require OS access. If you are not going to use log files it is best to first disable (don't enable) and remove any prior logs.
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB logs.
+
+Impact:
+
+Changing the permissions of the log files may impact monitoring tools which use a log file adapter. Also, the slow query log can be used for performance analysis by application developers.
+
+The information about the performance exists in MariaDB performance_schema or sys schema views. In cases where the information you need is within a running MariaDB, disable the slow query log and instead use these methods as they are more secure and do not require OS login and access."
+      solution    : "Set slow query log to OFF (instead use SYS schema views or query Performance_Schema)
+
+SET PERSIST slow_query_log = OFF;
+
+If slow query is enabled, execute the following command to correct permissions and ownership:
+
+chmod 660 <log file>
+chown mysql:mysql <log file>
+
+Default Value:
+
+Slow query log is off by default."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@MYSQL_SLOW_QUERY_LOG@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "117"
+      required    : NO
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.5 Ensure 'relay_log_basename' Files Have Appropriate Permissions"
+      info        : "MariaDB can operate using a variety of log files, each used for different purposes. These are the binary log (which can be encrypted), error log, slow query log, relay log (which can be encrypted), general log, and in the enterprise edition, the audit log (which can be encrypted). Because these are files on the host operating system, they are subject to the permissions and ownership structure provided by the host and may be accessible by users other than the MariaDB user. Additionally, using secure key management and at rest MariaDB encryption can further protect data from OS users.
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB logs.
+
+Impact:
+
+If the permissions on the relay logs and binary log files are accidentally changed to exclude the user account which is used to run the MariaDB service, then this might break replication.
+
+The binary log file can be used for point in time recovery so this can also affect backup, restore and disaster recovery procedures."
+      solution    : "Execute the following command for each log file location requiring corrected permissions and ownership:
+
+chmod 660 <log file>
+chown mysql:mysql <log file>
+
+Default Value:
+
+<datadir> + '/' + <hostname> + '-relay-bin'"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@MYSQL_RELAY_LOG@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "117"
+      required    : NO
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.6 Ensure 'general_log_file' Has Appropriate Permissions"
+      info        : "MariaDB can operate using a variety of log files, each used for different purposes. These are the binary log (which can be encrypted), error log, slow query log, relay log (which can be encrypted), general log, and in the enterprise edition, the audit log (which can be encrypted). Because these are files on the host operating system, they are subject to the permissions and ownership structure provided by the host and may be accessible by users other than the MariaDB user. Additionally, using secure key management and at rest MariaDB encryption can further protect data from OS users.
+
+Much of the information about the state of MariaDB exists in MariaDB, the MariaDB performance_schema or informations_schema. If you can get the information you need from within MySQL that is more secure as it does not require OS access. If you are not going to use log files it is best to first disable (don't enable) and remove any prior logs.
+
+Rationale:
+
+Limiting the accessibility, or existence, of these log files will protect the confidentiality, integrity, and availability of the MariaDB logs.
+
+Impact:
+
+Changing the permissions of the general log files may impact monitoring tools which use a log file adapter."
+      solution    : "If you can, use MariaDB SYS, PERFORMANCE_SCHEMA, or MariaDBL Auditing as these are more secure options.
+By default the general_log is disabled (0 or OFF). It's most secure to disable the general_log.
+To disable the general_log_file:
+
+SET PERSIST @@GENERAL_LOG=OFF;
+
+If you must use general_log then assure the permissions are correct. Execute the following command for each log file location requiring corrected permissions and ownership:
+
+chmod 600 <general_log_file>
+chown mysql:mysql <general_log_file>
+
+Default Value:
+
+The variable general_log is set to OFF by default. The variable general_log_file is set to <host_name>.log by default."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@MYSQL_GENERAL_LOG@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "177"
+      required    : NO
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.7 Ensure SSL Key Files Have Appropriate Permissions"
+      info        : "When configured to use SSL/TLS, MariaDB relies on Secure Sockets Layer (SSL) key files, which are stored on the host's filesystem. These SSL key files are subject to the host's permissions and ownership structure.
+
+MariaDB provides ways to create the SSL certificate, SSL key files and RSA key-pair files required to support encrypted connections using SSL and secure password exchange using RSA over unencrypted connections, if those files are missing the server will attempt to autogenerate these files at startup if compiled with OpenSSL.
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB database and the communication with the client.
+
+If the contents of the SSL key file are known to an attacker, he or she might impersonate the server. This can be used for a man-in-the-middle attack.
+
+Depending on the SSL cipher suite, the key might also be used to decipher previously captured network traffic.
+
+Impact:
+
+If the permissions or ownership for the SSL key file are configured incorrectly, this can cause SSL to be disabled when MariaDB is restarted or can cause MariaDB not to start at all.
+
+If other applications are using the same key pair, then changing the permissions or ownership of the SSL key file will affect this application. If this were to occur a new key pair must be generated for MariaDB."
+      solution    : "Execute the following commands at a terminal prompt to remediate these settings using the Value from the audit procedure:
+
+chown mysql:mysql <ssl_file>
+chmod 400 <ssl_file>"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@SSL_CERT_PATH@/*"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "377"
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.8 Ensure Plugin Directory Has Appropriate Permissions"
+      info        : "The plugin directory is the location of the MariaDB plugins. Plugins are storage engines or user defined functions (UDFs).
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB database. If someone can modify plugins then these plugins might be loaded when the server starts and the code will get executed.
+
+Impact:
+
+Users other than the MariaDB user will no longer be able to update and add/remove plugins unless they're able to switch to the MariaDB user."
+      solution    : "To remediate these settings, execute the following commands at a terminal prompt using the plugin_dir Value from the audit procedure. MariaDB server must not be allowed to write to this location.
+
+chmod 550 <plugin_dir Value> #(or use 554)
+chown mysql:mysql <plugin_dir Value>"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@PLUGIN_DIR_PATH@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "223"
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.9 Ensure 'server_audit_file_path' Has Appropriate Permissions"
+      info        : "MariaDB can operate using a variety of log files, each used for different purposes. These are the binary log, error log, slow query log, relay log, audit log and general log. Because these are files on the host operating system, they are subject to the permissions and ownership structure provided by the host and may be accessible by users other than the mysql user.
+
+Rationale:
+
+Limiting the accessibility of these objects will protect the confidentiality, integrity, and availability of the MariaDB logs.
+
+Impact:
+
+Changing the permissions and ownership of the audit log file may have an impact on who can access and edit the audit log. Such changes can affect monitoring tools which maybe using a log file adapter or scripted alternatives. Also, the audit log may be used for alerting by infrastructure teams which can affect real-time audit capability."
+      solution    : "Execute the following commands for the server_audit_file_path discovered in the audit procedure:
+
+chmod 660 <server_audit_file_path>
+chown mysql:mysql <server_audit_file_path>"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@SERVER_AUDIT_FILE_PATH@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "117"
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "3.10 Ensure File Key Management Encryption Plugin files have appropriate permissions"
+      info        : "Certain Key Management Encryption plugins must store sensitive information in files for later retrieval. Such files should have proper permissions.
+
+Rationale:
+
+Limiting the accessibility of these files will protect the confidentiality, integrity, and availability of MariaDB plugin information and the data they protect."
+      solution    : "If the File Key Management plugin is not configured, first implement recommendation 4.10 from this benchmark.
+Execute the following command for each file location requiring corrected permissions:
+
+chmod 750 <file>
+chown mysql:mysql <file>"
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@FILE_KEY_MANAGEMENT_FILENAME@ @FILE_KEY_MANAGEMENT_FILEKEY@"
+      owner       : "mysql" || "@MYSQL_USER@"
+      mask        : "027"
+      group       : "mysql" || "@MYSQL_GROUP@"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "4.1 Ensure the Latest Security Patches are Applied"
+      info        : "Periodically, updates to MariaDB server are released to resolve bugs, mitigate vulnerabilities, and provide new features. It is recommended that MariaDB installations are up to date with the latest security updates.
+
+Rationale:
+
+Maintaining currency with MariaDB patches will help reduce risk associated with known vulnerabilities present in the MariaDB server.
+
+Without the latest security patches MariaDB might have known vulnerabilities which could be used by an attacker to gain access.
+
+Impact:
+
+To update the MariaDB server a restart is required.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Install the latest patches for your version or upgrade to the latest version."
+      reference   : "800-53|SA-22,800-53r5|SA-22,CSCv7|2.2,CSCv8|2.2,CSF2.0|ID.AM-08,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|1M"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "mariadb --version"
+      expect      : "Manual Review Required"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "4.4 Harden Usage for 'local_infile' on MariaDB Clients"
+      info        : "The local_infile parameter dictates whether files located on the MariaDB client's computer can be loaded or selected via LOAD DATA INFILE or SELECT local_file.
+
+Rationale:
+
+For MariaDB client programs and connectors prior to 10.2.0, disabling local_infile reduces an attacker's ability to read sensitive files off the affected server via an SQL injection vulnerability.
+
+Impact:
+
+Disabling local_infile will impact the functionality of solutions that rely on it."
+      solution    : "Upgrade all MariaDB clients and connectors to 10.2.0 or higher.
+In the case where using local_infile is needed, the following changes further harden security:
+On client side, secure by:
+Limiting the location from where data can be read using --load-data-local-dir.
+
+mariadb --local-infile=0 --load-data-local-dir=/my/local/data
+
+Adding TLS connection to assure server identity by requiring verification.
+
+mariadb --local-infile=0 --load-data-local-dir=/my/local/data --ssl-mode=VERIFY_IDENTITY
+
+If local_infile is not in use or if clients are not upgraded - add the following line to the [mariadbd] section of the MySQL configuration file and restart the MariaDB service:
+
+local-infile=0
+
+Default Value:
+
+0 (OFF)"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|4.7,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      cmd         : "mariadb --version"
+      expect      : "10\.([2-9]|[1-9][0-9])"
+    </custom_item>
+
+    <custom_item>
+      system          : "Linux"
+      type            : FILE_CONTENT_CHECK
+      description     : "4.5 Ensure mariadb is Not Started With 'skip-grant-tables'"
+      info            : "This option causes mariadbd to start without using the privilege system.
+
+Rationale:
+
+If this option is used, all clients of the affected server will have unrestricted access to all databases."
+      solution        : "Perform the following to establish the recommended state:
+
+Open the MariaDB configuration (e.g., mariadb.cnf) file and set:
+
+skip-grant-tables = FALSE
+
+If there are any occurrences of skip_grant_tables, also set that to FALSE or remove it."
+      reference       : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also        : "https://workbench.cisecurity.org/benchmarks/16527"
+      file            : "@MARIADB_CNF@"
+      regex           : "^[\\s]*skip-grant-tables[\\s]*="
+      expect          : "^[\\s]*skip-grant-tables[\\s]*=[\\s]*FALSE"
+      string_required : NO
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "5.1 Ensure Only Administrative Users Have Full Database Access"
+      info        : "The mysql.user, mysql.db, and other mysql tables ending in _priv list a variety of privileges that can be granted (or denied) to MariaDB users. Some of the privileges of concern include: Select_priv, Insert_priv, Update_priv, Delete_priv, Drop_priv, and so on. Typically, these privileges should not be available to every MySQL user and often are reserved for administrative use only. The information_schema.user_privileges provides a consolidated view of all user privileges.
+
+Rationale:
+
+Limiting the accessibility of the mysql database will protect the confidentiality, integrity, and availability of the data housed within MariaDB. A user which has direct access to mysql.* might view password hashes, change permissions, or alter or destroy information intentionally or unintentionally.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform the following actions to remediate this setting:
+
+Enumerate non-administrative users resulting from the audit procedure.
+
+For each non-administrative user, use the REVOKE statement to remove privileges as appropriate."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.1,CSCv7|14.6,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+    </report>
+
+    <report type:"WARNING">
+      description : "5.2 Ensure 'FILE' is Not Granted to Non-Administrative Users"
+      info        : "The FILE privilege is used to allow or disallow a user from reading and writing files on the server host. Any user with the FILE right granted has the ability to:
+
+Read files from the local file system that are readable by the MariaDB server (this includes world-readable files).
+
+Write files to the local file system where the MariaDB server has write access.
+
+Rationale:
+
+The FILE right allows MariaDB users to read files from disk and to write files to disk. This may be leveraged by an attacker to further compromise MariaDB. It should be noted that the MariaDB server should not overwrite existing files.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform the following steps to remediate this setting:
+
+Enumerate the non-administrative users found in the result set of the audit procedure.
+
+For each user, issue the following SQL statement (replace <user> with the non-administrative user):
+
+REVOKE FILE ON *.* FROM '<user>';"
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|14.6,CSCv8|5.4,CSF|PR.AC-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "7.2 Ensure Passwords are Not Stored in the Global Configuration"
+      info        : "The [client] section of the MariaDB configuration file allows setting a user and password to be used. Verify the password option is not used in the global configuration file (mariadb.cnf).
+
+Rationale:
+
+Using the password parameter may negatively impact the confidentiality of the user's password.
+
+Impact:
+
+The global configuration is by default readable for all users on the system. This is needed for global defaults (prompt, port, socket, etc.). If a password is present in this file then all users on the system may be able to access it."
+      solution    : "Use the user-specific options file, .mariadb.cnf., and restricting file access permissions to the user identity."
+      reference   : "800-171|3.5.2,800-171|3.13.16,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|16.4,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|1A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      file        : "@MARIADB_CNF@"
+      regex       : "^[\\s]*password"
+      expect      : "^[\\s]*password[\\s]*="
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_MariaDB_10.6_Benchmark_v1.1.0_L1_Linux_OS.audit from CIS MariaDB 10.6 Benchmark"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+    </report>
+  </else>
+</if>
+
+</check_type>

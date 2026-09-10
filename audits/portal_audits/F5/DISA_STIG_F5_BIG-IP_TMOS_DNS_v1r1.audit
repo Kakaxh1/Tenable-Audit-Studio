@@ -1,0 +1,643 @@
+#TRUSTED b141af1613bfd8ca34f2388f79033b3ed540fc24eb9710e62d65804dbb07fb2ad03e2c195d99b94cde89be20e9f8265bcdab9cfebba0edbc9987796050afacaf3babdf86a61c950ebb0e30795ad2257b861415995241f351473efc74c9262fc386f90e8571b2cbaada382d033ac82362ae24b2abba10dac8df3c7cd29398c0bbd854177bbaaefd5ce8300143672988e21b6116760058a40626a88f9ef5919747fa12def6eedd3925d9d2445119b7deb1e1dba2dabc319d45ad47497675c3764ee1ce886244a9cc3d1484e19c87b03b032dc377d949b38dc3947319591975abc2472a1ded82b484e280bb5125408a1f49861652173c2c6492f1e1d8bfe76d10c12030dc9e728e0e368e2af7b0d3e1c897f32762f2a7183ac15ece3cc8d59b052c139e48dfa2299fce39846774f4bad983a17e0ccb9913e5d4c125fbe7843baeb0e16c5a21bf0dfa95594e54253662f77b3b81a2b2c75ab8ac2f0bf10dde1f25d7c900f6eb363a65ab4c3f1359e979b6dbcd84502ab3cc4ec813e608af15e4e94e834ce18ab0b874d34eafa32e5ee22529901b284a12af6164993b85668e8d0aabba5410d4485c2edf1efc617c6b061e21b08709f03cadf26018d5288d8de08018f37df1d5d6493aadbc71c164bf5e8147a0f74076b604f747c489a576b6295ff4e89e5e2a9f62c8b7edfff91313c4070068bda3c8604dbfd1d1bd9cebbf22f089
+#TRUST-RSA-SHA256 2ee3ea099036725f3686b1efd0cd2a7abf587b9cdaaa5047322c4d52e0d3d5cbf47655e298ab9cb0ab8ff3e5d6d41a4017691879efc55bbeba1af198a3ed223b5a958ece674b0ca680b35577dedc75f5bdd63b8d4d41e3e2ac61885c5b595390507350f2f8826a25a84ee5622d4094b7c6f74506ddec0fbde66453f5043b0215eb4a5c5632256166927a58056dbed9872449049b358454bb31a0fc45f3a86aee84c64129168fefacc6faf4327c2a027f8afbd102f15e799d4783193fbeaa3acb03e9a83240897447bee5a8e03ae43b1179d39111a8e0460f66a6f05808d7aae8f46e24ae5f1dac627acc16de0574a791828b75500bad01acb5ea7d9392f0dde084a80558a79ca5ab40726071016645aad3850d0062d61af27ccc3ac7bd4c4b6b505ef24d3bf68922eaf7296f39252f3d3bdd474d37782a73cf1321599f3c5d80c5b8260acf4550ff83515aeafb03df00798cb9ffc89d6058fdbafa2c9a8a164680d31dc5b9b3ea2bd19735d23489bc82ef97987bd3f3a4fca1a5273b77e6646e6fdd399e9aa0f5220b9bc53788a3d800211ef7a6ef18974aef8e759355ee5c6c903f8cfe0e7d320fb806c4f525f199bfe7e69bdd7776afaadbe2f3c3fa1c9a3d9b898ddfab21c5e0592b1a7ad15a540a1c0291f3e72857ee94a62d9a96ef82ac6d13a1bef73efd98c50eddd435f51ebf69dec16f50ecc8b9c5adb351e4e3cf4e
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2025/12/19 $
+#
+# description : This .audit is designed against the DISA F5 BIG-IP TMOS DNS STIG v1r1
+#
+#<ui_metadata>
+#<display_name>DISA F5 BIG-IP TMOS DNS STIG v1r1</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>F5 BIG-IP TMOS DNS</name>
+#  <version>1.1.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip</link>
+#</spec>
+#<labels>cis,f5</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"F5">
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for BIND Server on BIG-IP: Disabled"
+      context     : "ltm profile dns"
+      regex       : "use-local-bind"
+      expect      : "use-local-bind no"
+      match_all   : YES
+    </custom_item>
+
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for DNS Cache: Disabled"
+      context     : "ltm profile dns"
+      regex       : "enable-cache"
+      expect      : "enable-cache no"
+      match_all   : YES
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for BIND Server on BIG-IP: Disabled"
+      f5_command     : "/tm/ltm/profile/dns"
+      json_transform : ".items[] | \"\(.name): \(.useLocalBind)\""
+      expect         : "no"
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for DNS Cache: Disabled"
+      f5_command     : "/tm/ltm/profile/dns"
+      json_transform : ".items[] | \"\(.name): \(.enableCache)\""
+      expect         : "no"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300011 - The F5 BIG-IP DNS implementation must prohibit recursion on authoritative name servers."
+      info        : "A potential vulnerability of DNS is that an attacker can poison a name server's cache by sending queries that will cause the server to obtain host-to-IP address mappings from bogus name servers that respond with incorrect information. Once a name server has been poisoned, legitimate clients may be directed to nonexistent hosts (which constitutes a denial of service), or worse, hosts that masquerade as legitimate ones to obtain sensitive data or passwords.
+
+To guard against poisoning, name servers authoritative for .mil domains must be separated functionally from name servers that resolve queries on behalf of internal clients. Organizations may achieve this separation by dedicating machines to each function or, if possible, by running two instances of the name server software on the same machine: one for the authoritative function and the other for the resolving function. In this design, each name server process may be bound to a different IP address or network interface to implement the required segregation.
+
+DNSSEC ensures that the answer received when querying for name resolution actually comes from a trusted name server. Since DNSSEC is still far from being globally deployed external to DOD, and many resolvers either have not been updated or do not support DNSSEC, maintaining cached zone data separate from authoritative zone data mitigates the gap until all DNS data is validated with DNSSEC.
+
+Since DNS forwarding of queries can be accomplished in some DNS applications without caching locally, DNS forwarding is the method to be used when providing external DNS resolution to internal clients."
+      solution    : "If the BIG-IP has the role of authoritative DNS server, then configure as follows.
+
+From the BIG-IP GUI:
+1. DNS.
+2. Delivery.
+3. Profiles.
+4. DNS.
+5. Click the name of the profile used for the authoritative listener.
+6. Configure the following settings:
+a. Use BIND Server on BIG-IP: Disabled
+b. DNS Cache: Disabled
+7. Click \"Update\"."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-265980r1024486_rule,STIG-ID|F5BI-DN-300011,SWIFT-CSCv1|2.3,Vuln-ID|V-265980"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Signature Validity Period"
+      context     : "ltm dns dnssec key"
+      regex       : "(enabled|disabled|key-type|signature-valid-period)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for KSK Signature Validity Period"
+      f5_command     : "/tm/ltm/dns/dnssec/key"
+      json_transform : ".items[] | select(.keyType==\"ksk\") | select(.enabled==true) | \"\(.name): \(.signatureValidPeriod)\""
+      expect         : "(7:0:0:0|[2-6]:[0-9]+:[0-9]+:[0-9]+)"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for ZSK Signature Validity Period"
+      f5_command     : "/tm/ltm/dns/dnssec/key"
+      json_transform : ".items[] | select(.keyType==\"zsk\") | select(.enabled==true) | \"\(.name): \(.signatureValidPeriod)\""
+      expect         : "(7:0:0:0|[2-6]:[0-9]+:[0-9]+:[0-9]+)"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300012 - The validity period for the RRSIGs covering a zone's DNSKEY RRSet must be no less than two days and no more than one week."
+      info        : "The best way for a zone administrator to minimize the impact of a key compromise is by limiting the validity period of RRSIGs in the zone and in the parent zone. This strategy limits the time during which an attacker can take advantage of a compromised key to forge responses. An attacker that has compromised a ZSK can use that key only during the KSK's signature validity interval. An attacker that has compromised a KSK can use that key for only as long as the signature interval of the RRSIG covering the DS RR in the delegating parent. These validity periods must be short, which will require frequent re-signing.
+
+To minimize the impact of a compromised ZSK, a zone administrator must set a signature validity period of one week for RRSIGs covering the DNSKEY RRSet in the zone (the RRSet that contains the ZSK and KSK for the zone). The DNSKEY RRSet can be re-signed without performing a ZSK rollover, but scheduled ZSK rollover must still be performed at regular intervals.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "KSK validity period:
+From the BIG-IP GUI:
+1. DNS.
+2. Delivery.
+3. Keys.
+4. DNSSEC Key List.
+5. Click the Name of the KSK.
+6. Configure the \"Signature Validity Period\" to between two and seven days.
+7. Click \"Update\".
+
+ZSK validity period:
+From the BIG-IP GUI:
+1. DNS.
+2. Delivery.
+3. Keys.
+4. DNSSEC Key List.
+5. Click the Name of the ZSK.
+6. Configure the \"Signature Validity Period\" to between two and seven days.
+7. Click \"Update\"."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-265981r1024487_rule,STIG-ID|F5BI-DN-300012,SWIFT-CSCv1|2.3,Vuln-ID|V-265981"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Zone Signing Key and Key Signing Key"
+      context     : "ltm dns dnssec zone"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for TSIG Key"
+      context     : "ltm dns nameserver"
+      regex       : "tsig-key"
+      not_expect  : "tsig-key none"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Zone Signing Key and Key Signing Key"
+      f5_command     : "/tm/ltm/dns/dnssec/zone"
+      json_transform : ".items[] | .keys"
+      expect         : "^Manual Review Required$"
+      severity       : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for TSIG Key"
+      f5_command     : "/tm/ltm/dns/nameserver"
+      json_transform : ".items[] | \"\(.name): \(.tsigKey)\""
+      not_expect     : ".*: null"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300013 - An authoritative name server must be configured to enable DNSSEC Resource Records."
+      info        : "The specification for a digital signature mechanism in the context of the DNS infrastructure is in IETF's DNSSEC standard. In DNSSEC, trust in the public key (for signature verification) of the source is established not by going to a third party or a chain of third parties (as in public key infrastructure [PKI] chaining), but by starting from a trusted zone (such as the root zone) and establishing the chain of trust down to the current source of response through successive verifications of signature of the public key of a child by its parent. The public key of the trusted zone is called the trust anchor. After authenticating the source, the next process DNSSEC calls for is to authenticate the response. DNSSEC mechanisms involve two main processes: sign and serve, and verify signature.
+
+Before a DNSSEC-signed zone can be deployed, a name server must be configured to enable DNSSEC processing.
+
+Satisfies: SRG-APP-000516-DNS-000089, SRG-APP-000347-DNS-000041, SRG-APP-000348-DNS-000042, SRG-APP-000420-DNS-000053, SRG-APP-000421-DNS-000054, SRG-APP-000158-DNS-000015, SRG-APP-000422-DNS-000055, SRG-APP-000215-DNS-000003, SRG-APP-000423-DNS-000056, SRG-APP-000424-DNS-000057, SRG-APP-000425-DNS-000058, SRG-APP-000426-DNS-000059, SRG-APP-000219-DNS-000030
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "DNSSEC Keys:
+From the BIG-IP GUI:
+1. DNS.
+2. Zones.
+3. DNSSEC Zones.
+4. DNSSEC Zone List.
+5. Click the name of the zone.
+6. Move a key for both \"Zone Signing Key\" and \"Key Signing Key\" into the \"Active\" column.
+7. Click \"Update\".
+Note: To create a Zone Signing Key and/or Key Signing Key, go to DNS >> Delivery >> Keys >> DNSSEC Key List.
+
+TSIG Key:
+1. DNS.
+2. Delivery.
+3. Nameservers.
+4. Nameserver List.
+5. Click on the name of the Nameserver.
+6. Select a value from the drop-down for \"TSIG Key\".
+7. Click \"Update\".
+Note: To create a TSIG Key, go to DNS >> Delivery >> Keys >> TSIG Key List."
+      reference   : "800-171|3.4.2,800-171|3.13.15,800-171r3|03.04.02a.,800-171r3|03.05.02,800-171r3|03.13.15,800-53|AU-10(1)(a),800-53|AU-10(1)(b),800-53|CM-6b.,800-53|IA-3,800-53|SC-20a.,800-53|SC-20b.,800-53|SC-20(2),800-53|SC-21,800-53|SC-23,800-53r5|AU-10(1)(a),800-53r5|AU-10(1)(b),800-53r5|CM-6b.,800-53r5|IA-3,800-53r5|SC-20a.,800-53r5|SC-20b.,800-53r5|SC-20(2),800-53r5|SC-21,800-53r5|SC-23,CAT|II,CCI|CCI-000366,CCI|CCI-000778,CCI|CCI-001184,CCI|CCI-001663,CCI|CCI-001901,CCI|CCI-001902,CCI|CCI-002462,CCI|CCI-002463,CCI|CCI-002464,CCI|CCI-002465,CCI|CCI-002466,CCI|CCI-002467,CCI|CCI-002468,CN-L3|8.1.10.6(d),CSF|PR.AC-1,CSF|PR.IP-1,CSF|PR.PT-1,CSF2.0|DE.CM-09,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(b),HIPAA|164.312(d),ISO-27001-2022|A.8.9,ITSG-33|AU-10(1),ITSG-33|CM-6b.,ITSG-33|IA-3,ITSG-33|IA-3a.,ITSG-33|SC-20,ITSG-33|SC-20a.,ITSG-33|SC-21,ITSG-33|SC-21a.,ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T3.2.1,NESA|T4.3.1,NESA|T4.5.1,NESA|T5.4.3,NESA|T7.3.3,QCSC-v1|5.2.1,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-265982r1024488_rule,STIG-ID|F5BI-DN-300013,SWIFT-CSCv1|2.3,TBA-FIISB|27.1,Vuln-ID|V-265982"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for transfer clients"
+      context     : "ltm dns zone"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for transfer clients"
+      f5_command     : "/tm/ltm/dns/zone"
+      json_transform : ".items[] | \"\(.name): \(.transferClients)\""
+      expect         : "^Manual Review Required$"
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300014 - Primary authoritative name servers must be configured to only receive zone transfer requests from specified secondary name servers."
+      info        : "Authoritative name servers (especially primary name servers) must be configured with an allow-transfer access control substatement designating the list of hosts from which zone transfer requests can be accepted. These restrictions address the denial-of-service (DoS) threat and potential exploits from unrestricted dissemination of information about internal resources. Based on the need-to-know, the only name servers that need to refresh their zone files periodically are the secondary name servers. Zone transfer from primary name servers must be restricted to secondary name servers. The zone transfer must be completely disabled in the secondary name servers. The address match list argument for the allow-transfer substatement must consist of IP addresses of secondary name servers and stealth secondary name servers.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From the BIG-IP GUI:
+1. DNS.
+2. Zones.
+3. Zone List.
+4. Click on the Name of the Zone.
+5. Move only Nameservers to the \"Active\" column under \"Zone Transfer Clients\" that are allowed to request zone transfers.
+6. Click \"Update\"."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-265983r1024490_rule,STIG-ID|F5BI-DN-300014,SWIFT-CSCv1|2.3,Vuln-ID|V-265983"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for valid root name servers"
+      context     : "ltm dns zone"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for valid root name servers"
+      f5_command     : "/tm/ltm/dns/zone"
+      json_transform : ".items[] | .name"
+      expect         : "^Manual Review Required$"
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300015 - The F5 BIG-IP DNS must use valid root name servers in the local root zone file."
+      info        : "All caching name servers must be authoritative for the root zone because, without this starting point, they would have no knowledge of the DNS infrastructure and thus would be unable to respond to any queries. The security risk is that an adversary could change the root hints and direct the caching name server to a bogus root server. At that point, every query response from that name server is suspect, which would give the adversary substantial control over the network communication of the name servers' clients. When authoritative servers are sent queries for zones that they are not authoritative for, and they are configured as a noncaching server (as recommended), they can either be configured to return a referral to the root servers or they can be configured to refuse to answer the query. The recommendation is to configure authoritative servers to refuse to answer queries for any zones for which they are not authoritative. This is more efficient for the server and allows it to spend more of its resources doing what its intended purpose is, answering authoritatively for its zone.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "This is only applicable if DNS recursion is being performed by the BIG-IP AND a custom root hint list must be defined.
+
+Enable recursion for named:
+From the BIG-IP GUI:
+1. DNS.
+2. Zones.
+3. ZoneRunner.
+4. Named Configuration.
+5. Change the recursion option to \"recursion yes;\".
+6. Click \"Update\".
+
+Create a hint zone using ZoneRunner:
+From the BIG-IP GUI:
+1. DNS.
+2. Zones.
+3. ZoneRunner.
+4. Zone List.
+5. Create.
+6. For the View Name option, select the view for which the hint zone will apply.
+7. For the Zone Name, enter a period character \".\" (without quotes).
+8. For the Zone Type, select \"Hint\".
+9. Change the Zone File Name to \"db.external.named.root.\" (without quotes).
+10. Click \"Finished\".
+
+Edit the hint zone file:
+From the BIG-IP CLI:
+1. Edit the root hint file:
+vi /var/named/config/namedb/db.external.named.root.
+2. Paste the list of valid root name servers. Note: A copy of the latest root server list can be found at the following location:
+http://www.internic.net/zones/named.cache.
+3. Save the file.
+4. Update the time stamp on: /var/named/config/named.conf
+touch /var/named/config/named.conf
+5. Restart named:
+tmsh restart /sys service named
+6. Restart zrd:
+tmsh restart /sys service zrd
+
+Note: The hint zone does not display any information when viewed in the ZoneRunner Configuration utility. The information is used by named for the purpose of querying and receiving the most up-to-date list of root servers. It cannot be updated or modified using the ZoneRunner utility."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-265984r1024858_rule,STIG-ID|F5BI-DN-300015,SWIFT-CSCv1|2.3,Vuln-ID|V-265984"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "F5BI-DN-300016 - The platform on which the name server software is hosted must be configured to respond to DNS traffic only."
+  info        : "Hosts that run the name server software must not provide any other services and therefore must be configured to respond to DNS traffic only. In other words, the only allowed incoming ports/protocols to these hosts must be 53/udp and 53/tcp. Outgoing DNS messages must be sent from a random port to minimize the risk of an attacker's guessing the outgoing message port and sending forged replies.
+
+BIG-IP is often used to proxy DNS along with other services. The requirement speaks to the \"name server software\", but if we are proxying for the name server then we do not need to limit listeners to DNS only.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From the BIG-IP GUI:
+1. Local Traffic.
+2. Virtual Servers.
+3. For any virtual servers listening that are not associated with DNS, check the box next to the virtual server and click \"Delete\".
+4. Click \"Delete\" again."
+  reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-265985r1024493_rule,STIG-ID|F5BI-DN-300016,SWIFT-CSCv1|2.3,Vuln-ID|V-265985"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+</report>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Signature Validity Period"
+      context     : "ltm dns dnssec key"
+      regex       : "(enabled|disabled|algorithm)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for KSK Signature Validity Period"
+      f5_command     : "/tm/ltm/dns/dnssec/key"
+      json_transform : ".items[] | select(.enabled==true) | \"\(.name): \(.algorithm)\""
+      expect         : ".*: (rsasha256|rsasha512)"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300017 - The digital signature algorithm used for DNSSEC-enabled zones must be set to use RSA/SHA256 or RSA/SHA512."
+      info        : "The choice of digital signature algorithm will be based on recommended algorithms in well-known standards. NIST's Digital Signature Standard (DSS) (FIPS186) provides three algorithm choices:
+- Digital Signature Algorithm (DSA);
+- RSA;
+- Elliptic Curve DSA (ECDSA).
+
+Of these three algorithms, RSA and DSA are more widely available, and hence are considered candidates of choice for DNSSEC. In terms of performance, both RSA and DSA have comparable signature generation speeds, but DSA is much slower for signature verification. Hence, RSA is the recommended algorithm as far as this guideline is concerned. RSA with SHA-1 is currently the only cryptographic algorithm mandated to be implemented with DNSSEC, although other algorithm suites (e.g., RSA/SHA-256, ECDSA) are also specified. It can be expected that name servers and clients will be able to use the RSA algorithm at the minimum. It is suggested that at least one ZSK for a zone use the RSA algorithm.
+
+SHA-256, SHA-384, and SHA-512 are approved hash algorithms to be used as part of the algorithm suite for generating digital signatures. It is expected that there will be support for Elliptic Curve Cryptography in the DNSSEC.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Create automatically managed zone-signing keys for BIG-IP DNS to use in the DNSSEC authentication process.
+
+1. On the Main tab, click \"DNS Delivery Keys DNSSEC Key List\". The DNSSEC Key List screen opens.
+2. Click \"Create\". The New DNSSEC Key screen opens.
+3. In the \"Name\" field, type a name for the key. Zone names are limited to 63 characters.
+4. From the \"Type\" list, select \"Zone Signing Key\".
+5. From the \"State\" list, select \"Enabled\".
+6. From the \"Hardware Security Module\" list, select \"None\".
+7. From the \"Algorithm\" list, select the digest algorithm the system uses to generate the key signature. Select RSA/SHA256 or RSA/SHA512.
+8. From the \"Key Management\" list, select \"Automatic\". The Key Settings area displays fields for key configuration.
+9. In the \"Bit Width\" field, type \"1024\".
+10. In the \"TTL\" field, accept the default value of 86400 (the number of seconds in one day.) This value specifies how long a client resolver can cache the key. This value must be less than the difference between the values of the rollover and expiration periods of the key; otherwise, a client can make a query and the system can send a valid key that the client cannot recognize.
+11. For the \"Rollover Period\" setting, in the \"Days\" field, type \"21\".
+12. For the \"Expiration Period\" setting, in the \"Days\" field, type \"30\". Zero seconds indicates not set, and thus the key does not expire.
+13. For the \"Signature Validity Period\" setting, accept the default value of seven days. This value must be greater than the value of the signature publication period. Zero seconds indicates not set, and thus the server verifying the signature never succeeds, because the signature is always expired.
+14. For the \"Signature Publication Period\" setting, accept the default value of four days and 16 hours. This value must be less than the value of the signature validity period. Zero seconds indicates not set, and thus the signature is not cached.
+15. Click \"Finished\".
+
+To create a standby key for emergency rollover purposes, repeat these steps using a similar name, and select \"Disabled\" from the State list."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-265986r1024860_rule,STIG-ID|F5BI-DN-300017,SWIFT-CSCv1|2.3,Vuln-ID|V-265986"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for TSIG Key"
+      context     : "ltm dns nameserver"
+      regex       : "tsig-key"
+      not_expect  : "tsig-key none"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for TSIG Key"
+      f5_command     : "/tm/ltm/dns/nameserver"
+      json_transform : ".items[] | \"\(.name): \(.tsigKey)\""
+      not_expect     : ".*: null"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300020 - The F5 BIG-IP DNS server implementation must validate the binding of the other DNS server's identity to the DNS information for a server-to-server transaction (e.g., zone transfer)."
+      info        : "Validation of the binding of the information prevents the modification of information between production and review. The validation of bindings can be achieved, for example, by the use of cryptographic checksums. Validations must be performed automatically.
+
+DNSSEC and TSIG/SIG(0) technologies are not effective unless the digital signatures they generate are validated to ensure that the information has not been tampered with and that the producer's identity is legitimate."
+      solution    : "From the BIG-IP GUI:
+1. DNS.
+2. Delivery.
+3. Nameservers.
+4. Click the Name of the Nameserver.
+5. Select a value from the \"TSIG Key\" drop-down menu.
+Note: To create a TSIG Key, go to DNS >> Delivery >> Keys >> TSIG Key List.
+6. Click \"Finished\"."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|AU-10(2)(a),800-53|CM-6b.,800-53r5|AU-10(2)(a),800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CCI|CCI-001904,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.PT-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.9,ITSG-33|AU-10(2),ITSG-33|CM-6b.,NESA|T3.2.1,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-265987r1024862_rule,STIG-ID|F5BI-DN-300020,SWIFT-CSCv1|2.3,Vuln-ID|V-265987"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for DNSSEC: Enabled"
+      context     : "ltm profile dns"
+      regex       : "enable-dnssec"
+      expect      : "enable-dnssec yes"
+      match_all   : YES
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for DNSSEC: Enabled"
+      f5_command     : "/tm/ltm/profile/dns"
+      json_transform : ".items[] | \"\(.name): \(.enableDnssec)\""
+      expect         : "yes"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300028 - A BIG-IP DNS server implementation must provide additional data origin artifacts along with the authoritative data the system returns in response to external name/address resolution queries."
+      info        : "The underlying feature in the major threat associated with DNS query/response (e.g., forged response or response failure) is the integrity of DNS data returned in the response. The security objective is to verify the integrity of each response received. An integral part of integrity verification is to ensure that valid data has originated from the right source. Establishing trust in the source is called data origin authentication.
+
+The security objectives-and consequently the security services-that are required for securing the DNS query/response transaction are data origin authentication and data integrity verification.
+
+The specification for a digital signature mechanism in the context of the DNS infrastructure is in IETF's DNSSEC standard. In DNSSEC, trust in the public key (for signature verification) of the source is established not by going to a third party or a chain of third parties (as in public key infrastructure [PKI] chaining), but by starting from a trusted zone (such as the root zone) and establishing the chain of trust down to the current source of response through successive verifications of signature of the public key of a child by its parent. The public key of the trusted zone is called the trust anchor."
+      solution    : "DNSSEC Keys:
+
+From the BIG-IP GUI:
+1. DNS.
+2. Zones.
+3. DNSSEC Zones.
+4. DNSSEC Zone List.
+5. Click the name of the zone.
+6. Move a key for both \"Zone Signing Key\" and \"Key Signing Key\" into the \"Active\" column.
+7. Click \"Update\".
+Note: To create a Zone Signing Key and/or Key Signing Key go to DNS >> Delivery >> Keys >> DNSSEC Key List.
+
+DNS Profile:
+1. DNS.
+2. Delivery.
+3. Profiles.
+4. DNS.
+5. Click the name of the DNS profile being used by the listener.
+6. Under DNS Features set \"DNSSEC\" to \"Enabled\".
+Note: If the setting is grayed out click the box to the right of the setting and then change it.
+7. Click \"Update\"."
+      reference   : "800-53|SC-20a.,800-53r5|SC-20a.,CAT|II,CCI|CCI-001178,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-20a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-265988r1024496_rule,STIG-ID|F5BI-DN-300028,Vuln-ID|V-265988"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Signature Validity Period"
+      context     : "ltm dns dnssec key"
+      regex       : "(enabled|disabled|key-type|signature-valid-period)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for KSK Signature Validity Period"
+      f5_command     : "/tm/ltm/dns/dnssec/key"
+      json_transform : ".items[] | select(.keyType==\"ksk\") | select(.enabled==true) | \"\(.name): \(.signatureValidPeriod)\""
+      expect         : "(7:0:0:0|[2-6]:[0-9]+:[0-9]+:[0-9]+)"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for ZSK Signature Validity Period"
+      f5_command     : "/tm/ltm/dns/dnssec/key"
+      json_transform : ".items[] | select(.keyType==\"zsk\") | select(.enabled==true) | \"\(.name): \(.signatureValidPeriod)\""
+      expect         : "(7:0:0:0|[2-6]:[0-9]+:[0-9]+:[0-9]+)"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300030 - The validity period for the RRSIGs covering the DS RR for a zones delegated children must be no less than two days and no more than one week."
+      info        : "The best way for a zone administrator to minimize the impact of a key compromise is by limiting the validity period of RRSIGs in the zone and in the parent zone. This strategy limits the time during which an attacker can take advantage of a compromised key to forge responses. An attacker that has compromised a ZSK can use that key only during the KSK's signature validity interval. An attacker that has compromised a KSK can use that key for only as long as the signature interval of the RRSIG covering the DS RR in the delegating parent. These validity periods must be short, which will require frequent resigning.
+
+To prevent the impact of a compromised KSK, a delegating parent must set the signature validity period for RRSIGs covering DS RRs in the range of a few days to one week. This resigning does not require frequent rollover of the parent's ZSK, but scheduled ZSK rollover must still be performed at regular intervals.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "KSK validity period
+From the BIG-IP GUI:
+1. DNS.
+2. Delivery.
+3. Keys.
+4. DNSSEC Key List.
+5. Click the Name of the KSK.
+6. Configure the \"Signature Validity Period\" to two and seven days.
+7. Click \"Update\".
+
+ZSK validity period
+From the BIG-IP GUI:
+1. DNS.
+2. Delivery.
+3. Keys.
+4. DNSSEC Key List.
+5. Click the Name of the ZSK.
+6. Configure the \"Signature Validity Period\" to two and seven days.
+7. Click \"Update\"."
+      reference   : "800-53|SC-20b.,800-53r5|SC-20b.,CAT|II,CCI|CCI-001179,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-20,QCSC-v1|5.2.1,Rule-ID|SV-265989r1024498_rule,STIG-ID|F5BI-DN-300030,Vuln-ID|V-265989"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for TSIG Key"
+      context     : "ltm dns zone"
+      regex       : "server-tsig-key"
+      not_expect  : "server-tsig-key none"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for TSIG Key"
+      f5_command     : "/tm/ltm/dns/zone"
+      json_transform : ".items[] | \"\(.name): \(.serverTsigKey)\""
+      not_expect     : ".*: null"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-DN-300036 - The F5 BIG-IP DNS implementation must protect the authenticity of communications sessions for zone transfers."
+      info        : "DNS is a fundamental network service that is prone to various attacks, such as cache poisoning and man-in-the middle attacks.
+
+If communication sessions are not provided appropriate validity protections, such as the employment of DNSSEC, the authenticity of the data cannot be guaranteed."
+      solution    : "From the BIG-IP GUI:
+1. DNS.
+2. Zones.
+3. Click on the Zone Name.
+4. Under the TSIG section, select a \"Server Key\" from the drop-down menu.
+5. Click \"Update\".
+
+From the BIG-IP Console, type the following commands:
+tmsh modify ltm dns zone <zone name> server-tsig-key <TSIG key name>
+tmsh save sys config"
+      reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23,800-53r5|SC-23,CAT|I,CCI|CCI-001184,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-265990r1024864_rule,STIG-ID|F5BI-DN-300036,Vuln-ID|V-265990"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "F5BI-DN-300039 - The F5 BIG-IP DNS server implementation must manage excess capacity, bandwidth, or other redundancy to limit the effects of information flooding types of denial-of-service (DoS) attacks."
+  info        : "DoS is a condition when a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded capacity.
+
+In the case of application DoS attacks, care must be taken when designing the application to ensure the application makes the best use of system resources. SQL queries have the potential to consume large amounts of CPU cycles if they are not tuned for optimal performance. Web services containing complex calculations requiring large amounts of time to complete can bog down if too many requests for the service are encountered within a short period of time.
+
+A DoS attack against the DNS infrastructure has the potential to cause a DoS to all network users. As the DNS is a distributed backbone service of the internet, various forms of amplification attacks resulting in DoS, while using the DNS, are still prevalent on the internet today. Some potential DoS flooding attacks against the DNS include malformed packet flood, spoofed source addresses, and distributed DoS. Without the DNS, users and systems would not have the ability to perform simple name-to-IP resolution.
+
+Configuring the DNS implementation to defend against cache poisoning, employing increased capacity and bandwidth, building redundancy into the DNS architecture, using DNSSEC, limiting and securing recursive services, DNS black holes, etc., may reduce the susceptibility to some flooding types of DoS attacks.
+
+Satisfies: SRG-APP-000247-DNS-000036, SRG-APP-000246-DNS-000035
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "This requires the AFM license or can be implemented using another firewall's ACL.
+
+From the BIG-IP GUI:
+1. Security.
+2. DoS Protection.
+3. Device Protection.
+4. Expand DNS and do the following for each:
+a. Check the box at the top of the list of signatures to select all.
+b. Set \"Set State\" to \"Mitigate\".
+c. Click \"Commit Changes to System\".
+
+Note: Sites must operationally test, adjust thresholds, or initially use learning mode prior to turning on mitigation to prevent operational impacts, particularly in implementations with large traffic volumes."
+  reference   : "800-53|SC-5(1),800-53|SC-5(2),800-53r5|SC-5(1),800-53r5|SC-5(2),CAT|II,CCI|CCI-001094,CCI|CCI-001095,CSF|DE.CM-1,CSF|PR.DS-4,CSF2.0|DE.CM-01,CSF2.0|PR.IR-01,DISA_Benchmark|F5_BIG-IP_TMOS_DNS_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.6,ITSG-33|SC-5(1),ITSG-33|SC-5(2),NESA|T3.3.1,NIAv2|GS8e,NIAv2|GS10c,QCSC-v1|8.2.1,Rule-ID|SV-265991r1024501_rule,STIG-ID|F5BI-DN-300039,SWIFT-CSCv1|6.4,Vuln-ID|V-265991"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+</report>
+
+</check_type>

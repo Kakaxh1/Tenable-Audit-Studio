@@ -1,0 +1,1678 @@
+#TRUSTED 0acb54fa8d9dad27371b3c76227626bb446b9f76fde31744788059d81b5b14e8ade9c4a815d3fa58fa5d4801cffbb1421e182b5a3d3d90aef5abc87c8c6ea69a5e34fe7f3938192d7497bf1e463894740c76ec6ceff07a1465e463aa89855eab8489be499fffa154ce6086b83a150c9ef49bcad46c66ba204a88f68f87257e290bc21f54b353e60668240ed09f3e8020b4309b0e0d3b60e84485a0996ba65066f9ca59a6e906b1809ad83ab87495cb2873a8d9d29d0874dce765fe62a9c100924042722eba740e4e0739d45cd871148c352b208d34d9e5e8313886f544edcb1d545ba77fa0791957d38b5cf5f65f2fa6b5f204331ed1d44902e3f94c30cd260fdd54af3c776aad3c036fc7d2d8d6b51594ce98b5a11b1f94423d0e71654bf5b14098e47341f3512ad3ba7d682c166cd61b629d76dd943de21720678972e30ba5a651bd1417045af8ebfa434ec58d4309cf0a89ae2545ee2e5aacc0f70876f9ef2bf8c3289eab1a38ee27da7c410339ddecf62da2291e31f0964fedf7cfe1105a30c0a74d0b1726e802537f515ed2277e1c4fbf9a78c7bf633d2df6645bcc53ff7e602ac006fb88d877f914e06ee7f5a2296822769f3689cb602ca7c38ad7e1f3b838a3e9a45b14c7d2905df27aed40e149d8abafb2a6ab4a2e052a562a5c5fac78f1e92b2fcd37cd4b1362c9f9e6ed23abf7d578e0dadb83bed72e069dbaf2cc
+#TRUST-RSA-SHA256 35e4935d825e31ca921aec96140c13debc5062f90ddee2157cc5aa5e8b9524db1b2b67575c7be9e6b9a5cb67a8ac5f24060da226ba04f47c836176aa77a2229708df627cbabdb3eedfb83c0710d157865ca87597aceb26f0f029ddb223ccf60c77dfa521c75bc119902273204d58cbbc98c73e288aaae114fe8aa92337b1fa5876e4e6324b42b02bdd54eed276ed06c8f610f07fbb29f0d8ece335283841e977c153aeed211f0a81a88ea620f583301740f3b2ec39091e5df73f5b7f405fea67efe58790d6dec49fac23b8f7ddaeca23553dab4651b703ba43a06cf024a3aadc8089722076324cd15b3edac531045b81e87623c2385e2271398867fd888a812d83d3842ad9009a70d36bac4a055cde210621bfad3d8e225a7223006cde8ef9c60653e4d652c1693c97a8337dd513501dd43328c3c938c2b31de210aae376d359ddb3469e9dc9489f7c6d6b0afea3d785263405ccce53feccf0bff04951dc2b7ee2f0d7a441756e5f79d931a7fd1c40df546ecfe0c0284f2d183a0043a6cd323247f8069a695f092162583d35d62b90e6833423c44d5b2f24831f9881bfce400258e13cf73cc2a14bebb4adc006a24bd24ea07cdaea19e205f3485b633f446ff5edb42010439d4884688e8b1566a1546515db9646a8d078c3e47d079a2a60c7afd853a594fa246dfaa0b7e8ba56802065ace9de409e9144f28c1fc7c0b97d6e06
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/02/10 $
+#
+# Description : This .audit is based on the CIS Palo Alto Firewall 10 Benchmark v1.3.0
+#
+#<ui_metadata>
+#<display_name>CIS Palo Alto Firewall 10 v1.3.0 L2</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Palo Alto Firewall 10</name>
+#  <profile>L2</profile>
+#  <version>1.3.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/18106</link>
+#</spec>
+#<labels>palo_alto</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>PLATFORM_VERSION</name>
+#    <default>10</default>
+#    <description>The platform version for Palo Alto Firewall</description>
+#    <info>The platform version for Palo Alto Firewall - Default value is 10</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SNMP_SERVER</name>
+#    <default>10.0.0.2</default>
+#    <description>Log Server</description>
+#    <info>Host address of the sytem log server for the target to send logs to.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>CONFIG_TYPE</name>
+#    <default>merged</default>
+#    <description>Palo Alto Config Type</description>
+#    <info>Type of configuration audited. Valid entries are merged or effective-running.</info>
+#    <value_type>PALO_ALTO_CONFIG</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Palo_Alto">
+
+<if>
+  <condition type:"OR">
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "Check for Palo Alto version 10"
+      api_request_type : "op"
+      request          : "<show><system><info></info></system></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:value-of select=\"/response/result/system/sw-version\"/>"
+      regex            : ".*"
+      expect           : "^[\s]*@PLATFORM_VERSION@\..*"
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "Panorama model"
+      api_request_type : "version"
+      request          : ""
+      xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+      expect           : "Panorama"
+    </custom_item>
+
+    <custom_item>
+      type             : AUDIT_XML
+      description      : "Panorama system-mode"
+      api_request_type : "op"
+      request          : "<show><system><info></info></system></show>"
+      xsl_stmt         : "<xsl:template match=\"/\">"
+      xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+      expect           : "(?i)Panorama(?-i)"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Palo_Alto_Firewall_10_Benchmark_v1.3.0_L2.audit from CIS Palo Alto Firewall 10 Benchmark v1.3.0"
+      info        : "This audit checks the testable Level 2 guidance in the CIS Palo Alto Firewall 10 benchmark document."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+    </report>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition auto:"FAILED" type:"AND">
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "host"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"config/shared/log-settings/snmptrap/entry/version/v3/server/entry/manager='@SNMP_SERVER@'\">"
+              xsl_stmt         : "  Passed - snmp v3 server found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  Failed - snmp v3 server not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              not_expect       : "Failed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "system"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(config/shared/log-settings/system/match-list/entry/send-snmptrap) and (config/shared/log-settings/system/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "  Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              not_expect       : "Failed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "configuration"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(config/shared/log-settings/config/match-list/entry/send-snmptrap) and (config/shared/log-settings/config/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "  Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              not_expect       : "Failed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "user-id"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(config/shared/log-settings/userid/match-list/entry/send-snmptrap) and (config/shared/log-settings/userid/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "  Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              not_expect       : "Failed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "hip match"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(config/shared/log-settings/hipmatch/match-list/entry/send-snmptrap) and (config/shared/log-settings/hipmatch/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "  Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              not_expect       : "Failed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "ip-tag"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(config/shared/log-settings/iptag/match-list/entry/send-snmptrap) and (config/shared/log-settings/iptag/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "  Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              not_expect       : "Failed"
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "1.1.1.2 SNMPv3 traps should be configured"
+              info        : "SNMP v3 can be used for remote logging, and is the recommended protocol in higher security situations as it fully supports encryption of logs.
+
+Rationale:
+
+Sending all system logs to a remote host is recommended to provide protected, long term storage and archiving. This also places a copy of the logs in a second location, in case the primary (on the firewall) logs are compromised. Storing logs on a remote host also allows for more flexible log searches and log processing, as well as many methods of triggering events or scripts based on specific log events or combinations of events. Finally, remote logging provides many organizations with the opportunity to combine logs from disparate infrastructure in a SIEM (Security Information and Event Management) system.
+
+Logging to an external system is also usually required by most regulatory frameworks.
+
+Impact:
+
+Failure to properly store and archive logs for critical infrastructure leaves an organization without the tools required to establish trends in events or activity, or to retrospectively analyze security or operational events beyond the log timespan stored on the firewall. Not having remote logs also puts many organizations outside of compliance with many regulatory frameworks. Finally, not logging to a remote host leaves organizations without recourse in the event of a compromise of logs on the primary device. It is imperative that organizations log critical infrastructure appropriately, store and archive these logs in a central location, and have a robust set of tools to analyze logs both in real time and after the fact. Not encrypting log data as it transits the network allows an attacker to mount a 'MiTM' (Monkey in the Middle) attack, which allows them to intercept and/or modify logs as they transit from the source to the destination."
+              solution    : "Navigate to Device > Server Profiles > SNMP Trap
+Choose Add
+Assign a Name to the Profile, and specify version V3. Choose Add, and assign a server name in the Name field, add an IP address or FQDN in the SNMP Manager field. Edit the Password fields as appropriate for your server.
+Repeat if multiple Syslog destinations are required.
+Navigate to Device > Log Settings
+Under System, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under Configuration, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under User-ID, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under HIP Match (Host Information Profile), add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under IP-Tag, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+
+Default Value:
+
+By default no external logging is defined"
+              reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.01,800-171r3|03.15.01,800-53|AU-1,800-53|AU-2,800-53r5|AU-1,800-53r5|AU-2,CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.PT-1,CSF2.0|GV.OC-03,CSF2.0|GV.OV-01,CSF2.0|GV.PO-01,CSF2.0|GV.PO-02,CSF2.0|GV.SC-03,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.1,ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.4,ISO-27001-2022|A.5.31,ISO-27001-2022|A.5.36,ISO-27001-2022|A.5.37,ISO-27001-2022|A.8.15,ISO-27001-2022|5.2,ISO-27001-2022|5.3,ISO-27001-2022|7.5.1,ISO-27001-2022|7.5.2,ISO-27001-2022|7.5.3,ITSG-33|AU-1,ITSG-33|AU-2,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.8,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+              see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </then>
+
+      <else>
+        <if>
+          <condition auto:"FAILED" type:"AND">
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "host"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"/response/result/config/shared/log-settings/snmptrap/entry/version/v3/server/entry/manager='@SNMP_SERVER@'\">"
+              xsl_stmt         : "Passed - snmp v3 server found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "Failed - snmp v3 server not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : "(Passed|Failed)"
+              expect           : "Passed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "system"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(/response/result/config/shared/log-settings/system/match-list/entry/send-snmptrap) and (/response/result/config/shared/log-settings/system/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "<xsl:value-of select=\"/response/result/config/shared/log-settings/system/match-list/entry\"/>"
+              xsl_stmt         : "Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : "(Passed|Failed)"
+              expect           : "Passed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "configuration"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(/response/result/config/shared/log-settings/config/match-list/entry/send-snmptrap) and (/response/result/config/shared/log-settings/config/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "<xsl:value-of select=\"/response/result/config/shared/log-settings/config/match-list/entry\"/>"
+              xsl_stmt         : "Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : "(Passed|Failed)"
+              expect           : "Passed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "user-id"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(/response/result/config/shared/log-settings/userid/match-list/entry/send-snmptrap) and (/response/result/config/shared/log-settings/userid/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "<xsl:value-of select=\"/response/result/config/shared/log-settings/userid/match-list/entry\"/>"
+              xsl_stmt         : "Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : "(Passed|Failed)"
+              expect           : "Passed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "hip match"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(/response/result/config/shared/log-settings/hipmatch/match-list/entry/send-snmptrap) and (/response/result/config/shared/log-settings/hipmatch/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "<xsl:value-of select=\"/response/result/config/shared/log-settings/hipmatch/match-list/entry\"/>"
+              xsl_stmt         : "Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : "(Passed|Failed)"
+              expect           : "Passed"
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "ip-tag"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"(/response/result/config/shared/log-settings/iptag/match-list/entry/send-snmptrap) and (/response/result/config/shared/log-settings/iptag/match-list/entry/filter='All Logs')\">"
+              xsl_stmt         : "<xsl:value-of select=\"/response/result/config/shared/log-settings/iptag/match-list/entry\"/>"
+              xsl_stmt         : "Passed - snmptrap entry with filter setting set to 'All Logs' found"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "Failed - snmptrap entry with filter setting set to 'All Logs' not found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : "(Passed|Failed)"
+              expect           : "Passed"
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "1.1.1.2 SNMPv3 traps should be configured"
+              info        : "SNMP v3 can be used for remote logging, and is the recommended protocol in higher security situations as it fully supports encryption of logs.
+
+Rationale:
+
+Sending all system logs to a remote host is recommended to provide protected, long term storage and archiving. This also places a copy of the logs in a second location, in case the primary (on the firewall) logs are compromised. Storing logs on a remote host also allows for more flexible log searches and log processing, as well as many methods of triggering events or scripts based on specific log events or combinations of events. Finally, remote logging provides many organizations with the opportunity to combine logs from disparate infrastructure in a SIEM (Security Information and Event Management) system.
+
+Logging to an external system is also usually required by most regulatory frameworks.
+
+Impact:
+
+Failure to properly store and archive logs for critical infrastructure leaves an organization without the tools required to establish trends in events or activity, or to retrospectively analyze security or operational events beyond the log timespan stored on the firewall. Not having remote logs also puts many organizations outside of compliance with many regulatory frameworks. Finally, not logging to a remote host leaves organizations without recourse in the event of a compromise of logs on the primary device. It is imperative that organizations log critical infrastructure appropriately, store and archive these logs in a central location, and have a robust set of tools to analyze logs both in real time and after the fact. Not encrypting log data as it transits the network allows an attacker to mount a 'MiTM' (Monkey in the Middle) attack, which allows them to intercept and/or modify logs as they transit from the source to the destination."
+              solution    : "Navigate to Device > Server Profiles > SNMP Trap
+Choose Add
+Assign a Name to the Profile, and specify version V3. Choose Add, and assign a server name in the Name field, add an IP address or FQDN in the SNMP Manager field. Edit the Password fields as appropriate for your server.
+Repeat if multiple Syslog destinations are required.
+Navigate to Device > Log Settings
+Under System, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under Configuration, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under User-ID, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under HIP Match (Host Information Profile), add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+Under IP-Tag, add an entry. Define a Name and a Filter setting. Under Forward Methods, add a SNMP Profile in the SNMP section. Ensure that at least one of the Log Settings Configuration entries has its Filter setting at All Logs
+
+Default Value:
+
+By default no external logging is defined"
+              reference   : "800-171|3.3.1,800-171|3.3.2,800-171r3|03.03.01,800-171r3|03.15.01,800-53|AU-1,800-53|AU-2,800-53r5|AU-1,800-53r5|AU-2,CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.PT-1,CSF2.0|GV.OC-03,CSF2.0|GV.OV-01,CSF2.0|GV.PO-01,CSF2.0|GV.PO-02,CSF2.0|GV.SC-03,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-04,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.1,ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.4,ISO-27001-2022|A.5.31,ISO-27001-2022|A.5.36,ISO-27001-2022|A.5.37,ISO-27001-2022|A.8.15,ISO-27001-2022|5.2,ISO-27001-2022|5.3,ISO-27001-2022|7.5.1,ISO-27001-2022|7.5.2,ISO-27001-2022|7.5.3,ITSG-33|AU-1,ITSG-33|AU-2,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.8,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+              see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "1.7.1 Enabling Post-Quantum (PQ) on IKEv2 VPNs"
+          info             : "For VPN that has IKEv2 enabled, enable PQ for more secure way to exchange pre-shared secret to defend against 'Harvest Now, Decrypt Later' attack technique.
+
+Rationale:
+
+Post-quantum IKEv2 VPNs based on RFC 8784 work by transmitting a pre-shared secret separately (out-of-band) from the initial peering exchange (the IKE_SA_INIT Exchange). Instead of transmitting the pre-shared secret in the peering exchange, which an attacker could compromise or harvest now and decrypt later, the peering exchange only transmits a Key ID. A Key ID and a pre-shared secret comprise a unique pair called a post-quantum pre-shared key (PQ PPK).
+
+Each IKEv2 peer uses the Key ID to look up the pre-shared secret, which is transmitted securely between administrators or pushed by Panorama, and stored locally on each IKEv2 peer. The pre-shared key is never part of the peering exchange and never traverses the post-quantum VPN, so an attacker using a quantum computer can't steal it, crack it, and use it to decrypt data harvested from a VPN.
+
+Both IKEv2 peers must have the same active pairs of Key ID plus pre-shared secret so that when peers negotiate the connection, each peer can look up the same Key ID and retrieve the same pre-shared secret. If the responding peer doesn't have a matching Key ID or if the pre-shared secret associated with the Key ID differs from the initiator, the connection is aborted.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution         : "Navigate to Network > Network Profiles > IKE Gateways.
+On gateways that has IKEv2 enabled, click into it and navigate to Advanced Options. On IKEv2 section, navigate to PQ PPK section.
+Check Enable Post-Quantum Pre-Shared Key (PPK) option.
+Negotiation mode should be set to Mandatory if both sides of VPN supports PQ. Negotiation mode should be set to Preferred if you don't know or don't have control over whether the peer supports RFC 8784. Preferred mode preserves backward compatibility to ensure connections fall back instead of dropping.
+If both sides of VPN supports more than 1 PPK key ID, then multiple PPK key ID should be configured. Configuring multiple PQ PPKs is most secure because it adds a random element to PQ PPK selection.
+
+Default Value:
+
+Not Configured"
+          reference        : "800-171|3.1.16,800-171|3.13.15,800-171r3|03.01.16,800-171r3|03.13.15,800-53|AC-18,800-53|SC-23,800-53r5|AC-18,800-53r5|SC-23,CSCv8|12.6,CSF|PR.PT-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "config"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/template/entry/config/devices/entry/network/ike/gateway/entry\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry/config/devices/entry/network/ike/gateway/entry\">"
+          xsl_stmt         : "Gateway name: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "No Gateways found"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          regex            : ".*"
+          expect           : "^Manual Review Required$"
+          severity         : MEDIUM
+        </custom_item>
+      </then>
+
+      <else>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "1.7.1 Enabling Post-Quantum (PQ) on IKEv2 VPNs"
+          info             : "For VPN that has IKEv2 enabled, enable PQ for more secure way to exchange pre-shared secret to defend against 'Harvest Now, Decrypt Later' attack technique.
+
+Rationale:
+
+Post-quantum IKEv2 VPNs based on RFC 8784 work by transmitting a pre-shared secret separately (out-of-band) from the initial peering exchange (the IKE_SA_INIT Exchange). Instead of transmitting the pre-shared secret in the peering exchange, which an attacker could compromise or harvest now and decrypt later, the peering exchange only transmits a Key ID. A Key ID and a pre-shared secret comprise a unique pair called a post-quantum pre-shared key (PQ PPK).
+
+Each IKEv2 peer uses the Key ID to look up the pre-shared secret, which is transmitted securely between administrators or pushed by Panorama, and stored locally on each IKEv2 peer. The pre-shared key is never part of the peering exchange and never traverses the post-quantum VPN, so an attacker using a quantum computer can't steal it, crack it, and use it to decrypt data harvested from a VPN.
+
+Both IKEv2 peers must have the same active pairs of Key ID plus pre-shared secret so that when peers negotiate the connection, each peer can look up the same Key ID and retrieve the same pre-shared secret. If the responding peer doesn't have a matching Key ID or if the pre-shared secret associated with the Key ID differs from the initiator, the connection is aborted.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution         : "Navigate to Network > Network Profiles > IKE Gateways.
+On gateways that has IKEv2 enabled, click into it and navigate to Advanced Options. On IKEv2 section, navigate to PQ PPK section.
+Check Enable Post-Quantum Pre-Shared Key (PPK) option.
+Negotiation mode should be set to Mandatory if both sides of VPN supports PQ. Negotiation mode should be set to Preferred if you don't know or don't have control over whether the peer supports RFC 8784. Preferred mode preserves backward compatibility to ensure connections fall back instead of dropping.
+If both sides of VPN supports more than 1 PPK key ID, then multiple PPK key ID should be configured. Configuring multiple PQ PPKs is most secure because it adds a random element to PQ PPK selection.
+
+Default Value:
+
+Not Configured"
+          reference        : "800-171|3.1.16,800-171|3.13.15,800-171r3|03.01.16,800-171r3|03.13.15,800-53|AC-18,800-53|SC-23,800-53r5|AC-18,800-53r5|SC-23,CSCv8|12.6,CSF|PR.PT-4,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "op"
+          request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/network/ike/gateway/entry\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/network/ike/gateway/entry\">"
+          xsl_stmt         : "Gateway name: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "No Gateways found"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          regex            : ".*"
+          expect           : "^Manual Review Required$"
+          severity         : MEDIUM
+        </custom_item>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "1.2.5 Ensure valid certificate is set for browser-based administrator interface"
+          info             : "In most cases, a browser HTTPS interface is used to administer the Palo Alto appliance. The certificate used to secure this session should satisfy the following criteria:
+
+A valid certificate from a trusted source should be used. While a certificate from a trusted Public Certificate Authority is certainly valid, one from a trusted Private Certificate Authority is absolutely acceptable for this purpose.
+
+The certificate should have a valid date. It should not have a 'to' date in the past (it should not be expired), and should not have a 'from' date in the future.
+
+The certificate should use an acceptable cipher and encryption level.
+
+Rationale:
+
+If a certificate that is self-signed, expired, or otherwise invalid is used for the browser HTTPS interface, administrators in most cases will not be able to tell if their session is being eavesdropped on or injected into by a 'Man in the Middle' attack.
+
+Impact:
+
+If the default self-signed certificate is used, an administrator will not be able to clearly tell if their HTTPS session is being hijacked or not. Using a trusted certificate ensures that the session is both encrypted and trusted."
+          solution         : "Create or acquire a certificate that meets the stated criteria and set it:
+Navigate to Device > Certificate Management > Certificates
+Import an appropriate Certificate for your administrative session, from a trusted Certificate Authority.
+Navigate to Device > Certificate Management > SSL/TLS Service Profile
+Choose or import the certificate you want to use for the web based administrative session.
+Navigate to Device > Setup > Management > General Settings > SSL/TLS Service Profile
+Choose the Service Profile that you have configured
+
+Default Value:
+
+A self-signed certificate is installed by default for the administrative interface."
+          reference        : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv7|16.5,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "config"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+          xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"config/devices/entry/deviceconfig/system/ssl-tls-service-profile\">"
+          xsl_stmt         : "<xsl:for-each select=\"config/devices/entry/deviceconfig/system/ssl-tls-service-profile\">"
+          xsl_stmt         : "  Certificate name: <xsl:value-of select=\".\"/>"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "  Failed - No certificates found"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "</xsl:for-each>"
+          not_expect       : "Failed"
+        </custom_item>
+      </then>
+
+      <else>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "1.2.5 Ensure valid certificate is set for browser-based administrator interface"
+          info             : "In most cases, a browser HTTPS interface is used to administer the Palo Alto appliance. The certificate used to secure this session should satisfy the following criteria:
+
+A valid certificate from a trusted source should be used. While a certificate from a trusted Public Certificate Authority is certainly valid, one from a trusted Private Certificate Authority is absolutely acceptable for this purpose.
+
+The certificate should have a valid date. It should not have a 'to' date in the past (it should not be expired), and should not have a 'from' date in the future.
+
+The certificate should use an acceptable cipher and encryption level.
+
+Rationale:
+
+If a certificate that is self-signed, expired, or otherwise invalid is used for the browser HTTPS interface, administrators in most cases will not be able to tell if their session is being eavesdropped on or injected into by a 'Man in the Middle' attack.
+
+Impact:
+
+If the default self-signed certificate is used, an administrator will not be able to clearly tell if their HTTPS session is being hijacked or not. Using a trusted certificate ensures that the session is both encrypted and trusted."
+          solution         : "Create or acquire a certificate that meets the stated criteria and set it:
+Navigate to Device > Certificate Management > Certificates
+Import an appropriate Certificate for your administrative session, from a trusted Certificate Authority.
+Navigate to Device > Certificate Management > SSL/TLS Service Profile
+Choose or import the certificate you want to use for the web based administrative session.
+Navigate to Device > Setup > Management > General Settings > SSL/TLS Service Profile
+Choose the Service Profile that you have configured
+
+Default Value:
+
+A self-signed certificate is installed by default for the administrative interface."
+          reference        : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv7|16.5,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "op"
+          request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/deviceconfig/system/ssl-tls-service-profile\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/deviceconfig/system/ssl-tls-service-profile\">"
+          xsl_stmt         : "Certificate name: <xsl:value-of select=\"/response/result/config/devices/entry/deviceconfig/system/ssl-tls-service-profile\"/>"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "No certificates found"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          expect           : "Certificate name: .+"
+        </custom_item>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition auto:"WARNING" type:"AND">
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "GlobalProtect Gateways"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+              xsl_stmt         : "<xsl:for-each select=\"config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+              xsl_stmt         : "  GlobalProtect Gateway name: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  No GlobalProtect Gateways found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "Certificates"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"config/devices/entry/vsys/entry/certificate\">"
+              xsl_stmt         : "<xsl:for-each select=\"config/devices/entry/vsys/entry/certificate/entry\">"
+              xsl_stmt         : "  Certificate name: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  No certificates found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "GlobalProtect Portals"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+              xsl_stmt         : "<xsl:for-each select=\"config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+              xsl_stmt         : "  GlobalProtect Gateway name: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  No GlobalProtect Gateways found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "1.6.3 Ensure that the Certificate Securing Remote Access VPNs is Valid"
+              info        : "The Certificate used to secure Remote Access VPNs should satisfy the following criteria:
+
+It should be a valid certificate from a trusted source. In almost cases this means a trusted Public Certificate Authority, as in most cases remote access VPN users will not have access to any Private Certificate Authorities for Certificate validation.
+
+The certificate should have a valid date. It should not have a 'to' date in the past (it should not be expired), and should not have a 'from' date in the future.
+
+The key length used to encrypt the certificate should be 2048 bits or more.
+
+The hash used to sign the certificate should be SHA-2 or better.
+
+When the Certificate is applied, the TLS version should be 1.1 or higher (1.2 is recommended)
+
+Rationale:
+
+If presented with a certificate error, the end user in most cases will not be able to tell if their session is using a self-signed or expired certificate, or if their session is being eavesdropped on or injected into by a 'Man in the Middle' attack. This means that self-signed or invalid certificates should never be used for VPN connections.
+
+Impact:
+
+Not using a trusted Certificate, issued by a trusted Public Certificate Authority means that clients establishing VPN sessions will always see an error indicating an untrusted Certificate. This means that they will have no method of validating if their VPN session is being hijacked by a 'Monkey in the Middle' (MitM) attack. It also 'trains' them to bypass certificate warnings for other services, making MitM attacks easier for those other services as well.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+              solution    : "Create a CSR and install a certificate from a public CA (Certificate Authority) here:
+Navigate to Device > Certificate Management > Certificates
+Apply a valid certificate to the HTTPS portal:
+Navigate to Network > GlobalProtect > Portals > Portal Configuration > Authentication > SSL/TLS Profile
+Apply a valid certificate to the GlobalProtect Gateway:
+Navigate to Network > GlobalProtect > Gateways > Authentication > SSL/TLS Service Profile
+Configure the Service Profile to use the correct certificate
+Ensure that the Minimum TLS version is set to 1.1 or 1.2 (1.2 is recommended).
+
+Default Value:
+
+Not configured"
+              reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|14.4,CSCv8|13.9,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+              see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </then>
+
+      <else>
+        <if>
+          <condition auto:"WARNING" type:"AND">
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "GlobalProtect Gateways"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-gateway/entry\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-gateway/entry\">"
+              xsl_stmt         : "GlobalProtect Gateway name: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "No GlobalProtect Gateways found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "Certificates"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"/response/result/config/shared/certificate/entry\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/shared/certificate/entry\">"
+              xsl_stmt         : "Certificate name: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "No certificates found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "GlobalProtect Portals"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/global-protect/global-protect-portal/entry\">"
+              xsl_stmt         : "GlobalProtect Portal name: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "No GlobalProtect Portals found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "1.6.3 Ensure that the Certificate Securing Remote Access VPNs is Valid"
+              info        : "The Certificate used to secure Remote Access VPNs should satisfy the following criteria:
+
+It should be a valid certificate from a trusted source. In almost cases this means a trusted Public Certificate Authority, as in most cases remote access VPN users will not have access to any Private Certificate Authorities for Certificate validation.
+
+The certificate should have a valid date. It should not have a 'to' date in the past (it should not be expired), and should not have a 'from' date in the future.
+
+The key length used to encrypt the certificate should be 2048 bits or more.
+
+The hash used to sign the certificate should be SHA-2 or better.
+
+When the Certificate is applied, the TLS version should be 1.1 or higher (1.2 is recommended)
+
+Rationale:
+
+If presented with a certificate error, the end user in most cases will not be able to tell if their session is using a self-signed or expired certificate, or if their session is being eavesdropped on or injected into by a 'Man in the Middle' attack. This means that self-signed or invalid certificates should never be used for VPN connections.
+
+Impact:
+
+Not using a trusted Certificate, issued by a trusted Public Certificate Authority means that clients establishing VPN sessions will always see an error indicating an untrusted Certificate. This means that they will have no method of validating if their VPN session is being hijacked by a 'Monkey in the Middle' (MitM) attack. It also 'trains' them to bypass certificate warnings for other services, making MitM attacks easier for those other services as well.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+              solution    : "Create a CSR and install a certificate from a public CA (Certificate Authority) here:
+Navigate to Device > Certificate Management > Certificates
+Apply a valid certificate to the HTTPS portal:
+Navigate to Network > GlobalProtect > Portals > Portal Configuration > Authentication > SSL/TLS Profile
+Apply a valid certificate to the GlobalProtect Gateway:
+Navigate to Network > GlobalProtect > Gateways > Authentication > SSL/TLS Service Profile
+Configure the Service Profile to use the correct certificate
+Ensure that the Minimum TLS version is set to 1.1 or 1.2 (1.2 is recommended).
+
+Default Value:
+
+Not configured"
+              reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|14.4,CSCv8|13.9,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1M,LEVEL|2M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+              see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition auto:"WARNING" type:"AND">
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "Zones"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:for-each select=\"config/devices/entry/vsys/entry/zone/entry\">"
+              xsl_stmt         : "  Zone - <xsl:value-of select=\"@*\"/>, Enable User Identification - <xsl:value-of select=\"enable-user-identification\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "<xsl:if test=\"count(config/devices/entry/vsys/entry/zone/entry) = 0\">"
+              xsl_stmt         : "  No Network Zone Policies found"
+              xsl_stmt         : "</xsl:if>"
+              xsl_stmt         : "</xsl:for-each>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "User ID Agents"
+              api_request_type : "config"
+              request          : ""
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+              xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"config/devices/entry/vsys/entry/redistribution-agent/entry\">"
+              xsl_stmt         : "<xsl:for-each select=\"config/devices/entry/vsys/entry/redistribution-agent/entry\">"
+              xsl_stmt         : "  UserID Agent Name: <xsl:value-of select=\"@name\"/>, Port: <xsl:value-of select=\"host-port/port\"/>, Host: <xsl:value-of select=\"host-port/host\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "  No User ID Agents found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              xsl_stmt         : "</xsl:for-each>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "2.1 Ensure that IP addresses are mapped to usernames"
+              info        : "Configure appropriate settings to map IP addresses to usernames. Mapping userids to IP addresses is what permits the firewall to create rules based on userids and groups rather than IP addresses and subnets, as well as log events by userids rather than IP addresses or DNS names. The specifics of how to achieve IP-to-username mapping is highly dependent on the environment. It can be enabled by integrating the firewall with a domain controller, Exchange server, captive portal, Terminal Server, User-ID Agent, XML API, or syslog data from a variety of devices.
+
+Rationale:
+
+Understanding which user is involved in a security incident allows appropriate personnel to move quickly between the detection and reaction phases of incident response. In environments with either short DHCP lease times, or where users may move frequently between systems, the ability to analyze or report, or alert on events based on user accounts or user groups is a tremendous advantage. For forensics tasks when DHCP lease information may not be available, the Source User information may be the only way to tie together related data.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+              solution    : "To Set User-ID Agents:
+Navigate to Device > User Identification > User-ID Agents
+Set the Name, IP Address and Port of the User-ID Agent'
+Enable User Identification for each monitored zone that will have user accounts:
+Navigate to Network > Zone, for each relevant zone enable User Identification
+To Set Terminal Services Agents:
+Navigate to Device > Terminal Services Agents
+Set the Name, IP Address and Port of the Terminal Services Agent
+Enable User Identification for each monitored zone that will have Terminal Servers:
+Navigate to Network > Zone, enable User Identification"
+              reference   : "800-171|3.1.1,800-171|3.1.5,800-171|3.3.8,800-171|3.3.9,800-171r3|03.01.01,800-171r3|03.01.02,800-171r3|03.01.05,800-171r3|03.01.05a.,800-171r3|03.01.05b.,800-171r3|03.03.08b.,800-53|AC-2,800-53|AC-3,800-53|AC-6,800-53|AC-6(1),800-53|AC-6(7),800-53|AU-9(4),800-53r5|AC-2,800-53r5|AC-5,800-53r5|AC-6,800-53r5|AC-6(1),800-53r5|AC-6(7),800-53r5|AU-9(4),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.3(d),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|16.13,CSCv8|6.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.5,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.4,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.4.2,ITSG-33|AC-2,ITSG-33|AC-3,ITSG-33|AC-6,ITSG-33|AC-6(1),ITSG-33|AU-9(4),ITSG-33|AU-9(4)(a),ITSG-33|AU-9(4)(b),LEVEL|2A,NESA|M1.1.3,NESA|M1.2.2,NESA|M5.2.3,NESA|M5.5.2,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|AM28,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|NS5j,NIAv2|SM5,NIAv2|SM6,NIAv2|SS13c,NIAv2|SS14e,NIAv2|SS15c,NIAv2|SS29,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.3.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+              see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "2.2 Ensure that WMI probing is disabled"
+          info             : "Disable WMI probing if it is not required for User-ID functionality in the environment.
+
+Rationale:
+
+WMI probing normally requires a domain administrator account. A malicious user could capture the encrypted password hash for offline cracking or relayed authentication attacks. Relying on other forms of user identification, such as using UserID Agents or security log monitoring, mitigates this risk.
+
+In addition, it is easy to mis-configure this feature such that it is enabled on untrusted interfaces. This can result in a domain administrator account and the associated password hash being sent to untrusted hosts on the internet, where malicious users can then capture that hash for offline cracking.
+
+Impact:
+
+While this removes the exposure of having the WMI user account password being compromised, it also reduces the effectiveness of user identification during operation of the firewall (applying rules and policies). This trade-off should be weighed carefully for all installations."
+          solution         : "Navigate to Device > User Identification > User Mapping > Palo Alto Networks User ID Agent Setup.
+Set Enable Probing so it is unchecked.
+
+Default Value:
+
+Not configured"
+          reference        : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|9.2,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "config"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+          xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"not(config/devices/entry/vsys/entry/user-id-collector/setting/enable-probing) or (config/devices/entry/vsys/entry/user-id-collector/setting/enable-probing = 'no')\">"
+          xsl_stmt         : "  Passed - 'Enable Probing' is turned off"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "  Failed - 'Enable Probing' is turned on"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "</xsl:for-each>"
+          not_expect       : "Failed"
+        </custom_item>
+      </then>
+
+      <else>
+        <if>
+          <condition auto:"WARNING" type:"AND">
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "Zones"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/zone/entry\">"
+              xsl_stmt         : "Zone - <xsl:value-of select=\"@*\"/>, Enable User Identification - <xsl:value-of select=\"enable-user-identification\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "<xsl:if test=\"count(/response/result/config/devices/entry/vsys/entry/zone/entry) = 0\">"
+              xsl_stmt         : "No Network Zone Policies found"
+              xsl_stmt         : "</xsl:if>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+
+            <custom_item>
+              type             : AUDIT_XML
+              description      : "User ID Agents"
+              api_request_type : "op"
+              request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+              xsl_stmt         : "<xsl:template match=\"/\">"
+              xsl_stmt         : "<xsl:choose>"
+              xsl_stmt         : "<xsl:when test=\"/response/result/config/devices/entry/vsys/entry/redistribution-agent/entry\">"
+              xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/vsys/entry/redistribution-agent/entry\">"
+              xsl_stmt         : "UserID Agent Name: <xsl:value-of select=\"@name\"/>, Port: <xsl:value-of select=\"host-port/port\"/>, Host: <xsl:value-of select=\"host-port/host\"/>"
+              xsl_stmt         : "</xsl:for-each>"
+              xsl_stmt         : "</xsl:when>"
+              xsl_stmt         : "<xsl:otherwise>"
+              xsl_stmt         : "No User ID Agents found"
+              xsl_stmt         : "</xsl:otherwise>"
+              xsl_stmt         : "</xsl:choose>"
+              regex            : ".*"
+              expect           : "Manual Review Required"
+              severity         : MEDIUM
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "2.1 Ensure that IP addresses are mapped to usernames"
+              info        : "Configure appropriate settings to map IP addresses to usernames. Mapping userids to IP addresses is what permits the firewall to create rules based on userids and groups rather than IP addresses and subnets, as well as log events by userids rather than IP addresses or DNS names. The specifics of how to achieve IP-to-username mapping is highly dependent on the environment. It can be enabled by integrating the firewall with a domain controller, Exchange server, captive portal, Terminal Server, User-ID Agent, XML API, or syslog data from a variety of devices.
+
+Rationale:
+
+Understanding which user is involved in a security incident allows appropriate personnel to move quickly between the detection and reaction phases of incident response. In environments with either short DHCP lease times, or where users may move frequently between systems, the ability to analyze or report, or alert on events based on user accounts or user groups is a tremendous advantage. For forensics tasks when DHCP lease information may not be available, the Source User information may be the only way to tie together related data.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+              solution    : "To Set User-ID Agents:
+Navigate to Device > User Identification > User-ID Agents
+Set the Name, IP Address and Port of the User-ID Agent'
+Enable User Identification for each monitored zone that will have user accounts:
+Navigate to Network > Zone, for each relevant zone enable User Identification
+To Set Terminal Services Agents:
+Navigate to Device > Terminal Services Agents
+Set the Name, IP Address and Port of the Terminal Services Agent
+Enable User Identification for each monitored zone that will have Terminal Servers:
+Navigate to Network > Zone, enable User Identification"
+              reference   : "800-171|3.1.1,800-171|3.1.5,800-171|3.3.8,800-171|3.3.9,800-171r3|03.01.01,800-171r3|03.01.02,800-171r3|03.01.05,800-171r3|03.01.05a.,800-171r3|03.01.05b.,800-171r3|03.03.08b.,800-53|AC-2,800-53|AC-3,800-53|AC-6,800-53|AC-6(1),800-53|AC-6(7),800-53|AU-9(4),800-53r5|AC-2,800-53r5|AC-5,800-53r5|AC-6,800-53r5|AC-6(1),800-53r5|AC-6(7),800-53r5|AU-9(4),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.3(d),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|16.13,CSCv8|6.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.5,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.4,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.4.2,ITSG-33|AC-2,ITSG-33|AC-3,ITSG-33|AC-6,ITSG-33|AC-6(1),ITSG-33|AU-9(4),ITSG-33|AU-9(4)(a),ITSG-33|AU-9(4)(b),LEVEL|2A,NESA|M1.1.3,NESA|M1.2.2,NESA|M5.2.3,NESA|M5.5.2,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|AM28,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|NS5j,NIAv2|SM5,NIAv2|SM6,NIAv2|SS13c,NIAv2|SS14e,NIAv2|SS15c,NIAv2|SS29,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.3.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+              see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "2.2 Ensure that WMI probing is disabled"
+          info             : "Disable WMI probing if it is not required for User-ID functionality in the environment.
+
+Rationale:
+
+WMI probing normally requires a domain administrator account. A malicious user could capture the encrypted password hash for offline cracking or relayed authentication attacks. Relying on other forms of user identification, such as using UserID Agents or security log monitoring, mitigates this risk.
+
+In addition, it is easy to mis-configure this feature such that it is enabled on untrusted interfaces. This can result in a domain administrator account and the associated password hash being sent to untrusted hosts on the internet, where malicious users can then capture that hash for offline cracking.
+
+Impact:
+
+While this removes the exposure of having the WMI user account password being compromised, it also reduces the effectiveness of user identification during operation of the firewall (applying rules and policies). This trade-off should be weighed carefully for all installations."
+          solution         : "Navigate to Device > User Identification > User Mapping > Palo Alto Networks User ID Agent Setup.
+Set Enable Probing so it is unchecked.
+
+Default Value:
+
+Not configured"
+          reference        : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|9.2,CSCv8|4.8,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|2A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "op"
+          request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"not(//user-id-collector/setting/enable-probing) or (//user-id-collector/setting/enable-probing = 'no')\">"
+          xsl_stmt         : "Passed - 'Enable Probing' is turned off"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "Failed - 'Enable Probing' is turned on"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          regex            : "(Passed|Failed)"
+          expect           : "Passed"
+        </custom_item>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "5.7 Choosing Wildfire public cloud region"
+          info             : "By default, all relevant files are uploaded to Wildfire datacenter located in US. Palo Alto Networks has been adding more WildFire regional clouds around the world. From having just 3 regional clouds back in PanOS 8.x, now to more than 10 regional clouds all over the world.
+
+Rationale:
+
+Depending on regulations, files is only allowed to be uploaded to local country / region. Besides, uploading to local country or even nearest country decreases file uploading speed.
+
+Refer to the available regions in the references below.
+
+Impact:
+
+With default values, all relevant files are uploaded to wildfire.paloaltonetworks.com which is located in US.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution         : "Navigate to Device > Setup > WildFire.
+Navigate to the General Settings sections.
+Click the General Settings edit icon.
+Change the WildFire Public Cloud to your appropriate region.
+
+Default Value:
+
+wildfire.paloaltonetworks.com"
+          reference        : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,LEVEL|2M,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "config"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+          xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"config/devices/entry/deviceconfig/setting/wildfire/public-cloud-server\">"
+          xsl_stmt         : "  Wildfire Public Cloud Server: <xsl:value-of select=\"config/devices/entry/deviceconfig/setting/wildfire/public-cloud-server\"/>"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "  WildFire Public Cloud Server set to default value of 'wildfire.paloaltonetworks.com'"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "</xsl:for-each>"
+          regex            : ".*"
+          expect           : "Manual Review Required"
+          severity         : MEDIUM
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "6.16 Ensure that a Zone Protection Profile with tuned Flood Protection settings enabled for all flood types is attached to all untrusted zones"
+          info             : "Enable all Flood Protection options in the Zone Protection Profile attached to all untrusted zones. The Alert, Activate, and Maximum settings for Flood Protection depend highly on the environment and device used. Perform traffic analysis on the specific environment and firewall to determine accurate thresholds. Do not rely on default values to be appropriate for an environment.
+
+Setting these values for all interfaces is an approach that should be considered by many organizations, as traffic floods can result from internal testing or malware as well.
+
+Rationale:
+
+Without flood protection, it may be possible for an attacker, through the use of a botnet or other means, to overwhelm network resources. Flood protection does not completely eliminate this risk; rather, it provides a layer of protection. Without a properly configured zone protection profile applied to untrusted interfaces, the protected / trusted networks are susceptible to large number of attacks. While many of these involve denial of service, some of these attacks are designed to evade IPS systems (fragmentation attacks for instance) or to evade basic firewall protections (source routing and record route attacks).
+
+Impact:
+
+Not configuring and applying a Network Zone Protection Profile leaves an organization exposed to common attacks and reconnaissance from untrusted networks.
+
+Not configuring a Zone Protection Profile for internal networks leaves an organization vulnerable to malware, software or hardware causes of traffic flooding from internal sources."
+          solution         : "In the GUI:
+Navigate to Network > Network Profiles > Zone Protection > Flood Protection.
+Set all settings to 'enabled' with at least the default values.
+Navigate to Network > Zones, select each untrusted zone in turn, and set the Zone Protection Profile.
+
+Default Value:
+
+Not Configured"
+          reference        : "800-171|3.1.1,800-171|3.1.5,800-171|3.3.8,800-171|3.3.9,800-171r3|03.01.01,800-171r3|03.01.02,800-171r3|03.01.05,800-171r3|03.01.05a.,800-171r3|03.01.05b.,800-171r3|03.03.08b.,800-53|AC-2,800-53|AC-3,800-53|AC-6,800-53|AC-6(1),800-53|AC-6(7),800-53|AU-9(4),800-53r5|AC-2,800-53r5|AC-5,800-53r5|AC-6,800-53r5|AC-6(1),800-53r5|AC-6(7),800-53r5|AU-9(4),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.3(d),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|13.3,CSCv8|6.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.5,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.4,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.4.2,ITSG-33|AC-2,ITSG-33|AC-3,ITSG-33|AC-6,ITSG-33|AC-6(1),ITSG-33|AU-9(4),ITSG-33|AU-9(4)(a),ITSG-33|AU-9(4)(b),LEVEL|2A,NESA|M1.1.3,NESA|M1.2.2,NESA|M5.2.3,NESA|M5.5.2,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|AM28,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|NS5j,NIAv2|SM5,NIAv2|SM6,NIAv2|SS13c,NIAv2|SS14e,NIAv2|SS15c,NIAv2|SS29,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.3.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "config"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/template/entry\">"
+          xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "<xsl:for-each select=\"config/devices/entry/network/profiles/zone-protection-profile/entry\">"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/icmp/enable='yes'\">"
+          xsl_stmt         : "  Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMP flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "  Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMP flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/icmpv6/enable='yes'\">"
+          xsl_stmt         : "  Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMPv6 flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "  Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMPv6 flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/other-ip/enable='yes'\">"
+          xsl_stmt         : "  Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has Other IP flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "  Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has Other IP flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/udp/enable='yes'\">"
+          xsl_stmt         : "  Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has UDP flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "  Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has UDP flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "<xsl:if test=\"count(config/devices/entry/network/profiles/zone-protection-profile/entry) = 0\">"
+          xsl_stmt         : "  Failed - No Zone Protection Profiles found"
+          xsl_stmt         : "</xsl:if>"
+          xsl_stmt         : "</xsl:for-each>"
+          not_expect       : "Failed"
+        </custom_item>
+      </then>
+
+      <else>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "5.7 Choosing Wildfire public cloud region"
+          info             : "By default, all relevant files are uploaded to Wildfire datacenter located in US. Palo Alto Networks has been adding more WildFire regional clouds around the world. From having just 3 regional clouds back in PanOS 8.x, now to more than 10 regional clouds all over the world.
+
+Rationale:
+
+Depending on regulations, files is only allowed to be uploaded to local country / region. Besides, uploading to local country or even nearest country decreases file uploading speed.
+
+Refer to the available regions in the references below.
+
+Impact:
+
+With default values, all relevant files are uploaded to wildfire.paloaltonetworks.com which is located in US.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution         : "Navigate to Device > Setup > WildFire.
+Navigate to the General Settings sections.
+Click the General Settings edit icon.
+Change the WildFire Public Cloud to your appropriate region.
+
+Default Value:
+
+wildfire.paloaltonetworks.com"
+          reference        : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,LEVEL|2M,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "op"
+          request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"//wildfire/public-cloud-server\">"
+          xsl_stmt         : "Wildfire Public Cloud Server: <xsl:value-of select=\"//wildfire/public-cloud-server\"/>"
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "WildFire Public Cloud Server set to default value of 'wildfire.paloaltonetworks.com'"
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          regex            : ".*"
+          expect           : "Manual Review Required"
+          severity         : MEDIUM
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "6.16 Ensure that a Zone Protection Profile with tuned Flood Protection settings enabled for all flood types is attached to all untrusted zones"
+          info             : "Enable all Flood Protection options in the Zone Protection Profile attached to all untrusted zones. The Alert, Activate, and Maximum settings for Flood Protection depend highly on the environment and device used. Perform traffic analysis on the specific environment and firewall to determine accurate thresholds. Do not rely on default values to be appropriate for an environment.
+
+Setting these values for all interfaces is an approach that should be considered by many organizations, as traffic floods can result from internal testing or malware as well.
+
+Rationale:
+
+Without flood protection, it may be possible for an attacker, through the use of a botnet or other means, to overwhelm network resources. Flood protection does not completely eliminate this risk; rather, it provides a layer of protection. Without a properly configured zone protection profile applied to untrusted interfaces, the protected / trusted networks are susceptible to large number of attacks. While many of these involve denial of service, some of these attacks are designed to evade IPS systems (fragmentation attacks for instance) or to evade basic firewall protections (source routing and record route attacks).
+
+Impact:
+
+Not configuring and applying a Network Zone Protection Profile leaves an organization exposed to common attacks and reconnaissance from untrusted networks.
+
+Not configuring a Zone Protection Profile for internal networks leaves an organization vulnerable to malware, software or hardware causes of traffic flooding from internal sources."
+          solution         : "In the GUI:
+Navigate to Network > Network Profiles > Zone Protection > Flood Protection.
+Set all settings to 'enabled' with at least the default values.
+Navigate to Network > Zones, select each untrusted zone in turn, and set the Zone Protection Profile.
+
+Default Value:
+
+Not Configured"
+          reference        : "800-171|3.1.1,800-171|3.1.5,800-171|3.3.8,800-171|3.3.9,800-171r3|03.01.01,800-171r3|03.01.02,800-171r3|03.01.05,800-171r3|03.01.05a.,800-171r3|03.01.05b.,800-171r3|03.03.08b.,800-53|AC-2,800-53|AC-3,800-53|AC-6,800-53|AC-6(1),800-53|AC-6(7),800-53|AU-9(4),800-53r5|AC-2,800-53r5|AC-5,800-53r5|AC-6,800-53r5|AC-6(1),800-53r5|AC-6(7),800-53r5|AU-9(4),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.3(d),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|13.3,CSCv8|6.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-1,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.5,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.4,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.4.2,ITSG-33|AC-2,ITSG-33|AC-3,ITSG-33|AC-6,ITSG-33|AC-6(1),ITSG-33|AU-9(4),ITSG-33|AU-9(4)(a),ITSG-33|AU-9(4)(b),LEVEL|2A,NESA|M1.1.3,NESA|M1.2.2,NESA|M5.2.3,NESA|M5.5.2,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|AM28,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|NS5j,NIAv2|SM5,NIAv2|SM6,NIAv2|SS13c,NIAv2|SS14e,NIAv2|SS15c,NIAv2|SS29,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv3.2.1|10.5,PCI-DSSv3.2.1|10.5.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,PCI-DSSv4.0|10.3.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "op"
+          request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"//devices/entry/network/profiles/zone-protection-profile/entry\">"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/icmp/enable='yes'\">"
+          xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMP flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMP flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/icmpv6/enable='yes'\">"
+          xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMPv6 flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has ICMPv6 flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/other-ip/enable='yes'\">"
+          xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has Other IP flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has Other IP flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "<xsl:choose>"
+          xsl_stmt         : "<xsl:when test=\"flood/udp/enable='yes'\">"
+          xsl_stmt         : "Passed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has UDP flood protection enabled."
+          xsl_stmt         : "</xsl:when>"
+          xsl_stmt         : "<xsl:otherwise>"
+          xsl_stmt         : "Failed - Zone Protection Profile '<xsl:value-of select=\"@name\"/>' has UDP flood protection disabled."
+          xsl_stmt         : "</xsl:otherwise>"
+          xsl_stmt         : "</xsl:choose>"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "<xsl:if test=\"count(//devices/entry/network/profiles/zone-protection-profile/entry) = 0\">"
+          xsl_stmt         : "Failed - No Zone Protection Profiles found"
+          xsl_stmt         : "</xsl:if>"
+          regex            : "(Passed|Failed)"
+          not_expect       : "Failed"
+        </custom_item>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "7.1 Ensure application security policies exist when allowing traffic from an untrusted zone to a more trusted zone"
+          info             : "When permitting traffic from an untrusted zone, such as the Internet or guest network, to a more trusted zone, such as a DMZ segment, create security policies specifying which specific applications are allowed.
+
+**Enhanced Security Recommendation: ** Require specific application policies when allowing any traffic, regardless of the trust level of a zone. Do not rely solely on port permissions. This may require SSL interception, and may also not be possible in all environments.
+
+Rationale:
+
+To avoid unintentionally exposing systems and services, rules allowing traffic from untrusted zones to trusted zones should be as specific as possible. Application-based rules, as opposed to service/port rules, further tighten what traffic is allowed to pass. Similarly, traffic from trusted to untrusted networks should have a security policy set, with application-based rules. A 'catch-all' rule that allows all applications will also allow malware traffic. The goal should be to understand both inbound and outbound traffic, permit what is known, and block all other traffic.
+
+Impact:
+
+Setting application based rules on both inbound and outbound traffic ensures that the traffic on the protocol and port being specified is actually the application that you expect. For outbound traffic, the days of 'we trust our users' is well past us, that statement also implies that we trust the malware on the user workstations, which is obviously not the case.
+For traffic from trusted to less trusted interfaces, the applications should be characterized over time, with the end goal being that all applications in in the rules, and a final 'block all' rule is in place. Not having this goal gives both attackers and malware the leeway they need to accomplish their goals.
+Trusting only Port permissions to control traffic exposes an organization to 'tunneling' style attacks that can exfiltrate data or facilitate Command and Control (C2) sessions.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution         : "Navigate to Policies > Security.
+For all Security Policies that transit from a less trusted to a more trusted interface, set the Application and Service values to match the exposed application. For instance, for a web server exposed to the internet from a DMZ:
+Source tab: Zone set to OUTSIDE / Address set to Any
+Destination tab: Zone set to DMZ / Address set to [DMZ Host Object]
+Application tab: set to web-browsing
+Service/URL Category tab: set Service to ether:
+
+application-default
+or:
+
+service-http and/or service-https
+
+**Enhanced Security Recommendation: **
+Set these values for Policies on all Interfaces, for traffic in all directions. For each Security Policy, set the Application and Service values to match the exposed application.
+
+Default Value:
+
+Not Configured"
+          reference        : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "config"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/device-group/entry\">"
+          xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "<xsl:for-each select=\"pre-rulebase/security/rules/entry\">"
+          xsl_stmt         : "  Security policy: '<xsl:value-of select=\"@name\"/>'"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "<xsl:if test=\"count(pre-rulebase/security/rules/entry) = 0\">"
+          xsl_stmt         : "  No Security Policies found"
+          xsl_stmt         : "</xsl:if>"
+          xsl_stmt         : "</xsl:for-each>"
+          regex            : ".*"
+          expect           : "Manual Review Required"
+          severity         : MEDIUM
+        </custom_item>
+      </then>
+
+      <else>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "7.1 Ensure application security policies exist when allowing traffic from an untrusted zone to a more trusted zone"
+          info             : "When permitting traffic from an untrusted zone, such as the Internet or guest network, to a more trusted zone, such as a DMZ segment, create security policies specifying which specific applications are allowed.
+
+**Enhanced Security Recommendation: ** Require specific application policies when allowing any traffic, regardless of the trust level of a zone. Do not rely solely on port permissions. This may require SSL interception, and may also not be possible in all environments.
+
+Rationale:
+
+To avoid unintentionally exposing systems and services, rules allowing traffic from untrusted zones to trusted zones should be as specific as possible. Application-based rules, as opposed to service/port rules, further tighten what traffic is allowed to pass. Similarly, traffic from trusted to untrusted networks should have a security policy set, with application-based rules. A 'catch-all' rule that allows all applications will also allow malware traffic. The goal should be to understand both inbound and outbound traffic, permit what is known, and block all other traffic.
+
+Impact:
+
+Setting application based rules on both inbound and outbound traffic ensures that the traffic on the protocol and port being specified is actually the application that you expect. For outbound traffic, the days of 'we trust our users' is well past us, that statement also implies that we trust the malware on the user workstations, which is obviously not the case.
+For traffic from trusted to less trusted interfaces, the applications should be characterized over time, with the end goal being that all applications in in the rules, and a final 'block all' rule is in place. Not having this goal gives both attackers and malware the leeway they need to accomplish their goals.
+Trusting only Port permissions to control traffic exposes an organization to 'tunneling' style attacks that can exfiltrate data or facilitate Command and Control (C2) sessions.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution         : "Navigate to Policies > Security.
+For all Security Policies that transit from a less trusted to a more trusted interface, set the Application and Service values to match the exposed application. For instance, for a web server exposed to the internet from a DMZ:
+Source tab: Zone set to OUTSIDE / Address set to Any
+Destination tab: Zone set to DMZ / Address set to [DMZ Host Object]
+Application tab: set to web-browsing
+Service/URL Category tab: set Service to ether:
+
+application-default
+or:
+
+service-http and/or service-https
+
+**Enhanced Security Recommendation: **
+Set these values for Policies on all Interfaces, for traffic in all directions. For each Security Policy, set the Application and Service values to match the exposed application.
+
+Default Value:
+
+Not Configured"
+          reference        : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "op"
+          request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "Verify application security policy exists for traffic from untrusted to trusted zones"
+          xsl_stmt         : "<xsl:for-each select=\"//rulebase/security/rules/entry\">"
+          xsl_stmt         : "Security policy: '<xsl:value-of select=\"@name\"/>'"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "<xsl:if test=\"count(//rulebase/security/rules/entry) = 0\">"
+          xsl_stmt         : "No Security Policies found"
+          xsl_stmt         : "</xsl:if>"
+          regex            : ".*"
+          expect           : "Manual Review Required"
+          severity         : MEDIUM
+        </custom_item>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"OR">
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama model"
+          api_request_type : "version"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\"><xsl:value-of select=\"//model\"/>"
+          expect           : "Panorama"
+        </custom_item>
+
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "Panorama system-mode"
+          api_request_type : "op"
+          request          : "<show><system><info></info></system></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:value-of select=\"//system-mode\"/>"
+          expect           : "(?i)Panorama(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "8.3 Ensure that the Certificate used for Decryption is Trusted"
+          info             : "The CA Certificate used for in-line HTTP Man in the Middle should be trusted by target users. For SSL Forward Proxy configurations, there are classes of users that need to be considered.
+
+1: Users that are members of the organization, users of machines under control of the organization. For these people and machines, ensure that the CA Certificate is in one of the Trusted CA certificate stores. This is easily done in Active Directory, using Group Policies for instance. A MDM (Mobile Device Manager) can be used to accomplish the same task for mobile devices such as telephones or tablets. Other central management or orchestration tools can be used for Linux or 'IoT' (Internet of Things) devices.
+
+2: Users that are not member of the organization - often these are classed as 'Visitors' in the policies of the organization. If a public CA Certificate is a possibility for your organization, then that is one approach. A second approach is to not decrypt affected traffic - this is easily done, but leaves the majority of 'visitor' traffic uninspected and potentially carrying malicious content. The final approach, and the one most commonly seen, is to use the same certificate as is used for the hosting organization. In this last case, visitors will see a certificate warning, but the issuing CA will be the organization that they are visiting.
+
+Rationale:
+
+Using a self-signed certificate, or any certificate that generates a warning in the browser, means that members of the organization have no method of determining if they are being presented with a legitimate certificate, or an attacker's 'man in the middle' certificate. It also very rapidly teaches members of the organization to bypass all security warnings of this type."
+          solution         : "Set the CA Certificate(s):
+Navigate to Device > Certificate Management > Certificates. Import the appropriate CA Certificates from any internal Certificate Authorities.
+Alternatively, generate a self-signed certificate for an internal CA on the firewall, and then import the root certificate for that CA into the trusted CA list of target clients. In an Active Directory environment this can be facilitated using a Group Policy.
+Set the Certificate Profile needed for the SSL Forward Proxy:
+
+Navigate to Device > Certificate Management > Certificate Profile.
+
+Set the decryption profile to include the settings described in the SSL Forward Proxy guidance in this document
+
+Default Value:
+
+Decryption is not enabled by default."
+          reference        : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|12.9,CSCv7|12.10,CSCv8|13.9,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,LEVEL|2A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "config"
+          request          : ""
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"/response/result/config/devices/entry/device-group/entry\">"
+          xsl_stmt         : "Panorama Template: <xsl:value-of select=\"@name\"/>"
+          xsl_stmt         : "<xsl:for-each select=\"pre-rulebase/decryption/rules/entry[type/ssl-forward-proxy]\">"
+          xsl_stmt         : "  Passed - Decryption Profile '<xsl:value-of select=\"@name\"/>' is set to type 'SSL Forward Proxy'"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "<xsl:if test=\"count(pre-rulebase/decryption/rules/entry[type/ssl-forward-proxy])=0\">"
+          xsl_stmt         : "  Failed - No Decryption Profiles using 'SSL Forward Proxy' found"
+          xsl_stmt         : "</xsl:if>"
+          xsl_stmt         : "</xsl:for-each>"
+          not_expect       : "Failed"
+        </custom_item>
+      </then>
+
+      <else>
+        <custom_item>
+          type             : AUDIT_XML
+          description      : "8.3 Ensure that the Certificate used for Decryption is Trusted"
+          info             : "The CA Certificate used for in-line HTTP Man in the Middle should be trusted by target users. For SSL Forward Proxy configurations, there are classes of users that need to be considered.
+
+1: Users that are members of the organization, users of machines under control of the organization. For these people and machines, ensure that the CA Certificate is in one of the Trusted CA certificate stores. This is easily done in Active Directory, using Group Policies for instance. A MDM (Mobile Device Manager) can be used to accomplish the same task for mobile devices such as telephones or tablets. Other central management or orchestration tools can be used for Linux or 'IoT' (Internet of Things) devices.
+
+2: Users that are not member of the organization - often these are classed as 'Visitors' in the policies of the organization. If a public CA Certificate is a possibility for your organization, then that is one approach. A second approach is to not decrypt affected traffic - this is easily done, but leaves the majority of 'visitor' traffic uninspected and potentially carrying malicious content. The final approach, and the one most commonly seen, is to use the same certificate as is used for the hosting organization. In this last case, visitors will see a certificate warning, but the issuing CA will be the organization that they are visiting.
+
+Rationale:
+
+Using a self-signed certificate, or any certificate that generates a warning in the browser, means that members of the organization have no method of determining if they are being presented with a legitimate certificate, or an attacker's 'man in the middle' certificate. It also very rapidly teaches members of the organization to bypass all security warnings of this type."
+          solution         : "Set the CA Certificate(s):
+Navigate to Device > Certificate Management > Certificates. Import the appropriate CA Certificates from any internal Certificate Authorities.
+Alternatively, generate a self-signed certificate for an internal CA on the firewall, and then import the root certificate for that CA into the trusted CA list of target clients. In an Active Directory environment this can be facilitated using a Group Policy.
+Set the Certificate Profile needed for the SSL Forward Proxy:
+
+Navigate to Device > Certificate Management > Certificate Profile.
+
+Set the decryption profile to include the settings described in the SSL Forward Proxy guidance in this document
+
+Default Value:
+
+Decryption is not enabled by default."
+          reference        : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.02,800-171r3|03.04.06,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|12.9,CSCv7|12.10,CSCv8|13.9,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,LEVEL|2A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+          see_also         : "https://workbench.cisecurity.org/benchmarks/18106"
+          api_request_type : "op"
+          request          : "<show><config><@CONFIG_TYPE@></@CONFIG_TYPE@></config></show>"
+          xsl_stmt         : "<xsl:template match=\"/\">"
+          xsl_stmt         : "<xsl:for-each select=\"//vsys/entry/rulebase/decryption/rules/entry[type/ssl-forward-proxy]\">"
+          xsl_stmt         : "Passed - Decryption Profile '<xsl:value-of select=\"@name\"/>' is set to type 'SSL Forward Proxy'"
+          xsl_stmt         : "</xsl:for-each>"
+          xsl_stmt         : "<xsl:if test=\"count(//vsys/entry/rulebase/decryption/rules/entry[type/ssl-forward-proxy])=0\">"
+          xsl_stmt         : "Failed - No Decryption Profiles using 'SSL Forward Proxy' found"
+          xsl_stmt         : "</xsl:if>"
+          regex            : ".*"
+          not_expect       : "Failed"
+        </custom_item>
+      </else>
+    </if>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Palo_Alto_Firewall_10_Benchmark_v1.3.0_L2.audit from CIS Palo Alto Firewall 10 Benchmark v1.3.0"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/18106"
+    </report>
+  </else>
+</if>
+
+</check_type>

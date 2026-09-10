@@ -1,0 +1,1203 @@
+#TRUSTED 6adcd0f18362ec47dc4f0602e9b21d2690e54a7a8600dac293f3cb00f690c8b80815eba77824c57e49241280ffde7eb6f1db66b9ebdce4d0fd1d8b2d88afa1dcbe4cb91c28007435c91498ff1a6a3fc0ba290ead800ee89e747a11b7deecb3df1f802d5fc5793840725a61773b39ca196bad5ba403da5f911a8061308c03b4713190dbe09213ee41286618df044085fe575a712feccd1cdfd1299f17cde60a77b7f5c9e4eb7ba7e928742ef3782f1ce045492697d1f9f97401fa345692eff0706440ae84eaf3d7ebb0c0ea03d440cb9b94985308305d08792ec781c2cc165c8a131f6d53962b1430e5b6184b5aa1750ba417ef647ec2d318b3d9557b84784da896afe51f406bb1ca53fdcbaa7f7ddb1c4155687340dea4575fb6ccebafb17ab0c405b6b30a4d8d56f745f24646366a925e7468d2a349efc32af3723e7b32696cc2dbf57cd7d4ba6d087d28e0b0da277f3decafa450400d68a3a0bc88e463df7ff052ea3932a39a0a9a03923fce6dc42c9687b22ba89f405f0fdfa50fd8f7dfac4b06917f2168cf03c96b21e8d60cc3eb416074241f7fca2f77979445788040b179ea47426005c8b45b73903b3a140e71e4ff566c00f78c512bacd21c47f21f762309321695b6ac870101f0b9e626720934ef2749ddbeac63df5cecf870674c4154dba870839f4f18e9a9618ae42351c875e2995e9ec201ef920f1e3ee885aedb
+#TRUST-RSA-SHA256 5bc9643d3524199085064913a902125d79ea3407cd4854597e61ff5431843449b3fad5863ff3cc221b1c41a1901646628e895d8d6700aedbf5119979a00282c560af7f1a49502c3865eca852624ae3d552171ce7fc7b77be1ba915a995e1902f46227cfae0ce1918fe8ed771567a8800f98e521eea805f475b6cec6ee61e0d6e835a65fd42f1c665965ec86a4cd4fdb526e804bd4d258c01aa9453aae70946f575258c3113abd8f6f16b038630ceeb90091743439b51dd972d3486741f8daad75df03339186652d2d8c76a9cfff09eb1de3189c4995f5bd8692db13d5d0d1aa886c8736e4a6dda6edbb1cc0025bcb53f828172a2ab0b8807b8bd83d76b9432ebb06b0015052213c441092d6822fa7e96dd652c75a5aba5e10fc12fa717bbe6f7dcbfeae207228a6f314a2a8da312d8da026f608347ff8ebeac4dc55ef6ddc04bf09cc9f88d3f6ae9a300be95051d03f37a8886afbd20c5b5d710e00bea44eca513bcc1d28cdce7f853b5fa879f5a74d266929234c8fc6efa9aa2cec67b1ca4b29457a8eee7912a95aaf3d19b263680b22f5076d5f0d841c397bf9f261de7ab6d57e4623920970259b1c978ae40f49139d864209ec9700e9c0e6a77f4d8cb4946c48bd3fc313e5537628f2f26be918e4dc8e27ab954414b01a442c322bc6f9cd658c9363f0c79e6a89546ff5e14dbb5b65de6d8eccbcaa183cafe7234a8ffd956
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2024/06/17 $
+#
+# Description   : This .audit is designed against the CIS Security Configuration Benchmark For
+#                 Microsoft SQL Server 2017 Version 1.3.0
+#
+#<ui_metadata>
+#<display_name>CIS SQL Server 2017 Database L1 AWS RDS v1.3.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>SQL Server 2017 Database</name>
+#  <profile>L1 AWS RDS</profile>
+#  <version>1.3.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/7201</link>
+#</spec>
+#<labels>database,cis,microsoft,mssql,mssql_2017,update_20230227</labels>
+#<benchmark_refs>CCE,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>SERVICE_PACK</name>
+#    <default>SP1</default>
+#    <description>SQLServer Service Pack Installed</description>
+#    <info>SQL Server Service Pack that is installed on the target server.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SQL_VERSION</name>
+#    <default>14.0.2047.8</default>
+#    <description>SQLServer Version Installed</description>
+#    <info>SQL Server version that is installed on the target server.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"MS_SQLDB">
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "1.1 Ensure Latest SQL Server Cumulative and Security Updates are Installed"
+  info        : "SQL Server patches contain program updates that fix security and product functionality issues found in the software. These patches can be installed with a security update, which is a single patch, or a cumulative update which is a group of patches. The SQL Server version and patch levels should be the most recent compatible with the organizations' operational needs.
+
+Rationale:
+
+Using the most recent SQL Server software, along with all applicable patches can help limit the possibilities for vulnerabilities in the software. The installation version and/or patches applied during setup should be established according to the needs of the organization."
+  solution    : "Identify the current version and patch level of your SQL Server instances and ensure they contain the latest security fixes. Make sure to test these fixes in your test environments before updating production instances.
+The most recent SQL Server patches can be found here:
+https://learn.microsoft.com/en-us/troubleshoot/sql/releases/download-and-install-latest-updates
+
+Default Value:
+
+Cumulative and security updates are not installed by default."
+  reference   : "800-53|SA-22,800-53r5|SA-22,CSCv7|2.2,CSCv8|2.2,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|1M"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT SERVERPROPERTY('ProductLevel') as SP_installed, SERVERPROPERTY('ProductVersion') as Version"
+  sql_types   : STRING, STRING
+  sql_expect  : "@SERVICE_PACK@", "@SQL_VERSION@"
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.1 Ensure 'Ad Hoc Distributed Queries' Server Configuration Option is set to '0'"
+  info        : "Enabling Ad Hoc Distributed Queries allows users to query data and execute statements on external data sources. This functionality should be disabled.
+
+Rationale:
+
+This feature can be used to remotely access and exploit vulnerabilities on remote SQL Server instances and to run unsafe Visual Basic for Application functions."
+  solution    : "For AWS RDS Instances, please refer to the documentation for using Parameter Groups here:
+Working with parameter groups
+Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'Ad Hoc Distributed Queries', 0;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Default Value:
+
+0 (disabled)"
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'Ad Hoc Distributed Queries';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "Ad Hoc Distributed Queries", 0, 0
+</custom_item>
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "clr strict security is set to 1"
+      sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'clr strict security';"
+      sql_types   : STRING, INTEGER, INTEGER
+      sql_expect  : "clr strict security", 1, 1
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.2 Ensure 'CLR Enabled' Server Configuration Option is set to '0'"
+      info        : "The clr enabled option specifies whether user assemblies can be run by SQL Server.
+
+Rationale:
+
+Enabling use of CLR assemblies widens the attack surface of SQL Server and puts it at risk from both inadvertent and malicious assemblies.
+
+Impact:
+
+If CLR assemblies are in use, applications may need to be rearchitected to eliminate their usage before disabling this setting. Alternatively, some organizations may allow this setting to be enabled 1 for assemblies created with the SAFE permission set, but disallow assemblies created with the riskier UNSAFE and EXTERNAL_ACCESS permission sets. To find user-created assemblies, run the following query in all databases, replacing <database_name> with each database name:
+
+USE [<database_name>]
+
+GO
+
+SELECT name AS Assembly_Name, permission_set_desc
+
+FROM sys.assemblies
+
+WHERE is_user_defined = 1;
+
+GO"
+      solution    : "For AWS RDS Instances, please refer to the documentation for using Parameter Groups here:
+Working with parameter groups
+Run the following T-SQL command:
+
+EXECUTE sp_configure 'clr enabled', 0;
+RECONFIGURE;
+
+Default Value:
+
+By default, this option is disabled (0)."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+    </report>
+  </then>
+
+  <else>
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.2 Ensure 'CLR Enabled' Server Configuration Option is set to '0'"
+      info        : "The clr enabled option specifies whether user assemblies can be run by SQL Server.
+
+Rationale:
+
+Enabling use of CLR assemblies widens the attack surface of SQL Server and puts it at risk from both inadvertent and malicious assemblies.
+
+Impact:
+
+If CLR assemblies are in use, applications may need to be rearchitected to eliminate their usage before disabling this setting. Alternatively, some organizations may allow this setting to be enabled 1 for assemblies created with the SAFE permission set, but disallow assemblies created with the riskier UNSAFE and EXTERNAL_ACCESS permission sets. To find user-created assemblies, run the following query in all databases, replacing <database_name> with each database name:
+
+USE [<database_name>]
+
+GO
+
+SELECT name AS Assembly_Name, permission_set_desc
+
+FROM sys.assemblies
+
+WHERE is_user_defined = 1;
+
+GO"
+      solution    : "For AWS RDS Instances, please refer to the documentation for using Parameter Groups here:
+Working with parameter groups
+Run the following T-SQL command:
+
+EXECUTE sp_configure 'clr enabled', 0;
+RECONFIGURE;
+
+Default Value:
+
+By default, this option is disabled (0)."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-53|CM-6,800-53|CM-7,800-53r5|CM-6,800-53r5|CM-7,CSCv7|18.11,CSCv8|16.7,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+      sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'clr enabled';"
+      sql_types   : STRING, INTEGER, INTEGER
+      sql_expect  : "clr enabled", 0, 0
+    </custom_item>
+  </else>
+</if>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.3 Ensure 'Cross DB Ownership Chaining' Server Configuration Option is set to '0'"
+  info        : "The cross db ownership chaining option controls cross-database ownership chaining across all databases at the instance (or server) level.
+
+Rationale:
+
+When enabled, this option allows a member of the db_owner role in a database to gain access to objects owned by a login in any other database, causing an unnecessary information disclosure. When required, cross-database ownership chaining should only be enabled for the specific databases requiring it instead of at the instance level for all databases by using the ALTER DATABASE<database_name>SET DB_CHAINING ON command. This database option may not be changed on the master, model, or tempdb system databases."
+  solution    : "For AWS RDS Instances, please refer to the documentation for using Parameter Groups here:
+Working with parameter groups
+Run the following T-SQL command:
+
+EXECUTE sp_configure 'cross db ownership chaining', 0;
+RECONFIGURE;
+GO
+
+Default Value:
+
+By default, this option is disabled (0)."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'cross db ownership chaining';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "cross db ownership chaining", 0, 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.4 Ensure 'Database Mail XPs' Server Configuration Option is set to '0'"
+  info        : "The Database Mail XPs option controls the ability to generate and transmit email messages from SQL Server.
+
+Rationale:
+
+Disabling the Database Mail XPs option reduces the SQL Server surface, eliminates a DOS attack vector and channel to exfiltrate data from the database server to a remote host."
+  solution    : "Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'Database Mail XPs', 0;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Default Value:
+
+By default, this option is disabled (0)."
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'Database Mail XPs';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "Database Mail XPs", 0, 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.5 Ensure 'Ole Automation Procedures' Server Configuration Option is set to '0'"
+  info        : "The Ole Automation Procedures option controls whether OLE Automation objects can be instantiated within Transact-SQL batches. These are extended stored procedures that allow SQL Server users to execute functions external to SQL Server.
+
+Rationale:
+
+Enabling this option will increase the attack surface of SQL Server and allow users to execute functions in the security context of SQL Server."
+  solution    : "Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'Ole Automation Procedures', 0;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Default Value:
+
+By default, this option is disabled (0)."
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'Ole Automation Procedures';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "Ole Automation Procedures", 0, 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.6 Ensure 'Remote Access' Server Configuration Option is set to '0'"
+  info        : "The remote access option controls the execution of local stored procedures on remote servers or remote stored procedures on local server.
+
+Rationale:
+
+Functionality can be abused to launch a Denial-of-Service (DoS) attack on remote servers by off-loading query processing to a target.
+
+Impact:
+
+Per Microsoft: This feature will be removed in the next version of Microsoft SQL Server. Do not use this feature in new development work, and modify applications that currently use this feature as soon as possible. Use sp_addlinkedserver instead."
+  solution    : "For AWS RDS Instances, please refer to the documentation for using Parameter Groups here:
+Working with parameter groups
+Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'remote access', 0;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Restart the Database Engine.
+
+Default Value:
+
+By default, this option is enabled (1)."
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'remote access';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "remote access", 0, 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.7 Ensure 'Remote Admin Connections' Server Configuration Option is set to '0'"
+  info        : "The remote admin connections option controls whether a client application on a remote computer can use the Dedicated Administrator Connection (DAC).
+
+Rationale:
+
+The Dedicated Administrator Connection (DAC) lets an administrator access a running server to execute diagnostic functions or Transact-SQL statements, or to troubleshoot problems on the server, even when the server is locked or running in an abnormal state and not responding to a SQL Server Database Engine connection. In a cluster scenario, the administrator may not actually be logged on to the same node that is currently hosting the SQL Server instance and thus is considered 'remote'. Therefore, this setting should usually be enabled (1) for SQL Server failover clusters; otherwise, it should be disabled (0) which is the default."
+  solution    : "Run the following T-SQL command on non-clustered installations:
+
+EXECUTE sp_configure 'remote admin connections', 0;
+RECONFIGURE;
+GO
+
+Default Value:
+
+By default, this option is disabled (0), only local connections may use the DAC."
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "USE master; SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'remote admin connections' AND SERVERPROPERTY('IsClustered') = 0;"
+  sql_types   : STRING_OR_NULL, INTEGER, INTEGER
+  sql_expect  : "remote admin connections", 0, 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.8 Ensure 'Scan For Startup Procs' Server Configuration Option is set to '0'"
+  info        : "The scan for startup procs option, if enabled, causes SQL Server to scan for and automatically run all stored procedures that are set to execute upon service startup.
+
+Rationale:
+
+Enforcing this control reduces the threat of an entity leveraging these facilities for malicious purposes.
+
+Impact:
+
+Setting Scan for Startup Procedures to 0 will prevent certain audit traces and other commonly used monitoring stored procedures from re-starting on start up. Additionally, replication requires this setting to be enabled (1) and will automatically change this setting if needed."
+  solution    : "Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'scan for startup procs', 0;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Restart the Database Engine.
+
+Default Value:
+
+By default, this option is disabled (0)."
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'scan for startup procs';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "scan for startup procs", 0, 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.11 Ensure SQL Server is configured to use non-standard ports"
+  info        : "If installed, a default SQL Server instance will be assigned a default port of TCP:1433 for TCP/IP communication. Administrators can also manually configure named instances to use TCP:1433 for communication. TCP:1433 is a widely known SQL Server port and this port assignment should be changed. In a multi-instance scenario, each instance must be assigned its own dedicated TCP/IP port.
+
+Rationale:
+
+Using a non-default port helps protect the database from attacks directed to the default port.
+
+Impact:
+
+Changing the default port will force the DAC (Dedicated Administrator Connection) to listen on a random port. Also, it might make benign applications, such as application firewalls, require special configuration. In general, you should set a static port for consistent usage by applications, including firewalls, instead of using dynamic ports which will be chosen randomly at each SQL Server start up."
+  solution    : "In SQL Server Configuration Manager, in the console pane, expand SQL Server Network Configuration, expand Protocols for <InstanceName>, and then double-click the TCP/IP protocol
+
+In the TCP/IP Properties dialog box, on the IP Addresses tab, several IP addresses appear in the format IP1, IP2, up to IPAll. One of these is for the IP address of the loopback adapter, 127.0.0.1. Additional IP addresses appear for each IP Address on the computer.
+
+Under IPAll, change the TCP Port field from 1433 to a non-standard port or leave the TCP Port field empty and set the TCP Dynamic Ports value to 0 to enable dynamic port assignment and then click OK.
+
+In the console pane, click SQL Server Services.
+
+In the details pane, right-click SQL Server (<InstanceName>) and then click Restart, to stop and restart SQL Server.
+
+Default Value:
+
+By default, default SQL Server instances listen on to TCP/IP traffic on TCP port 1433 and named instances use dynamic ports."
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT count(*) FROM sys.dm_server_registry WHERE value_name like '%Tcp%' and value_data='1433';"
+  sql_types   : INTEGER
+  sql_expect  : 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.13 Ensure the 'sa' Login Account is set to 'Disabled'"
+  info        : "The sa account is a widely known and often widely used SQL Server account with sysadmin privileges. This is the original login created during installation and always has the principal_id=1 and sid=0x01.
+
+Rationale:
+
+Enforcing this control reduces the probability of an attacker executing brute force attacks against a well-known principal.
+
+Impact:
+
+It is not a good security practice to code applications or scripts to use the sa account. However, if this has been done, disabling the sa account will prevent scripts and applications from authenticating to the database server and executing required tasks or functions."
+  solution    : "Execute the following T-SQL query:
+
+USE [master]
+GO
+DECLARE @tsql nvarchar(max)
+SET @tsql = 'ALTER LOGIN ' + SUSER_NAME(0x01) + ' DISABLE'
+EXEC (@tsql)
+GO
+
+Default Value:
+
+By default, the sa login account is disabled at install time when Windows Authentication Mode is selected. If mixed mode (SQL Server and Windows Authentication) is selected at install, the default for the sa login is enabled."
+  reference   : "800-171|3.1.1,800-53|AC-2(3),800-53r5|AC-2(3),CN-L3|7.1.3.2(e),CN-L3|8.1.4.2(c),CSCv7|16.8,CSCv8|5.3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.6,ITSG-33|AC-2(3),LEVEL|1A,NIAv2|AM26,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,TBA-FIISB|36.2.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, is_disabled FROM sys.server_principals WHERE sid = 0x01 AND is_disabled = 0;"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.14 Ensure the 'sa' Login Account has been renamed"
+  info        : "The sa account is a widely known and often widely used SQL Server login with sysadmin privileges. The sa login is the original login created during installation and always has principal_id=1 and sid=0x01.
+
+Rationale:
+
+It is more difficult to launch password-guessing and brute-force attacks against the sa login if the name is not known.
+
+Impact:
+
+It is not a good security practice to code applications or scripts to use the sa login. However, if this has been done, renaming the sa login will prevent scripts and applications from authenticating to the database server and executing required tasks or functions."
+  solution    : "Replace the <different_user> value within the below syntax and execute to rename the sa login.
+
+ALTER LOGIN sa WITH NAME = <different_user>;
+
+Default Value:
+
+By default, the sa login name is 'sa'."
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name FROM sys.server_principals WHERE sid = 0x01 AND name = 'rdsa';"
+  sql_types   : NULL
+  sql_expect  : NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.15 Ensure 'xp_cmdshell' Server Configuration Option is set to '0'"
+  info        : "The xp_cmdshell option controls whether the xp_cmdshell extended stored procedure can be used by an authenticated SQL Server user to execute operating-system command shell commands and return results as rows within the SQL client.
+
+Rationale:
+
+The xp_cmdshell procedure is commonly used by attackers to read or write data to/from the underlying Operating System of a database server."
+  solution    : "Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'xp_cmdshell', 0;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Default Value:
+
+By default, this option is disabled (0)."
+  reference   : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'xp_cmdshell';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "xp_cmdshell", 0, 0
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.16 Ensure 'AUTO_CLOSE' is set to 'OFF' on contained databases"
+  info        : "AUTO_CLOSE determines if a given database is closed or not after a connection terminates. If enabled, subsequent connections to the given database will require the database to be reopened and relevant procedure caches to be rebuilt.
+
+Rationale:
+
+Because authentication of users for contained databases occurs within the database not at the server\instance level, the database must be opened every time to authenticate a user. The frequent opening/closing of the database consumes additional server resources and may contribute to a denial of service."
+  solution    : "Execute the following T-SQL, replacing <database_name> with each database name found by the Audit Procedure:
+
+ALTER DATABASE <database_name> SET AUTO_CLOSE OFF;
+
+Default Value:
+
+By default, the database property AUTO_CLOSE is OFF which is equivalent to is_auto_close_on = 0."
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, containment, containment_desc, is_auto_close_on FROM sys.databases WHERE containment <> 0 and is_auto_close_on = 1;"
+  sql_types   : NULL, NULL, NULL, NULL
+  sql_expect  : NULL, NULL, NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.17 Ensure no login exists with the name 'sa'"
+  info        : "The sa login (e.g. principal) is a widely known and often widely used SQL Server account. Therefore, there should not be a login called sa even when the original sa login (principal_id = 1) has been renamed.
+
+Rationale:
+
+Enforcing this control reduces the probability of an attacker executing brute force attacks against a well-known principal name.
+
+Impact:
+
+It is not a good security practice to code applications or scripts to use the sa account. Given that it is a best practice to rename and disable the sa account, some 3rd party applications check for the existence of a login named sa and if it doesn't exist, creates one. Removing the sa login will prevent these scripts and applications from authenticating to the database server and executing required tasks or functions."
+  solution    : "Execute the appropriate ALTER statement below based on the principal_id returned for the login named sa. Replace the <different_name> value within the below syntax and execute to rename the sa login.
+
+USE [master]
+GO
+-- If principal_id = 1 or the login owns database objects, rename the sa login
+ALTER LOGIN [sa] WITH NAME = <different_name>;
+GO
+
+Default Value:
+
+The login with principal_id = 1 is named sa by default."
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT principal_id, name FROM sys.server_principals WHERE name = 'sa';"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "2.18 Ensure 'clr strict security' Server Configuration Option is set to '1'"
+  info        : "The clr strict security option specifies whether the engine applies the PERMISSION_SET on the assemblies.
+
+Rationale:
+
+Enabling use of CLR assemblies widens the attack surface of SQL Server and puts it at risk from both inadvertent and malicious assemblies.
+
+Impact:
+
+If CLR assemblies are in use, applications may need to be rearchitected to eliminate their usage before enabling this setting. To find user-created assemblies, run the following query in all databases, replacing <database_name> with each database name:
+
+USE [<database_name>]
+
+GO
+
+SELECT name AS Assembly_Name, permission_set_desc
+
+FROM sys.assemblies
+
+WHERE is_user_defined = 1;
+
+GO"
+  solution    : "Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'clr strict security', 1;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Default Value:
+
+By default, this option is Enabled (1)."
+  reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.5,800-53|CM-6,800-53|CM-7,800-53|SC-7,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|18.9,CSCv7|18.11,CSCv8|16.7,CSCv8|16.8,CSF|DE.CM-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-7,LEVEL|1A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS15a,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'clr strict security';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "clr strict security", 1, 1
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "3.2 Ensure CONNECT permissions on the 'guest' user is Revoked within all SQL Server databases"
+  info        : "Remove the right of the guest user to connect to SQL Server databases, except for master, msdb, tempdb, and, on AWS RDS instances, rdsadmin.
+
+Rationale:
+
+A login assumes the identity of the guest user when a login has access to SQL Server but does not have access to a database through its own account and the database has a guest user account. Revoking the CONNECT permission for the guest user will ensure that a login is not able to access database information without explicit access to do so.
+
+Impact:
+
+When CONNECT permission to the guest user is revoked, a SQL Server instance login must be mapped to a database user explicitly in order to have access to the database."
+  solution    : "The following code snippet revokes CONNECT permissions from the guest user in a database. Replace <database_name> as appropriate:
+
+USE <database_name>;
+GO
+REVOKE CONNECT FROM guest;
+
+Default Value:
+
+The guest user account is added to each new database but without CONNECT permission by default."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "EXEC sp_MSforeachdb 'USE [?] SELECT DB_NAME() AS DatabaseName, ''guest'' AS Database_User, [permission_name], [state_desc] FROM sys.database_permissions WHERE [grantee_principal_id] = DATABASE_PRINCIPAL_ID(''guest'') AND [state_desc] LIKE ''GRANT%'' AND [permission_name] = ''CONNECT'' AND DB_NAME() NOT IN (''master'',''tempdb'',''msdb'');'"
+  sql_types   : STRING_OR_NULL, NULL, NULL, NULL
+  sql_expect  : "rdsadmin", NULL, NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "3.3 Ensure 'Orphaned Users' are Dropped From SQL Server Databases"
+  info        : "A database user for which the corresponding SQL Server login is undefined or is incorrectly defined on a server instance cannot log in to the instance and is referred to as orphaned and should be removed.
+
+Rationale:
+
+Orphan users should be removed to avoid potential misuse of those broken users in any way."
+  solution    : "If the orphaned user cannot or should not be matched to an existing or new login using the Microsoft documented process referenced below, run the following T-SQL query in the appropriate database to remove an orphan user:
+
+USE [<database_name>];
+GO
+DROP USER <username>;"
+  reference   : "800-171|3.1.1,800-53|AC-2(3),800-53r5|AC-2(3),CN-L3|7.1.3.2(e),CN-L3|8.1.4.2(c),CSCv7|16.8,CSCv8|5.3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.6,ITSG-33|AC-2(3),LEVEL|1A,NIAv2|AM26,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,TBA-FIISB|36.2.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "EXEC sp_MSforeachdb 'USE [?] EXEC sp_change_users_login @Action=''Report'';'"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "3.4 Ensure SQL Authentication is not used in contained databases"
+  info        : "Contained databases do not enforce password complexity rules for SQL Authenticated users.
+
+Rationale:
+
+The absence of an enforced password policy may increase the likelihood of a weak credential being established in a contained database.
+
+Impact:
+
+While contained databases provide flexibility in relocating databases to different instances and different environments, this must be balanced with the consideration that no password policy mechanism exists for SQL Authenticated users in contained databases."
+  solution    : "Leverage Windows Authenticated users in contained databases.
+
+Default Value:
+
+SQL Authenticated users (USER WITH PASSWORD authentication) are allowed in contained databases."
+  reference   : "800-171|3.1.1,800-53|AC-2(1),800-53r5|AC-2(1),CN-L3|7.1.3.2(d),CSCv7|16.2,CSCv8|5.6,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),LEVEL|1A,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "EXEC sp_MSforeachdb 'USE [?] SELECT name AS DBUser FROM sys.database_principals WHERE name NOT IN (''dbo'',''Information_Schema'',''sys'',''guest'') AND type IN (''U'',''S'',''G'') AND authentication_type = 2;'"
+  sql_types   : NULL
+  sql_expect  : NULL
+</custom_item>
+
+<report type:"WARNING">
+  description : "3.5 Ensure the SQL Server's MSSQL Service Account is Not an Administrator"
+  info        : "The service account and/or service SID used by the MSSQLSERVER service for a default instance or MSSQL$<InstanceName> service for a named instance should not be a member of the Windows Administrator group either directly or indirectly (via a group). This also means that the account known as LocalSystem (aka NT AUTHORITY\SYSTEM) should not be used for the MSSQL service as this account has higher privileges than the SQL Server service requires.
+
+Rationale:
+
+Following the principle of least privilege, the service account should have no more privileges than required to do its job. For SQL Server services, the SQL Server Setup will assign the required permissions directly to the service SID. No additional permissions or privileges should be necessary.
+
+Impact:
+
+The SQL Server Configuration Manager tool should always be used to change the SQL Server's service account. This will ensure that the account has the necessary privileges. If the service needs access to resources other than the standard Microsoft defined directories and registry, then additional permissions may need to be granted separately to those resources.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "In the case where LocalSystem is used, use SQL Server Configuration Manager to change to a less privileged account. Otherwise, remove the account or service SID from the Administrators group. You may need to run the SQL Server Configuration Manager if underlying permissions had been changed or if SQL Server Configuration Manager was not originally used to set the service account.
+
+Default Value:
+
+By default, the Service Account (or Service SID) is not a member of the Administrators group."
+  reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+</report>
+
+<report type:"WARNING">
+  description : "3.6 Ensure the SQL Server's SQLAgent Service Account is Not an Administrator"
+  info        : "The service account and/or service SID used by the SQLSERVERAGENT service for a default instance or SQLAGENT$<InstanceName> service for a named instance should not be a member of the Windows Administrator group either directly or indirectly (via a group). This also means that the account known as LocalSystem (AKA NT AUTHORITY\SYSTEM) should not be used for the SQLAGENT service as this account has higher privileges than the SQL Server service requires.
+
+Rationale:
+
+Following the principle of least privilege, the service account should have no more privileges than required to do its job. For SQL Server services, the SQL Server Setup will assign the required permissions directly to the service SID. No additional permissions or privileges should be necessary.
+
+Impact:
+
+The SQL Server Configuration Manager tool should always be used to change the SQL Server's service account. This will ensure that the account has the necessary privileges. If the service needs access to resources other than the standard Microsoft-defined directories and registry, then additional permissions may need to be granted separately to those resources.
+
+If using the auto restart feature, then the SQLAGENT service must be an Administrator.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "In the case where LocalSystem is used, use SQL Server Configuration Manager to change to a less privileged account. Otherwise, remove the account or service SID from the Administrators group. You may need to run the SQL Server Configuration Manager if underlying permissions had been changed or if SQL Server Configuration Manager was not originally used to set the service account.
+
+Default Value:
+
+By default, the Service Account (or Service SID) is not a member of the Administrators group."
+  reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+</report>
+
+<report type:"WARNING">
+  description : "3.7 Ensure the SQL Server's Full-Text Service Account is Not an Administrator"
+  info        : "The service account and/or service SID used by the MSSQLFDLauncher service for a default instance or MSSQLFDLauncher$<InstanceName> service for a named instance should not be a member of the Windows Administrator group either directly or indirectly (via a group). This also means that the account known as LocalSystem (aka NT AUTHORITY\SYSTEM) should not be used for the Full-Text service as this account has higher privileges than the SQL Server service requires.
+
+Rationale:
+
+Following the principle of least privilege, the service account should have no more privileges than required to do its job. For SQL Server services, the SQL Server Setup will assign the required permissions directly to the service SID. No additional permissions or privileges should be necessary.
+
+Impact:
+
+The SQL Server Configuration Manager tool should always be used to change the SQL Server's service account. This will ensure that the account has the necessary privileges. If the service needs access to resources other than the standard Microsoft-defined directories and registry, then additional permissions may need to be granted separately to those resources.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "In the case where LocalSystem is used, use SQL Server Configuration Manager to change to a less privileged account. Otherwise, remove the account or service SID from the Administrators group. You may need to run the SQL Server Configuration Manager if underlying permissions had been changed or if SQL Server Configuration Manager was not originally used to set the service account.
+
+Default Value:
+
+By default, the Service Account (or Service SID) is not a member of the Administrators group."
+  reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|1M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+</report>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "3.8 Ensure only the default permissions specified by Microsoft are granted to the public server role"
+  info        : "public is a special fixed server role containing all logins. Unlike other fixed server roles, permissions can be changed for the public role. In keeping with the principle of least privileges, the public server role should not be used to grant permissions at the server scope as these would be inherited by all users.
+
+Rationale:
+
+Every SQL Server login belongs to the public role and cannot be removed from this role. Therefore, any permissions granted to this role will be available to all logins unless they have been explicitly denied to specific logins or user-defined server roles.
+
+Impact:
+
+When the extraneous permissions are revoked from the public server role, access may be lost unless the permissions are granted to the explicit logins or to user-defined server roles containing the logins which require the access."
+  solution    : "Add the extraneous permissions found in the Audit query results to the specific logins to user-defined server roles which require the access.
+
+Revoke the <permission_name> from the public role as shown below
+
+USE [master]
+GO
+REVOKE <permission_name> FROM public;
+GO
+
+Default Value:
+
+By default, the public server role is granted VIEW ANY DATABASE permission and the CONNECT permission on the default endpoints (TSQL Local Machine, TSQL Named Pipes, TSQL Default TCP, TSQL Default VIA). The VIEW ANY DATABASE permission allows all logins to see database metadata, unless explicitly denied."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT * FROM master.sys.server_permissions WHERE (grantee_principal_id = SUSER_SID(N'public') and state_desc LIKE 'GRANT%') AND NOT (state_desc = 'GRANT' and [permission_name] = 'VIEW ANY DATABASE' and class_desc = 'SERVER') AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 2) AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 3) AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 4) AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 5);"
+  sql_types   : NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+  sql_expect  : NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "3.9 Ensure Windows BUILTIN groups are not SQL Logins"
+  info        : "Prior to SQL Server 2008, the BUILTIN\Administrators group was added as a SQL Server login with sysadmin privileges during installation by default. Best practices promote creating an Active Directory level group containing approved DBA staff accounts and using this controlled AD group as the login with sysadmin privileges. The AD group should be specified during SQL Server installation and the BUILTIN\Administrators group would therefore have no need to be a login.
+
+Rationale:
+
+The BUILTIN groups (Administrators, Everyone, Authenticated Users, Guests, etc.) generally contain very broad memberships which would not meet the best practice of ensuring only the necessary users have been granted access to a SQL Server instance. These groups should not be used for any level of access into a SQL Server Database Engine instance.
+
+Impact:
+
+Before dropping the BUILTIN group logins, ensure that alternative AD Groups or Windows logins have been added with equivalent permissions. Otherwise, the SQL Server instance may become totally inaccessible."
+  solution    : "For each BUILTIN login, if needed create a more restrictive AD group containing only the required user accounts.
+
+Add the AD group or individual Windows accounts as a SQL Server login and grant it the permissions required.
+
+Drop the BUILTIN login using the syntax below after replacing <name> in [BUILTIN\<name>].
+
+USE [master]
+GO
+DROP LOGIN [BUILTIN\<name>]
+GO
+
+Default Value:
+
+By default, no BUILTIN groups are added as SQL logins.
+
+Additional Information:
+
+In AWS RDS instances [BUILTIN]\Administrators can't be dropped. Dropping [Builtin]\Administrators is blocked in AWS RDS by the server-level trigger rds_drop_login_trigger."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT pr.[name], pe.[permission_name], pe.[state_desc] FROM sys.server_principals pr JOIN sys.server_permissions pe ON pr.principal_id = pe.grantee_principal_id WHERE pr.name like 'BUILTIN%';"
+  sql_types   : STRING_OR_NULL, NULL, NULL
+  sql_expect  : "Administrators", NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "3.10 Ensure Windows local groups are not SQL Logins"
+  info        : "Local Windows groups should not be used as logins for SQL Server instances.
+
+Rationale:
+
+Allowing local Windows groups as SQL Logins provides a loophole whereby anyone with OS level administrator rights (and no SQL Server rights) could add users to the local Windows groups and thereby give themselves or others access to the SQL Server instance.
+
+Impact:
+
+Before dropping the local group logins, ensure that alternative AD Groups or Windows logins have been added with equivalent permissions. Otherwise, the SQL Server instance may become totally inaccessible."
+  solution    : "For each LocalGroupName login, if needed create an equivalent AD group containing only the required user accounts.
+
+Add the AD group or individual Windows accounts as a SQL Server login and grant it the permissions required.
+
+Drop the LocalGroupName login using the syntax below after replacing <name>.
+
+USE [master]
+GO
+DROP LOGIN [<name>]
+GO
+
+Default Value:
+
+By default, no local groups are added as SQL logins."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "USE [master] SELECT pr.[name] AS LocalGroupName, pe.[permission_name], pe.[state_desc] FROM sys.server_principals pr JOIN sys.server_permissions pe ON pr.[principal_id] = pe.[grantee_principal_id] WHERE pr.[type_desc] = 'WINDOWS_GROUP' AND pr.[name] like CAST(SERVERPROPERTY('MachineName') AS nvarchar) + '%';"
+  sql_types   : NULL, NULL, NULL
+  sql_expect  : NULL, NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "4.2 Ensure 'CHECK_EXPIRATION' Option is set to 'ON' for All SQL Authenticated Logins Within the Sysadmin Role"
+  info        : "Applies the same password expiration policy used in Windows to passwords used inside SQL Server.
+
+Rationale:
+
+Ensuring SQL logins comply with the secure password policy applied by the Windows Server Benchmark will ensure the passwords for SQL logins with sysadmin privileges are changed on a frequent basis to help prevent compromise via a brute force attack. CONTROL SERVER is an equivalent permission to sysadmin and logins with that permission should also be required to have expiring passwords.
+
+Impact:
+
+This is a mitigating recommendation for systems which cannot follow the recommendation to use only Windows Authenticated logins.
+
+Regarding limiting this rule to only logins with sysadmin and CONTROL SERVER privileges, there are too many cases of applications that run with less than sysadmin level privileges that have hard-coded passwords or effectively hard-coded passwords (whatever is set the first time is nearly impossible to change). There are several line-of-business applications that are considered best of breed which have this failing.
+
+Also, keep in mind that the password policy is taken from the computer's local policy, which is taken from the Default Domain Policy setting. Many organizations have a different password policy regarding the service accounts. These are handled in AD by setting the account's password to not expire and having some other process track when the password needs to be changed. With this second control in place, this is perfectly acceptable from an audit perspective. If you treat a SQL Server login as a service account, then you have to do the same. This ensures that the password change happens during a communicated downtime window and not arbitrarily."
+  solution    : "For each <login_name> found by the Audit Procedure, execute the following T-SQL statement:
+
+ALTER LOGIN [<login_name>] WITH CHECK_EXPIRATION = ON;
+
+Default Value:
+
+CHECK_EXPIRATION is ON by default when using SSMS to create a SQL authenticated login.
+
+CHECK_EXPIRATION is OFF by default when using T-SQL CREATE LOGIN syntax without specifying the CHECK_EXPIRATION option."
+  reference   : "800-171|3.1.1,800-53|AC-2(3),800-53r5|AC-2(3),CN-L3|7.1.3.2(e),CN-L3|8.1.4.2(c),CSCv7|16.10,CSCv8|5.3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.6,ITSG-33|AC-2(3),LEVEL|1A,NIAv2|AM26,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,TBA-FIISB|36.2.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT l.[name], 'sysadmin membership' AS 'Access_Method' FROM sys.sql_logins AS l WHERE IS_SRVROLEMEMBER('sysadmin',name) = 1 AND l.is_expiration_checked <> 1 UNION ALL SELECT l.[name], 'CONTROL SERVER' AS 'Access_Method' FROM sys.sql_logins AS l JOIN sys.server_permissions AS p ON l.principal_id = p.grantee_principal_id WHERE p.type = 'CL' AND p.state IN ('G', 'W') AND l.is_expiration_checked <> 1;"
+  sql_types   : STRING_OR_NULL, NULL
+  sql_expect  : "rdsa" , NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "4.3 Ensure 'CHECK_POLICY' Option is set to 'ON' for All SQL Authenticated Logins"
+  info        : "Applies the same password complexity policy used in Windows to passwords used inside SQL Server.
+
+Rationale:
+
+Ensure SQL authenticated login passwords comply with the secure password policy applied by the Windows Server Benchmark so that they cannot be easily compromised via brute force attack.
+
+Impact:
+
+This is a mitigating recommendation for systems which cannot follow the recommendation to use only Windows Authenticated logins.
+
+Weak passwords can lead to compromised systems. SQL Server authenticated logins will utilize the password policy set in the computer's local policy, which is typically set by the Default Domain Policy setting.
+
+The setting is only enforced when the password is changed. This setting does not force existing weak passwords to be changed."
+  solution    : "For each <login_name> found by the Audit Procedure, execute the following T-SQL statement:
+
+ALTER LOGIN [<login_name>] WITH CHECK_POLICY = ON;
+
+Note: In the case of AWS RDS do not perform this remediation for the Master account.
+
+Default Value:
+
+CHECK_POLICY is ON"
+  reference   : "800-171|3.5.2,800-53|IA-5(1),800-53r5|IA-5(1),CSCv7|4.4,CSCv8|5.2,CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5(1),LEVEL|1A,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, is_disabled FROM sys.sql_logins WHERE is_policy_checked = 0;"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "5.1 Ensure 'Maximum number of error log files' is set to greater than or equal to '12'"
+  info        : "SQL Server error log files must be protected from loss. The log files must be backed up before they are overwritten. Retaining more error logs helps prevent loss from frequent recycling before backups can occur.
+
+Rationale:
+
+The SQL Server error log contains important information about major server events and login attempt information as well.
+
+Impact:
+
+Once the max number of error logs is reached, the oldest error log file is deleted each time SQL Server restarts or sp_cycle_errorlog is executed."
+  solution    : "Adjust the number of logs to prevent data loss. The default value of 6 may be insufficient for a production environment. Perform either the GUI or T-SQL method shown:
+
+GUI Method
+
+Open SQL Server Management Studio.
+
+Open Object Explorer and connect to the target instance.
+
+Navigate to the Management tab in Object Explorer and expand. Right click on the SQL Server Logs file and select Configure
+
+Check the Limit the number of error log files before they are recycled
+
+Set the Maximum number of error log files to greater than or equal to 12
+
+T-SQL Method
+
+Run the following T-SQL to change the number of error log files, replace <NumberAbove12> with your desired number of error log files:
+
+EXEC master.sys.xp_instance_regwrite
+N'HKEY_LOCAL_MACHINE',
+N'Software\Microsoft\MSSQLServer\MSSQLServer',
+N'NumErrorLogs',
+REG_DWORD,
+<NumberAbove12>;
+
+Default Value:
+
+6 SQL Server error log files in addition to the current error log file are retained by default."
+  reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSCv8|8.3,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|1A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "DECLARE @NumErrorLogs int; EXEC master.sys.xp_instance_regread N'HKEY_LOCAL_MACHINE', N'Software\Microsoft\MSSQLServer\MSSQLServer', N'NumErrorLogs', @NumErrorLogs OUTPUT; SELECT ISNULL(@NumErrorLogs, -1) AS [NumberOfLogFiles];"
+  sql_types   : INTEGER
+  sql_expect  : [12..429496729]
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "5.2 Ensure 'Default Trace Enabled' Server Configuration Option is set to '1'"
+  info        : "The default trace provides audit logging of database activity including account creations, privilege elevation and execution of DBCC commands.
+
+Rationale:
+
+Default trace provides valuable audit information regarding security-related activities on the server."
+  solution    : "Run the following T-SQL command:
+
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure 'default trace enabled', 1;
+RECONFIGURE;
+GO
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+Default Value:
+
+1 (on)"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use FROM sys.configurations WHERE name = 'default trace enabled';"
+  sql_types   : STRING, INTEGER, INTEGER
+  sql_expect  : "default trace enabled", 1, 1
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "5.3 Ensure 'Login Auditing' is set to 'failed logins'"
+  info        : "This setting will record failed authentication attempts for SQL Server logins to the SQL Server Errorlog. This is the default setting for SQL Server.
+
+Historically, this setting has been available in all versions and editions of SQL Server. Prior to the availability of SQL Server Audit, this was the only provided mechanism for capturing logins (successful or failed).
+
+Rationale:
+
+Capturing failed logins provides key information that can be used to detect\confirm password guessing attacks. Capturing successful login attempts can be used to confirm server access during forensic investigations, but using this audit level setting to also capture successful logins creates excessive noise in the SQL Server Errorlog which can hamper a DBA trying to troubleshoot problems. Elsewhere in this benchmark, we recommend using the newer lightweight SQL Server Audit feature to capture both successful and failed logins.
+
+Impact:
+
+At a minimum, we want to ensure failed logins are captured in order to detect if an adversary is attempting to brute force passwords or otherwise attempting to access a SQL Server improperly.
+
+Changing the setting requires a restart of the SQL Server service."
+  solution    : "Perform either the GUI or T-SQL method shown:
+
+GUI Method
+
+Open SQL Server Management Studio.
+
+Right click the target instance and select Properties and navigate to the Security tab.
+
+Select the option Failed logins only under the Login Auditing section and click OK.
+
+Restart the SQL Server instance.
+
+T-SQL Method
+
+Run:
+
+EXEC xp_instance_regwrite N'HKEY_LOCAL_MACHINE', N'Software\Microsoft\MSSQLServer\MSSQLServer', N'AuditLevel', REG_DWORD, 2
+
+Restart the SQL Server instance.
+
+Default Value:
+
+By default, only failed login attempts are captured."
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-1,800-53|AU-2,800-53r5|AU-1,800-53r5|AU-2,CN-L3|8.1.4.3(a),CSCv7|16.13,CSCv8|8.1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-1,ITSG-33|AU-2,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.8,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "EXEC xp_loginconfig 'audit level';"
+  sql_types   : STRING, REGEX
+  sql_expect  : "audit level", "^(all|failure)$"
+</custom_item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "AUDIT_CHANGE_GROUP"
+      sql_request : "SELECT S.name AS 'Audit Name' , CASE S.is_state_enabled WHEN 1 THEN 'Y' WHEN 0 THEN 'N' END AS 'Audit Enabled' , S.type_desc AS 'Write Location' , SA.name AS 'Audit Specification Name' , CASE SA.is_state_enabled WHEN 1 THEN 'Y' WHEN 0 THEN 'N' END AS 'Audit Specification Enabled' , SAD.audit_action_name , SAD.audited_result FROM sys.server_audit_specification_details AS SAD JOIN sys.server_audit_specifications AS SA ON SAD.server_specification_id = SA.server_specification_id JOIN sys.server_audits AS S ON SA.audit_guid = S.audit_guid WHERE SAD.audit_action_id IN ('CNAU');"
+      sql_types   : REGEX, STRING, REGEX, REGEX, STRING, STRING, STRING
+      sql_expect  : ".+", "Y", ".+", ".+", "Y", "AUDIT_CHANGE_GROUP", "SUCCESS AND FAILURE"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "FAILED_LOGIN_GROUP"
+      sql_request : "SELECT S.name AS 'Audit Name' , CASE S.is_state_enabled WHEN 1 THEN 'Y' WHEN 0 THEN 'N' END AS 'Audit Enabled' , S.type_desc AS 'Write Location' , SA.name AS 'Audit Specification Name' , CASE SA.is_state_enabled WHEN 1 THEN 'Y' WHEN 0 THEN 'N' END AS 'Audit Specification Enabled', SAD.audit_action_name, SAD.audited_result FROM sys.server_audit_specification_details AS SAD JOIN sys.server_audit_specifications AS SA ON SAD.server_specification_id = SA.server_specification_id JOIN sys.server_audits AS S ON SA.audit_guid = S.audit_guid WHERE SAD.audit_action_id IN ('CNAU', 'LGFL', 'LGSD') AND SAD.audit_action_name='FAILED_LOGIN_GROUP';"
+      sql_types   : REGEX, STRING, REGEX, REGEX, STRING, STRING, STRING
+      sql_expect  : ".+", "Y", ".+", ".+", "Y", "FAILED_LOGIN_GROUP", "SUCCESS AND FAILURE"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "SUCCESSFUL_LOGIN_GROUP"
+      sql_request : "SELECT S.name AS 'Audit Name' , CASE S.is_state_enabled WHEN 1 THEN 'Y' WHEN 0 THEN 'N' END AS 'Audit Enabled' , S.type_desc AS 'Write Location' , SA.name AS 'Audit Specification Name' , CASE SA.is_state_enabled WHEN 1 THEN 'Y' WHEN 0 THEN 'N' END AS 'Audit Specification Enabled' , SAD.audit_action_name , SAD.audited_result FROM sys.server_audit_specification_details AS SAD JOIN sys.server_audit_specifications AS SA ON SAD.server_specification_id = SA.server_specification_id JOIN sys.server_audits AS S ON SA.audit_guid = S.audit_guid WHERE SAD.audit_action_id IN ('LGSD');"
+      sql_types   : REGEX, STRING, REGEX, REGEX, STRING, STRING, STRING
+      sql_expect  : ".+", "Y", ".+", ".+", "Y", "SUCCESSFUL_LOGIN_GROUP", "SUCCESS AND FAILURE"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "5.4 Ensure 'SQL Server Audit' is set to capture both 'failed' and 'successful logins'"
+      info        : "SQL Server Audit is capable of capturing both failed and successful logins and writing them to one of three places: the application event log, the security event log, or the file system. We will use it to capture any login attempt to SQL Server, as well as any attempts to change audit policy. This will also serve to be a second source to record failed login attempts.
+
+Rationale:
+
+By utilizing Audit instead of the traditional setting under the Security tab to capture successful logins, we reduce the noise in the ERRORLOG. This keeps it smaller and easier to read for DBAs who are attempting to troubleshoot issues with the SQL Server. Also, the Audit object can write to the security event log, though this requires operating system configuration. This gives an additional option for where to store login events, especially in conjunction with an SIEM.
+
+Impact:
+
+With the previous recommendation, only failed logins are captured. If the Audit object is not implemented with the appropriate setting, SQL Server will not capture successful logins, which might prove of use for forensics."
+      solution    : "For AWS RDS Instances, please refer to the documentation for configuring SQL Server Audit here: SQL Server Audit
+Perform either the GUI or T-SQL method shown:
+
+GUI Method
+
+Expand the SQL Server in Object Explorer.
+
+Expand the Security Folder
+
+Right-click on the Audits folder and choose New Audit...
+
+Specify a name for the Server Audit.
+
+Specify the audit destination details and then click OK to save the Server Audit.
+
+Right-click on Server Audit Specifications and choose New Server Audit Specification...
+
+Name the Server Audit Specification
+
+Select the just created Server Audit in the Audit drop-down selection.
+
+Click the drop-down under Audit Action Type and select AUDIT_CHANGE_GROUP.
+
+Click the new drop-down Audit Action Type and select FAILED_LOGIN_GROUP.
+
+Click the new drop-down under Audit Action Type and select SUCCESSFUL_LOGIN_GROUP.
+
+Click the new drop-down under Audit Action Type and select SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP.
+
+Click the new drop-down under Audit Action Type and select FAILED_DATABASE_AUTHENTICATION_GROUP.
+
+Click OK to save the Server Audit Specification.
+
+Right-click on the new Server Audit Specification and select Enable Server Audit Specification.
+
+Right-click on the new Server Audit and select Enable Server Audit.
+
+T-SQL Method
+
+Execute code similar to:
+
+CREATE SERVER AUDIT TrackLogins
+TO APPLICATION_LOG;
+GO
+CREATE SERVER AUDIT SPECIFICATION TrackAllLogins
+FOR SERVER AUDIT TrackLogins
+  ADD (FAILED_LOGIN_GROUP),
+  ADD (SUCCESSFUL_LOGIN_GROUP),
+  ADD (AUDIT_CHANGE_GROUP),
+  ADD (SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP),
+  ADD (FAILED_DATABASE_AUTHENTICATION_GROUP)
+WITH (STATE = ON);
+GO
+ALTER SERVER AUDIT TrackLogins
+WITH (STATE = ON);
+GO
+
+Note: If the write destination for the Audit object is to be the security event log, see the Books Online topic Write SQL Server Audit Events to the Security Log and follow the appropriate steps.
+
+Default Value:
+
+By default, there are no audit object tracking login events."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|4.9,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "6.2 Ensure 'CLR Assembly Permission Set' is set to 'SAFE_ACCESS' for All CLR Assemblies"
+  info        : "Setting CLR Assembly Permission Sets to SAFE_ACCESS will hinder assemblies from accessing external system resources such as files, the network, environment variables, or the registry.
+
+Rationale:
+
+Assemblies with EXTERNAL_ACCESS or UNSAFE permission sets can be used to access sensitive areas of the operating system, steal and/or transmit data and alter the state and other protection measures of the underlying Windows Operating System.
+
+Assemblies which are Microsoft-created (is_user_defined = 0) are excluded from this check as they are required for overall system functionality.
+
+Impact:
+
+The remediation measure should first be tested within a test environment prior to production to ensure the assembly still functions as designed with SAFE permission setting."
+  solution    : "USE <database_name>;
+GO
+ALTER ASSEMBLY <assembly_name> WITH PERMISSION_SET = SAFE;
+
+Default Value:
+
+SAFE permission is set by default."
+  reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "SELECT name, permission_set_desc FROM sys.assemblies where is_user_defined = 1 AND name <> 'Microsoft.SqlServer.Types';"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "7.1 Ensure 'Symmetric Key encryption algorithm' is set to 'AES_128' or higher in non-system databases"
+  info        : "Per the Microsoft Best Practices, only the SQL Server AES algorithm options, AES_128, AES_192, and AES_256, should be used for a symmetric key encryption algorithm.
+
+Rationale:
+
+The following algorithms (as referred to by SQL Server) are considered weak or deprecated and should no longer be used in SQL Server: DES, DESX, RC2, RC4, RC4_128.
+
+Many organizations may accept the Triple DES algorithms (TDEA) which use keying options 1 (3 key aka 3TDEA) or keying option 2 (2 key aka 2TDEA). In SQL Server, these are referred to as TRIPLE_DES_3KEY and TRIPLE_DES respectively. Additionally, the SQL Server algorithm named DESX is actually the same implementation as the TRIPLE_DES_3KEY option. However, using the DESX identifier as the algorithm type has been deprecated and its usage is now discouraged.
+
+Impact:
+
+Eliminates use of weak and deprecated algorithms which may put a system at higher risk of an attacker breaking the key.
+
+Encrypted data cannot be compressed, but compressed data can be encrypted. If you use compression, you should compress data before encrypting it."
+  solution    : "Refer to Microsoft SQL Server Books Online ALTER SYMMETRIC KEY entry: https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-symmetric-key-transact-sql
+
+Default Value:
+
+none"
+  reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "EXEC sp_MSforeachdb 'use [?] SELECT db_name() AS Database_Name, name AS Key_Name FROM sys.symmetric_keys WHERE algorithm_desc NOT IN (''AES_128'',''AES_192'',''AES_256'') AND db_id() > 4';"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+<custom_item>
+  type        : SQL_POLICY
+  description : "7.2 Ensure Asymmetric Key Size is set to 'greater than or equal to 2048' in non-system databases"
+  info        : "Microsoft Best Practices recommend to use at least a 2048-bit encryption algorithm for asymmetric keys.
+
+Rationale:
+
+The RSA_2048 encryption algorithm for asymmetric keys in SQL Server is the highest bit-level provided and therefore the most secure available choice (other choices are RSA_512 and RSA_1024).
+
+Impact:
+
+The higher-bit level may result in slower performance, but reduces the likelihood of an attacker breaking the key.
+
+Encrypted data cannot be compressed, but compressed data can be encrypted. If you use compression, you should compress data before encrypting it."
+  solution    : "Refer to Microsoft SQL Server Books Online ALTER ASYMMETRIC KEY entry: https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-asymmetric-key-transact-sql
+
+Default Value:
+
+None"
+  reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/7201"
+  sql_request : "EXEC sp_MSforeachdb 'use [?] SELECT db_name() AS Database_Name, name AS Key_Name FROM sys.asymmetric_keys WHERE key_length < 2048 AND db_id() > 4';"
+  sql_types   : NULL, NULL
+  sql_expect  : NULL, NULL
+</custom_item>
+
+</check_type>

@@ -1,0 +1,758 @@
+#TRUSTED 29ccbc7a60e6d2a4b41ae1eab2973968dfa0883ff70da1313df661e1c8192cad511ced6a53993f9f631a6b62998214d4f7d13ed227f62329ecd7ff42eb3c43962150461c2bb859735a2648143bad7e7461f95dee6f92618bd1a66863af25900a6ff769d403a319ae3008a27c08385cbd30ccfb50c84a56ec933b6526b014b10f1bc7816db177fec9a80de582749df2f72cb78a735b77795db87fc6a898334a544d87679c1fe7b97261770c9583eea9163fff761b3ea16eea1b51ed4d502fba8dab7612d6f2b7ebc22927ae1761e4db16f422a4ebee72211ed7df8675909aff6dd15c093f0e9fd5c38008d86cbf3d1c7b70368793ba10611bfb2f57a295263da28caf492381ffd6228c0b7bffe9d1792d3109af3f1b020ca101cf720513868bdfadb0d4cff9613ce8ea2fba9dd4658c021af6e2eab3b2711a44896eb44ae3000dccc4f3b4a7f8e73a7b0f537275e63de84241ffb6d8ec725def7023526daed9817cc8153ee34435771747071d7b8194bd03a05e7e109676f2fd26ba4052da31c1060a38621773b59cf967a4610e25a351e4b995775d3bcd70425036c58d5eb36800984f6160e1d06e8fde100d61fcced9b922cc2b291bfcfc427da0f6c99c86ce49f719dcf54e8db060752055af82f2c989c1649a8dda238d71183d89a6f578d9e4c1a4d281d879d5bc74aa129fb9de7ab61588ce61b55df1680091ae18365637
+#TRUST-RSA-SHA256 3ff1f8a5654300cd32c94a4c187f8340ca2472b3a03f638f28d57b63063795bf943bf6710899b349e725e546d82dc16c289cae7b09ffba3f0a16bb52c084dc8dca372daae0f3a94da2525f288682baa41c0091e134ecd3ec2e0c29f508a277a9c05b61ac04aa97f0cbd99623f750b1704d0752d4f5f99a090cb49ba8e7bdd379aa853f6af99f0495bf3f614723853cd4a28a0183579d8c41b0a225fd6707797073969b912d66e6c1130920e8960ad8b44147acdc8b8285258a505acf155c8f3601a23732f359492e1e4ac0834e8256f838da417865a548efccddf64ea25d716e0884fc7018189331d2d9651a617b3c28bdd77646babe5aa9d71bc03d0e688b134f1a218a8c17941526e60de5555442ee28b0776b9a511cbe30711b5b2a0ef1cca65a153ff06951fadd4349694ecf1ba0290763eaaffb25868b905f06893623d23a42820aa13ba06a3b6d1ba4d9017d7075eaa3c12f3e3ad67d30698f5429b5b735f1e89e865bdeb1676f65d985dbde0869192fc1573f0cf3cf9eada47d341b64dc9c326944c66066672c1239fdafc4433dc98fbf3096d99c9e6118db4aa2c1f147b2dba423b622b6e66ec07796c197a17d1fbed84b2186d45210770aa665b4c0214a839570000af0ecc816a7cf8a3ac78c7e9e51e01126522909b32cc909c306e6ead9861a3944299737435164be3a51fed666843811c67ccf7b8e647e32be56
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.5 $
+# $Date: 2024/06/17 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               CIS Oracle MySQL 5.6 Enterprise Edition Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS MySQL 5.6 Enterprise Windows OS L2 v2.0.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>MySQL 5.6 Enterprise</name>
+#  <profile>L2 OS Windows</profile>
+#  <version>2.0.0</version>
+#  <link>https://workbench.cisecurity.org/files/3848</link>
+#</spec>
+#<labels>database,cis,ms_mysql_5.6,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>MYSQL_USER</name>
+#    <default>mysql</default>
+#    <description>MySQL User Account</description>
+#    <info>This is your MySQL user account.</info>
+#    <value_type>WIN_ACCT</value_type>
+#  </variable>
+#  <variable>
+#    <name>MYSQL_INSTALL</name>
+#    <default>C:\Program Files\MySQL\MySQL Server 5.1</default>
+#    <description>MySQL Install Dir</description>
+#    <info>This is your MySQL install directory.</info>
+#    <value_type>WIN_FILE_PATH</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"MySQL Enterprise">
+
+<if>
+  <condition type:"OR">
+    <custom_item>
+      type        : REG_CHECK
+      description : "MySQL 5.6 Community Edition is installed"
+      value_type  : POLICY_TEXT
+      value_data  : "HKLM\Software\Mysql Ab\Mysql Server 5.6"
+      reg_option  : MUST_EXIST
+      key_item    : "Version"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_MySQL_5.6_Enterprise_Benchmark_v2.0.0_OS_MS_L2.audit from CIS Oracle MySQL 5.6 Enterprise Edition Benchmark"
+      see_also    : "https://workbench.cisecurity.org/files/3848"
+    </report>
+
+    <report type:"WARNING">
+      description : "1.3 Disable MySQL Command History"
+      info        : "On Linux/UNIX, the MySQL client logs statements executed interactively to a history file. The default MySQL Client file is named .mysql_history in the user's home directory. The files are split by language and named history.sql, history.js and history.py. Most interactive commands run in the MySQL client application are saved to a history file. The MySQL command history should be disabled.
+
+Rationale:
+
+Disabling the MySQL command history reduces the probability of exposing sensitive information, such as password, encryption keys, or other sensitive data or information.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform the following steps to remediate this setting:
+
+Remove .mysql_history if it exists.
+
+Use either of the techniques below to prevent it from being created again:
+
+Set the MYSQL_HISTFILE environment variable to /dev/null. This will need to be placed in the shell's startup script.
+
+Create $HOME/.mysql_history as a symbolic to /dev/null.
+
+> ln -s /dev/null $HOME/.mysql_history
+
+Default Value:
+
+By default, the MySQL command history file is located in $HOME/.mysql_history."
+      reference   : "800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|MP-6,800-53r5|MP-6,CSCv7|13.2,CSCv8|3.5,CSF|PR.DS-3,CSF|PR.IP-6,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.8.3.2,ITSG-33|MP-6,LEVEL|2A,NESA|T1.4.1,NESA|T1.4.2,NIAv2|MS5b,NIAv2|MS6,NIAv2|MS9,NIAv2|MS10a,NIAv2|MS10b,NIAv2|MS10c,NIAv2|MS10d,NIAv2|MS10e,NIAv2|MS10f,NIAv2|MS11a,NIAv2|MS11b,NIAv2|MS12a,NIAv2|MS12b,NIAv2|MS12c,NIAv2|MS13,NIAv2|MS14,NIAv2|MS17,NIAv2|MS18a,NIAv2|MS18b,NIAv2|MS18c,NIAv2|MS20,NIAv2|MS21,NIAv2|NS16,QCSC-v1|3.2,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/files/3848"
+    </report>
+
+    <custom_item>
+      type        : USER_RIGHTS_POLICY
+      description : "1.5 Ensure Interactive Login is Disabled"
+      info        : "When created, the MySQL user may have interactive access to the operating system, which means that the MySQL user could login to the host as any other user would.
+
+Rationale:
+
+Preventing the MySQL user from logging in interactively may reduce the impact of a compromised MySQL account. There is also more accountability, as accessing the operating system where the MySQL server lies will require the user's own account. Interactive access by the MySQL user is unnecessary and should be disabled.
+
+Impact:
+
+This setting will prevent the MySQL administrator from interactively logging into the operating system using the MySQL user. Instead, the administrator will need to log in using one's own account."
+      solution    : "Execute one of the following commands in a terminal:
+
+usermod -s /bin/false mysql
+
+Or
+
+usermod -s /sbin/nologin mysql"
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|4.3,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/3848"
+      value_type  : USER_RIGHT
+      value_data  : "@MYSQL_USER@"
+      right_type  : SeDenyInteractiveLogonRight
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "2.5 Ensure Non-Default, Unique Cryptographic Material is in Use"
+      info        : "The cryptographic material used by MySQL, such as digital certificates and encryption keys, should be used only for MySQL and only for one instance. Default cryptographic material should not be used since it is not unique to the instance.
+
+Rationale:
+
+If a cryptographic material is used on multiple MySQL instances and/or systems then a compromise of one may lead to the compromise of the network traffic of all servers which use the same cryptographic material. If an attacker gains access to shared cryptographic material, including default material, the attacker can reuse that material to impersonate the MySQL server or otherwise compromise its operations.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Generate new certificates, keys, and other cryptographic material as needed for each affected MySQL instance."
+      reference   : "LEVEL|2M"
+      see_also    : "https://workbench.cisecurity.org/files/3848"
+    </report>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.ini Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.ini"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.ini - allow-suspicious-udfs exists"
+              value_type  : POLICY_TEXT
+              value_data  : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %PROGRAMDATA%\MySQL\MySQL Server 5.6\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %PROGRAMDATA%\MySQL\MySQL Server 5.6\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.cnf Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.cnf"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.cnf - allow-suspicious-udfs exists"
+              value_type  : POLICY_TEXT
+              value_data  : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %PROGRAMDATA%\MySQL\MySQL Server 5.6\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "%PROGRAMDATA%\MySQL\MySQL Server 5.6\my.cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %PROGRAMDATA%\MySQL\MySQL Server 5.6\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "%WINDIR%\my.ini Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "%WINDIR%\my.ini"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "%WINDIR%\my.ini - allow-suspicious-udfs exists"
+              value_type  : POLICY_TEXT
+              value_data  : "%WINDIR%\my.ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %WINDIR%\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "%WINDIR%\my.ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %WINDIR%\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "%WINDIR%\my.cnf Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "%WINDIR%\my.cnf"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "%WINDIR%\my.cnf - allow-suspicious-udfs exists"
+              value_type  : POLICY_TEXT
+              value_data  : "%WINDIR%\my.cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %WINDIR%\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "%WINDIR%\my.cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - %WINDIR%\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "C:\My.Ini Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "C:\My.Ini"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "C:\My.Ini - Allow-Suspicious-Udfs Exists"
+              value_type  : POLICY_TEXT
+              value_data  : "C:\My.Ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - C:\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "C:\My.Ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - C:\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "C:\My.Cnf Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "C:\My.Cnf"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "C:\My.Cnf - Allow-Suspicious-Udfs Exists"
+              value_type  : POLICY_TEXT
+              value_data  : "C:\My.Cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - C:\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "C:\My.Cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - C:\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "MYSQL_INSTALL\my.ini Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "@MYSQL_INSTALL@\my.ini"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "MYSQL_INSTALL\my.ini - allow-suspicious-udfs exists"
+              value_type  : POLICY_TEXT
+              value_data  : "@MYSQL_INSTALL@\my.ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - MYSQL_INSTALL\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "@MYSQL_INSTALL@\my.ini"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - MYSQL_INSTALL\my.ini"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : FILE_CHECK
+          description : "MYSQL_INSTALL\my.cnf Exists"
+          value_type  : POLICY_TEXT
+          value_data  : "@MYSQL_INSTALL@\my.cnf"
+          file_option : MUST_EXIST
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition type:"AND">
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "MYSQL_INSTALL\my.cnf - allow-suspicious-udfs exists"
+              value_type  : POLICY_TEXT
+              value_data  : "@MYSQL_INSTALL@\my.cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*="
+            </custom_item>
+          </condition>
+
+          <then>
+            <custom_item>
+              type        : FILE_CONTENT_CHECK
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - MYSQL_INSTALL\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+              value_type  : POLICY_TEXT
+              value_data  : "@MYSQL_INSTALL@\my.cnf"
+              regex       : "^[\s]*allow-suspicious-udfs\s*="
+              expect      : "^[\s]*allow-suspicious-udfs\s*=\s*OFF"
+            </custom_item>
+          </then>
+
+          <else>
+            <report type:"PASSED">
+              description : "4.3 Ensure 'allow-suspicious-udfs' Is Set to 'OFF' - MYSQL_INSTALL\my.cnf"
+              info        : "This option prevents attaching arbitrary shared library functions as user-defined functions by checking for at least one corresponding method named _init, _deinit, _reset, _clear, or _add.
+
+Rationale:
+
+Preventing shared libraries that do not contain user-defined functions from loading will reduce the attack surface of the server."
+              solution    : "Perform the following to establish the recommended state:
+
+Remove --allow-suspicious-udfs from the mysqld start up command line.
+
+Remove allow-suspicious-udfs from the MySQL option file.
+
+Default Value:
+
+OFF"
+              reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+              see_also    : "https://workbench.cisecurity.org/files/3848"
+            </report>
+          </else>
+        </if>
+      </then>
+    </if>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_MySQL_5.6_Enterprise_Benchmark_v2.0.0_OS_MS_L1.audit from CIS Oracle MySQL 5.6 Enterprise Edition Benchmark"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/3848"
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

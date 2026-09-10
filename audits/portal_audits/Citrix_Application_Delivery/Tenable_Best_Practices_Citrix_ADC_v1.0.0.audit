@@ -1,0 +1,344 @@
+#TRUSTED 11bf859c040b91e469ff8daaaeac5377f7f001576effa6345f040213673a64aaee0c66b37ab9704e92f7d43d7a5e3597f20fe4c8b7d06a7a255f7c1882489303dda0c0525945d6475c6456283b70b75b84f93c93cad56adb83df62f57980740443249ae69782613656fd58912717d1511e0e7aacde9de64bbde22129e9a7bf00ef0937f4058841d93f56d23170c97cd322f035ac2fe0e91897c99fe7a7c48c9fd2839213730e72849635a22ee0593367495e1ab32e3398a54764fe981b1f4566de59931bc8fbe660082210b8e10a7fc508a90f9a8fad9ccf3fa985a2b1d4dc9985c742a32eb45354892a051cef23c30c8450d32300a28f8e903bc4c8046b5946bda64c6e73efca6cdf465c6e7e6eb3dc2619233e2ab6ec3946cbbaaa64c66b17b2debe2485b02ee6c615b92c66238cc9cf1a2a23abdd6926bb9bcb26070a6edd46ce90a9a594946a0b49f435dc90ddb314a2249c66eb6258896e1e9b7534dafc3ba4152b6851408405c03f158b42300b82709bb2add099392a18f1bce9e818e0c883d9c9bc2dccf90532c2a7f0012cd27182496e1bca1a4b74c11fd375c28d6456e3de00e14b8a9015efe73669f335c265fab1f9775dee12b00cbeda475c1a0834e09c2f65f1297ad499939b78f534febc845b2ba478f78b3d15df7c8067c5488ec140d5e5791a5e0eb1bbeea960044cd06374411b3358868ad6fcec37179b83
+#TRUST-RSA-SHA256 839a9c802be84d3c4c5898395f64048323ae2418d5649e8c49b32765142637bd86c4d2b0a4ce0ab36418536acc3092243821864cd9956d00c97cb3b7ba1035011512964dba3ec6a64e2379e7435fc637cb06379d4ab9051aafd0a4d9f188e369a71a3f9b3a15c69455662561ed9027ff0631e467f5f167246abff13d984fbca8c3402fadbec085b63a84bf3647b8b412e36ef5147d8622ed49344d976332a36c71b6fc8c7613150c80a3edb5ac79ea63c281ce31520b135c3ba22b19efd241c7f0f354fa28886847509d5b7a9581eca1f7be20fc028b28a7e44932ae5f38c8637dcd6067bfe0cfe0aa14b3cba184916b9c6477a4f9e8b59d88a4ed0566e66dcecead1fed4ce538ffd5ff0fced6d3f5c66b1b3965fd2737a31c308049fa5ebb9227f80d481088cbd4a8db30212d12706a8dac0345f7e3491afa5e1fc90099109119f5c14e9a3d6d48ef550fd62dc9dfd91913ae1bcd057aac9eaf5bafa3e7981d8accd138aac2eab54db5f8638e275d38e63a56740ce780e299dc2930199aff30b119caba1fd6b8d16c9c8103ed43bb27bb264db8297fda0656eee1fea1e8192853d205c5c42488427d7fa4a8d445372e9800438263e445f9bb4888e66711305c7d5fdad2071ac68ec9d85053765490305668c8d1b61aa80133156d6173a24e662b96e7b2ca07624a4b48aff7220bb9d111364d5ecdb53a19325ee0dcde8186a7
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.3 $
+# $Date: 2024/06/17 $
+#
+# Description : This .audit is designed to query a Citrix ADC device
+#               All configuration values are obtained through the Citrix NITRO API, and all
+#               guidance listed is based on general industry practices.
+#
+#               https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/
+#
+#<ui_metadata>
+#<display_name>Tenable Best Practice Citrix ADC v1.0.0</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>Tenable Best Practice Citrix ADC</name>
+#  <version>1.0.0</version>
+#  <link>https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/</link>
+#</spec>
+#<labels>tenable,citrix,citrix_adc,update_20230227</labels>
+#</ui_metadata>
+
+<check_type:"Citrix_Application_Delivery">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Check that a specific ADC key exists"
+      request        : "ADCgetHardware"
+      json_transform : ".nshardware"
+      expect         : "hwdescription"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "Tenable_Best_Practices_Citrix_ADC_v1.0.0.audit from Tenable Best Practices"
+      info        : "Nessus has successfully identified a Citrix ADC target."
+      see_also    : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+    </report>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - ARP - Spoofing"
+      info           : "Enable/disable arp spoofing validation."
+      solution       : "Configuration > System > Network > Configure ARP Global Parameters
+
+      Update the value to Enabled.
+
+      Default value: DISABLED
+
+    Possible values = ENABLED, DISABLED"
+      reference      : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADCgetARPparam"
+      json_transform : ".arpparam.spoofvalidation"
+      regex          : "(?i)(ENABLED|DISABLED)(?-i)"
+      expect         : "(?i)ENABLED(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - NTP - Authentication"
+      info           : "Apply NTP authentication, which enables the NTP client (Citrix ADC) to verify that the server is in fact known and trusted."
+      solution       : "Configuration > System > NTP Servers > Select Action Dropdown > NTP Parameters
+
+      Update the value to Enabled.
+
+      Default value: YES
+
+      Possible values = YES, NO"
+      reference      : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADCgetNTPparam"
+      json_transform : ".ntpparam.authentication"
+      regex          : "(?i)(YES|NO)(?-i)"
+      expect         : "(?i)YES(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - NTP - Synchronization"
+      info           : "Enable NTP synchronization"
+      solution       : "Configuration > System > NTP Servers > Select Action Dropdown > NTP Synchronization
+
+      Update the value to Enabled.
+
+      Possible values = ENABLED, DISABLED"
+      reference      : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADCgetNTPsync"
+      json_transform : ".ntpsync.state"
+      regex          : "(?i)(ENABLED|DISABLED)(?-i)"
+      expect         : "(?i)ENABLED(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - NTP - Servers count"
+      info           : "At least two NTP servers should be specified for redundancy."
+      solution       : "Configuration > System > NTP Servers
+
+      Add NTP servers."
+      reference      : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistNTPservers"
+      json_transform : ".ntpserver | length"
+      expect         : "([2-9]|[1-9][0-9])"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - Minimum Password Length"
+      info           : "Minimum length of system user password. When strong password is enabled default minimum length is 4. User entered value can be greater than or equal to 4. Default mininum value is 1 when strong password is disabled. Maximum value is 127 in both cases."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Password
+
+      Update the value to a minimum of 12 characters.
+
+      Minimum value = 1
+
+      Maximum value = 127"
+      reference      : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.minpasswordlen"
+      expect         : "(1[2-9]|[2-9][0-9]|1[01][0-9]|12[0-7])"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - Strong Password"
+      info           : "After enabling strong password (enableall / enablelocal - not included in exclude list), all the passwords / sensitive information must have - Atleast 1 Lower case character, Atleast 1 Upper case character, Atleast 1 numeric character, Atleast 1 special character ( ~, `, !, @, #, $, %, ^, ;, *, -, _, =, +, {, }, [, ], |, \, :, <, >, /, ., ,, \" \"). Exclude list in case of enablelocal is - NS_FIPS, NS_CRL, NS_RSAKEY, NS_PKCS12, NS_PKCS8, NS_LDAP, NS_TACACS, NS_TACACSACTION, NS_RADIUS, NS_RADIUSACTION, NS_ENCRYPTION_PARAMS. So no Strong Password checks will be performed on these ObjectType commands for enablelocal case."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Password
+
+      Update the value to Enable All or Enable Local.
+
+      Default value: disabled
+
+      Possible values = enableall, enablelocal, disabled"
+      reference      : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.strongpassword"
+      regex          : "(?i)(ENABLE|DISABLED)(?-i)"
+      expect         : "(?i)ENABLE(ALL|LOCAL)(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - Idle Session Timeout"
+      info           : "CLI session inactivity timeout, in seconds. If Restrictedtimeout argument is enabled, Timeout can have values in the range [300-86400] seconds.
+
+    If Restrictedtimeout argument is disabled, Timeout can have values in the range [0, 10-100000000] seconds."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Other Settings
+
+      Update the value to a maximum of 10 minutes.
+
+      Default value is 900 seconds."
+      reference      : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.timeout"
+      expect         : "^([1-9]|[1-9][0-9]|[1-5][0-9]{2}|600)$"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - Restricted Timeout"
+      info           : "Enable/Disable the restricted timeout behaviour. When enabled, timeout cannot be configured beyond admin configured timeout and also it will have the [minimum - maximum] range check. When disabled, timeout will have the old behaviour. By default the value is disabled."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Command Line Interface (CLI)
+
+      Update the value to Enabled.
+
+      Default value: DISABLED
+
+      Possible values = ENABLED, DISABLED"
+      reference      : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.restrictedtimeout"
+      regex          : "(?i)(ENABLED|DISABLED)(?-i)"
+      expect         : "(?i)ENABLED(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - Local Authentication"
+      info           : "When enabled, local users can access Citrix ADC even when external authentication is configured. When disabled, local users are not allowed to access the Citrix ADC, Local users can access the Citrix ADC only when the configured external authentication servers are unavailable. This parameter is not applicable to SSH Key-based authentication."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Command Line Interface (CLI)
+
+      Update the value to Enabled.
+
+      Default value: ENABLED
+
+      Possible values = ENABLED, DISABLED"
+      reference      : "800-171|3.1.1,800-53|AC-2(7)(a),800-53r5|AC-2(7)(a),CN-L3|7.1.3.2(d),CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(7)(a),NESA|M5.3.1,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.localauth"
+      regex          : "(?i)(ENABLED|DISABLED)(?-i)"
+      expect         : "(?i)ENABLED(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - FIPS mode"
+      info           : "Use this option to set the FIPS mode for key user-land processes. When enabled, these user-land processes will operate in FIPS mode. In this mode, these processes will use FIPS 140-2 certified crypto algorithms.
+
+    With a FIPS license, it is enabled by default and cannot be disabled.
+
+    Without a FIPS license, it is disabled by default, wherein these user-land processes will not operate in FIPS mode."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Other Settings
+
+      Update the value to Enabled.
+
+      Default value: DISABLED
+
+      Possible values = ENABLED, DISABLED"
+      reference      : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.fipsusermode"
+      regex          : "(?i)(ENABLED|DISABLED)(?-i)"
+      expect         : "(?i)ENABLED(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - CLI Log Level"
+      info           : "Audit log level, which specifies the types of events to log for cli executed commands.
+
+    Available values function as follows:
+
+    * EMERGENCY - Events that indicate an immediate crisis on the server.
+
+    * ALERT - Events that might require action.
+
+    * CRITICAL - Events that indicate an imminent server crisis.
+
+    * ERROR - Events that indicate some type of error.
+
+    * WARNING - Events that require action in the near future.
+
+    * NOTICE - Events that the administrator should know about.
+
+    * INFORMATIONAL - All but low-level events.
+
+    * DEBUG - All events, in extreme detail."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Command Line Interface (CLI)
+
+      Update the value to Informational or higher.
+
+      Default value: INFORMATIONAL
+
+      Possible values = EMERGENCY, ALERT, CRITICAL, ERROR, WARNING, NOTICE, INFORMATIONAL, DEBUG"
+      reference      : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.cliloglevel"
+      expect         : "(?i)(informational|notice|warning|error|critical|alert|emergency)(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - Force Password Change (nsroot)"
+      info           : "Enable or disable force password change for nsroot user."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Password
+
+      Update the value to Enabled.
+
+      Default value: DISABLED
+
+      Possible values = ENABLED, DISABLED"
+      reference      : "800-171|3.5.2,800-53|IA-5e.,800-53r5|IA-5e.,CN-L3|7.1.3.2(d),CN-L3|8.1.4.2(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5e.,NESA|T5.2.3,NIAv2|NS2,NIAv2|NS39,NIAv2|SS14f,PCI-DSSv3.2.1|2.1,PCI-DSSv4.0|2.2.2,QCSC-v1|5.2.2,QCSC-v1|13.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.forcepasswordchange"
+      regex          : "(?i)(ENABLED|DISABLED)(?-i)"
+      expect         : "(?i)ENABLED(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - System Parameters - Allow Default Partition"
+      info           : "Enable/Disable the allowing partition users to access default partition."
+      solution       : "Configuration > System > Settings > Change Global System Settings > Other
+
+      Update the value to Disabled.
+
+      Default value: NO
+
+      Possible values = YES, NO"
+      reference      : "800-171|3.1.5,800-53|AC-6,800-53r5|AC-6,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSF|PR.AC-4,CSF|PR.DS-5,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ITSG-33|AC-6,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADClistSystemparameters"
+      json_transform : ".systemparameter.allowdefaultpartition"
+      regex          : "(?i)(YES|NO)(?-i)"
+      expect         : "(?i)NO(?-i)"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Citrix ADC - SNMP - Community names"
+      info           : "The SNMP community string. Can consist of 1 to 31 characters that include uppercase and lowercase letters,numbers and special characters.
+
+    The following requirement applies only to the Citrix ADC CLI:
+
+    If the string includes one or more spaces, enclose the name in double or single quotation marks (for example, \"my string\" or 'my string').
+
+    Minimum length = 1"
+      solution       : "Configuration > System > SNMP > Community
+
+      Update the value to unique strings that aren't commonly used."
+      reference      : "800-171|3.5.2,800-53|IA-5c.,800-53r5|IA-5c.,CN-L3|7.1.2.7(d),CN-L3|8.1.4.1(a),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5c.,NESA|T5.2.1,NESA|T5.2.3,NESA|T5.5.2,NESA|T5.5.3,QCSC-v1|5.2.2,QCSC-v1|13.2"
+      see_also       : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+      request        : "ADCgetSNMPcommunity"
+      json_transform : ".snmpcommunity | .[].communityname"
+      not_expect     : "(?i)(public|private)(?-i)"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "Tenable_Best_Practices_Citrix_ADC_v1.0.0.audit from Tenable Best Practices"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/api-reference/"
+    </report>
+  </else>
+</if>
+
+</check_type>

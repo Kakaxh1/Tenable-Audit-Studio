@@ -1,0 +1,3060 @@
+#TRUSTED 331b205382d4b9e83d7658de595ffda9ded2582c47a2527ebd7207005e90b7fdb3a767b92396bc9d25594b9b0080cc02a21ddb4e217bacc20739ba56480b2e1d08983f1eca87a9a9e4d365ccb90fcea9e6c5701185a7a89394585da3a656b25f22aa10a9382e14fa136130a46e4945d9d302c4ffacc93ded5cd73db56453d5080fb4d0b50b0ed03d22cee50fb6e3b33da6a2d7ca783f7d70c7c4e5554fc2809757c01e2cba58eb70b461649ff4fbdbeb7c4a579cd722f39b6d2a14d4400e7a3620fab3c64d5fedfd9a472ba7e0955f5623dd423a43c864a77dc43c1acd3af4a0f81fb51ed73f38b5c2ef971efe8d2fd6f48a803f92b61984f9e27cc0b79ee50d29e5f72989586f20891231d03329d95760daf1b9eacb213e4ab776d1797dd75d8dcddfe7bdd4f7b70e08ca8defea9477081e2f016914c749e23fe574535ac63b1c1e80b6e048f120d9cc4e309c624d4f51bda45a70e7aac48e4e2f3991f91877f53adaf749ef154d452ea6a6cb9058f59e72f8904ffef9b89b78752a162a7a915b235726136f3acaa67c809eb6f69c4f85cbd390fab64fd93273d34c8f111b8835028fcf86a64c51be676f5647615794ec63ed736649f27b4b42f9eb7b702a75ca3620e2e276cc2332a7b7e1c6576165ed30b3a46ec05f8dc548f71901300d70040deda014289d6db40652ac8d387d427d330142633f676e4f6c32ae6f891bca
+#TRUST-RSA-SHA256 350c438592def274dbe112498710440421961354160df2c3a7126bb4f8f36c162922a308e8bb93fe1fa8380cf98c396875b3757e75adb04ecafd0fb4c1b3b13bdbea782481a39cc101d59714d6c50cae64728917e707357fd324fe99a309da53fbdd54cd4fc54d2404e56b98892704b8b36d8e537dc815d06ca2e05df2acee5d4000dbab3102dc22d91858a7ad97b36481da055dd844bc0745669d0961f61249210242d7d0747d8c0d0a10a0897e9a2a59cab489ec58b1a4951c74589f0384c8cfd710c30fa9511595e1224b2fa8277ea90d44285572cf449aa5a5e1dc0b46a9540138bc6dc2a1fe9075f4339c11c581688a662316e47d30033510cc1e181cdebc89c84abd9156a8b4fd4c61069bdba0b029289d5b0d56129753ae5ce7c9200f3de1115e4afb9fe0e5ba047a5c302539a6a6ead4729dc87ef45f6823a6871105be78d0a073f9b093bbe701279a354806c01be27f86d16d6e161a3de8efe708d002003252a8695de644b1bd1e52dc5f1b4dd67456c5ad15aec9d86c3863191452a79e7dd635516a608e10486a13ee4c5f3713badc085336e05a54b51713cf703043c46bd5b584f0bcdf0c810fc5d69417f8766d378e52c42396b52e53b519cfe2865f60bd9ada8b5066aa57fc5be53240d9c540fa444bc473b22176aab528763df20d50f9cfd635c7b795b27a39c739f67ada2452ca5302898a0877ba88f43ac3
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+#
+# $Revision: 1.10 $
+# $Date: 2024/06/17 $
+#
+# description : This document implements the security configuration as recommended by the
+#               Red Hat Enterprise Linux 5 Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS Red Hat Enterprise Linux 5 L2 v2.2.1</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Red Hat Enterprise Linux 5</name>
+#  <profile>L2</profile>
+#  <version>2.2.1</version>
+#  <link>https://workbench.cisecurity.org/files/3096</link>
+#</spec>
+#<labels>cis,rhel_linux_5,agent,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>LOG_FILE_SIZE</name>
+#    <default>10</default>
+#    <description>Log file maximum size</description>
+#    <info>The maximum allowed size of the log file in megabytes (MB).</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#  <variable>
+#    <name>EMAIL_ADDRESS</name>
+#    <default>root</default>
+#    <description>Audit logs email address</description>
+#    <info>The email address or user name to send logs to as it appears in auditd.conf.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>PLATFORM_VERSION</name>
+#    <default>5</default>
+#    <description>Linux Distribution Version</description>
+#    <info>Linux Distribution Version</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "Red Hat 5 is installed"
+      file        : "/etc/redhat-release"
+      regex       : "Red Hat Enterprise.*release"
+      expect      : "Red Hat Enterprise.*release @PLATFORM_VERSION@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Red_Hat_EL5_v2.2.1_L2.audit from Red Hat Enterprise Linux 5 Benchmark"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.1.18 Disable Mounting of cramfs Filesystems - install cramfs /bin/true'"
+      info        : "The cramfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems. A cramfs image can be used without having to first decompress the image.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/cramfs.conf
+Add the following line:
+
+install cramfs /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|3.1,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/modprobe.d/CIS"
+      regex       : "^[\\s]*install[\\s]+cramfs[\\s]"
+      expect      : "^[\\s]*install[\\s]+cramfs[\\s]+/bin/true[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.1.19 Disable Mounting of freevxfs Filesystems - install freevxfs /bin/true'"
+      info        : "The freevxfs filesystem type is a free version of the Veritas type filesystem. This is the primary filesystem type for HP-UX operating systems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/freevxfs.conf
+Add the following line:
+
+install freevxfs /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|3.1,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/modprobe.d/CIS"
+      regex       : "^[\\s]*install[\\s]+freevxfs[\\s]"
+      expect      : "^[\\s]*install[\\s]+freevxfs[\\s]+/bin/true[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.1.20 Disable Mounting of jffs2 Filesystems - install jffs2 /bin/true'"
+      info        : "The jffs2 (journaling flash filesystem 2) filesystem type is a log-structured filesystem used in flash memory devices.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/jffs2.conf
+Add the following line:
+
+install jffs2 /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|3.1,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/modprobe.d/CIS"
+      regex       : "^[\\s]*install[\\s]+jffs2[\\s]"
+      expect      : "^[\\s]*install[\\s]+jffs2[\\s]+/bin/true[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.1.21 Disable Mounting of hfs Filesystems - install hfs /bin/true'"
+      info        : "The hfs filesystem type is a hierarchical filesystem that allows you to mount Mac OS filesystems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/hfs.conf
+Add the following line:
+
+install hfs /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|3.1,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/modprobe.d/CIS"
+      regex       : "^[\\s]*install[\\s]+hfs[\\s]"
+      expect      : "^[\\s]*install[\\s]+hfs[\\s]+/bin/true[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.1.22 Disable Mounting of hfsplus Filesystems - install hfsplus /bin/true'"
+      info        : "The hfsplus filesystem type is a hierarchical filesystem designed to replace hfs that allows you to mount Mac OS filesystems.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/hfsplus.conf
+Add the following line:
+
+install hfsplus /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|3.1,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/modprobe.d/CIS"
+      regex       : "^[\\s]*install[\\s]+hfsplus[\\s]"
+      expect      : "^[\\s]*install[\\s]+hfsplus[\\s]+/bin/true[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.1.23 Disable Mounting of squashfs Filesystems - install squashfs /bin/true'"
+      info        : "The squashfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems (similar to cramfs). A squashfs image can be used without having to first decompress the image.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/squashfs.conf
+Add the following line:
+
+install squashfs /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|3.1,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/modprobe.d/CIS"
+      regex       : "^[\\s]*install[\\s]+squashfs[\\s]"
+      expect      : "^[\\s]*install[\\s]+squashfs[\\s]+/bin/true[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.24 Disable Mounting of udf Filesystems - modprobe"
+      info        : "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/udf.conf
+Add the following line:
+
+install udf /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      cmd         : "/sbin/modprobe -n -v udf | /usr/bin/awk '{print} END {if (NR == 0) print \"fail\"}'"
+      expect      : "install /bin/true"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.1.24 Disable Mounting of udf Filesystems - lsmod"
+      info        : "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats.
+
+Rationale:
+
+Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
+      solution    : "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf
+Example: /etc/modprobe.d/udf.conf
+Add the following line:
+
+install udf /bin/true
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      cmd         : "/sbin/lsmod udf | /usr/bin/awk \'{print} END {if (NR == 0) print \"pass\" ; else print \"fail\"}\'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CHKCONFIG
+      description : "1.2.4 Disable the rhnsd Daemon"
+      info        : "The rhnsd daemon polls the Red Hat Network web site for scheduled actions.
+
+Rationale:
+
+Patch management policies may require that organizations test the impact of a patch before it is deployed in a production environment. Having patches automatically deployed could have a negative impact on the environment. It is best to not allow an action by default but only after appropriate consideration has been made. It is recommended that the service be disabled unless the risk is understood and accepted. This is not scorable item since organizations may have addressed the risk."
+      solution    : "Disable the rhnsd daemon by running the following command:
+
+# chkconfig rhnsd off
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv6|9.1,CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2M,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      service     : "rhnsd"
+      levels      : "0123456"
+      status      : OFF
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CHKCONFIG
+      description : "1.2.5 Disable yum-updatesd"
+      info        : "The yum-updatesd utility provides notification of updates that are available for your system.
+
+Rationale:
+
+The yum-updatesd service may introduce unnecessary overhead and prevent other programs from running. When possible, replace this service with a cron job that calls yum directly."
+      solution    : "Disable the yum-updatesd daemon by running the following command:
+
+# chkconfig yum-updatesd off
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv6|9.1,CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      service     : "yum-updatesd"
+      levels      : "0123456"
+      status      : OFF
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : RPM_CHECK
+      description : "1.3.1 Install AIDE"
+      info        : "In some installations, AIDE is not installed automatically.
+
+Rationale:
+
+Install AIDE to make use of the file integrity features to monitor critical files for changes that could affect the security of the system."
+      solution    : "Run the following command to install AIDE:
+
+# yum install aide
+
+Note: The prelinking feature can interfere with AIDE because it alters binaries to speed up their start up times. Set PRELINKING=no in /etc/sysconfig/prelink and run /usr/sbin/prelink -ua to restore the binaries to their prelinked state, thus avoiding false positives from AIDE.
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv6|2.2,CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      rpm         : "aide-0.0.0-0"
+      operator    : "gt"
+      required    : YES
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.3.2 Implement Periodic Execution of File Integrity - 0 5 * * * /usr/sbin/aide --check'"
+      info        : "Implement periodic file checking, in compliance with site policy.
+
+Rationale:
+
+Periodic file checking allows the system administrator to determine on a regular basis if critical files have been changed in an unauthorized fashion."
+      solution    : "Execute the following command:
+
+# crontab -u root -e
+
+Add the following line to the crontab:
+
+0 5 * * * /usr/sbin/aide --check
+
+Note: The checking in this instance occurs every day at 5am. Alter the frequency and time of the checks in compliance with site policy.
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/var/spool/cron/root"
+      regex       : "^[\\s]*0(0)?[\\s]+5[\\s]+\\*[\\s]+\\*[\\s]+\\*[\\s]+\/usr\/sbin\/aide[\\s]+--check[\\s]*$"
+      expect      : "^[\\s]*0(0)?[\\s]+5[\\s]+\\*[\\s]+\\*[\\s]+\\*[\\s]+\/usr\/sbin\/aide[\\s]+--check[\\s]*$"
+      required    : YES
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "1.4.1 Enable SELinux in /etc/grub.conf - selinux != 0"
+      info        : "Configure SELINUX to be enabled at boot time and verify that it has not been overwritten by the grub boot parameters
+
+Rationale:
+
+SELinux must be enabled at boot time in /etc/grub.conf to ensure that the controls it provides are not overwritten."
+      solution    : "Remove all instances of selinux=0 and enforcing=0 from /etc/grub.conf.
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/grub.conf"
+      regex       : "^[\\s]*[sS][eE][lL][iI][nN][uU][xX][\\s]*="
+      expect      : "^[\\s]*[sS][eE][lL][iI][nN][uU][xX][\\s]*=[\\s]*0[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "1.4.1 Enable SELinux in /etc/grub.conf - enforcing != 0"
+      info        : "Configure SELINUX to be enabled at boot time and verify that it has not been overwritten by the grub boot parameters
+
+Rationale:
+
+SELinux must be enabled at boot time in /etc/grub.conf to ensure that the controls it provides are not overwritten."
+      solution    : "Remove all instances of selinux=0 and enforcing=0 from /etc/grub.conf.
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/grub.conf"
+      regex       : "^[\\s]*[eE][nN][fF][oO][rR][cC][iI][nN][gG][\\s]*="
+      expect      : "^[\\s]*[eE][nN][fF][oO][rR][cC][iI][nN][gG][\\s]*=[\\s]*0[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.4.2 Set the SELinux State - SELINUX=enforcing"
+      info        : "Set SELinux to enable when the system is booted.
+
+Rationale:
+
+SELinux must be enabled at boot time in to ensure that the controls it provides are in effect at all times."
+      solution    : "Edit the /etc/selinux/config file to set the SELINUX parameter:
+
+SELINUX=enforcing
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/selinux/config"
+      regex       : "^[\\s]*[sS][eE][lL][iI][nN][uU][xX][\\s]*=[\\s]*[eE][nN][fF][oO][rR][cC][iI][nN][gG][\\s]*$"
+      expect      : "^[\\s]*[sS][eE][lL][iI][nN][uU][xX][\\s]*=[\\s]*[eE][nN][fF][oO][rR][cC][iI][nN][gG][\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "1.4.3 Set the SELinux Policy - SELINUXTYPE=targeted"
+      info        : "Configure SELinux to meet or exceed the default targeted policy, which constrains daemons and system software only.
+
+Rationale:
+
+Security configuration requirements vary from site to site. Some sites may mandate a policy that is stricter than the default policy, which is perfectly acceptable. This item is intended to ensure that at least the default recommendations are met."
+      solution    : "Edit the /etc/selinux/config file to set the SELINUXTYPE parameter:
+
+SELINUXTYPE=targeted
+
+Note: If your organization requires stricter policies, make sure they are added to the /etc/selinux/config file.
+
+
+
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/selinux/config"
+      regex       : "^[\\s]*[sS][eE][lL][iI][nN][uU][xX][tT][yY][pP][eE][\\s]*="
+      expect      : "^[\\s]*[sS][eE][lL][iI][nN][uU][xX][tT][yY][pP][eE][\\s]*=[\\s]*targeted[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : RPM_CHECK
+      description : "1.4.4 Remove SETroubleshoot"
+      info        : "The SETroubleshoot service notifies desktop users of SELinux denials through a user-friendly interface. The service provides important information around configuration errors, unauthorized intrusions, and other potential errors.
+
+Rationale:
+
+The SETroubleshoot service is an unnecessary daemon to have running on a server, especially if X Windows is disabled or removed."
+      solution    : "Run the following command to remove setroubleshoot
+
+# yum erase setroubleshoot
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      rpm         : "setroubleshoot-0.0.0-0"
+      operator    : "lt"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CHKCONFIG
+      description : "1.4.5 Disable MCS Translation Service (mcstrans)"
+      info        : "The mcstransd daemon provides category label information to client processes requesting information. The label translations are defined in /etc/selinux/targeted/setrans.conf
+
+Rationale:
+
+Since this service is not used very often, disable it to reduce the amount of potentially vulnerable code running on the system."
+      solution    : "Run the following command to disable mcstrans:
+
+# chkconfig mctrans off
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv6|9.1,CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      service     : "mctrans"
+      levels      : "0123456"
+      status      : OFF
+    </custom_item>
+
+    <custom_item>
+      system        : "Linux"
+      type          : CMD_EXEC
+      description   : "1.4.6 Check for Unconfined Daemons"
+      info          : "Daemons that are not defined in SELinux policy will inherit the security context of their parent process.
+
+Rationale:
+
+Since daemons are launched and descend from the init process, they will inherit the security context label initrc\_t. This could cause the unintended consequence of giving the process more permission than it requires."
+      solution      : "Investigate any unconfined daemons found during the audit action.
+
+Default Value:
+
+OS Default: No"
+      reference     : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also      : "https://workbench.cisecurity.org/files/3096"
+      cmd           : "/bin/ps -eZ | /bin/egrep \"initrc\" | /bin/egrep -vw \"tr|ps|egrep|bash|awk\" | tr ':' ' ' | /bin/awk '{ print $NF }'"
+      expect        : ""
+      dont_echo_cmd : YES
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : RPM_CHECK
+      description : "2.1.11 Remove xinetd"
+      info        : "The eXtended InterNET Daemon (xinetd) is an open source super daemon that replaced the original inetd daemon. The xinetd daemon listens for well known services and dispatches the appropriate daemon to properly respond to service requests.
+
+Rationale:
+
+If there are no xinetd services required, it is recommended that the daemon be deleted from the system."
+      solution    : "Run the following commanf to remove xinetd:
+
+# yum erase xinetd
+
+Default Value:
+
+OS Default: Not Installed"
+      reference   : "800-171|3.4.9,800-53|CM-11,800-53r5|CM-11,CSCv7|2.6,CSF|DE.CM-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,LEVEL|2A,QCSC-v1|8.2.1,SWIFT-CSCv1|5.1"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      rpm         : "xinetd-0.0.0-0"
+      operator    : "lt"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "4.2.3 Disable Secure ICMP Redirect Acceptance - net.ipv4.conf.all.secure_redirects = 0"
+      info        : "Secure ICMP redirects are the same as ICMP redirects, except they come from gateways listed on the default gateway list. It is assumed that these gateways are known to your system, and that they are likely to be secure.
+
+Rationale:
+
+It is still possible for even known gateways to be compromised. Setting net.ipv4.conf.all.secure_redirects to 0 protects the system from routing table updates by possibly compromised known gateways."
+      solution    : "Set the net.ipv4.conf.all.secure_redirects and net.ipv4.conf.default.secure_redirects parameters to 0 in /etc/sysctl.conf:
+
+net.ipv4.conf.all.secure_redirects=0
+net.ipv4.conf.default.secure_redirects=0
+
+Run the following commands to set the active kernel parameters:
+
+# /sbin/sysctl -w net.ipv4.conf.all.secure_redirects=0
+# /sbin/sysctl -w net.ipv4.conf.default.secure_redirects=0
+# /sbin/sysctl -w net.ipv4.route.flush=1
+
+
+
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv6|9.2,CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/sysctl.conf"
+      regex       : "^[\\s]*net\.ipv4\.conf\.all\.secure_redirects[\\s]*="
+      expect      : "^[\\s]*net\.ipv4\.conf\.all\.secure_redirects[\\s]*=[\\s]*0[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "4.2.3 Disable Secure ICMP Redirect Acceptance - net.ipv4.conf.default.secure_redirects = 0"
+      info        : "Secure ICMP redirects are the same as ICMP redirects, except they come from gateways listed on the default gateway list. It is assumed that these gateways are known to your system, and that they are likely to be secure.
+
+Rationale:
+
+It is still possible for even known gateways to be compromised. Setting net.ipv4.conf.all.secure_redirects to 0 protects the system from routing table updates by possibly compromised known gateways."
+      solution    : "Set the net.ipv4.conf.all.secure_redirects and net.ipv4.conf.default.secure_redirects parameters to 0 in /etc/sysctl.conf:
+
+net.ipv4.conf.all.secure_redirects=0
+net.ipv4.conf.default.secure_redirects=0
+
+Run the following commands to set the active kernel parameters:
+
+# /sbin/sysctl -w net.ipv4.conf.all.secure_redirects=0
+# /sbin/sysctl -w net.ipv4.conf.default.secure_redirects=0
+# /sbin/sysctl -w net.ipv4.route.flush=1
+
+
+
+
+Default Value:
+
+OS Default: No"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv6|9.2,CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/sysctl.conf"
+      regex       : "^[\\s]*net\.ipv4\.conf\.default\.secure_redirects[\\s]*="
+      expect      : "^[\\s]*net\.ipv4\.conf\.default\.secure_redirects[\\s]*=[\\s]*0[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "4.2.7 Enable RFC-recommended Source Route Validation - net.ipv4.conf.all.rp_filter = 1"
+      info        : "Setting net.ipv4.conf.all.rp_filter and net.ipv4.conf.default.rp_filter to 1 forces the Linux kernel to utilize reverse path filtering on a received packet to determine if the packet was valid. Essentially, with reverse path filtering, if the return packet does not go out the same interface that the corresponding source packet came from, the packet is dropped (and logged if log_martians is set).
+
+Rationale:
+
+Setting these flags is a good way to deter attackers from sending your server bogus packets that cannot be responded to. One instance where this feature breaks down is if asymmetrical routing is employed. This is would occur when using dynamic routing protocols (bgp, ospf, etc) on your system. If you are using asymmetrical routing on your server, you will not be able to enable this feature without breaking the routing."
+      solution    : "Set the net.ipv4.conf.all.rp_filter and net.ipv4.conf.default.rp_filter parameters to 1 in /etc/sysctl.conf:
+
+net.ipv4.conf.all.rp_filter=1
+net.ipv4.conf.default.rp_filter=1
+
+Run the following commands to set the active kernel parameters:
+
+# /sbin/sysctl -w net.ipv4.conf.all.rp_filter=1
+# /sbin/sysctl -w net.ipv4.conf.default.rp_filter=1
+# /sbin/sysctl -w net.ipv4.route.flush=1
+
+Default Value:
+
+OS Default: Yes"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv6|9.2,CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/sysctl.conf"
+      regex       : "^[\\s]*net\.ipv4\.conf\.all\.rp_filter[\\s]*="
+      expect      : "^[\\s]*net\.ipv4\.conf\.all\.rp_filter[\\s]*=[\\s]*1[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "4.2.7 Enable RFC-recommended Source Route Validation - net.ipv4.conf.default.rp_filter = 1"
+      info        : "Setting net.ipv4.conf.all.rp_filter and net.ipv4.conf.default.rp_filter to 1 forces the Linux kernel to utilize reverse path filtering on a received packet to determine if the packet was valid. Essentially, with reverse path filtering, if the return packet does not go out the same interface that the corresponding source packet came from, the packet is dropped (and logged if log_martians is set).
+
+Rationale:
+
+Setting these flags is a good way to deter attackers from sending your server bogus packets that cannot be responded to. One instance where this feature breaks down is if asymmetrical routing is employed. This is would occur when using dynamic routing protocols (bgp, ospf, etc) on your system. If you are using asymmetrical routing on your server, you will not be able to enable this feature without breaking the routing."
+      solution    : "Set the net.ipv4.conf.all.rp_filter and net.ipv4.conf.default.rp_filter parameters to 1 in /etc/sysctl.conf:
+
+net.ipv4.conf.all.rp_filter=1
+net.ipv4.conf.default.rp_filter=1
+
+Run the following commands to set the active kernel parameters:
+
+# /sbin/sysctl -w net.ipv4.conf.all.rp_filter=1
+# /sbin/sysctl -w net.ipv4.conf.default.rp_filter=1
+# /sbin/sysctl -w net.ipv4.route.flush=1
+
+Default Value:
+
+OS Default: Yes"
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv6|9.2,CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/sysctl.conf"
+      regex       : "^[\\s]*net\.ipv4\.conf\.default\.rp_filter[\\s]*="
+      expect      : "^[\\s]*net\.ipv4\.conf\.default\.rp_filter[\\s]*=[\\s]*1[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.1.1 Configure Audit Log Storage Size"
+      info        : "Configure the maximum size of the audit log file. Once the log reaches the maximum size, it will be rotated and a new log file will be started.
+
+Rationale:
+
+It is important that an appropriate size is determined for log files so that they do not impact the system and audit data is not lost."
+      solution    : "Set the max\_log\_file parameter in /etc/audit/auditd.conf
+
+max_log_file = <MB>
+
+Note: MB is the number of Megabytes the file can be."
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv6|6.3,CSCv7|6.4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|2M,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/auditd.conf"
+      regex       : "^[\\s]*max_log_file[\\s]*"
+      expect      : "^[\\s]*max_log_file[\\s]*=[\\s]*@LOG_FILE_SIZE@[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.1.2 Disable System on Audit Log Full - space_left_action"
+      info        : "The auditd daemon can be configured to halt the system when the audit logs are full.
+
+Rationale:
+
+In high security contexts, the risk of detecting unauthorized access or nonrepudiation exceeds the benefit of the system's availability."
+      solution    : "Add or edit the following lines in the /etc/audit/auditd.conf file.
+
+space_left_action = email
+action_mail_acct = root
+admin_space_left_action = halt"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|2M,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/auditd.conf"
+      regex       : "^[\\s]*(?i)space_left_action(?-i)[\\s]*=[\\s]*"
+      expect      : "^[\\s]*(?i)space_left_action(?-i)[\\s]*=[\\s]*(?i)email(?-i)[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.1.2 Disable System on Audit Log Full - action_mail_acct"
+      info        : "The auditd daemon can be configured to halt the system when the audit logs are full.
+
+Rationale:
+
+In high security contexts, the risk of detecting unauthorized access or nonrepudiation exceeds the benefit of the system's availability."
+      solution    : "Add or edit the following lines in the /etc/audit/auditd.conf file.
+
+space_left_action = email
+action_mail_acct = root
+admin_space_left_action = halt"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|2M,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/auditd.conf"
+      regex       : "^[\\s]*action_mail_acct[\\s]*"
+      expect      : "^[\\s]*action_mail_acct[\\s]*=[\\s]*@EMAIL_ADDRESS@[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.1.2 Disable System on Audit Log Full - admin_space_left_action"
+      info        : "The auditd daemon can be configured to halt the system when the audit logs are full.
+
+Rationale:
+
+In high security contexts, the risk of detecting unauthorized access or nonrepudiation exceeds the benefit of the system's availability."
+      solution    : "Add or edit the following lines in the /etc/audit/auditd.conf file.
+
+space_left_action = email
+action_mail_acct = root
+admin_space_left_action = halt"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|2M,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/auditd.conf"
+      regex       : "^[\\s]*admin_space_left_action[\\s]*"
+      expect      : "^[\\s]*admin_space_left_action[\\s]*=[\\s]*halt[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.1.3 Keep All Auditing Information"
+      info        : "Normally, auditd will hold 4 logs of maximum log file size before deleting older log files.
+
+Rationale:
+
+In high security contexts, the benefits of maintaining a long audit history exceed the cost of storing the audit history."
+      solution    : "Add the following line to the /etc/audit/auditd.conf file.
+
+max_log_file_action = keep_logs"
+      reference   : "800-53|AU-4,800-53r5|AU-4,CSCv7|6.4,CSF|PR.DS-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,LEVEL|2A,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/auditd.conf"
+      regex       : "^[\\s]*(?i)max_log_file_action(?-i)[\\s]*"
+      expect      : "^[\\s]*(?i)max_log_file_action(?-i)[\\s]*=[\\s]*(?i)keep_logs(?-i)[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      type        : CHKCONFIG
+      description : "5.3.2 Enable auditd Service"
+      info        : "Turn on the auditd daemon to record system events.
+
+Rationale:
+
+The capturing of system events provides system administrators with information to allow them to determine if unauthorized access to their system is occurring."
+      solution    : "Run the following command to enable auditd:
+
+# chkconfig auditd on
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv6|3.1,CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      service     : "auditd"
+      levels      : "2345"
+      status      : ON
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.3 Keep All Auditing Information"
+      info        : "Normally, auditd will hold 4 logs of maximum log file size before deleting older log files.
+
+Rationale:
+
+In hight security contexts, the benefits of maintaining a long audit history exceed the cost of storing the audit history."
+      solution    : "Add the following line to the /etc/audit/auditd.conf file.
+
+max_log_file_action = keep_logs
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv6|6.3,CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/auditd.conf"
+      regex       : "^[\\s]*(?i)max_log_file_action(?-i)[\\s]*"
+      expect      : "^[\\s]*(?i)max_log_file_action(?-i)[\\s]*=[\\s]*(?i)keep_logs(?-i)[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.4 Enable Auditing for Processes That Start Prior to auditd"
+      info        : "Configure grub so that processes that are capable of being audited can be audited even if they start up prior to auditd startup.
+
+Rationale:
+
+Audit events need to be captured on processes that start up prior to auditd, so that potential malicious activity cannot go undetected."
+      solution    : "Run the following:
+
+# ed /etc/grub.conf << END
+g/kernel/s/$/ audit=1/
+w
+q
+END
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/grub.conf"
+      regex       : "^[\\s]*kernel[\\s]"
+      expect      : "^[\\s]*kernel[\\s].*[\\s]audit[\\s]*=[\\s]*1"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.5 Record Events That Modify Date and Time Information - adjtimex"
+      info        : "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock\_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier 'time-change'
+
+Rationale:
+
+Unexpected changes in system data and/or time could be a sign of malicious activity on the system."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+adjtimex[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+adjtimex[\\s]+-S[\\s]+settimeofday[\\s]+-S[\\s]+stime[\\s]+-k[\\s]+time-change[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.5 Record Events That Modify Date and Time Information - clock_settime"
+      info        : "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock\_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier 'time-change'
+
+Rationale:
+
+Unexpected changes in system data and/or time could be a sign of malicious activity on the system."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+clock_settime[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+clock_settime[\\s]+-k[\\s]+time-change[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.5 Record Events That Modify Date and Time Information - time-change"
+      info        : "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock\_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier 'time-change'
+
+Rationale:
+
+Unexpected changes in system data and/or time could be a sign of malicious activity on the system."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/localtime[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/localtime[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+time-change[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "OS is 64 bit"
+          cmd         : "/bin/uname -m"
+          expect      : "^x86_64$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.5 Record Events That Modify Date and Time Information - arch=b64 -S adjtimex"
+          info        : "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock\_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier 'time-change'
+
+Rationale:
+
+Unexpected changes in system data and/or time could be a sign of malicious activity on the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+adjtimex[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+adjtimex[\\s]+-S[\\s]+settimeofday[\\s]+-k[\\s]+time-change[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.5 Record Events That Modify Date and Time Information - arch=b64 -S clock_settime"
+          info        : "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock\_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier 'time-change'
+
+Rationale:
+
+Unexpected changes in system data and/or time could be a sign of malicious activity on the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+clock_settime[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+clock_settime[\\s]+-k[\\s]+time-change[\\s]*$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "5.3.5 Record Events That Modify Date and Time Information - arch=b64 -S adjtimex"
+          info        : "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock\_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier 'time-change'
+
+Rationale:
+
+Unexpected changes in system data and/or time could be a sign of malicious activity on the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+
+        <report type:"PASSED">
+          description : "5.3.5 Record Events That Modify Date and Time Information - arch=b64 -S clock_settime"
+          info        : "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock\_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier 'time-change'
+
+Rationale:
+
+Unexpected changes in system data and/or time could be a sign of malicious activity on the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.6 Record Events That Modify User/Group Information - /etc/group"
+      info        : "Record events affecting the group, passwd (user IDs), shadow and gshadow (passwords) or /etc/security/opasswd (old passwords, based on remember parameter in the PAM configuration) files. The parameters in this section will watch the files to see if they have been opened for write or have had attribute changes (e.g. permissions) and tag them with the identifier 'identity' in the audit log file.
+
+Rationale:
+
+Unexpected changes to these files could be an indication that the system has been compromised and that an unauthorized user is attempting to hide their activities or compromise additional accounts."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/group[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/group[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+identity[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.6 Record Events That Modify User/Group Information - /etc/passwd"
+      info        : "Record events affecting the group, passwd (user IDs), shadow and gshadow (passwords) or /etc/security/opasswd (old passwords, based on remember parameter in the PAM configuration) files. The parameters in this section will watch the files to see if they have been opened for write or have had attribute changes (e.g. permissions) and tag them with the identifier 'identity' in the audit log file.
+
+Rationale:
+
+Unexpected changes to these files could be an indication that the system has been compromised and that an unauthorized user is attempting to hide their activities or compromise additional accounts."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/passwd[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/passwd[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+identity[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.6 Record Events That Modify User/Group Information - /etc/gshadow"
+      info        : "Record events affecting the group, passwd (user IDs), shadow and gshadow (passwords) or /etc/security/opasswd (old passwords, based on remember parameter in the PAM configuration) files. The parameters in this section will watch the files to see if they have been opened for write or have had attribute changes (e.g. permissions) and tag them with the identifier 'identity' in the audit log file.
+
+Rationale:
+
+Unexpected changes to these files could be an indication that the system has been compromised and that an unauthorized user is attempting to hide their activities or compromise additional accounts."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/gshadow[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/gshadow[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+identity[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.6 Record Events That Modify User/Group Information - /etc/shadow"
+      info        : "Record events affecting the group, passwd (user IDs), shadow and gshadow (passwords) or /etc/security/opasswd (old passwords, based on remember parameter in the PAM configuration) files. The parameters in this section will watch the files to see if they have been opened for write or have had attribute changes (e.g. permissions) and tag them with the identifier 'identity' in the audit log file.
+
+Rationale:
+
+Unexpected changes to these files could be an indication that the system has been compromised and that an unauthorized user is attempting to hide their activities or compromise additional accounts."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/shadow[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/shadow[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+identity[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.6 Record Events That Modify User/Group Information - /etc/security/opasswd"
+      info        : "Record events affecting the group, passwd (user IDs), shadow and gshadow (passwords) or /etc/security/opasswd (old passwords, based on remember parameter in the PAM configuration) files. The parameters in this section will watch the files to see if they have been opened for write or have had attribute changes (e.g. permissions) and tag them with the identifier 'identity' in the audit log file.
+
+Rationale:
+
+Unexpected changes to these files could be an indication that the system has been compromised and that an unauthorized user is attempting to hide their activities or compromise additional accounts."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/security\\/opasswd[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/security\\/opasswd[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+identity[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.7 Record Events That Modify the System's Network Environment - arch=b32 -S sethostname"
+      info        : "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed pre-login), /etc/hosts (file containing host names and associated IP addresses) and /etc/sysconfig/network (directory containing network interface scripts and configurations) files.
+
+Rationale:
+
+Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/sysconfig/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier 'system-locale.'"
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+sethostname[\\s]+-S[\\s]+setdomainname[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+sethostname[\\s]+-S[\\s]+setdomainname[\\s]+-k[\\s]+system-locale[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.7 Record Events That Modify the System's Network Environment - /etc/issue"
+      info        : "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed pre-login), /etc/hosts (file containing host names and associated IP addresses) and /etc/sysconfig/network (directory containing network interface scripts and configurations) files.
+
+Rationale:
+
+Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/sysconfig/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier 'system-locale.'"
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/issue[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/issue[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+system-locale[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.7 Record Events That Modify the System's Network Environment - /etc/issue.net"
+      info        : "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed pre-login), /etc/hosts (file containing host names and associated IP addresses) and /etc/sysconfig/network (directory containing network interface scripts and configurations) files.
+
+Rationale:
+
+Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/sysconfig/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier 'system-locale.'"
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/issue\.net[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/issue\.net[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+system-locale[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.7 Record Events That Modify the System's Network Environment - /etc/hosts"
+      info        : "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed pre-login), /etc/hosts (file containing host names and associated IP addresses) and /etc/sysconfig/network (directory containing network interface scripts and configurations) files.
+
+Rationale:
+
+Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/sysconfig/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier 'system-locale.'"
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/hosts[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/hosts[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+system-locale[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.7 Record Events That Modify the System's Network Environment - /etc/sysconfig/network"
+      info        : "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed pre-login), /etc/hosts (file containing host names and associated IP addresses) and /etc/sysconfig/network (directory containing network interface scripts and configurations) files.
+
+Rationale:
+
+Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/sysconfig/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier 'system-locale.'"
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/sysconfig\\/network[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/sysconfig\\/network[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+system-locale[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "OS is 64 bit"
+          cmd         : "/bin/uname -m"
+          expect      : "^x86_64$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.7 Record Events That Modify the System's Network Environment - arch=b64 -S sethostname"
+          info        : "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed pre-login), /etc/hosts (file containing host names and associated IP addresses) and /etc/sysconfig/network (directory containing network interface scripts and configurations) files.
+
+Rationale:
+
+Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/sysconfig/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier 'system-locale.'"
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+sethostname[\\s]+-S[\\s]+setdomainname[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+sethostname[\\s]+-S[\\s]+setdomainname[\\s]+-k[\\s]+system-locale[\\s]*$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "5.3.7 Record Events That Modify the System's Network Environment - arch=b64 -S sethostname"
+          info        : "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed pre-login), /etc/hosts (file containing host names and associated IP addresses) and /etc/sysconfig/network (directory containing network interface scripts and configurations) files.
+
+Rationale:
+
+Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/sysconfig/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier 'system-locale.'"
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.8 Record Events That Modify the System's Mandatory Access Controls - /etc/selinux/"
+      info        : "Monitor SELinux mandatory access controls. The parameters below monitor any write access (potential additional, deletion or modification of files in the directory) or attribute changes to the /etc/selinux directory.
+
+Rationale:
+
+Changes to files in this directory could indicate that an unauthorized user is attempting to modify access controls and change security contexts, leading to a compromise of the system."
+      solution    : "Add the following line to the /etc/audit/audit.rules file.
+
+-w /etc/selinux/ -p wa -k MAC-policy
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/selinux/[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/selinux/[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+MAC-policy[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.9 Collect Login and Logout Events - /var/log/faillog"
+      info        : "Monitor login and logout events. The parameters below track changes to files associated with login/logout events. The file /var/log/faillog tracks failed events from login. The file /var/log/lastlog maintain records of the last time a user successfully logged in. The file /var/log/tallylog maintains a tally of failed logins associated with programs that use pam for authentication and have the pam_tally2.so module configured. The file /var/log/btmp keeps track of failed login attempts and can be read by entering the command /usr/bin/last -f /var/log/btmp. All audit records will be tagged with the identifier 'logins.'
+
+Rationale:
+
+Monitoring login/logout events could provide a system administrator with information associated with brute force attacks against user logins."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins
+-w /var/log/btmp -p wa -k session
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.1.2,800-171|3.3.1,800-171|3.3.2,800-53|AC-2(12),800-53|AU-3,800-53r5|AC-2(12),800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|4.9,CSCv7|16.13,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,ITSG-33|AU-3,LEVEL|2A,NESA|M5.3.1,NESA|T3.6.2,NIAv2|AM28,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+/var/log/faillog[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+/var/log/faillog[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+logins[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.9 Collect Login and Logout Events - /var/log/lastlog"
+      info        : "Monitor login and logout events. The parameters below track changes to files associated with login/logout events. The file /var/log/faillog tracks failed events from login. The file /var/log/lastlog maintain records of the last time a user successfully logged in. The file /var/log/tallylog maintains a tally of failed logins associated with programs that use pam for authentication and have the pam_tally2.so module configured. The file /var/log/btmp keeps track of failed login attempts and can be read by entering the command /usr/bin/last -f /var/log/btmp. All audit records will be tagged with the identifier 'logins.'
+
+Rationale:
+
+Monitoring login/logout events could provide a system administrator with information associated with brute force attacks against user logins."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins
+-w /var/log/btmp -p wa -k session
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.1.2,800-171|3.3.1,800-171|3.3.2,800-53|AC-2(12),800-53|AU-3,800-53r5|AC-2(12),800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|4.9,CSCv7|16.13,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,ITSG-33|AU-3,LEVEL|2A,NESA|M5.3.1,NESA|T3.6.2,NIAv2|AM28,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+/var/log/lastlog[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+/var/log/lastlog[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+logins[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.9 Collect Login and Logout Events - /var/log/tallylog"
+      info        : "Monitor login and logout events. The parameters below track changes to files associated with login/logout events. The file /var/log/faillog tracks failed events from login. The file /var/log/lastlog maintain records of the last time a user successfully logged in. The file /var/log/tallylog maintains a tally of failed logins associated with programs that use pam for authentication and have the pam_tally2.so module configured. The file /var/log/btmp keeps track of failed login attempts and can be read by entering the command /usr/bin/last -f /var/log/btmp. All audit records will be tagged with the identifier 'logins.'
+
+Rationale:
+
+Monitoring login/logout events could provide a system administrator with information associated with brute force attacks against user logins."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins
+-w /var/log/btmp -p wa -k session
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.1.2,800-171|3.3.1,800-171|3.3.2,800-53|AC-2(12),800-53|AU-3,800-53r5|AC-2(12),800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|4.9,CSCv7|16.13,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,ITSG-33|AU-3,LEVEL|2A,NESA|M5.3.1,NESA|T3.6.2,NIAv2|AM28,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+/var/log/tallylog[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+/var/log/tallylog[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+logins[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.9 Collect Login and Logout Events - /var/log/btmp"
+      info        : "Monitor login and logout events. The parameters below track changes to files associated with login/logout events. The file /var/log/faillog tracks failed events from login. The file /var/log/lastlog maintain records of the last time a user successfully logged in. The file /var/log/tallylog maintains a tally of failed logins associated with programs that use pam for authentication and have the pam_tally2.so module configured. The file /var/log/btmp keeps track of failed login attempts and can be read by entering the command /usr/bin/last -f /var/log/btmp. All audit records will be tagged with the identifier 'logins.'
+
+Rationale:
+
+Monitoring login/logout events could provide a system administrator with information associated with brute force attacks against user logins."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins
+-w /var/log/btmp -p wa -k session
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.1.2,800-171|3.3.1,800-171|3.3.2,800-53|AC-2(12),800-53|AU-3,800-53r5|AC-2(12),800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|4.9,CSCv7|16.13,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,ITSG-33|AU-3,LEVEL|2A,NESA|M5.3.1,NESA|T3.6.2,NIAv2|AM28,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+/var/log/btmp[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+/var/log/btmp[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+session[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.10 Collect Session Initiation Information - /var/run/utmp"
+      info        : "Monitor session initiation events. The parameters in this section track changes to the files associated with session events. The file /var/run/utmp file tracks all currently logged in users. The /var/log/wtmp file tracks logins, logouts, shutdown and reboot events. All audit records will be tagged with the identifier 'session.'
+
+Rationale:
+
+Monitoring these files for changes could alert a system administrator to logins occurring at unusual hours, which could indicate intruder activity (i.e. a user logging in at a time when they do not normally log in)."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /var/run/utmp -p wa -k session
+-w /var/log/wtmp -p wa -k session
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Note: Use the last command to read /var/log/wtmp (last with no parameters) and /var/run/utmp (last -f /var/run/utmp)
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.1.2,800-171|3.3.1,800-171|3.3.2,800-53|AC-2(12),800-53|AU-3,800-53r5|AC-2(12),800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|4.9,CSCv7|16.13,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,ITSG-33|AU-3,LEVEL|2A,NESA|M5.3.1,NESA|T3.6.2,NIAv2|AM28,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+/var/run/utmp[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+/var/run/utmp[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+session[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.10 Collect Session Initiation Information - /var/log/wtmp"
+      info        : "Monitor session initiation events. The parameters in this section track changes to the files associated with session events. The file /var/run/utmp file tracks all currently logged in users. The /var/log/wtmp file tracks logins, logouts, shutdown and reboot events. All audit records will be tagged with the identifier 'session.'
+
+Rationale:
+
+Monitoring these files for changes could alert a system administrator to logins occurring at unusual hours, which could indicate intruder activity (i.e. a user logging in at a time when they do not normally log in)."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /var/run/utmp -p wa -k session
+-w /var/log/wtmp -p wa -k session
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Note: Use the last command to read /var/log/wtmp (last with no parameters) and /var/run/utmp (last -f /var/run/utmp)
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.1.2,800-171|3.3.1,800-171|3.3.2,800-53|AC-2(12),800-53|AU-3,800-53r5|AC-2(12),800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.2(d),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|4.9,CSCv7|16.13,CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,ITSG-33|AU-3,LEVEL|2A,NESA|M5.3.1,NESA|T3.6.2,NIAv2|AM28,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|NS5j,NIAv2|SS14e,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/var\\/log\\/wtmp[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/var\\/log\\/wtmp[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+session[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b32 fchmodat"
+      info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+chmod[\\s]+-S[\\s]+fchmod[\\s]+-S[\\s]+fchmodat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+chmod[\\s]+-S[\\s]+fchmod[\\s]+-S[\\s]+fchmodat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+perm_mod[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b32 fchownat"
+      info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+chown[\\s]+-S[\\s]+fchown[\\s]+-S[\\s]+fchownat[\\s]+-S[\\s]+lchown[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+chown[\\s]+-S[\\s]+fchown[\\s]+-S[\\s]+fchownat[\\s]+-S[\\s]+lchown[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+perm_mod[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b32 fsetxattr"
+      info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+setxattr[\\s]+-S[\\s]+lsetxattr[\\s]+-S[\\s]+fsetxattr[\\s]+-S[\\s]+removexattr[\\s]+-S[\\s]+lremovexattr[\\s]+-S[\\s]+fremovexattr[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+setxattr[\\s]+-S[\\s]+lsetxattr[\\s]+-S[\\s]+fsetxattr[\\s]+-S[\\s]+removexattr[\\s]+-S[\\s]+lremovexattr[\\s]+-S[\\s]+fremovexattr[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+perm_mod[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "OS is 64 bit"
+          cmd         : "/bin/uname -m"
+          expect      : "^x86_64$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b64 fchmodat"
+          info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+chmod[\\s]+-S[\\s]+fchmod[\\s]+-S[\\s]+fchmodat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+chmod[\\s]+-S[\\s]+fchmod[\\s]+-S[\\s]+fchmodat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+perm_mod[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b64 fchownat"
+          info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+chown[\\s]+-S[\\s]+fchown[\\s]+-S[\\s]+fchownat[\\s]+-S[\\s]+lchown[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+chown[\\s]+-S[\\s]+fchown[\\s]+-S[\\s]+fchownat[\\s]+-S[\\s]+lchown[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+perm_mod[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b64 fsetxattr"
+          info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+setxattr[\\s]+-S[\\s]+lsetxattr[\\s]+-S[\\s]+fsetxattr[\\s]+-S[\\s]+removexattr[\\s]+-S[\\s]+lremovexattr[\\s]+-S[\\s]+fremovexattr[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+setxattr[\\s]+-S[\\s]+lsetxattr[\\s]+-S[\\s]+fsetxattr[\\s]+-S[\\s]+removexattr[\\s]+-S[\\s]+lremovexattr[\\s]+-S[\\s]+fremovexattr[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+perm_mod[\\s]*$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b64 fchmodat"
+          info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+
+        <report type:"PASSED">
+          description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b64 fchownat"
+          info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+
+        <report type:"PASSED">
+          description : "5.3.11 Collect Discretionary Access Control Permission Modification Events - arch=b64 fsetxattr"
+          info        : "Monitor changes to file permissions, attributes, ownership and group. The parameters inn this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier 'perm_mod.'
+
+Rationale:
+
+Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.12 Collect Unsuccessful Unauthorized Access Attempts to Files - arch=b32 EACCES"
+      info        : "Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation (creat), opening (open, openat) and truncation (truncate, ftruncate) of files. An audit log record will only be written if the user is a non-privileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier 'access.'
+
+Rationale:
+
+Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EACCES[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EACCES[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+access[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.12 Collect Unsuccessful Unauthorized Access Attempts to Files - arch=b32 EPERM"
+      info        : "Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation (creat), opening (open, openat) and truncation (truncate, ftruncate) of files. An audit log record will only be written if the user is a non-privileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier 'access.'
+
+Rationale:
+
+Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EPERM[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EPERM[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+access[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "OS is 64 bit"
+          cmd         : "/bin/uname -m"
+          expect      : "^x86_64$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.12 Collect Unsuccessful Unauthorized Access Attempts to Files - arch=b64 EACCES"
+          info        : "Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation (creat), opening (open, openat) and truncation (truncate, ftruncate) of files. An audit log record will only be written if the user is a non-privileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier 'access.'
+
+Rationale:
+
+Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EACCES[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EACCES[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+access[\\s]*$"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.12 Collect Unsuccessful Unauthorized Access Attempts to Files - arch=b64 EPERM"
+          info        : "Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation (creat), opening (open, openat) and truncation (truncate, ftruncate) of files. An audit log record will only be written if the user is a non-privileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier 'access.'
+
+Rationale:
+
+Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EPERM[\\s]+-F[\\s]+auid=>500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+creat[\\s]+-S[\\s]+open[\\s]+-S[\\s]+openat[\\s]+-S[\\s]+truncate[\\s]+-S[\\s]+ftruncate[\\s]+-F[\\s]+exit=-EPERM[\\s]+-F[\\s]+auid=>500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+access[\\s]*$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "5.3.12 Collect Unsuccessful Unauthorized Access Attempts to Files - arch=b64 EACCES"
+          info        : "Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation (creat), opening (open, openat) and truncation (truncate, ftruncate) of files. An audit log record will only be written if the user is a non-privileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier 'access.'
+
+Rationale:
+
+Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+
+        <report type:"PASSED">
+          description : "5.3.12 Collect Unsuccessful Unauthorized Access Attempts to Files - arch=b64 EPERM"
+          info        : "Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation (creat), opening (open, openat) and truncation (truncate, ftruncate) of files. An audit log record will only be written if the user is a non-privileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier 'access.'
+
+Rationale:
+
+Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|14.9,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      system        : "Linux"
+      type          : CMD_EXEC
+      description   : "5.3.13 Collect Use of Privileged Commands"
+      info          : "Monitor privileged programs (thos that have the setuid and/or setgid bit set on execution) to determine if unprivileged users are running these commands.
+
+Rationale:
+
+Execution of privileged commands by non-privileged users could be an indication of someone trying to gain unauthorized access to the system.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution      : "To remediate this issue, the system administrator will have to execute a find command to locate all the privileged programs and then add an audit line for each one of them.
+The audit parameters associated with this are as follows:
+
+-F path=' $1 '- will populate each file name found through the find command and processed by awk.
+
+-F perm=x - will write an audit record if the file is executed.
+
+-F auid>=500 - will write a record if the user executing the command is not a privileged user.
+
+-F auid!= 4294967295 - will ignore Daemon events
+
+All audit records should be tagged with the identifier 'privileged'.
+Run the following command replacing with a list of partitions where programs can be executed from on your system:
+
+# find <partition> -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print '-a always,exit -F path=' $1 ' -F perm=x -F auid>=''$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)'' -F auid!=4294967295 -k privileged' }'
+
+Edit the /etc/audit/audit.rules file.
+Example:
+
+# find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print '-a always,exit -F path=' $1 ' -F perm=x -F auid>=''$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)'' -F auid!=4294967295 -k privileged' }' >> /etc/audit/audit.rules
+
+Default Value:
+
+OS Default: N/A"
+      reference     : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also      : "https://workbench.cisecurity.org/files/3096"
+      cmd           : "/usr/bin/find / -xdev \\( -perm -4000 -o -perm -2000 \\) -type f | awk '{print \"-a always,exit -F path=\" $1 \" -F perm=x -F auid>='\"$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)\"' -F auid!=4294967295 -k privileged\" }' | /usr/bin/awk \'{print} END {if (NR == 0) print \"none\"}\'"
+      expect        : "^none$"
+      dont_echo_cmd : YES
+      severity      : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.14 Collect Successful File System Mounts - arch=b32"
+      info        : "Monitor the use of the mount system call. The mount (and umount) system call controls the mounting and unmounting of file systems. The parameters below configure the system to create an audit record when the mount system call is used by a non-privileged user
+
+Rationale:
+
+It is highly unusual for a non privileged user to mount file systems to the system. While tracking mount commands gives the system administrator evidence that external media may have been mounted (based on a review of the source of the mount and confirming it's an external media type), it does not conclusively indicate that data was exported to the media. System administrators who wish to determine if data were exported, would also have to track successful open, creat and truncate system calls requiring write access to a file under the mount point of the external media file system. This could give a fair indication that a write occurred. The only way to truly prove it, would be to track successful writes to the external media. Tracking write system calls could quickly fill up the audit log and is not recommended. Recommendations on configuration options to track data export to media is beyond the scope of this document.
+
+**Note:**This tracks successful and unsuccessful mount commands. File system mounts do not have to come from external media and this action still does not verify write (e.g. CD ROMS)"
+      solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+-a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+mount[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+mount[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+mounts[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "OS is 64 bit"
+          cmd         : "/bin/uname -m"
+          expect      : "^x86_64$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.14 Collect Successful File System Mounts - arch=b64"
+          info        : "Monitor the use of the mount system call. The mount (and umount) system call controls the mounting and unmounting of file systems. The parameters below configure the system to create an audit record when the mount system call is used by a non-privileged user
+
+Rationale:
+
+It is highly unusual for a non privileged user to mount file systems to the system. While tracking mount commands gives the system administrator evidence that external media may have been mounted (based on a review of the source of the mount and confirming it's an external media type), it does not conclusively indicate that data was exported to the media. System administrators who wish to determine if data were exported, would also have to track successful open, creat and truncate system calls requiring write access to a file under the mount point of the external media file system. This could give a fair indication that a write occurred. The only way to truly prove it, would be to track successful writes to the external media. Tracking write system calls could quickly fill up the audit log and is not recommended. Recommendations on configuration options to track data export to media is beyond the scope of this document.
+
+**Note:**This tracks successful and unsuccessful mount commands. File system mounts do not have to come from external media and this action still does not verify write (e.g. CD ROMS)"
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+-a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+mount[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+mount[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+mounts[\\s]*$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "5.3.14 Collect Successful File System Mounts - arch=b64"
+          info        : "Monitor the use of the mount system call. The mount (and umount) system call controls the mounting and unmounting of file systems. The parameters below configure the system to create an audit record when the mount system call is used by a non-privileged user
+
+Rationale:
+
+It is highly unusual for a non privileged user to mount file systems to the system. While tracking mount commands gives the system administrator evidence that external media may have been mounted (based on a review of the source of the mount and confirming it's an external media type), it does not conclusively indicate that data was exported to the media. System administrators who wish to determine if data were exported, would also have to track successful open, creat and truncate system calls requiring write access to a file under the mount point of the external media file system. This could give a fair indication that a write occurred. The only way to truly prove it, would be to track successful writes to the external media. Tracking write system calls could quickly fill up the audit log and is not recommended. Recommendations on configuration options to track data export to media is beyond the scope of this document.
+
+**Note:**This tracks successful and unsuccessful mount commands. File system mounts do not have to come from external media and this action still does not verify write (e.g. CD ROMS)"
+          solution    : "For 64 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+-a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following lines to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.15 Collect File Deletion Events by User - arch=b32"
+      info        : "Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the unlink (remove a file), unlinkat (remove a file attribute), rename (rename a file) and renameat (rename a file attribute) system calls and tags them with the identifier 'delete'.
+
+Rationale:
+
+Monitoring these calls from non-privileged users could provide a system administrator with evidence that inappropriate removal of files and file attributes associated with protected files is occurring. While this audit option will look at all events, system administrators will want to look for specific privileged files that are being deleted or altered."
+      solution    : "At a minimum, configure the audit system to collect file deletion events for all users and root.
+For 64 bit systems, add the following to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+unlink[\\s]+-S[\\s]+unlinkat[\\s]+-S[\\s]+rename[\\s]+-S[\\s]+renameat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b32[\\s]+-S[\\s]+unlink[\\s]+-S[\\s]+unlinkat[\\s]+-S[\\s]+rename[\\s]+-S[\\s]+renameat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+delete[\\s]*$"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "OS is 64 bit"
+          cmd         : "/bin/uname -m"
+          expect      : "^x86_64$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "5.3.15 Collect File Deletion Events by User - arch=b64"
+          info        : "Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the unlink (remove a file), unlinkat (remove a file attribute), rename (rename a file) and renameat (rename a file attribute) system calls and tags them with the identifier 'delete'.
+
+Rationale:
+
+Monitoring these calls from non-privileged users could provide a system administrator with evidence that inappropriate removal of files and file attributes associated with protected files is occurring. While this audit option will look at all events, system administrators will want to look for specific privileged files that are being deleted or altered."
+          solution    : "At a minimum, configure the audit system to collect file deletion events for all users and root.
+For 64 bit systems, add the following to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+          file        : "/etc/audit/audit.rules"
+          regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+unlink[\\s]+-S[\\s]+unlinkat[\\s]+-S[\\s]+rename[\\s]+-S[\\s]+renameat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]"
+          expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-F[\\s]+arch=b64[\\s]+-S[\\s]+unlink[\\s]+-S[\\s]+unlinkat[\\s]+-S[\\s]+rename[\\s]+-S[\\s]+renameat[\\s]+-F[\\s]+auid>=500[\\s]+-F[\\s]+auid!=4294967295[\\s]+-k[\\s]+delete[\\s]*$"
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "5.3.15 Collect File Deletion Events by User - arch=b64"
+          info        : "Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the unlink (remove a file), unlinkat (remove a file attribute), rename (rename a file) and renameat (rename a file attribute) system calls and tags them with the identifier 'delete'.
+
+Rationale:
+
+Monitoring these calls from non-privileged users could provide a system administrator with evidence that inappropriate removal of files and file attributes associated with protected files is occurring. While this audit option will look at all events, system administrators will want to look for specific privileged files that are being deleted or altered."
+          solution    : "At a minimum, configure the audit system to collect file deletion events for all users and root.
+For 64 bit systems, add the following to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+For 32 bit systems, add the following to the /etc/audit/audit.rules file.
+
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+          see_also    : "https://workbench.cisecurity.org/files/3096"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.16 Collect Changes to System Administration Scope (sudoers)"
+      info        : "Monitor scope changes for system administrations. If the system has been properly configured to force system administrators to log in as themselves first and then use the sudo command to execute privileged commands, it is possible to monitor changes in scope. The file /etc/sudoers will be written to when the file or its attributes have changed. The audit records will be tagged with the identifier 'scope.'
+
+Rationale:
+
+Changes in the /etc/sudoers file can indicate that an unauthorized change has been made to scope of system administrator activity."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /etc/sudoers -p wa -k scope
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/etc\\/sudoers[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/etc\\/sudoers[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+scope[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.17 Collect System Administrator Actions (sudolog)"
+      info        : "Monitor the sudo log file. If the system has been properly configured to disable the use of the su command and force all administrators to have to log in first and then use sudo to execute privileged commands, then all administrator commands will be logged to /var/log/sudo.log. Any time a command is executed, an audit event will be triggered as the /var/log/sudo.log file will be opened for write and the executed administration command will be written to the log.
+
+Rationale:
+
+Changes in /var/log/sudo.log indicate that an administrator has executed a command or the log file itself has been tampered with. Administrators will want to correlate the events written to the audit trail with the records written to /var/log/sudo.log to verify if unauthorized commands have been executed."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /var/log/sudo.log -p wa -k actions
+
+Execute the following command to restart auditd
+
+# pkill -P 1-HUP auditd
+
+Note: The system must be configured with su disabled (See Item 7.6 Restrict Access to the su Command) to force all command execution through sudo. This will not be effective on the console, as administrators can log in as root.
+
+
+
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/var\\/log\\/sudo\.log[\\s]+-p[\\s]+wa[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/var\\/log\\/sudo\.log[\\s]+-p[\\s]+wa[\\s]+-k[\\s]+actions[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.18 Collect Kernel Module Loading and Unloading - /sbin/insmod"
+      info        : "Monitor the loading and unloading of kernel modules. The programs insmod (install a kernel module), rmmod (remove a kernel module), and modprobe (a more sophisticated program to load and unload modules, as well as some other features) control loading and unloading of modules. The init_module (load a module) and delete\_module (delete a module) system calls control loading and unloading of modules. Any execution of the loading and unloading module programs and system calls will trigger an audit record with an identifier of 'modules'.
+
+Rationale:
+
+Monitoring the use of insmod, rmmod and modprobe could provide system administrators with evidence that an unauthorized user loaded or unloaded a kernel module, possibly compromising the security of the system. Monitoring of the init_module and delete_module system calls would reflect an unauthorized user attempting to use a different program to load and unload modules."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /sbin/insmod -p x -k modules
+-w /sbin/rmmod -p x -k modules
+-w /sbin/modprobe -p x -k modules
+-a always,exit -S init_module -S delete_module -k modules
+
+
+
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/sbin\\/insmod[\\s]+-p[\\s]+x[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/sbin\\/insmod[\\s]+-p[\\s]+x[\\s]+-k[\\s]+modules[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.18 Collect Kernel Module Loading and Unloading - /sbin/rmmod"
+      info        : "Monitor the loading and unloading of kernel modules. The programs insmod (install a kernel module), rmmod (remove a kernel module), and modprobe (a more sophisticated program to load and unload modules, as well as some other features) control loading and unloading of modules. The init_module (load a module) and delete\_module (delete a module) system calls control loading and unloading of modules. Any execution of the loading and unloading module programs and system calls will trigger an audit record with an identifier of 'modules'.
+
+Rationale:
+
+Monitoring the use of insmod, rmmod and modprobe could provide system administrators with evidence that an unauthorized user loaded or unloaded a kernel module, possibly compromising the security of the system. Monitoring of the init_module and delete_module system calls would reflect an unauthorized user attempting to use a different program to load and unload modules."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /sbin/insmod -p x -k modules
+-w /sbin/rmmod -p x -k modules
+-w /sbin/modprobe -p x -k modules
+-a always,exit -S init_module -S delete_module -k modules
+
+
+
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/sbin\\/rmmod[\\s]+-p[\\s]+x[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/sbin\\/rmmod[\\s]+-p[\\s]+x[\\s]+-k[\\s]+modules[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.18 Collect Kernel Module Loading and Unloading - /sbin/modprobe"
+      info        : "Monitor the loading and unloading of kernel modules. The programs insmod (install a kernel module), rmmod (remove a kernel module), and modprobe (a more sophisticated program to load and unload modules, as well as some other features) control loading and unloading of modules. The init_module (load a module) and delete\_module (delete a module) system calls control loading and unloading of modules. Any execution of the loading and unloading module programs and system calls will trigger an audit record with an identifier of 'modules'.
+
+Rationale:
+
+Monitoring the use of insmod, rmmod and modprobe could provide system administrators with evidence that an unauthorized user loaded or unloaded a kernel module, possibly compromising the security of the system. Monitoring of the init_module and delete_module system calls would reflect an unauthorized user attempting to use a different program to load and unload modules."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /sbin/insmod -p x -k modules
+-w /sbin/rmmod -p x -k modules
+-w /sbin/modprobe -p x -k modules
+-a always,exit -S init_module -S delete_module -k modules
+
+
+
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-w[\\s]+\\/sbin\\/modprobe[\\s]+-p[\\s]+x[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-w[\\s]+\\/sbin\\/modprobe[\\s]+-p[\\s]+x[\\s]+-k[\\s]+modules[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "5.3.18 Collect Kernel Module Loading and Unloading - init_module"
+      info        : "Monitor the loading and unloading of kernel modules. The programs insmod (install a kernel module), rmmod (remove a kernel module), and modprobe (a more sophisticated program to load and unload modules, as well as some other features) control loading and unloading of modules. The init_module (load a module) and delete\_module (delete a module) system calls control loading and unloading of modules. Any execution of the loading and unloading module programs and system calls will trigger an audit record with an identifier of 'modules'.
+
+Rationale:
+
+Monitoring the use of insmod, rmmod and modprobe could provide system administrators with evidence that an unauthorized user loaded or unloaded a kernel module, possibly compromising the security of the system. Monitoring of the init_module and delete_module system calls would reflect an unauthorized user attempting to use a different program to load and unload modules."
+      solution    : "Add the following lines to the /etc/audit/audit.rules file.
+
+-w /sbin/insmod -p x -k modules
+-w /sbin/rmmod -p x -k modules
+-w /sbin/modprobe -p x -k modules
+-a always,exit -S init_module -S delete_module -k modules
+
+
+
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv7|5.5,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      file        : "/etc/audit/audit.rules"
+      regex       : "^[\\s]*-a[\\s]+always,exit[\\s]+-S[\\s]+init_module[\\s]+-S[\\s]+delete_module[\\s]+-k[\\s]"
+      expect      : "^[\\s]*-a[\\s]+always,exit[\\s]+-S[\\s]+init_module[\\s]+-S[\\s]+delete_module[\\s]+-k[\\s]+modules[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system        : "Linux"
+      type          : CMD_EXEC
+      description   : "5.3.19 Make the Audit Configuration Immutable - -e 2"
+      info          : "Set system audit so that audit rules cannot be modified with auditctl. Setting the flag '-e 2' forces audit to be put in immutable mode. Audit changes can only be made on system reboot.
+
+Rationale:
+
+In immutable mode, unauthorized users cannot execute changes to the audit system to potential hide malicious activity and then put the audit rules back. Users would most likely notice a system reboot and that could alert administrators of an attempt to make unauthorized audit changes."
+      solution      : "Add the following lines to the /etc/audit/audit.rules file.
+
+-e 2
+
+Note: This must be the last entry in the /etc/audit/audit.rules file
+
+Default Value:
+
+OS Default: N/A"
+      reference     : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSCv6|3.1,CSCv7|6.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also      : "https://workbench.cisecurity.org/files/3096"
+      cmd           : "/usr/bin/strings /etc/audit/audit.rules | /usr/bin/tail -1"
+      expect        : "^[\\s]*-e[\\s]+2[\\s]*$"
+      dont_echo_cmd : YES
+    </custom_item>
+
+    <custom_item>
+      type        : CHKCONFIG
+      description : "6.1.1 Enable anacron Daemon"
+      info        : "The anacron daemon is used on systems that are not up 24x7. The anacron daemon will execute jobs that would have normally been run had the system not been down
+
+Rationale:
+
+Cron jobs may include critical security or administrative functions that need to run on a regular basis. Use this daemon on machines that are not up 24x7, or if there are jobs that need to be executed after the system has been brought back up after a maintenance window."
+      solution    : "Run the following command:
+
+# chkconfig anacron on
+
+Note: NSA Guidance recommends disabling anacron for systems that are intended to be up 24X7, with the rationale that unnecessary software should be disabled to reduce risk. However, even systems that are designed to be up at all times can experience downtime that could prevent important system maintenance jobs from running. Review the requirements for your site to determine your appropriate risk level.
+
+Default Value:
+
+OS Default: Enabled"
+      reference   : "800-171|3.4.2,800-53|CM-6,800-53r5|CM-6,CSCv6|3.1,CSCv7|5.1,CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,LEVEL|2A,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      service     : "anacron"
+      levels      : "2345"
+      status      : ON
+    </custom_item>
+
+    <custom_item>
+      type        : RPM_CHECK
+      description : "6.3.6 Remove the pam_ccreds Package"
+      info        : "The pam_ccreds module provides the ability for Linux users to locally authenticate using an enterprise identity when the network is unavailable.
+
+Rationale:
+
+While cached credentials provide flexibility in allowing enterprise users to authenticate when not attached to the network, it provides attackers with the ability of compromising those credentials if they've compromised the system."
+      solution    : "Run the following command to remove pam_ccreds:
+
+# yum erase pam_ccreds
+
+Default Value:
+
+OS Default: N/A"
+      reference   : "800-171|3.4.9,800-53|CM-11,800-53r5|CM-11,CSCv7|2.6,CSF|DE.CM-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,LEVEL|2A,QCSC-v1|8.2.1,SWIFT-CSCv1|5.1"
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+      rpm         : "pam_ccreds-0.0.0-0"
+      operator    : "lt"
+    </custom_item>
+
+    <custom_item>
+      system        : "Linux"
+      type          : CMD_EXEC
+      description   : "9.1.1 Verify System File Permissions"
+      info          : "The RPM package manager has a number of useful options. One of these, the -V (or -verify) option, can be used to verify that system packages are correctly installed. The -V option can be used to verify a particular package or to verify all system packages (-Va). If no output is returned, the package is installed correctly. The following table describes the meaning of output from the verify option:
+
+Code Meaning
+
+S - File size differs.
+
+M - File mode differs (includes permissions and file type).
+
+5 - The MD5 checksum differs.
+
+D - The major and minor version numbers differ on a device file.
+
+L - A mismatch occurs in a link.
+
+U - The file ownership differs.
+
+G - The file group owner differs.
+
+T - The file time (mtime) differs.
+
+The rpm -qf command can be used to determine which package a particular file belongs to. For example the following command determines which package the /etc/passwd file belongs to:
+
+# rpm -qf /etc/passwd
+
+
+
+setup-2.5.58-7.el5
+
+To verify the settings for the package that controls the /etc/passwd file, run the following:
+
+# rpm -V setup-2.5.58-7.el5
+
+
+
+.M...... c /etc/passwd
+
+S.5....T c /etc/printcap
+
+
+
+
+Note that you can feed the output of the rpm -qf command to the rpm -V command:
+
+# rpm -V $(rpm -qf /etc/passwd)
+
+.M...... c /etc/passwd
+
+S.5....T c /etc/printcap
+
+Rationale:
+
+It is important to confirm that packaged system files and directories are maintained with the permissions they were intended to have from the OS vendor.
+
+Note: Since packages and important files may change with new updates and releases, it is recommended to verify everything, not just a finite list of files. This can be a time consuming task and is therefore not a scorable benchmark item, but is provided for those interested in additional security measures."
+      solution      : "Correct any discrepancies found and rerun the command until output is clean or risk is mitigated or accepted.
+
+Default Value:
+
+OS Default: N/A"
+      reference     : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2M,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also      : "https://workbench.cisecurity.org/files/3096"
+      cmd           : "/bin/rpm -Va --nomtime --nosize --nomd5 --nolinkto | /usr/bin/awk \'{print} END {if (NR == 0) print \"none\"}\'"
+      expect        : "^none$"
+      dont_echo_cmd : YES
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Red_Hat_EL5_v2.2.1_L2.audit from Red Hat Enterprise Linux 5 Benchmark"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/3096"
+    </report>
+  </else>
+</if>
+
+</check_type>

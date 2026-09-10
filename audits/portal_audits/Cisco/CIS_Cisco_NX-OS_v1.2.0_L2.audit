@@ -1,0 +1,1350 @@
+#TRUSTED 8a2dea3c8576f633c872fbc35a12ced2cc9867c27e661656a243adbd3d1933f4d8fd6b4f28d062c418a6c4f9c0f5e9b5b00f7291b02fd049448e9a9d6bf693bf0714f0d6e114e0299d5c00be844ab29c24f8979dab5be3c2665991771ac0f7b9d9cad819455ebd85576656c38e6a3d96836e858aba673ef68c2b19b3712b77cb2b325ceeec8441f981f4bbc0ba273ce25c1e8ad33610debdf4bf755855d37104ca4fd4a35f26fef788dc228cc053b97ef7a44345ee5ef475ba78bf02df1c7bb5974928d6549aa1584c873bd2ba11785793a58598abf9623a105b9db6427c9fec6c9d76da4f0bb474257c8a70e7c2d987e1c06a3a00cf17edf6fab42dd288a37a3b5f749cfb3d4860620548703284ed7e0d1c4b6b5fc78c3175b3b648cb7a34d841da485a3512a8f89884a74ba6dbf674ff2af7420a9541e0abe03b0473ba2d9def990fc920cdf354564a5f6a263264a9c8da806d72f21557b31c4b4efb3bbe2df1791b284e809f7d21ba6371596b1c5bc6093a17ca81065df71f5a1ac1da1d09891c90ce7628b3427215290e5ba28477e7b80eda97345beee61acb9633c2254395ad011a6a31c5dada31f32c91fe868ba91ecf0dd6cc156082e5615ac0becb0ac114de51a8a42242df9d3f27220d6b3b1eefe2bac924588af4a90e99d6d8691c4a1e2205fac8ab117f1d89c12e50cfb6695b76c0bf1a9871327e5bc536dadc12
+#TRUST-RSA-SHA256 34937598d2c37b315565f737401a3b334d597bef5dbcd686e28c0c9af8f322e066cb68bf4c52b29c6fdf3e44dc6dc0fd433619ca24a750a80c1a6d14b3d3cc9a2c2c2bef9958bc82b36dbbb529d317ad6a30b9ea5b7dc2d35bba7019bfc03354114f04c704b2342cbd77b2cb8e96be06e571f89cf70ed0fde554374bce2865905d3111af0167b61323d1f9bd534d9ce4f685a997cbeda28c3789f402f0d36727e5a09ea0719cd96bfd365ead637eaa4cb2c451ce0b63b73f21941c8e2e209b09c459819eacda308f98510aa634e3620acf2d5ee5d8f0eab38169e937fd49bd6d7c9537889bafdf7f92db452a03a2b7ac9c69d0adb18fb6ea17de64061e7999911120796de74085963a8dfb66a2bd75ba725ba9960be7a08cab00ccb7bb71e8bd6239eaa489e08d85dfb153f772d86f86867a33df2f69922eacb1356980827ca189851a916f20336bd6826ae525f78735c813c8d95a4215db2ad2f31867c22cafec24116b0bd5556d6906af6055de350595f90abb0d7b6136677a4ea105fdbd350b71ca1f328e41eee0e4ed724c051acb4a8417cc1bc90df5b80d05bed0f19e3f30c47696648b3eb377c467675a5cfdf52726ba8b1470e91a6e4aeb186838083d002516c0dee23e1f61309f892d319bf41527254f370bd90be19784eb07ddab01d1160f5e62645ee3c9a6f6475f95434dd19996270b0ff3ce861e88eb7b914eeb
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2026/08/17 $
+#
+# description : This .audit is designed against the CIS Cisco NX-OS Benchmark v1.2.0
+#
+#<ui_metadata>
+#<display_name>CIS Cisco NX-OS v1.2.0 L2</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Cisco NX-OS</name>
+#  <profile>L2</profile>
+#  <version>1.2.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/16139</link>
+#</spec>
+#<labels>cis</labels>
+#<benchmark_refs>800-53,800-53r5,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Cisco">
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "Check for snmp-server"
+      item        : "no snmp-server protocol enable"
+    </item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "1.10 Use Dedicated \"mgmt\" Interface and VRF for Administrative Functions"
+      info        : "Vendors provisioning dedicated management interfaces is a widespread practice, and gives some significant security advantages when implementing:
+
+ - SSH access
+ - SNMP polling
+ - Syslog logging
+ - SNMP traps
+ - NTP requests
+
+This practice facilitates implementation of segmented, access controlled Management VLANs or VRFs, which acts as a significant deterrent to attackers. It provides management access outside of the regular data plane operations. Also, if there is a routing or switching issue that might interfere with in-band access, the management interface is very often not affected by this and is still acceptable.
+
+Administration via the mgmt interface bypasses the default routing and switching processing on the switch. This means that any routing issues or switching problems on the device itself will not affect access to the mgmt0 interface. Note however that in most cases the uplink from the mgmt0 interface is part of the larger switching infrastructure - this should be taken into account when architecting the overall network."
+      solution    : "First configure the mgmt0 interface:
+
+switch(config)# interface mgmt0
+switch(config-if)# ip address 1.2.3.1/24
+
+If needed, add the various routes needed for connectivity for the mgmt interface. Note that this can also be accomplished with a routing protocol implemented for the vrf \"management\"
+
+ip route 5.6.7.8 255.255.255.0 1.2.3.254 vrf management
+
+Then, configure the source-interface commands for each target protocol that is implemented:
+
+switch(config)# snmp-server source-interface traps mgmt0
+switch(config)# snmp-server source-interface informs mgmt0
+switch(config)# snmp-server host 1.2.3.4 source-interface loopback0
+switch(config)# ntp source-interface mgmt0
+switch(config)# logging source-interface mgmt0
+
+Impact:
+
+Using the MGMT interface and a dedicated Management VRF ensures that production and management traffic can never interfere with each other.
+
+More importantly, this provides a segregated path outside of the production data plane path for management traffic. This is important because often management traffic such as syslog and NTP are in clear text. Routing this traffic using the production data paths gives a malicious actor the opportunity to intercept or modify this traffic, which facilitates several opportunities for reconnaissance or active attacks by modifying this data."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|11.6,CSCv7|11.7,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|2M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </then>
+
+  <else>
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "snmp-server host"
+          item        : "snmp-server host .+ source-interface .+"
+        </item>
+
+        <item>
+          type            : CONFIG_CHECK
+          description     : "snmp-server traps/informs"
+          item            : "snmp-server source-interface (trap|traps|inform|informs) .+"
+          min_occurrences : "2"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "logging"
+          item        : "logging source-interface .+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "ntp"
+          item        : "ntp source-interface .+"
+        </item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.10 Use Dedicated \"mgmt\" Interface and VRF for Administrative Functions"
+          info        : "Vendors provisioning dedicated management interfaces is a widespread practice, and gives some significant security advantages when implementing:
+
+ - SSH access
+ - SNMP polling
+ - Syslog logging
+ - SNMP traps
+ - NTP requests
+
+This practice facilitates implementation of segmented, access controlled Management VLANs or VRFs, which acts as a significant deterrent to attackers. It provides management access outside of the regular data plane operations. Also, if there is a routing or switching issue that might interfere with in-band access, the management interface is very often not affected by this and is still acceptable.
+
+Administration via the mgmt interface bypasses the default routing and switching processing on the switch. This means that any routing issues or switching problems on the device itself will not affect access to the mgmt0 interface. Note however that in most cases the uplink from the mgmt0 interface is part of the larger switching infrastructure - this should be taken into account when architecting the overall network."
+          solution    : "First configure the mgmt0 interface:
+
+switch(config)# interface mgmt0
+switch(config-if)# ip address 1.2.3.1/24
+
+If needed, add the various routes needed for connectivity for the mgmt interface. Note that this can also be accomplished with a routing protocol implemented for the vrf \"management\"
+
+ip route 5.6.7.8 255.255.255.0 1.2.3.254 vrf management
+
+Then, configure the source-interface commands for each target protocol that is implemented:
+
+switch(config)# snmp-server source-interface traps mgmt0
+switch(config)# snmp-server source-interface informs mgmt0
+switch(config)# snmp-server host 1.2.3.4 source-interface loopback0
+switch(config)# ntp source-interface mgmt0
+switch(config)# logging source-interface mgmt0
+
+Impact:
+
+Using the MGMT interface and a dedicated Management VRF ensures that production and management traffic can never interfere with each other.
+
+More importantly, this provides a segregated path outside of the production data plane path for management traffic. This is important because often management traffic such as syslog and NTP are in clear text. Routing this traffic using the production data paths gives a malicious actor the opportunity to intercept or modify this traffic, which facilitates several opportunities for reconnaissance or active attacks by modifying this data."
+          reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|11.6,CSCv7|11.7,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|2M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+  </else>
+</if>
+
+<item>
+  type        : CONFIG_CHECK
+  description : "1.4.2 Configure Password Encryption"
+  info        : "You can enable strong, reversible 128-bit Advanced Encryption Standard (AES) password encryption, also known as type-6 encryption. To start using type-6 encryption, you must enable the AES password encryption feature and configure a master encryption key, which is used to encrypt and decrypt passwords. After you enable AES password encryption and configure a master key, all existing and newly created clear-text passwords for supported applications (currently RADIUS and TACACS+) are stored in type-6 encrypted format, unless you disable type-6 password encryption. You can also configure Cisco NX-OS to convert all existing weakly encrypted passwords to type-6 encrypted passwords.
+
+Encryption is a good way to protect data that will be used later. Encrypted data can later be decrypted to its original value. Although encrypting passwords protects them, typically, an application uses the same encryption key for storing all user passwords."
+  solution    : "Configure a master key to be used with the AES password encryption feature. The key can contain between 16 and 32 alphanumeric characters
+
+switch# key config-key ascii
+New Master Key:
+Retype Master Key:
+
+switch(config)# feature password encryption aes
+
+Impact:
+
+Encryption of passwords is used to protect it from being sent over the wire cleartext. By applying encryption you are making it more difficult for an adversary to gain access to your device/network"
+  reference   : "800-171|3.5.2,800-171|3.8.5,800-171|3.8.7,800-171r3|03.05.07,800-171r3|03.08.05,800-171r3|03.08.07,800-53|IA-5(1),800-53|MP-5,800-53|MP-7,800-53r5|IA-5(1),800-53r5|MP-7,CN-L3|8.5.4.1(c),CSCv7|4.4,CSCv7|5.1,CSCv7|14.8,CSCv8|3.9,CSCv8|5.2,CSF|PR.AC-1,CSF|PR.PT-2,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.7.9,ISO-27001-2022|A.7.10,ISO/IEC-27001|A.8.3.1,ISO/IEC-27001|A.8.3.3,ITSG-33|IA-5(1),ITSG-33|MP-5,LEVEL|2M,NESA|T1.4.1,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+  item        : "feature password encryption aes"
+</item>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "logging server/source-interface"
+      item        : "logging (server|source-interface) .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "logging level"
+      item        : "logging level (all .+|.+ .+)"
+    </item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "1.5.1 Ensure Syslog Logging is configured"
+      info        : "Logging should be configured such that:
+Logging level is set to a level sufficient for the target device
+Logs should be sent off the device to a syslog or trap server or servers
+Logs should be sourced from a consistent interface to ensure easy attribution of logs to the correct device
+Logging levels should be explicitly set to a level appropriate to the device.
+
+Logging on any network device is always limited by how much storage can be set aside for logs. It's important for this reason to send all log entries to a central device that can collect and correlate all logs, either in a database or in flat text files.
+The key thing this approach contributes is central logs on a larger storage device (disk)
+Logging to an off-device target also makes clearing any incriminating logs more difficult for an attacker, or if an attempt is made to hide a mistake.
+
+Logging off-device also ensures that any clearing of logs is also seen and can be alerted on.
+Sourcing all logs from a consistent interface ensures that log entries can be easily attributed to the correct device once they arrive at the log server. If a logging interface is not set, the source IP address of individual log entries can change as the network topology changes. This situation can make any subsequent log analysis more difficult."
+      solution    : "Configure a logging level and a syslog host:
+
+switch(config)#logging server <server ip address or name>
+switch(config)#logging level <service name> <logging level>
+
+or
+
+switch(config)#logging level all <logging level>
+switch(config)#logging source-interface <interface name>
+switch(config)#logging server <server ip address or name>
+
+optionally:
+
+switch(config)#logging server <server ip address or name> vrf [management vrf name]
+switch(config)#logging source-interface <mgmt 0 or other dedicated management interface>
+
+Impact:
+
+Because syslog traffic is not encrypted, it's recommended to ensure that the path the log traffic takes is not susceptible to any MiTM (Monkey in the Middle) attacks. Often this means assigning a dedicated management interface, which by default is in a separate VRF."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-171r3|03.15.01,800-53|AU-1,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-1,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.1,CSCv8|8.2,CSCv8|8.5,CSCv8|8.8,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|GV.OC-03,CSF2.0|GV.OV-01,CSF2.0|GV.PO-01,CSF2.0|GV.PO-02,CSF2.0|GV.SC-03,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.1,ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.4,ISO-27001-2022|A.5.28,ISO-27001-2022|A.5.31,ISO-27001-2022|A.5.36,ISO-27001-2022|A.5.37,ISO-27001-2022|A.8.15,ISO-27001-2022|5.2,ISO-27001-2022|5.3,ISO-27001-2022|7.5.1,ISO-27001-2022|7.5.2,ISO-27001-2022|7.5.3,ITSG-33|AU-1,ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv3.2.1|10.8,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<item>
+  type        : CONFIG_CHECK
+  description : "1.5.2 Log all Successful and Failed Administrative Logins"
+  info        : "By default failed logins are logged, but successful logins are not logged. This makes any configuration changes or successful malicious activity difficult to correctly attribute.
+
+Logging of all device login attempts allows the security team to investigate all login attempts and successful logins as needed. In some organizations and for some switches, even successful logins will be configured to generate an alert that must be compared against authorized changes or assigned tickets.
+Without logging both successful and failed logins, several important components of any investigation may not be easily available for any subsequent investigation or analysis (userids, source IP addresses, login times and so on)."
+  solution    : "switch(config)# login level authpriv 5
+
+Impact:
+
+Not logging successful logins means that unauthorized commands changes will be more difficult to attribute to the right person (though changes are logged with the login name by default on NX-OS). It also means that otherwise suspicious but successful logins (either because of the time of login, the source IP or other indicator) are not logged for further investigation.
+
+Not logging unsuccessful logins means that brute force login attempts are not properly logged."
+  reference   : "800-171|3.1.8,800-171|3.1.18,800-171|3.5.3,800-171r3|03.01.08,800-171r3|03.01.18,800-171r3|03.05.03,800-53|AC-7,800-53|AC-19,800-53|IA-2(1),800-53r5|AC-7,800-53r5|AC-19,800-53r5|IA-2(1),CN-L3|7.1.2.7(b),CN-L3|8.1.4.1(b),CSCv7|4.9,CSCv7|16.12,CSCv8|4.10,CSCv8|6.5,CSF|PR.AC-1,CSF|PR.AC-3,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.7.9,ISO-27001-2022|A.8.1,ISO-27001-2022|A.8.5,ISO/IEC-27001|A.6.2.1,ITSG-33|AC-7,ITSG-33|AC-19,ITSG-33|IA-2(1),LEVEL|2A,NESA|T5.4.2,NIAv2|AM24,NIAv2|AM36,NIAv2|VL3c,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1,TBA-FIISB|36.2.4,TBA-FIISB|45.1.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+  item        : "^[ ]*logging level authpriv [5-7][ ]*$"
+</item>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "Check for feature netflow"
+      item        : "^feature netflow"
+    </item>
+  </condition>
+
+  <then>
+    <if>
+      <condition auto:"WARNING" type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "flow exporter|record|monitor"
+          context     : "flow (exporter|record|monitor)"
+          regex       : "^Manual Review Required$"
+          item        : ".*"
+          severity    : MEDIUM
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "flow sampler"
+          context     : "sampler"
+          regex       : "^Manual Review Required$"
+          item        : ".*"
+          severity    : MEDIUM
+        </item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.5.3 Configure Netflow on Strategic Ports"
+          info        : "Netflow allows for detailed logging of transit traffic. For a Layer 3 Netflow configuration, this outlines several values identified as \"keys\": source and destination ports and protocols, source and destination IP addresses as well as traffic volumes in any combination. Sometimes QOS values (TOS bits only) is also used as a key. Each combination of Protocol, source port, destination port, source IP, destination IP is called a \"tuple\". The possible keys in a Layer 2 Tuple include source mac address, destination mac address, ethertype and vlan.
+
+In most cases logging to this level is not recommended for all ports of an NX-OS device, with 10G or faster ports there is just too much data to log and process in a meaningful way, even with sampling (which is required).
+
+However, for strategic ports (for instance, something facing a WAN link or traffic constrained server) this can be a good tool for troubleshooting. This sort of logging does take a fair amount of host resources, so if there is an upstream firewall or router, that device is often better suited to be a Netflow initiator, but if for instance the upstream device is owned by a carrier or a client, or is a host that needs this sort of telemetry, most NX-OS devices are certainly capable of providing Netflow telemetry.
+
+On many NX-OS platforms only inbound Netflow is supported.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "If needed, either Layer 3 or Layer 2 netflow can be configured.
+
+Layer 3 IP and IPv6 flow monitors can be applied to VLANs, SVIs, Layer 3 routed interfaces or subinterfaces.
+
+Layer 2 flow monitors can be applied to a physical interface or trunks
+
+L3 netflow - typical application to a VLAN is shown
+
+First, enable the netflow feature:
+
+switch(config)#feature netflow
+
+The flow record defines what data to record and export. Typical settings are shown, the important thing is that a valid flow record setting exists:
+
+switch(config)# flow-record FLOW-RECORD
+switch(config-flow-record)# match ipv4 protocol
+switch(config-flow-record)# match ipv4 source address
+switch(config-flow-record)# match ipv4 destination address
+switch(config-flow-record)# match transport source-port
+switch(config-flow-record)# match transport destination-port
+switch(config-flow-record)# collect routing source as
+switch(config-flow-record)# collect routing destination as
+switch(config-flow-record)# collect transport tcp flags
+switch(config-flow-record)# collect counter bytes
+switch(config-flow-record)# collect counter packets
+
+The flow exporter defines the destination and options around sent data. Again, the specific values are not important. The VRF can be specified in the \"destination\" line if needed.:
+
+switch(config)# flow exporter FLOW-EXPORT
+switch(config-flow-exporter)# transport udp 9996
+switch(config-flow-exporter)# destination 10.10.10.10
+switch(config-flow-exporter)# source mgmt 0
+switch(config-flow-exporter)# version 9
+switch(config-flow-exporter-version-9)# option exporter-stats timeout 120
+switch(config-flow-exporter-version-9)# option interface-table timeout 120
+
+The flow monitor \"ties\" the exporter and record together:
+
+switch(config)# flow monitor FLOW-MONITOR
+switch(config-flow-monitor)# exporter FLOW-EXPORT
+switch(config-flow-monitor)# record FLOW-RECORD
+
+The sampling rate, \"x packets out of y\" can also be defined. Both should be a power of 2 (for instance, 8 out-of 64 is a valid combination)
+
+switch(config)#sampler FLOWSAMPLER01
+switch(config-flow-sampler)# mode 8 out-of 64
+
+Finally, apply the monitor and optionally the sampler to a layer 3 interface:
+
+switch(config-flow-monitor)# int vlan <interface number>
+10GCORE01(config-if)# ip flow monitor FLOW-MONITOR input sampler FLOWSAMPLER01
+
+=======================================
+
+**L2 netflow - typical application to physical interface shown **
+
+Because if it's reliance on MAC Addresses, L2 netflow implementations are much less often used
+
+switch(config)#feature netflow
+
+The exporter configuration remains the same as L3:
+
+switch(config)# flow exporter L2_FLOWEXPORTER01
+switch(config-flow-exporter)# destination <netflow server ip> [use-vrf management]
+switch(config-flow-exporter)# transport udp <netflow port>
+switch(config-flow-exporter)# source mgmt0
+switch(config-flow-exporter)# version 9
+
+The flow record reflects different (layer 2) tuple inputs:
+
+switch(config)# flow record L2_FLOWRECORD01
+switch(config-flow-record)# match datalink ethertype
+switch(config-flow-record)# match datalink mac source-address
+switch(config-flow-record)# match datalink mac destination-address
+switch(config-flow-record)# match datalink vlan
+
+The flow monitor remains similar:
+
+switch(config)# flow monitor L2_FLOWMONITOR01
+switch(config-flow-monitor)# record L2_FLOWRECORD01
+switch(config-flow-monitor)# exporter L2_FLOWEXPORTER01
+
+The flow sampler commands remain the same
+
+switch(config)#sampler FLOWSAMPLER01
+switch(config-flow-sampler)# mode <x> out-of <y>
+
+Finally, apply the L2 definition to an L2 interface:
+
+switch(config)# int Ethernet x/yy
+switch(config-if)# layer2-switched flow monitor L2_FLOWMONITOR01 input sampler FLOWSAMPLER01
+
+Impact:
+
+If monitored graphically, often just a visual inspection of the netflow graphs will highlight anomalous traffic. For instance, a high volume exfiltration from a database server would show a spike of traffic from that database server to a host on the internet (which in most environments is not a normal pattern).
+
+In many cases the netflow database can be queried directly, so anomalies can be queried for programmatically. However, coding \"what is not normal\" is not something that is easily done in procedural languages. AI or ML frameworks such as TensorFlow may be helpful in this situation."
+          reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171|3.6.1,800-171|3.14.6,800-171|3.14.7,800-171r3|03.03.05,800-171r3|03.03.06a.,800-171r3|03.06.01,800-171r3|03.14.06,800-53|AU-6(1),800-53|AU-7,800-53|IR-4(1),800-53|SI-4,800-53|SI-4(2),800-53|SI-4(4),800-53|SI-4(5),800-53r5|AU-6(1),800-53r5|AU-7,800-53r5|IR-4(1),800-53r5|SI-4,800-53r5|SI-4(2),800-53r5|SI-4(4),800-53r5|SI-4(5),CN-L3|7.1.2.2(c),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(d),CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv7|6.3,CSCv8|13.1,CSCv8|13.6,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.AE-5,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|PR.PT-1,CSF|RC.RP-1,CSF|RS.AN-1,CSF|RS.AN-3,CSF|RS.CO-2,CSF|RS.CO-3,CSF|RS.RP-1,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|DE.AE-06,CSF2.0|DE.AE-08,CSF2.0|DE.CM-01,CSF2.0|DE.CM-06,CSF2.0|DE.CM-09,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-04,CSF2.0|RC.CO-03,CSF2.0|RC.CO-04,CSF2.0|RC.RP-01,CSF2.0|RC.RP-02,CSF2.0|RC.RP-06,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,CSF2.0|RS.AN-08,CSF2.0|RS.CO-02,CSF2.0|RS.CO-03,CSF2.0|RS.MA,CSF2.0|RS.MA-02,CSF2.0|RS.MA-03,CSF2.0|RS.MA-04,CSF2.0|RS.MA-05,CSF2.0|RS.MI-01,CSF2.0|RS.MI-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.25,ISO-27001-2022|A.5.26,ISO-27001-2022|A.5.27,ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.16,ITSG-33|AU-6(1),ITSG-33|AU-7,ITSG-33|IR-4(1),ITSG-33|SI-4,ITSG-33|SI-4(2),ITSG-33|SI-4(4),ITSG-33|SI-4(5),LEVEL|2M,NESA|M1.2.2,NESA|M5.2.5,NESA|T8.2.8,NESA|T8.2.9,NIAv2|NS32,PCI-DSSv4.0|10.4.1.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,SWIFT-CSCv1|6.5,TBA-FIISB|45.2.5"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "1.5.3 Configure Netflow on Strategic Ports"
+      info        : "Netflow allows for detailed logging of transit traffic. For a Layer 3 Netflow configuration, this outlines several values identified as \"keys\": source and destination ports and protocols, source and destination IP addresses as well as traffic volumes in any combination. Sometimes QOS values (TOS bits only) is also used as a key. Each combination of Protocol, source port, destination port, source IP, destination IP is called a \"tuple\". The possible keys in a Layer 2 Tuple include source mac address, destination mac address, ethertype and vlan.
+
+In most cases logging to this level is not recommended for all ports of an NX-OS device, with 10G or faster ports there is just too much data to log and process in a meaningful way, even with sampling (which is required).
+
+However, for strategic ports (for instance, something facing a WAN link or traffic constrained server) this can be a good tool for troubleshooting. This sort of logging does take a fair amount of host resources, so if there is an upstream firewall or router, that device is often better suited to be a Netflow initiator, but if for instance the upstream device is owned by a carrier or a client, or is a host that needs this sort of telemetry, most NX-OS devices are certainly capable of providing Netflow telemetry.
+
+On many NX-OS platforms only inbound Netflow is supported."
+      solution    : "If needed, either Layer 3 or Layer 2 netflow can be configured.
+
+Layer 3 IP and IPv6 flow monitors can be applied to VLANs, SVIs, Layer 3 routed interfaces or subinterfaces.
+
+Layer 2 flow monitors can be applied to a physical interface or trunks
+
+L3 netflow - typical application to a VLAN is shown
+
+First, enable the netflow feature:
+
+switch(config)#feature netflow
+
+The flow record defines what data to record and export. Typical settings are shown, the important thing is that a valid flow record setting exists:
+
+switch(config)# flow-record FLOW-RECORD
+switch(config-flow-record)# match ipv4 protocol
+switch(config-flow-record)# match ipv4 source address
+switch(config-flow-record)# match ipv4 destination address
+switch(config-flow-record)# match transport source-port
+switch(config-flow-record)# match transport destination-port
+switch(config-flow-record)# collect routing source as
+switch(config-flow-record)# collect routing destination as
+switch(config-flow-record)# collect transport tcp flags
+switch(config-flow-record)# collect counter bytes
+switch(config-flow-record)# collect counter packets
+
+The flow exporter defines the destination and options around sent data. Again, the specific values are not important. The VRF can be specified in the \"destination\" line if needed.:
+
+switch(config)# flow exporter FLOW-EXPORT
+switch(config-flow-exporter)# transport udp 9996
+switch(config-flow-exporter)# destination 10.10.10.10
+switch(config-flow-exporter)# source mgmt 0
+switch(config-flow-exporter)# version 9
+switch(config-flow-exporter-version-9)# option exporter-stats timeout 120
+switch(config-flow-exporter-version-9)# option interface-table timeout 120
+
+The flow monitor \"ties\" the exporter and record together:
+
+switch(config)# flow monitor FLOW-MONITOR
+switch(config-flow-monitor)# exporter FLOW-EXPORT
+switch(config-flow-monitor)# record FLOW-RECORD
+
+The sampling rate, \"x packets out of y\" can also be defined. Both should be a power of 2 (for instance, 8 out-of 64 is a valid combination)
+
+switch(config)#sampler FLOWSAMPLER01
+switch(config-flow-sampler)# mode 8 out-of 64
+
+Finally, apply the monitor and optionally the sampler to a layer 3 interface:
+
+switch(config-flow-monitor)# int vlan <interface number>
+10GCORE01(config-if)# ip flow monitor FLOW-MONITOR input sampler FLOWSAMPLER01
+
+=======================================
+
+**L2 netflow - typical application to physical interface shown **
+
+Because if it's reliance on MAC Addresses, L2 netflow implementations are much less often used
+
+switch(config)#feature netflow
+
+The exporter configuration remains the same as L3:
+
+switch(config)# flow exporter L2_FLOWEXPORTER01
+switch(config-flow-exporter)# destination <netflow server ip> [use-vrf management]
+switch(config-flow-exporter)# transport udp <netflow port>
+switch(config-flow-exporter)# source mgmt0
+switch(config-flow-exporter)# version 9
+
+The flow record reflects different (layer 2) tuple inputs:
+
+switch(config)# flow record L2_FLOWRECORD01
+switch(config-flow-record)# match datalink ethertype
+switch(config-flow-record)# match datalink mac source-address
+switch(config-flow-record)# match datalink mac destination-address
+switch(config-flow-record)# match datalink vlan
+
+The flow monitor remains similar:
+
+switch(config)# flow monitor L2_FLOWMONITOR01
+switch(config-flow-monitor)# record L2_FLOWRECORD01
+switch(config-flow-monitor)# exporter L2_FLOWEXPORTER01
+
+The flow sampler commands remain the same
+
+switch(config)#sampler FLOWSAMPLER01
+switch(config-flow-sampler)# mode <x> out-of <y>
+
+Finally, apply the L2 definition to an L2 interface:
+
+switch(config)# int Ethernet x/yy
+switch(config-if)# layer2-switched flow monitor L2_FLOWMONITOR01 input sampler FLOWSAMPLER01
+
+Impact:
+
+If monitored graphically, often just a visual inspection of the netflow graphs will highlight anomalous traffic. For instance, a high volume exfiltration from a database server would show a spike of traffic from that database server to a host on the internet (which in most environments is not a normal pattern).
+
+In many cases the netflow database can be queried directly, so anomalies can be queried for programmatically. However, coding \"what is not normal\" is not something that is easily done in procedural languages. AI or ML frameworks such as TensorFlow may be helpful in this situation."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171|3.6.1,800-171|3.14.6,800-171|3.14.7,800-171r3|03.03.05,800-171r3|03.03.06a.,800-171r3|03.06.01,800-171r3|03.14.06,800-53|AU-6(1),800-53|AU-7,800-53|IR-4(1),800-53|SI-4,800-53|SI-4(2),800-53|SI-4(4),800-53|SI-4(5),800-53r5|AU-6(1),800-53r5|AU-7,800-53r5|IR-4(1),800-53r5|SI-4,800-53r5|SI-4(2),800-53r5|SI-4(4),800-53r5|SI-4(5),CN-L3|7.1.2.2(c),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(d),CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv7|6.3,CSCv8|13.1,CSCv8|13.6,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.AE-5,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|PR.PT-1,CSF|RC.RP-1,CSF|RS.AN-1,CSF|RS.AN-3,CSF|RS.CO-2,CSF|RS.CO-3,CSF|RS.RP-1,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|DE.AE-06,CSF2.0|DE.AE-08,CSF2.0|DE.CM-01,CSF2.0|DE.CM-06,CSF2.0|DE.CM-09,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-04,CSF2.0|RC.CO-03,CSF2.0|RC.CO-04,CSF2.0|RC.RP-01,CSF2.0|RC.RP-02,CSF2.0|RC.RP-06,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,CSF2.0|RS.AN-08,CSF2.0|RS.CO-02,CSF2.0|RS.CO-03,CSF2.0|RS.MA,CSF2.0|RS.MA-02,CSF2.0|RS.MA-03,CSF2.0|RS.MA-04,CSF2.0|RS.MA-05,CSF2.0|RS.MI-01,CSF2.0|RS.MI-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.25,ISO-27001-2022|A.5.26,ISO-27001-2022|A.5.27,ISO-27001-2022|A.6.8,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.16,ITSG-33|AU-6(1),ITSG-33|AU-7,ITSG-33|IR-4(1),ITSG-33|SI-4,ITSG-33|SI-4(2),ITSG-33|SI-4(4),ITSG-33|SI-4(5),LEVEL|2M,NESA|M1.2.2,NESA|M5.2.5,NESA|T8.2.8,NESA|T8.2.9,NIAv2|NS32,PCI-DSSv4.0|10.4.1.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,SWIFT-CSCv1|6.5,TBA-FIISB|45.2.5"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "ntp authenticate"
+      item        : "ntp authenticate"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "ntp authentication-key"
+      item        : "ntp authentication-key"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "ntp trusted-key"
+      item        : "ntp trusted-key"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "ntp server key"
+      item        : "ntp server .* key .+"
+    </item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "1.6.4 Configure NTP Authentication"
+      info        : "By default, NTP is a clear text, unauthenticated protocol. However, it can be configured to authenticate time sources. NTP authentication is an upstream protocol only - authenticated clients have assurance that they are receiving correct time, that the ntp packets have not been tampered with.
+
+Configuring authentication ensures that if the server key does not match the key configured on the NTP client, that the client will drop any NTP replies from that server.
+If multiple keys are configured,"
+      solution    : "switch(config)# ntp authenticate
+switch(config)# ntp authentication-key 42 md5 my-ntp-key
+switch(config)# ntp trusted-key 42
+switch(config)# ntp server 132.246.11.231 use-vrf management key 42"
+      reference   : "800-171|3.1.1,800-171|3.3.6,800-171|3.3.7,800-171r3|03.01.01,800-171r3|03.03.06a.,800-171r3|03.03.07,800-53|AC-2(1),800-53|AU-7,800-53|AU-8,800-53r5|AC-2(1),800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|7.1.3.2(d),CN-L3|8.1.4.3(b),CSCv7|6,CSCv8|8.4,CSCv8|12.5,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.17,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|2M,NESA|T3.6.2,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,QCSC-v1|15.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<item>
+  type        : CONFIG_CHECK_NOT
+  description : "1.7.1 Disable Power on Auto Provisioning (POAP)"
+  info        : "PowerOn Auto Provisioning (POAP) allows the switch to be auto-provisioned at the time of power-on. This can be extremely useful in a tightly controlled environment, with a solid \"network as code\" mindset and dev-ops procedures in place for network operations."
+  solution    : "To disable POAP, use the command:
+
+switch(config)# no boot poap enable
+
+Impact:
+
+Without solid procedures and a well-controlled environment, POAP provides a malicious actor the ability to compromise a switch as it is being deployed out of the box. This \"day 0\" approach to compromising gives the attacker control of the switch from the start - it can be difficult to detect that this has occurred, and may require physical access to gain control back."
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|CM-7,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|11.1,CSCv8|12.2,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2A,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+  item        : "boot poap enable"
+</item>
+
+<item>
+  type        : CONFIG_CHECK_NOT
+  description : "1.7.2 Disable iPXE (Pre-boot eXecution Environment)"
+  info        : "iPXE allows a NX-OS device to boot from the network, usually using HTTP.
+
+This method allows the switch bootup image to be controlled centrally, often using DHCP services."
+  solution    : "Setting the boot order explicity to \"bootflash\" will remediate a PXE configured device.
+
+switch(config)# boot order bootflash
+
+You can also \"no\" the current boot order line to revert to the default setting. For instance, to remove the configuration line \"boot order pxe bootflash\" command, use
+
+switch(config)# no boot order pxe bootflash
+
+Impact:
+
+The risks of using this boot method are obvious. First, DHCP is a broadcast request, so any host (including a malicious host) can provide the DHCP response - the first response \"wins\". This means that a malicious actor can control operating system being booted on the switch.
+In addition, the HTTP protocol is clear-text, so is susceptible to modification in transit by an attacker. This is a less likely attack however, as the NX-OS boot sequence has multiple checks in place to verify the validity of the OS, and all most succeed for the boot sequence to proceed."
+  reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv7|11.3,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2A,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+  item        : "boot order pxe"
+</item>
+
+<item>
+  type        : CONFIG_CHECK
+  description : "1.7.3 Set SSH Key Modulus Length"
+  info        : "SSH sessions are encrypted using a key unique to the host (in this case the NX-OS switch). It is recommended that this key be 2048 bytes long or longer.
+
+While attacking encryption algorithms is not practical for commodity malware, it definitely is possible. As remediation is so easily done it is definitely recommended."
+  solution    : "Again, this must be implemented using an out-of-band (ie - not ssh) method.
+
+switch(config)# no feature ssh
+switch(config)# ssh key rsa 2048 force
+switch(config)# feature ssh
+
+Impact:
+
+Implementing this feature requires the deletion of the existing (default) ssh keys, which are 1024 bytes in length.
+This means that this change must be implemented using some other access method, such as using the console port or a temporary telnet session (be sure to disable telnet after remediation if this method is used)"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.7.5,800-171r3|03.04.06,800-171r3|03.07.05,800-53|CM-7,800-53|MA-4,800-53r5|CM-7,800-53r5|MA-4,CSCv7|18.5,CSCv8|4.6,CSF|PR.IP-1,CSF|PR.MA-2,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7,ITSG-33|MA-4,LEVEL|2M,NESA|T2.3.4,NESA|T5.4.4,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3,TBA-FIISB|45.2.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+  item        : "ssh key rsa 2048"
+</item>
+
+<item>
+  type        : CONFIG_CHECK
+  description : "1.8.1 Enable FIPS Mode"
+  info        : "FIPS mode in NX-OS refers to the Federal Information Processing Standards (FIPS) 140-2 compliance mode. FIPS 140-2 is a U.S. government standard that specifies security requirements for cryptographic modules. When FIPS mode is enabled on NX-OS devices, it ensures that the cryptographic functions and processes adhere to these stringent security standards.
+
+Enabling FIPS mode in NX-OS is important for several reasons:
+1. Compliance with Government Standards: FIPS 140-2 is a U.S. government standard that specifies security requirements for cryptographic modules. Enabling FIPS mode ensures that your device complies with these stringent security standards, which is often a requirement for government and regulated industries.
+2. Enhanced Security: FIPS mode enforces the use of FIPS-approved cryptographic algorithms and modules. This ensures that only secure and validated cryptographic functions are used, reducing the risk of vulnerabilities and attacks.
+3. Self-Tests and Error Handling: FIPS mode includes self-tests and error handling mechanisms. The device performs power-up self-tests and conditional self-tests to verify the proper functioning of cryptographic modules. If any self-test fails, the device logs a system message and enters an error state, ensuring that any issues are promptly detected and addressed.
+4. Trust and Assurance: Enabling FIPS mode provides assurance to users and stakeholders that the device meets high security standards. This can be particularly important in environments where data security and integrity are critical."
+  solution    : "switch(config)#fips mode enable
+
+Impact:
+
+Enabling FIPS mode may cause some performance overhead because of the extra processing required. Additionally, it limits the range of available algorithms, meaning that some non-FIPS protocols and algorithms might be restricted or disabled. To ensure compliance with FIPS standards, certain configuration options and features may also be limited."
+  reference   : "800-171|3.5.4,800-171r3|03.05.04,800-53|IA-2(8),800-53r5|IA-2(8),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(8),LEVEL|2M,NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+  item        : "fips mode enable"
+</item>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "EIGRP is enabled"
+      item        : "router eigrp .+"
+    </item>
+  </condition>
+
+  <then>
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "authentication mode md5 is set"
+          context     : "router eigrp .+"
+          item        : "authentication mode md5"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "appropriate EIGRP key-chain assigned"
+          context     : "router eigrp .+"
+          item        : "authentication key-chain .+"
+        </item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.1.1.1 Configure EIGRP Authentication on all EIGRP Routing Devices"
+          info        : "You can configure authentication between neighbors for EIGRP
+
+You can configure EIGRP authentication for the EIGRP process or for individual interfaces. Interface EIGRP authentication configuration overrides the EIGRP process-level authentication configuration.
+
+Because EIGRP is a multicast protocol, any device can advertise EIGRP capabilities and routes, and by default all connected EIGRP devices will honor those advertisements. This means that a malicious actor can advertise bogus routes to valid hosts or networks, allowing the interception and modification of traffic intended for those hosts or subnets.
+
+For this reason it is important that EIGRP endpoints authenticate to each other, ensuring that only valid routers can participate in the exchange of routes."
+          solution    : "Ensure that you have enabled the EIGRP feature.
+
+Ensure that all neighbors for an EIGRP process share the same authentication configuration, including the shared authentication key.
+
+Create the key-chain for this authentication configuration. See the Cisco NX-OS Security Configuration Guide.
+
+Ensure that you are in the correct VDC (or use the switchto vdc command)
+
+Configure authentication:
+
+switch(config)# router eigrp [instance-tag]
+switch(config-router)# address-family {ipv4 | ipv6} unicast
+switch(config-router)# authentication key-chain [key-chain]
+switch(config-router)# authentication mode md5
+
+Next assign the interface:
+
+switch(config)# interface [interface-type slot/port]
+switch(config-if)# router eigrp [instance-tag]
+switch(config-if)# authentication key-chain eigrp [instance-tag key-chain]
+switch(config-if)# authentication mode eigrp [instance-tag] md5
+
+Every EIGRP routeable interface should be set to either passive-interface, or be configured with authentication keys."
+          reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "3.1.1.1 Configure EIGRP Authentication on all EIGRP Routing Devices"
+      info        : "You can configure authentication between neighbors for EIGRP
+
+You can configure EIGRP authentication for the EIGRP process or for individual interfaces. Interface EIGRP authentication configuration overrides the EIGRP process-level authentication configuration.
+
+Because EIGRP is a multicast protocol, any device can advertise EIGRP capabilities and routes, and by default all connected EIGRP devices will honor those advertisements. This means that a malicious actor can advertise bogus routes to valid hosts or networks, allowing the interception and modification of traffic intended for those hosts or subnets.
+
+For this reason it is important that EIGRP endpoints authenticate to each other, ensuring that only valid routers can participate in the exchange of routes."
+      solution    : "Ensure that you have enabled the EIGRP feature.
+
+Ensure that all neighbors for an EIGRP process share the same authentication configuration, including the shared authentication key.
+
+Create the key-chain for this authentication configuration. See the Cisco NX-OS Security Configuration Guide.
+
+Ensure that you are in the correct VDC (or use the switchto vdc command)
+
+Configure authentication:
+
+switch(config)# router eigrp [instance-tag]
+switch(config-router)# address-family {ipv4 | ipv6} unicast
+switch(config-router)# authentication key-chain [key-chain]
+switch(config-router)# authentication mode md5
+
+Next assign the interface:
+
+switch(config)# interface [interface-type slot/port]
+switch(config-if)# router eigrp [instance-tag]
+switch(config-if)# authentication key-chain eigrp [instance-tag key-chain]
+switch(config-if)# authentication mode eigrp [instance-tag] md5
+
+Every EIGRP routeable interface should be set to either passive-interface, or be configured with authentication keys."
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "BGP is configured"
+      item        : "router bgp"
+    </item>
+  </condition>
+
+  <then>
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.1.2.2 If Possible, Limit the BGP Routes Accepted from Peers"
+      info        : "Once a BGP relationship is established, the BGP process will accept routes from any connected peers and consider those routes to be valid. For this reason, especially in ISP or other carrier situations, it is important that only routes that are valid for any particular peer are accepted for that peer.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "First, define the subnets that will be permitted from the peer PEERNAME (use descriptive, self documenting names in NX-OS constructions where possible). Note that any subnets not listed as permitted are by default denied (there is an implicit \"deny all\" at the bottom of the list)
+
+switch(config)# ip prefix-list PL_PEERNAME_PERMIT_SUBNETS description Permitted Subnets from Peer PEERNAME
+switch(config)# ip prefix-list PL_PEERNAME_PERMIT_SUBNETS permit 10.11.11.0/24
+switch(config)# ip prefix-list PL_PEERNAME_PERMIT_SUBNETS permit 10.11.12.0/24
+
+In this example above, only \"permits\" are defined. Deny lines are also allowed - refusing routes that are not accepted (for instance \"bogon\" or \"martian\" subnets), and may be more important in some situations, for example if this switch is accepting routes from the public internet. (note that this is not typical deployment scenario for an NX-OS switch)
+
+Next, create the route-map, will will apply that list:
+
+switch(config)# route-map RM_BGP_PEERNAME_IN permit 10
+switch(config-route-map)# match ip address prefix-list PL_PEERNAME_PERMIT_SUBNETS
+
+Finally, within the BGP configuration, apply that route-map to the BGP peer definition. Note that the \"in\" keyword denotes inbound (accepted) information.:
+
+switch(config)# router bgp 65520
+switch(config-router)# router-id 10.10.10.10
+switch(config-router)# address-family ipv4 unicast
+switch(config-router-af)# network 10.10.10.0/24
+switch(config-router-af)# neighbor 10.10.10.11
+switch(config-router-neighbor)# remote-as 65521
+switch(config-router-neighbor)# address-family ipv4 unicast
+switch(config-router-neighbor-af)# route-map RM_BGP_PEERNAME_IN in
+
+Impact:
+
+Without configuring route filtering, any route advertised by any BGP peer is considered valid. For this reason, especially in carrier or ISP situations it is important that route filtering be configured. Without filtering, a misconfigured or compromised peer can easily advertise entire subnets that should be routed elsewhere, either routing them to nul or receiving traffic to the compromised subnet for for interception or modification, then forwarding it on to it's final destination."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|CM-7,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|11.1,CSCv8|12.2,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+      context     : "router bgp .+"
+      regex       : "^Manual Review Required$"
+      item        : "route-map .+ in"
+      severity    : MEDIUM
+    </item>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "3.1.2.2 If Possible, Limit the BGP Routes Accepted from Peers"
+      info        : "Once a BGP relationship is established, the BGP process will accept routes from any connected peers and consider those routes to be valid. For this reason, especially in ISP or other carrier situations, it is important that only routes that are valid for any particular peer are accepted for that peer."
+      solution    : "First, define the subnets that will be permitted from the peer PEERNAME (use descriptive, self documenting names in NX-OS constructions where possible). Note that any subnets not listed as permitted are by default denied (there is an implicit \"deny all\" at the bottom of the list)
+
+switch(config)# ip prefix-list PL_PEERNAME_PERMIT_SUBNETS description Permitted Subnets from Peer PEERNAME
+switch(config)# ip prefix-list PL_PEERNAME_PERMIT_SUBNETS permit 10.11.11.0/24
+switch(config)# ip prefix-list PL_PEERNAME_PERMIT_SUBNETS permit 10.11.12.0/24
+
+In this example above, only \"permits\" are defined. Deny lines are also allowed - refusing routes that are not accepted (for instance \"bogon\" or \"martian\" subnets), and may be more important in some situations, for example if this switch is accepting routes from the public internet. (note that this is not typical deployment scenario for an NX-OS switch)
+
+Next, create the route-map, will will apply that list:
+
+switch(config)# route-map RM_BGP_PEERNAME_IN permit 10
+switch(config-route-map)# match ip address prefix-list PL_PEERNAME_PERMIT_SUBNETS
+
+Finally, within the BGP configuration, apply that route-map to the BGP peer definition. Note that the \"in\" keyword denotes inbound (accepted) information.:
+
+switch(config)# router bgp 65520
+switch(config-router)# router-id 10.10.10.10
+switch(config-router)# address-family ipv4 unicast
+switch(config-router-af)# network 10.10.10.0/24
+switch(config-router-af)# neighbor 10.10.10.11
+switch(config-router-neighbor)# remote-as 65521
+switch(config-router-neighbor)# address-family ipv4 unicast
+switch(config-router-neighbor-af)# route-map RM_BGP_PEERNAME_IN in
+
+Impact:
+
+Without configuring route filtering, any route advertised by any BGP peer is considered valid. For this reason, especially in carrier or ISP situations it is important that route filtering be configured. Without filtering, a misconfigured or compromised peer can easily advertise entire subnets that should be routed elsewhere, either routing them to nul or receiving traffic to the compromised subnet for for interception or modification, then forwarding it on to it's final destination."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|CM-7,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|11.1,CSCv8|12.2,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "BGP is configured"
+      item        : "router bgp"
+    </item>
+  </condition>
+
+  <then>
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.1.2.3 Configure BGP Authentication"
+      info        : "BGP is a usually configured as a point-to-point / unicast protocol. Configuring authentication as part of the neighbor configuration adds an additional layer of security to the conversation."
+      solution    : "For each BGP neighbor, add the \"password\" command to the matching stanza, with a long and complex string. Note that the same password must be used on the matching peer.
+Different passwords should be used for each peer.
+
+switch(config)# router bgp 65520
+switch(config-router)# neigh 10.10.10.11
+switch(config-router-neighbor)# password ?
+  0 Specifies an UNENCRYPTED neighbor password will follow
+  3 Specifies an 3DES ENCRYPTED neighbor password will follow
+  7 Specifies a Cisco type 7 ENCRYPTED neighbor password will follow
+  LINE The UNENCRYPTED (cleartext) neighbor password
+
+switch(config-router-neighbor)# password somelongcomplexstring
+
+Impact:
+
+Configuring authentication adds an MD5 hash to the neighbor negotiation that occurs between two BGP peers. An authentication failure would indicate either a misconfiguration, or possibly an attacker mounting an impersonation attack, masquerading as the BGP peer (possibly by ARP cache poisoning attack) and attempting to then peer up with incorrect credentials."
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|5.1,CSCv7|11.1,CSCv8|4.2,CSCv8|12.2,CSF|DE.AE-1,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T2.2.4,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+      context     : "router bgp .+"
+      item        : "password .+"
+    </item>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "3.1.2.3 Configure BGP Authentication"
+      info        : "BGP is a usually configured as a point-to-point / unicast protocol. Configuring authentication as part of the neighbor configuration adds an additional layer of security to the conversation."
+      solution    : "For each BGP neighbor, add the \"password\" command to the matching stanza, with a long and complex string. Note that the same password must be used on the matching peer.
+Different passwords should be used for each peer.
+
+switch(config)# router bgp 65520
+switch(config-router)# neigh 10.10.10.11
+switch(config-router-neighbor)# password ?
+  0 Specifies an UNENCRYPTED neighbor password will follow
+  3 Specifies an 3DES ENCRYPTED neighbor password will follow
+  7 Specifies a Cisco type 7 ENCRYPTED neighbor password will follow
+  LINE The UNENCRYPTED (cleartext) neighbor password
+
+switch(config-router-neighbor)# password somelongcomplexstring
+
+Impact:
+
+Configuring authentication adds an MD5 hash to the neighbor negotiation that occurs between two BGP peers. An authentication failure would indicate either a misconfiguration, or possibly an attacker mounting an impersonation attack, masquerading as the BGP peer (possibly by ARP cache poisoning attack) and attempting to then peer up with incorrect credentials."
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|5.1,CSCv7|11.1,CSCv8|4.2,CSCv8|12.2,CSF|DE.AE-1,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T2.2.4,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "Check for OSPF"
+      item        : "router ospf"
+    </item>
+  </condition>
+
+  <then>
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.1.3.2 Authenticate OSPF peers with MD5 authentication keys"
+      info        : "If OSPF is configured, peers can be authenticated using keys. This is not configured by default. If configured, MD5 hashes are recommended as the authentication mechanism. MD5 is the best option for multi-vendor support, and is also the best cryptographic option available in the OSPF standard.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "For each OSPF routeable interface, set the message-digest authentication method, and assign the appropriate keychain.
+Each OSPF routeable interface should either have authentication configured or be configured as an OSPF passive interface.
+
+switch(config)# interface Vlan1
+switch(config-int)# ip ospf authentication message-digest
+switch(config-int)# ip ospf authentication key-chain <OSPF Key Chain>
+
+Impact:
+
+Because OSPF is a multicast protocol, any device can advertise OSPF capabilities and routes, and by default all connected OSPF devices will honor those advertisements. This means that a malicious actor can advertise bogus routes to valid hosts or networks, allowing the interception and modification of traffic intended for those hosts or subnets.
+
+For this reason it is important that OSPF endpoints authenticate to each other, ensuring that only valid routers can participate in the exchange of routes."
+      reference   : "800-171|3.1.13,800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.5.2,800-171|3.13.8,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|11,CSCv8|3.10,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,CSF2.0|PR.PS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,NIAv2|SS24,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+      context     : "interface .+"
+      regex       : "^Manual Review Required$"
+      item        : "ip ospf authentication (message-digest|key-chain)"
+      severity    : MEDIUM
+    </item>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "3.1.3.2 Authenticate OSPF peers with MD5 authentication keys"
+      info        : "If OSPF is configured, peers can be authenticated using keys. This is not configured by default. If configured, MD5 hashes are recommended as the authentication mechanism. MD5 is the best option for multi-vendor support, and is also the best cryptographic option available in the OSPF standard."
+      solution    : "For each OSPF routeable interface, set the message-digest authentication method, and assign the appropriate keychain.
+Each OSPF routeable interface should either have authentication configured or be configured as an OSPF passive interface.
+
+switch(config)# interface Vlan1
+switch(config-int)# ip ospf authentication message-digest
+switch(config-int)# ip ospf authentication key-chain <OSPF Key Chain>
+
+Impact:
+
+Because OSPF is a multicast protocol, any device can advertise OSPF capabilities and routes, and by default all connected OSPF devices will honor those advertisements. This means that a malicious actor can advertise bogus routes to valid hosts or networks, allowing the interception and modification of traffic intended for those hosts or subnets.
+
+For this reason it is important that OSPF endpoints authenticate to each other, ensuring that only valid routers can participate in the exchange of routes."
+      reference   : "800-171|3.1.13,800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.5.2,800-171|3.13.8,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|11,CSCv8|3.10,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,CSF2.0|PR.PS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,NIAv2|SS24,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<item>
+  type            : CONFIG_CHECK
+  description     : "3.1.4.2 Create and use a single Loopback Address for Routing Protocol Peering"
+  info            : "The use of a loopback interface is recommended for use in all routing protocols.
+This recommendation describes the configuration of the loopback interface. Routing protocol specific configurations are described under the respective routing protocols.
+
+Loopback interfaces are always up, and so are not dependent on physical interface link state issues (cabling or other link issues for instance). This means traffic sourced from a loopback interface can take any valid path to establish a routing relationship or to route traffic.
+Loopback interfaces by their nature cannot \"flap\" (toggle between up and down states). Depending on the error condition, most physical interfaces are susceptible to interface flapping."
+  solution        : "Creating the loopback interface is a simple process. Addressing the loopback, in particular computing the subnet mask will vary by the organization and application. Often smaller subnets can be used for loopbacks, depending on how many potential peers are possible.
+
+switch(config)# int loopback 0
+switch(config-if)# ip address 10.11.11.1 255.255.255.252
+
+In order to use the loopback interface (rather than the closest interface to the routing peer), it must be explicitly configured in the routing protocol. This is described in the recommendations for each respective routing protocol.
+
+Impact:
+
+Using a loopback interface makes a routing device much less susceptible to intermittent or permanent interface failures."
+  reference       : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+  see_also        : "https://workbench.cisecurity.org/benchmarks/16139"
+  item            : "interface loopback.+"
+  max_occurrences : "1"
+</item>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "Check for router (bgp|eigrp|rip|ospf)"
+      item        : "router (bgp|eigrp|rip|ospf)"
+    </item>
+  </condition>
+
+  <then>
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.1.4.3 Use Unicast Routing Protocols Only"
+      info        : "Unicast routing protocols describe the destination routing peers by IP address.
+Multicast and Broadcast based routing protocols will discover routing neighbors dynamically. Because of this discovery process, a malicious actor can much more easily establish a peering relationship and hijack the routing protocol.
+
+While most routing protocols can be configured with authentication, multicast and broadcast routing protocols have an inherent weakness in their \"trust\" of any neighbor that advertises or will answer an advertisment.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure unicast routing only, for instance BGP.
+
+Impact:
+
+In multicast and broadcast routing protocols, the router (in this case the NX-OS device) will advertise its presence to all devices on a subnet, soliciting other routers using that same protocol. In that situation, an attacker can simply reply to those advertisements and establish a peering relationship. At that point the attacker can inject any route desired, so that traffic for that destination will route through the malicious router, putting the attacker in a \"monkey in the middle\" position, able to eavesdrop on or change any traffic to or from that destination, then forward it on.
+Tools such as scapy have well-established attack scripts for most broadcast or multicast routing protocols."
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+      context     : "router (bgp|eigrp|rip|ospf)"
+      regex       : "^Manual Review Required$"
+      item        : ".*ulticast.*"
+      severity    : MEDIUM
+    </item>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "3.1.4.3 Use Unicast Routing Protocols Only"
+      info        : "Unicast routing protocols describe the destination routing peers by IP address.
+Multicast and Broadcast based routing protocols will discover routing neighbors dynamically. Because of this discovery process, a malicious actor can much more easily establish a peering relationship and hijack the routing protocol.
+
+While most routing protocols can be configured with authentication, multicast and broadcast routing protocols have an inherent weakness in their \"trust\" of any neighbor that advertises or will answer an advertisment."
+      solution    : "Configure unicast routing only, for instance BGP.
+
+Impact:
+
+In multicast and broadcast routing protocols, the router (in this case the NX-OS device) will advertise its presence to all devices on a subnet, soliciting other routers using that same protocol. In that situation, an attacker can simply reply to those advertisements and establish a peering relationship. At that point the attacker can inject any route desired, so that traffic for that destination will route through the malicious router, putting the attacker in a \"monkey in the middle\" position, able to eavesdrop on or change any traffic to or from that destination, then forward it on.
+Tools such as scapy have well-established attack scripts for most broadcast or multicast routing protocols."
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<item>
+  type        : CONFIG_CHECK
+  description : "3.3.2 Configure Storm Control"
+  info        : "Traffic storm control (also called traffic suppression) allows you to monitor the levels of the incoming broadcast, multicast, and unicast traffic over a 3.9-millisecond interval. During this interval, the traffic level, which is a percentage of the total available bandwidth of the port, is compared with the traffic storm control level that you configured. When the ingress traffic reaches the traffic storm control level that is configured on the port, traffic storm control drops the traffic until the interval ends.
+
+When the traffic exceeds the configured level, you can configure traffic storm control to perform the following optional corrective actions :
+
+Shut down-When ingress traffic exceeds the traffic storm control level that is configured on a port, traffic storm control puts the port into the error-disabled state. To reenable this port, you can use either the shutdown and no shutdown options on the configured interface, or the error-disable detection and recovery feature. You are recommended to use the errdisable recovery cause storm-control command for error-disable detection and recovery along with the errdisable recovery interval command for defining the recovery interval. The interval can range between 30 and 65535 seconds.
+
+Trap-You can configure traffic storm control to generate an SNMP trap when ingress traffic exceeds the configured traffic storm control level. The SNMP trap action is enabled by default. However, storm control traps are not rate-limited by default. You can control the number of traps generated per minute by using the snmp-server enable traps storm-control trap-rate command.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "To set the broadcast limit in percent (multicast limit shown):
+
+switch(config)# interface ethernet 1/1
+switch(config)# storm-control multicast level 10
+
+or to set in packets per second (broadcast limit shown)
+
+switch(config)# storm-control broadcast level pps 8000
+
+Configure to send SNMP trap if a broadcast limit is exceeded
+
+switch(config-if)# storm-control action trap
+
+or to place an interface into an ERR-DISABLE state if a broadcast limit is exceeded:
+
+switch(config-if)# storm-control action disable
+
+Impact:
+
+This configuration is normally non-impactful - host network interfaces operating normally do not broadcast at the levels that are normally set in this command.
+
+This command is primarily meant to protect the switch and more importantly other hosts in a broadcast domain (VLAN) from a network interface that is malfunctioning, either due to a hardware failure or a driver problem.
+
+Note however that this protection can prevent some malicious activity, for instance VLAN wide DOS attacks, higher volume ARP Cache Poisoning attacks and CAM Table overflow attacks."
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171|3.4.6,800-171|3.4.7,800-171|3.6.1,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171|3.14.6,800-171|3.14.7,800-171r3|03.03.05,800-171r3|03.03.06a.,800-171r3|03.04.06,800-171r3|03.06.01,800-171r3|03.13.01,800-171r3|03.14.06,800-171r3|03.16.01,800-53|AU-6(1),800-53|AU-7,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|IR-4(1),800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53|SI-4,800-53|SI-4(2),800-53|SI-4(4),800-53|SI-4(5),800-53r5|AU-6(1),800-53r5|AU-7,800-53r5|CM-7,800-53r5|CP-6,800-53r5|CP-7,800-53r5|IR-4(1),800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,800-53r5|SI-4,800-53r5|SI-4(2),800-53r5|SI-4(4),800-53r5|SI-4(5),CN-L3|7.1.2.2(c),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(d),CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CN-L3|8.1.10.6(j),CSCv7|11,CSCv8|12.2,CSCv8|13.1,CSCv8|13.3,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.AE-5,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.AM-3,CSF|ID.RA-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.IP-8,CSF|PR.PT-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF|RC.RP-1,CSF|RS.AN-1,CSF|RS.AN-3,CSF|RS.CO-2,CSF|RS.CO-3,CSF|RS.RP-1,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|DE.AE-06,CSF2.0|DE.AE-08,CSF2.0|DE.CM-01,CSF2.0|DE.CM-06,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-04,CSF2.0|PR.PS-06,CSF2.0|RC.CO-03,CSF2.0|RC.CO-04,CSF2.0|RC.RP-01,CSF2.0|RC.RP-02,CSF2.0|RC.RP-06,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,CSF2.0|RS.AN-08,CSF2.0|RS.CO-02,CSF2.0|RS.CO-03,CSF2.0|RS.MA,CSF2.0|RS.MA-02,CSF2.0|RS.MA-03,CSF2.0|RS.MA-04,CSF2.0|RS.MA-05,CSF2.0|RS.MI-01,CSF2.0|RS.MI-02,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.25,ISO-27001-2022|A.5.26,ISO-27001-2022|A.5.27,ISO-27001-2022|A.5.29,ISO-27001-2022|A.6.8,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|AU-6(1),ITSG-33|AU-7,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|IR-4(1),ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,ITSG-33|SI-4,ITSG-33|SI-4(2),ITSG-33|SI-4(4),ITSG-33|SI-4(5),LEVEL|2M,NESA|M1.2.2,NESA|M5.2.5,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NESA|T8.2.8,NESA|T8.2.9,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|NS32,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,PCI-DSSv4.0|10.4.1.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.4,SWIFT-CSCv1|6.5,TBA-FIISB|43.1,TBA-FIISB|45.2.5"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+  context     : "interface .+"
+  regex       : "^Manual Review Required$"
+  item        : "storm-control .+"
+  severity    : MEDIUM
+</item>
+
+<report type:"WARNING">
+  description : "3.4.2 Configure CDP"
+  info        : "The Cisco Discovery Protocol (CDP) is a media-independent and protocol-independent protocol that runs on all Cisco-manufactured equipment including routers, bridges, access and communication servers, and switches. You can use CDP to discover and view information about all the Cisco devices that are directly attached to the device.
+
+Each device that you configure for CDP sends periodic advertisements to a multicast address. Each device advertises at least one address at which it can receive SNMP messages. The advertisements also contain hold-time information, which indicates the length of time that a receiving device should hold CDP information before removing it. You can configure the advertisement or refresh timer and the hold timer.
+
+CDP advertises potentially sensitive information, including the current version of NX-OS. For this reason it is recommended that CDP be disabled on any link that links to equipment not owned by your organization.
+In more sensitive environments, in particular in carrier or cloud services environments (where the majority of the endpoints are customer controlled hosts), it is recommended to disable CDP entirely
+
+CDP advertises potentially sensitive information, including the current version of NX-OS. This information can be used by a malicious actor to identify which vulnerabilities exist on the device, and from there which exploits might be most effective to compromise it. For this reason, enabling CDP is generally not recommended except for troubleshooting or network discovery purposes. In particular, any ports connected to service provider gear, or any system not owned by your organization should have CDP explicitly disabled.
+
+In more sensitive environments, disable CDP globally.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Enabling CDP Globally
+
+switch(config)# cdp enable
+
+Enabling on one interface
+
+switch(config)# int Ethernet x/y
+switch(config-if)# cdp enable
+
+To disable CDP globally:
+
+switch(config-if)# no cdp enable
+
+To disable CDP on one interface only:
+
+switch(config)# int Ethernet x/y
+switch(config-if)# no cdp enable"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|CM-7,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|11,CSCv8|12.2,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+</report>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "Check for feature fcoe"
+      item        : "^feature fcoe"
+    </item>
+  </condition>
+
+  <then>
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.5.1 Basic Fiber Channel Configuration"
+      info        : "Fibre Channel over Ethernet (FCoE) encapsulation allows a physical Ethernet cable to carry standard Fibre Channel traffic within Ethernet frames. In Cisco Nexus devices, an FCoE-capable physical Ethernet interface can carry traffic for one virtual Fibre Channel (vFC) interface.
+If FCoE functionality is not required, this functionality should be disabled.
+Note also that this is a licensed feature, so is not available without a purchased license.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Enable the FCoE feature globally on the switch:
+
+switch(config)# feature fcoe
+FC license checked out successfully
+
+fc_plugin extracted successfully
+FC plugin loaded successfully
+FCoE manager enabled successfully
+FC enabled on all modules successfully
+Warning: Ensure class-fcoe is included in qos policy-maps of all types
+
+Enable FCoE on a specific port (not required on all models):
+
+switch(config)# interface ethernet x/y
+switch(config-if)# fcoe mode on
+
+set the priority flow mode on a specific port:
+
+switch(config-if)# priority-flow-control mode auto
+
+FCoE also requires the DCBX (Data Center Bridging Exchange) protocol, which is used to negotiate capabilities between the FCOE endpoints. DCBX is an extension of LLDP, and LLDP is enabled globally and on all interfaces by default.
+If LLDP is disabled on any particular interface, it can be re-enabled as:
+
+switch(config-if)# int Ethernet x/y
+switch(config-if)# lldp transmit
+switch(config-if)# lldp receive"
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+      context     : "interface .+"
+      regex       : "^Manual Review Required$"
+      item        : "(fcoe mode on|priority-flow-control mode auto|lddp)"
+      severity    : MEDIUM
+    </item>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "3.5.1 Basic Fiber Channel Configuration"
+      info        : "Fibre Channel over Ethernet (FCoE) encapsulation allows a physical Ethernet cable to carry standard Fibre Channel traffic within Ethernet frames. In Cisco Nexus devices, an FCoE-capable physical Ethernet interface can carry traffic for one virtual Fibre Channel (vFC) interface.
+If FCoE functionality is not required, this functionality should be disabled.
+Note also that this is a licensed feature, so is not available without a purchased license."
+      solution    : "Enable the FCoE feature globally on the switch:
+
+switch(config)# feature fcoe
+FC license checked out successfully
+
+fc_plugin extracted successfully
+FC plugin loaded successfully
+FCoE manager enabled successfully
+FC enabled on all modules successfully
+Warning: Ensure class-fcoe is included in qos policy-maps of all types
+
+Enable FCoE on a specific port (not required on all models):
+
+switch(config)# interface ethernet x/y
+switch(config-if)# fcoe mode on
+
+set the priority flow mode on a specific port:
+
+switch(config-if)# priority-flow-control mode auto
+
+FCoE also requires the DCBX (Data Center Bridging Exchange) protocol, which is used to negotiate capabilities between the FCOE endpoints. DCBX is an extension of LLDP, and LLDP is enabled globally and on all interfaces by default.
+If LLDP is disabled on any particular interface, it can be re-enabled as:
+
+switch(config-if)# int Ethernet x/y
+switch(config-if)# lldp transmit
+switch(config-if)# lldp receive"
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "Check for feature fcoe"
+      item        : "^feature fcoe"
+    </item>
+  </condition>
+
+  <then>
+    <if>
+      <condition auto:"WARNING" type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "vsan database"
+          context     : "vsan database"
+          regex       : "^Manual Review Required$"
+          item        : "vsan .+"
+          severity    : MEDIUM
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "interface vfc"
+          context     : "interface vfc .+"
+          regex       : "^Manual Review Required$"
+          item        : "bind .+"
+          severity    : MEDIUM
+        </item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "3.5.2 Configure FCoE Zoning"
+          info        : "Cisco uses a construction called a \"VSAN\" (analagous to a VLAN) which is used to restrict access between hosts and SAN resources.
+In restrictive cases, a typical VSAN will include two entries for the two host FCoE interfaces, and two entries for the SAN Controller interfaces (usually an FCoE SAN will have at least two). In the most restrictive case, the FCOE infrastructure will be split into two fabrics, and zones can hold as few as 2 entries (one for the host and one for the SAN controller on that fabric).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "Create a VSAN. Give it a meaningful name
+
+switch(config-if)# vsan database
+switch(config-vsan-db)# vsan 101
+switch(config-vsan-db)# vsan 101 name HOST_X_SAN_Y
+
+Create Virtual Fiber Channel Interfaces.
+
+switch(config)# interface vfc 1001
+switch(config-if)# bind mac-address 00:01:0b:00:00:02
+switch(config-if)# int vfc 1002
+switch(config-if)# bind mac-address 00:01:0b:00:00:08
+switch(config)# int vfc 1003
+switch(config-if)# bind interface e 1/4
+
+Add VFC interfaces to the VSAN
+
+switch(config-if)# vsan database
+switch(config-vsan-db)# vsan 101 interface vfc 1001
+switch(config-vsan-db)# vsan 101 interface vfc 1002
+switch(config-vsan-db)# vsan 101 interface vfc 1003
+
+Impact:
+
+This configuration limits the reconnaissance available to a compromised or malicious host. Without configuring Zoning, a compromised host can collect the FCoE information from all other hosts in the same VSAN. It can then use that information to impersonate any of these hosts, and access their respective LUNs (unless some other control prevents that).
+
+Note that in Virtualized environments and in most Cluster architectures, multiple hypervisor hosts will access the a common set of LUNs on the SAN. In these situations the VSAN can have significantly more members (all host interfaces as well as all target SAN controller interfaces), since the reconnaissance and impersonation risks are somewhat lessened - you would need a compromised hypervisor to attack another hypervisor. While this risk is non-zero, it is understood that hypervisors typically (hopefully) have more strict protections than many other physical hosts.
+
+In addition, risk occurs if different server operating systems are in play. The most common issue is that if a Windows host can mount a volume that is partitioned for Linux or VMware ESXi, Windows will ask a logged in administrator for permission to \"sign\" that volume. If the administrator selects \"Yes\", then that volume will no longer be readable by the Linux or ESXi host(s).
+
+At a minimum, hypervisors should not share a zone with other physical hosts. Physical hosts should not share zones with each other. Hosts with different operating systems or incompatible filesystems should never share the same zone. In the best case, the \"one host / one SAN controller / one zone\" rule is the safest approach."
+          reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|9,CSCv8|4.2,CSCv8|12.2,CSF|DE.AE-1,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T2.2.4,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+  </then>
+
+  <else>
+    <report type:"PASSED">
+      description : "3.5.2 Configure FCoE Zoning"
+      info        : "Cisco uses a construction called a \"VSAN\" (analagous to a VLAN) which is used to restrict access between hosts and SAN resources.
+In restrictive cases, a typical VSAN will include two entries for the two host FCoE interfaces, and two entries for the SAN Controller interfaces (usually an FCoE SAN will have at least two). In the most restrictive case, the FCOE infrastructure will be split into two fabrics, and zones can hold as few as 2 entries (one for the host and one for the SAN controller on that fabric)."
+      solution    : "Create a VSAN. Give it a meaningful name
+
+switch(config-if)# vsan database
+switch(config-vsan-db)# vsan 101
+switch(config-vsan-db)# vsan 101 name HOST_X_SAN_Y
+
+Create Virtual Fiber Channel Interfaces.
+
+switch(config)# interface vfc 1001
+switch(config-if)# bind mac-address 00:01:0b:00:00:02
+switch(config-if)# int vfc 1002
+switch(config-if)# bind mac-address 00:01:0b:00:00:08
+switch(config)# int vfc 1003
+switch(config-if)# bind interface e 1/4
+
+Add VFC interfaces to the VSAN
+
+switch(config-if)# vsan database
+switch(config-vsan-db)# vsan 101 interface vfc 1001
+switch(config-vsan-db)# vsan 101 interface vfc 1002
+switch(config-vsan-db)# vsan 101 interface vfc 1003
+
+Impact:
+
+This configuration limits the reconnaissance available to a compromised or malicious host. Without configuring Zoning, a compromised host can collect the FCoE information from all other hosts in the same VSAN. It can then use that information to impersonate any of these hosts, and access their respective LUNs (unless some other control prevents that).
+
+Note that in Virtualized environments and in most Cluster architectures, multiple hypervisor hosts will access the a common set of LUNs on the SAN. In these situations the VSAN can have significantly more members (all host interfaces as well as all target SAN controller interfaces), since the reconnaissance and impersonation risks are somewhat lessened - you would need a compromised hypervisor to attack another hypervisor. While this risk is non-zero, it is understood that hypervisors typically (hopefully) have more strict protections than many other physical hosts.
+
+In addition, risk occurs if different server operating systems are in play. The most common issue is that if a Windows host can mount a volume that is partitioned for Linux or VMware ESXi, Windows will ask a logged in administrator for permission to \"sign\" that volume. If the administrator selects \"Yes\", then that volume will no longer be readable by the Linux or ESXi host(s).
+
+At a minimum, hypervisors should not share a zone with other physical hosts. Physical hosts should not share zones with each other. Hosts with different operating systems or incompatible filesystems should never share the same zone. In the best case, the \"one host / one SAN controller / one zone\" rule is the safest approach."
+      reference   : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv7|9,CSCv8|4.2,CSCv8|12.2,CSF|DE.AE-1,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2,NESA|T2.2.4,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+    </report>
+  </else>
+</if>
+
+<report type:"WARNING">
+  description : "4.3 Configure Alerts on all Configuration Changes"
+  info        : "This is not easily implemented directly on the switch. Changes should ideally be backed up remotely, and a \"diff\" process to highlight any changes in successive configurations is a good process to implement.
+
+Change Control processes are ubiquitous in the industry. Especially with a text-based configuration such as most network devices have, it is easy to extract the exact changes from one version of the saved or running configuration to the next. This can then be correlated back to the change control process, to see:
+
+ - Did any and all approved changes get executed?
+ - Did any unapproved changes get executed?
+ - Relating this back to the syslogs created by named user logins, did the change happen within the correct window?
+ - Also relating back to the syslogs created by named user logins, did the correct person make the change? (see the AAA section, and named administrative users)
+ - Is there a pattern of any one or more administrators making unapproved or outside of window changes?
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "This is not a process that typically runs on the switch, there is no on-switch remediation.
+
+Impact:
+
+A formal change control process can manage conflicts in changes nicely, especially between disparate sections of the infrastructure. For instance, the situation where \"a server upgrade failed because the firewall changes interrupted the VPN session\" is much less likely to occur if all changes are reviewed in advance.
+
+In addition, changes made without planning tend to result in the \"testing in prod\" scenario, ending up with a much higher ratio of service interruptions."
+  reference   : "800-171|3.4.3,800-171r3|03.04.03,800-53|CM-3,800-53r5|CM-3,CN-L3|8.1.10.6(g),CSCv7|11.3,CSF|DE.CM-1,CSF|DE.CM-7,CSF|PR.IP-1,CSF|PR.IP-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-09,CSF2.0|ID.RA-07,CSF2.0|PR.PS-01,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.32,ISO-27001-2022|8.1,ISO-27001-2022|9.3.3,ISO/IEC-27001|A.12.1.2,ITSG-33|CM-3,LEVEL|2M,NESA|T3.2.3,NESA|T3.3.2,NESA|T7.5.1,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|CM1,NIAv2|CM1a,NIAv2|CM1b,NIAv2|CM1c,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|6.2,QCSC-v1|7.2,QCSC-v1|8.2.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/16139"
+</report>
+
+</check_type>

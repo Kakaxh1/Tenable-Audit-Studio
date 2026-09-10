@@ -1,0 +1,599 @@
+#TRUSTED 4fe6b32a80999f06788eda57722c428c13175bf8b4a10f6abe66c90fd9514b5fee0373a8b62810630e8bc7f718a2ef8ba9c91c36dbdc06a9cc8713c649259a3470258adbdf09ffb6832e6e3a28234d00ab5d29f96a027f1618332a55b868b6b30a355b71e32a794bdc2b0a0ab17c3ac3cd8e1a8ad8862604a6bb798edb75b838b2cec701e79aaa048f7c30e5709a4cdf55bf8f7c20925c054caac230a7914f4bd9e7aa630f0f214146559a6b270ee5a12317d807f66391105882ed2928a8bd910497e567bc5ab1b4f3ebda2e48852abbfe8af55436b349d5999e79bd6a1562ef994b5888a2d945ce5d36b3cf9566b5a703357d839b3b9de2f84ec5709ef3d3e421f6547e1a2ae2c062dd03fcb47f406d7958067e9e7697040ae6a72dcaf8f28a5432998001752a2361641b3a56c23eb03fad6bc8c78713093f431edd980254459cb3e927ac5c5915c9502798c9369ad75113d10240ee882d972a23c357a5c3da464fafe581d5a8c011592c6e834c854c7b5607700f1be006caa84742be03b6088c2420ae52a00eaacc88c2de7e6b9cd577aa4d1f464fe0e391c415b89099d8e10fe45c6b336cf10608ed43b718df17a6ca14da8b96e51520d227ea822cb765b3b84c25daac5f7b1db02db69062c9727601d90991968d4ac03c98056e1fb9f38641166e1617c078e2c7abfc1aabe46136e41390733c30a66072bad4565f5f59c7
+#TRUST-RSA-SHA256 8dcd35120acb2b92083da10140ce29b984259b9d2e19950c753131ce376843e6c7fc34c6fe808489f8f839c8100675481386074a40af09a5149338c8f51fbabc333d46ba3be2e3309ec6602638fd1953fecf47e5bdecfe715caa884e32f4d99b93238f5540632e35f8a13e434056bad7ab4c7bd0276e233737a43d822dd2d8236b3b317be5ecfe1ab88ec08d870c20fdc1274ef07d4ae972993e241214449fb4eb8c4a8ab03a3b16cbd92745841d5667d4215876b342f8cdb66e4b5d8a73206cb75ecd0111aa39a2da0f614eae27c1d5d579394483dcbfa6a68a77f7536751cce2ec6ef7fd48b74825f35532c6002512cbd8170689f33ce1c82aefc96a2d56815ecc635bae24dccdf1c12c1625b068b133cffa954eb765ec547847f33cd78eb046f87ed7622155bf12012c806935028c970fd24e71d6be0743878d3a894cc0b0969a35215edfbca9a0ae697b233da5bb92ce9085c9a9e3f4f309a5cdffa76b664538c43efba699227d005cb235c5d5b0604dc1fd53701bd21e1dfc7e98eca91dca0ad96aa28db646e7eaa41b92997982761eb6ddf2cd66020dcc05c3c3e4ac7c8e0b91e3c823df136089b98354b3a1f14707c1eb9eb6898ab1887092052258e3fabf9827959c9bbe6600a591fe0ad6bbc3b0e5cf877755c15ab31ede7c314d47bc790831c7e5aabcba6ee8e1fc0018dc5406b4c2d77b54288b5999abd36b0e26
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2025/12/19 $
+#
+# description : This .audit is designed against the DISA F5 BIG-IP TMOS VPN STIG v1r1
+#
+#<ui_metadata>
+#<display_name>DISA F5 BIG-IP TMOS VPN STIG v1r1</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>F5 BIG-IP TMOS VPN</name>
+#  <version>1.1.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip</link>
+#</spec>
+#<labels>cis,f5</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,Vuln-ID</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"F5">
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Perfect Forward Secrecy"
+      context     : "net ipsec ike-peer"
+      regex       : "(phase1-perfect-forward-secrecy|state)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Perfect Forward Secrecy"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[] | select(.state==\"enabled\") | \"\(.name): \(.phase1PerfectForwardSecrecy)\""
+      expect         : ".*: modp(409[6-9]|4[1-9][0-9][0-9]|[5-9][0-9]{3}|[1-9][0-9]{4,})$"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300004 - The F5 BIG-IP appliance must be configured to use a Diffie-Hellman (DH) Group of 16 or greater for Internet Key Exchange (IKE) Phase 1."
+      info        : "NIST cryptographic algorithms approved by NSA to protect NSS. Based on an analysis of the impact of quantum computing, cryptographic algorithms specified by CNSSP-15 and approved for use in products in the CSfC program, the approved algorithms have been changed to more stringent protocols configure with increased bit sizes and other secure characteristics to protect against quantum computing threats. The Commercial National Security Algorithm Suite (CNSA Suite) replaces Suite B.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IKE Peers.
+4. Click on the IKE Peer Name.
+5. In \"IKE Phase 1 Algorithms\", select \"MODP4096\" or higher for \"Perfect Forward Secrecy\".
+6. Click \"Update\"."
+      reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),CAT|I,CCI|CCI-000068,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-266277r1024911_rule,STIG-ID|F5BI-VN-300004,SWIFT-CSCv1|2.6,Vuln-ID|V-266277"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Encryption Algorithm"
+      context     : "net ipsec ike-peer"
+      regex       : "(phase1-encrypt-algorithm|state)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Encryption Algorithm"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[] | select(.state==\"enabled\") | \"\(.name): \(.phase1EncryptAlgorithm)\""
+      expect         : ".*: aes(25[6-9]|2[6-9][0-9]|[3-9][0-9][0-9]|[1-9][0-9]{3,})$"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300005 - The F5 BIG-IP appliance IPsec VPN Gateway must use AES256 or higher encryption for the Internet Key Exchange (IKE) proposal to protect confidentiality of remote access sessions."
+      info        : "Without confidentiality protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network.
+
+AES is the FIPS-validated cipher block cryptographic algorithm approved for use in DOD. For an algorithm implementation to be listed on a FIPS 140-2/140-3 cryptographic module validation certificate as an approved security function, the algorithm implementation must meet all the requirements of FIPS 140-2/140-3 and must successfully complete the cryptographic algorithm validation process. Currently, NIST has approved the following confidentiality modes to be used with approved block ciphers in a series of special publications: ECB, CBC, OFB, CFB, CTR, XTS-AES, FF1, FF3, CCM, GCM, KW, KWP, and TKW.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IKE Peers.
+4. Click on the Name of the IKE peer.
+5. Configure an AES256 encryption algorithm under IKE Phase 1 Algorithms >> Encryption Algorithm.
+6. Click \"Update\"."
+      reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),CAT|I,CCI|CCI-000068,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-266278r1024913_rule,STIG-ID|F5BI-VN-300005,SWIFT-CSCv1|2.6,Vuln-ID|V-266278"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for AES256"
+      context     : "net ipsec ipsec-policy"
+      regex       : "ike-phase2-encrypt-algorithm"
+      expect      : "ike-phase2-encrypt-algorithm aes-(gcm|gmac)(25[6-9]|2[6-9][0-9]|[3-9][0-9][0-9]|[1-9][0-9]{3,})$"
+      match_all   : YES
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for AES256"
+      f5_command     : "/tm/net/ipsec/ipsec-policy"
+      json_transform : ".items[] | \"\(.name): \(.ikePhase2EncryptAlgorithm)\""
+      expect         : ".*: aes-(gcm|gmac)(25[6-9]|2[6-9][0-9]|[3-9][0-9][0-9]|[1-9][0-9]{3,})$"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300006 - The F5 BIG-IP appliance IPsec VPN must use AES256 or greater encryption for the IPsec proposal."
+      info        : "Without confidentiality protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network.
+
+A block cipher mode is an algorithm that features the use of a symmetric key block cipher algorithm to provide an information service, such as confidentiality or authentication.
+
+AES is the FIPS-validated cipher block cryptographic algorithm approved for use in DOD. For an algorithm implementation to be listed on a FIPS 140-2/140-3 cryptographic module validation certificate as an approved security function, the algorithm implementation must meet all the requirements of FIPS 140-2/140-3 and must successfully complete the cryptographic algorithm validation process. Currently, NIST has approved the following confidentiality modes to be used with approved block ciphers in a series of special publications: ECB, CBC, OFB, CFB, CTR, XTS-AES, FF1, FF3, CCM, GCM, KW, KWP, and TKW."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IPsec Policies.
+4. Click on the name of the IPsec Policy.
+5. Configure AES256 or greater encryption algorithm.
+6. Click \"Update\"."
+      reference   : "800-171|3.1.13,800-171r3|03.13.08,800-53|AC-17(2),800-53r5|AC-17(2),CAT|I,CCI|CCI-000068,CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,CSF2.0|PR.AA-05,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.6.7,ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-266279r1024915_rule,STIG-ID|F5BI-VN-300006,SWIFT-CSCv1|2.6,Vuln-ID|V-266279"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for IPsec Protocol"
+      context     : "net ipsec ipsec-policy"
+      regex       : "protocol"
+      expect      : "protocol esp"
+      match_all   : YES
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for IPsec Protocol"
+      f5_command     : "/tm/net/ipsec/ipsec-policy"
+      json_transform : ".items[] | \"\(.name): \(.protocol)\""
+      expect         : ".*: esp"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300009 - The F5 BIG-IP appliance IPsec VPN must ensure inbound and outbound traffic is configured with a security policy."
+      info        : "Unrestricted traffic may contain malicious traffic which poses a threat to an enclave or to other connected networks. Additionally, unrestricted traffic may transit a network, which uses bandwidth and other resources.
+
+VPN traffic received from another enclave with different security policy or level of trust must not bypass be inspected by the firewall before being forwarded to the private network."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IPsec Policies.
+4. Click on IPsec Policy for site to site IPsec.
+5. Select \"ESP\" in the IPsec Protocol section.
+6. Click \"Update\"."
+      reference   : "800-171|3.1.3,800-171r3|03.01.03,800-53|AC-4,800-53r5|AC-4,CAT|I,CCI|CCI-001414,CN-L3|8.1.10.2(c),CSF|DE.AE-1,CSF|ID.AM-3,CSF|PR.AC-4,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.22,ITSG-33|AC-4,NESA|T4.2.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.6,NESA|T5.7.2,NESA|T7.5.2,NESA|T7.6.4,NIAv2|GS11a,NIAv2|GS12a,NIAv2|GS14a,NIAv2|GS15a,NIAv2|GS16a,NIAv2|NS13a,NIAv2|NS13b,NIAv2|NS13c,NIAv2|NS14,NIAv2|SS23,NIAv2|SS27a,NIAv2|SS27b,NIAv2|SS32,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,Rule-ID|SV-266280r1024917_rule,STIG-ID|F5BI-VN-300009,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.4,Vuln-ID|V-266280"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Manual Security Associations"
+      context     : "net ipsec manual-security-association"
+      not_expect  : ".*"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Manual Security Associations"
+      f5_command     : "/tm/net/ipsec/manual-security-association"
+      json_transform : ".items[]"
+      not_expect     : ".*"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300021 - The F5 BIG-IP appliance IPsec VPN Gateway must use Internet Key Exchange (IKE) for IPsec VPN Security Associations (SAs)."
+      info        : "Without IKE, the SPI is manually specified for each security association. IKE peers will negotiate the encryption algorithm and authentication or hashing methods as well as generate the encryption keys.
+
+An IPsec SA is established using either IKE or manual configuration. When using IKE, the security associations are established when needed and expire after a period of time or volume of traffic threshold. If manually configured, they are established as soon as the configuration is complete at both end points and they do not expire. When using IKE, the Security Parameter Index (SPI) for each security association is a pseudo-randomly derived number.
+
+With manual configuration of the IPsec security association, both the cipher key and authentication key are static. Hence, if the keys are compromised, the traffic being protected by the current IPsec tunnel can be decrypted as well as traffic in any future tunnels established by this SA. Furthermore, the peers are not authenticated prior to establishing the SA, which could result in a rogue device establishing an IPsec SA with either of the VPN end points.
+
+IKE provides primary authentication to verify the identity of the remote system before negotiation begins. This feature is lost when the IPsec security associations are manually configured, which results in a nonterminating session using static pre-shared keys."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. Manual Security Associations.
+4. Delete any entries in this list."
+      reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-266281r1024756_rule,STIG-ID|F5BI-VN-300021,SWIFT-CSCv1|2.3,Vuln-ID|V-266281"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Version"
+      context     : "net ipsec ike-peer"
+      regex       : "(version|state)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Version"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[] | select(.state==\"enabled\") | \"\(.name): \(.version[])\""
+      expect         : ".*: v2"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300024 - The IPsec BIG-IP appliance must use IKEv2 for IPsec VPN security associations."
+      info        : "To prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types); organizations must disable or restrict unused or unnecessary physical and logical ports/protocols on information systems.
+
+Use of IKEv2 leverages denial of service (DoS) protections because of improved bandwidth management and leverages more secure encryption algorithms.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IKE Peers.
+4. Click on the name of the IKE peer.
+5. Select \"Version 2\" for \"Version\".
+6. Click \"Update\"."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CAT|II,CCI|CCI-000382,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-266282r1024757_rule,STIG-ID|F5BI-VN-300024,SWIFT-CSCv1|2.3,Vuln-ID|V-266282"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Lifetime"
+      context     : "net ipsec ike-peer"
+      regex       : "[\s]+lifetime"
+      expect      : "lifetime ([1-9]|[1-9][0-9]|[1-3][0-9][0-9]|4[0-7][0-9]|480)$"
+      match_all   : YES
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Lifetime"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[] | \"\(.name): \(.lifetime)\""
+      expect         : ".*: ([1-9]|[1-9][0-9]|[1-3][0-9][0-9]|4[0-7][0-9]|480)$"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300025 - The F5 BIG-IP appliance IPsec VPN Gateway must renegotiate the IPsec Phase 1 security association after eight hours or less."
+      info        : "The IPsec security association (SA) and its corresponding key will expire either after the number of seconds or amount of traffic volume has exceeded the configured limit. A new SA is negotiated before the lifetime threshold of the existing SA is reached to ensure that a new SA is ready for use when the old one expires. The longer the lifetime of the IPsec SA, the longer the lifetime of the session key used to protect IP traffic. The SA is less secure with a longer lifetime because an attacker has a greater opportunity to collect traffic encrypted by the same key and subject it to cryptanalysis. However, a shorter lifetime causes IPsec peers to renegotiate Phase II more often resulting in the expenditure of additional resources.
+
+Specify the lifetime (in seconds) of an Internet Key Exchange (IKE) SA. When the SA expires, it is replaced by a new SA, the security parameter index (SPI), or terminated if the peer cannot be contacted for renegotiation."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IKE Peers.
+4. Click on the Name of the IKE peer.
+5. Configure the value for \"Lifetime\" under \"IKE Phase 1 Algorithms\" to 480 minutes or less, or an organization-defined time period.
+6. Click \"Update\"."
+      reference   : "800-171r3|03.05.01b.,800-53|IA-11,800-53r5|IA-11,CAT|II,CCI|CCI-002038,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),QCSC-v1|13.2,Rule-ID|SV-266283r1024758_rule,STIG-ID|F5BI-VN-300025,Vuln-ID|V-266283"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Lifetime"
+      context     : "net ipsec ipsec-policy"
+      regex       : "ike-phase2-lifetime "
+      expect      : "ike-phase2-lifetime ([1-9]|[1-9][0-9]|[1-3][0-9][0-9]|4[0-7][0-9]|480)$"
+      match_all   : YES
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Lifetime"
+      f5_command     : "/tm/net/ipsec/ipsec-policy"
+      json_transform : ".items[] | \"\(.name): \(.ikePhase2Lifetime)\""
+      expect         : ".*: ([1-9]|[1-9][0-9]|[1-3][0-9][0-9]|4[0-7][0-9]|480)$"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300026 - The F5 BIG-IP appliance IPsec VPN must renegotiate the IKE Phase 2 security association after eight hours or less."
+      info        : "When a VPN gateway creates an IPsec Security Association (SA), resources must be allocated to maintain the SA. These resources are wasted during periods of IPsec endpoint inactivity, which could result in the gateway's inability to create new SAs for other endpoints, thereby preventing new sessions from connecting. The Internet Key Exchange (IKE) idle timeout may also be set to allow SAs associated with inactive endpoints to be deleted before the SA lifetime has expired, although this setting is not recommended at this time. The value of one hour or less is a common best practice."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IPsec Policies.
+4. Click on the name of the IPsec Policy.
+5. Configure the value for \"Lifetime\" under \"IKE Phase 2\" to 480 minutes or less.
+6. Click \"Update\"."
+      reference   : "800-171r3|03.05.01b.,800-53|IA-11,800-53r5|IA-11,CAT|II,CCI|CCI-002038,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),QCSC-v1|13.2,Rule-ID|SV-266284r1024759_rule,STIG-ID|F5BI-VN-300026,Vuln-ID|V-266284"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Authentication Algorithm"
+      context     : "net ipsec ike-peer"
+      regex       : "(phase1-hash-algorithm|state)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Authentication Algorithm"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[] | select(.state==\"enabled\") | \"\(.name): \(.phase1HashAlgorithm)\""
+      expect         : ".*: sha(25[6-9]|2[6-9][0-9]|[3-9][0-9][0-9]|[1-9][0-9]{3,})$"
+      match_all      : YES
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300033 - For accounts using password authentication, the F5 BIG-IP appliance site-to-site IPsec VPN Gateway must use SHA-2 or later protocol to protect the integrity of the password authentication process."
+      info        : "Passwords need to be protected at all times, and encryption is the standard method for protecting passwords. If passwords are not encrypted, they can be plainly read (i.e., clear text) and easily compromised. Use of passwords for authentication is intended only for limited situations and must not be used as a replacement for two-factor CAC-enabled authentication.
+
+Although allowed by SP800-131Ar2 for some applications, SHA-1 is considered a compromised hashing standard and is being phased out of use by industry and government standards. Unless required for legacy use, DOD systems must not be configured to use SHA-2 for integrity of remote access sessions.
+
+The information system must specify the hash algorithm used for authenticating passwords. Implementation of this requirement requires configuration of FIPS-approved cipher block algorithm and block cipher modes for encryption.
+
+Pre-shared key cipher suites may only be used in networks where both the client and server belong to the same organization. Cipher suites using pre-shared keys must not be used with TLS 1.0 or 1.1 and must not be used with TLS 1.2 when a government client or server communicates with nongovernment systems.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IKE Peers.
+4. Click on the Name of the IKE peer.
+5. Configure the value for \"Authentication Algorithm\" under \"IKE Phase 1 Algorithms\" to \"SHA-256\" or higher.
+6. Click \"Update\"."
+      reference   : "800-171|3.5.10,800-171r3|03.05.07c.,800-53|IA-5(1)(c),800-53r5|IA-5(1)(c),CAT|I,CCI|CCI-000197,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(1)(c),NESA|T5.2.3,NIAv2|CY6,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-266285r1024760_rule,STIG-ID|F5BI-VN-300033,SWIFT-CSCv1|4.1,TBA-FIISB|26.1,Vuln-ID|V-266285"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for IKE peer"
+      context     : "net ipsec ike-peer"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for IPsec Policy"
+      context     : "net ipsec ipsec-policy"
+      regex       : ".*"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for IKE peer"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[]"
+      expect         : "^Manual Review Required$"
+      severity       : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for IPsec Policy"
+      f5_command     : "/tm/net/ipsec/ipsec-policy"
+      json_transform : ".items[]"
+      expect         : "^Manual Review Required$"
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300040 - The F5 BIG-IP appliance IPsec VPN must use cryptographic algorithms approved by NSA to protect NSS when transporting classified traffic across an unclassified network."
+      info        : "Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data. The VPN gateway must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated.
+
+NIST cryptographic algorithms approved by NSA to protect NSS. Based on an analysis of the impact of quantum computing, cryptographic algorithms specified by CNSSP-15 and approved for use in products in the CSfC program, the approved algorithms have been changed to more stringent protocols configure with increased bit sizes and other secure characteristics to protect against quantum computing threats. The Commercial National Security Algorithm Suite (CNSA Suite) replaces Suite B.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IKE Peers.
+4. Click on the name of the IKE peer.
+5. Configure \"IKE Phase 1 Algorithms\" to use cryptographic algorithms approved by NSA to protect NSS when transporting classified traffic across an unclassified network.
+6. Click \"Update\".
+
+From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IPsec Policies.
+4. Click on the name of the IPsec Policy.
+5. Configure \"IKE Phase 2\" to use cryptographic algorithms approved by NSA to protect NSS when transporting classified traffic across an unclassified network.
+6. Click \"Update\"."
+      reference   : "800-171|3.13.11,800-171r3|03.13.11,800-53|SC-13,800-53r5|SC-13b.,CAT|I,CCI|CCI-002450,CSF|PR.DS-5,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.8.24,ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2,Rule-ID|SV-266286r1024761_rule,STIG-ID|F5BI-VN-300040,Vuln-ID|V-266286"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Authentication Algorithm"
+      context     : "net ipsec ike-peer"
+      regex       : "(phase1-hash-algorithm|state)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for IKE peer Pseudo-Random Function"
+      context     : "net ipsec ike-peer"
+      regex       : "(prf|state)"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for IPsec Policy"
+      context     : "net ipsec ipsec-policy"
+      regex       : "ike-phase2-auth-algorithm"
+      not_expect  : "ike-phase2-auth-algorithm sha1$"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for IKE peer Authentication Algorithm"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[] | select(.state==\"enabled\") | \"\(.name): \(.phase1HashAlgorithm)\""
+      not_expect     : ".*: (sha1|md5)$"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for IKE peer Pseudo-Random Function"
+      f5_command     : "/tm/net/ipsec/ike-peer"
+      json_transform : ".items[] | select(.state==\"enabled\") | \"\(.name): \(.prf)\""
+      not_expect     : ".*: (sha1|md5)$"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for IPsec Policy"
+      f5_command     : "/tm/net/ipsec/ipsec-policy"
+      json_transform : ".items[] | \"\(.name): \(.ikePhase2AuthAlgorithm)\""
+      not_expect     : ".*: sha1$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300041 - The F5 BIG-IP appliance IPsec VPN must be configured to use FIPS-validated SHA-2 or higher for Internet Key Exchange (IKE)."
+      info        : "Without cryptographic integrity protections, information can be altered by unauthorized users without detection.
+
+Although allowed by SP800-131Ar2 for some applications, SHA-1 is considered a compromised hashing standard and is being phased out of use by industry and government standards. Unless required for legacy use, DOD systems must not be configured to use SHA-2 for integrity of remote access sessions.
+
+This requirement is applicable to the configuration of IKE Phase 1 and Phase 2.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IKE Peers.
+4. Click on the name of the IKE peer.
+5. Configure SHA-2 or higher for the following:
+IKE Phase 1 Algorithms >> Authentication Algorithm
+IKE Phase 1 Algorithms >> Pseudo-Random Function
+6. Click \"Update\".
+
+From the BIG-IP GUI:
+1. Network.
+2. IPsec.
+3. IPsec Policies.
+4. Click the name of the IPsec Policy.
+5. Configure SHA-2 or higher for the following:
+IKE Phase 2 >> Authentication Algorithm
+6. Click \"Update\"."
+      reference   : "800-171|3.13.15,800-171r3|03.13.15,800-53|SC-23,800-53r5|SC-23,CAT|I,CCI|CCI-001184,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-266287r1024762_rule,STIG-ID|F5BI-VN-300041,Vuln-ID|V-266287"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type        : OFFLINE_CONFIG_CHECK
+      description : "Check offline config for Perfect Forward Secrecy"
+      context     : "net ipsec ipsec-policy"
+      regex       : "ike-phase2-perfect-forward-secrecy"
+      not_expect  : "ike-phase2-perfect-forward-secrecy none"
+    </custom_item>
+
+    <custom_item>
+      description    : "Check REST API for Perfect Forward Secrecy"
+      f5_command     : "/tm/net/ipsec/ipsec-policy"
+      json_transform : ".items[] | \"\(.name): \(.ikePhase2PerfectForwardSecrecy)\""
+      not_expect     : ".*: none"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "F5BI-VN-300044 - The F5 BIG-IP appliance IPsec VPN Gateway must specify Perfect Forward Secrecy (PFS) during Internet Key Exchange (IKE) negotiation."
+      info        : "PFS generates each new encryption key independently from the previous key. Without PFS, compromise of one key will compromise all communications.
+
+The phase 2 (Quick Mode) Security Association (SA) is used to create an IPsec session key. Hence, its rekey or key regeneration procedure is very important. The phase 2 rekey can be performed with or without PFS. With PFS, every time a new IPsec Security Association is negotiated during the Quick Mode, a new Diffie-Hellman (DH) exchange occurs. The new DH shared secret will be included with original keying material (SYKEID_d, initiator nonce, and responder nonce) from phase 1 for generating a new IPsec session key. If PFS is not used, the IPsec session key will always be completely dependent on the original keying material from the Phase-1. Hence, if an older key is compromised at any time, it is possible that all new keys may be compromised.
+
+The DH exchange is performed in the same manner as was done in phase 1 (Main or Aggressive Mode). However, the phase 2 exchange is protected by encrypting the phase 2 packets with the key derived from the phase 1 negotiation. Because DH negotiations during phase 2 are encrypted, the new IPsec session key has an added element of secrecy."
+      solution    : "From the BIG-IP GUI:
+1. Network
+2. IPsec.
+3. IPsec Policies.
+4. Click on the name of the IPsec Policy.
+5. Select any value other than \"NONE\" in \"IKE Phase 2 >> Perfect Forward Secrecy\".
+6. Click \"Update\"."
+      reference   : "800-171|3.13.8,800-171r3|03.13.08,800-53|SC-8,800-53r5|SC-8,CAT|II,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,CSF2.0|PR.DS-02,DISA_Benchmark|F5_BIG-IP_TMOS_VPN_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.20,ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-266288r1024921_rule,STIG-ID|F5BI-VN-300044,Vuln-ID|V-266288"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_F5_BIG-IP_TMOS_Y24M09_STIG.zip"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+</check_type>

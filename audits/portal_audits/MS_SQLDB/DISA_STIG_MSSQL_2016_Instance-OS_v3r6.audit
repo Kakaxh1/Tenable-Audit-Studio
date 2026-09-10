@@ -1,0 +1,823 @@
+#TRUSTED 86f1c12946c2268ee3c3fc17a6ee95beffd6dda7b0a7c55384e0df927cdcd8f641fe7d057f2ef998c82f203bf1de3722bf7fc9321d61a18cecb30fea3a22f4034a857e1b7200c2b0743d2529d7ea72e875d4ab35a72ac3178795ca50671e0f2050097b4f47643fe329fad694e2224475e6862505745834ee654f7f18c319fcecc46cf443f2c004446a61023db6a19f861e14098ef79d3f092f0ef3b3d2276b4f4f5d3a2c702e7027615d9d741f4da3eeae5047c3506e01868b69d01070c7d3fa2a9aca204f593153583bc44ad8da0bd78ed19e02a95cc5592ff77dff1a3299496090ea2c523246438f8067ff632b1170bd8532b77d464ffda566f732c5f28dcb0dc1072d3efd850d0e11802c616d1b99389a1e7546458d2d8741a3846aa1e42bbbb0304f86ba590caea74cb33ba5ec1e0592d87ca5017fabbdd75243ca046eb4467144a598743aa9f2b6cb13a0fe381f6461fdefc88a41e3b4cb78a90950a8bc12fb28b78f8ba8726d26d9ed15131e5e2fa2fd2428e818fa9a2a06d3cdfcf7bc17d012afae4d9f185db2c0b721cb4862f50ceefdf19d4de527b716a1ff98b36788ccdd417d25713a5f7c2271f90f840df7fe5d2009a6f87a9bd10836bcf7017b83c1ac98ce787508926881753b244aa89bac8d971be98d74e586ee096a4a20efe5e7a58d06d763008d827e50862ae49e0bc49f5cd35f2db15651f974f32aefad
+#TRUST-RSA-SHA256 73d7651dbf08f07b75d7c5df45b8413c764d79306fcbe230833c8962dd21144e8a693a6e57d0cc4f2c10c23646ff8b436106a919178cb8c4be39cfd98275dad174bbecbae13be813fc0424dec36d15186b60c3f4d00f570a9381d3a8480dbef317b4346c8db80e84d3eefdd72e49e436461ebcd7867b460ea5b9696d2e1cf33ad6a2faeca5c5cf8454fd5d7c7521cbe48d194a906d76e07b9851efc7c18ae38b1113ee26820f96f49efa616ed04e6597f84fbb36238c37e00b01b5974196dc3e615e60f79614dd0ece570d66ba8ab3f6d3198a113e3b60ea3150bd1c9a562e3f1481efcdf2a0d119eb3941b8be4c8c1c02e631e8e100e0f3370fadb0ac06c01acb2bbfee23429a78968ebacf1ce608889bd5edd825725c316901ca15a634f63106def70308f4dd684226131691cea23148f9cc8ca6c90519a6410744380c76ce6dba3e5a4d9750b46228d1740fd683dafbfa0d8726395315bf5b878bdc1cdde7e2978ecdb066b37a4edbe61c47ce629531a404e1262b854dc030706765dbbb3109ed0e08b9ec55d363a9af9079807668b13ef3b74b3a0cff1eb4e8608256424c98e4fc7e82722b2a240f0c7ccdb227e6c34b7be32a8885cc533eab962431461083b4db03c26d5f20f87f25f3be2749cd6292c58e9cc49833406edceb922785b0c96237c03573da3df5ff199b9ac064eda804e63aa8dfa86e4d55d7d2919e4649
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2026/06/02 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA MS SQL Server 2016 Instance v3r6 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA MS SQL Server 2016 Instance STIG v3r6 Windows</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>MS SQL Server 2016 Instance</name>
+#  <profile>OS Windows</profile>
+#  <version>3.6.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip</link>
+#</spec>
+#<labels>database,disa,ms_sql_server_2016,ms_sql_server</labels>
+#<benchmark_refs>CAT,CCI,DISA_Benchmark,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>INSTANCE_ID</name>
+#    <default>MSSQLSERVER</default>
+#    <description>SQL Instance ID</description>
+#    <info>This is used to identify installation directories and registry keys for your instance of SQL Server.</info>
+#    <value_type>WIN_REG</value_type>
+#  </variable>
+#  <variable>
+#    <name>SQL_SERVICE_SID</name>
+#    <default>NT SERVICE\MSSQLSERVER</default>
+#    <description>Service Security Identifier</description>
+#    <info>The SID associated SQL Server service.</info>
+#    <value_type>WIN_ACCT</value_type>
+#  </variable>
+#  <variable>
+#    <name>TELEMETRY_PATH</name>
+#    <default>C:\Program Files\Microsoft SQL Server\Telemetry</default>
+#    <description>SQL Telemetery Directory</description>
+#    <info>The Telemetry path can be found under the UserRequestedLocalAuditDirectory registry key.</info>
+#    <value_type>WIN_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>SQL_VERSION</name>
+#    <default>130</default>
+#    <description>SQL Server Internal Version</description>
+#    <info>Internal version number</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"DISA STIG SQL Server 2016 Instance OS audit">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : REG_CHECK
+      description : "Check for Microsoft SQL Server Installation"
+      value_type  : POLICY_TEXT
+      value_data  : "HKLM\SOFTWARE\Microsoft\Microsoft SQL Server\@SQL_VERSION@"
+      reg_option  : MUST_EXIST
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_MSSQL_2016_Instance-OS_v3r6.audit from DISA MS SQL Server 2016 Instance v3r6 STIG"
+      info        : "Nessus has identified that Windows is installed."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SQL6-D0-003800 - SQL Server must be configured to utilize the most-secure authentication method available."
+      info        : "Enterprise environments make account management for applications and databases challenging and complex. A manual process for account management functions adds the risk of a potential oversight or other error. Managing accounts for the same person in multiple places is inefficient and prone to problems with consistency and synchronization.
+
+A comprehensive application account management process that includes automation helps to ensure that accounts designated as requiring attention are consistently and promptly addressed.
+
+Examples include, but are not limited to, using automation to take action on multiple accounts designated as inactive, suspended, or terminated, or by disabling accounts located in non-centralized account stores, such as multiple servers. Account management functions can also include: assignment of group or role membership; identifying account type; specifying user access authorizations (i.e., privileges); account removal, update, or termination; and administrative alerts. The use of automated mechanisms can include, for example: using email or text messaging to notify account managers when users are terminated or transferred; using the information system to monitor account usage; and using automated telephone notification to report atypical system account usage.
+
+SQL Server must be configured to automatically utilize organization-level account management functions, and these functions must immediately enforce the organization's current account policy.
+
+Automation may be comprised of differing technologies that when placed together contain an overall mechanism supporting an organization's automated account management requirements.
+
+SQL Server supports several authentication methods to allow operation in various environments, Kerberos, NTLM, and SQL Server. An instance of SQL Server must be configured to utilize the most-secure method available. Service accounts utilized by SQL Server should be unique to a given instance.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Ensure Service Principal Names (SPNs) are properly registered for the SQL Server instance.
+
+Utilize the Microsoft Kerberos Configuration Manager to review Kerberos configuration issues for a given SQL Server instance.
+
+https://www.microsoft.com/en-us/download/details.aspx?id=39046
+
+Alternatively, SPNs for SQL Server can be manually registered.
+
+For other connections that support Kerberos the SPN is registered in the format MSSQLSvc/<FQDN>/<instancename> for a named instance. The format for registering the default instance is MSSQLSvc/<FQDN>.
+
+Using an account with permissions to register SPNs, issue the following commands from a command-prompt:
+
+setspn -S MSSQLSvc/<Fully Qualified Domain Name> <Service Account>
+setspn -S MSSQLSvc/<Fully Qualified Domain Name>:<TCP Port> <Service Account>
+For a named instance, use:
+setspn -S MSSQLSvc/<FQDN>:<instancename> <Service Account>
+setspn -S MSSQLSvc/<FQDN>:<TCP Port> <Service Account>
+
+Restart the SQL Server instance.
+
+More information regarding this process is available at:
+https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/register-a-service-principal-name-for-kerberos-connections#Manual"
+      reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53r5|AC-2(1),CAT|II,CCI|CCI-000015,CN-L3|7.1.3.2(d),CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-213931r1043176_rule,STIG-ID|SQL6-D0-003800,STIG-Legacy|SV-93829,STIG-Legacy|V-79123,Vuln-ID|V-213931"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SQL6-D0-004000 - SQL Server must protect against a user falsely repudiating by ensuring all accounts are individual, unique, and not shared."
+      info        : "Nonrepudiation of actions taken is required to maintain data integrity. Examples of particular actions taken by individuals include creating information, sending a message, approving information (e.g., indicating concurrence or signing a contract), and receiving a message.
+
+Nonrepudiation protects against later claims by a user of not having created, modified, or deleted a particular data item or collection of data in the database.
+
+In designing a database, the organization must define the types of data and the user actions that must be protected from repudiation. The implementation must then include building audit features into the application data tables and configuring SQL Server's audit tools to capture the necessary audit trail. Design and implementation also must ensure that applications pass individual user identification to SQL Server, even where the application connects to SQL Server with a standard, shared account.
+
+Satisfies: SRG-APP-000080-DB-000063, SRG-APP-000815-DB-000160
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Remove user-accessible shared accounts and use individual user IDs.
+
+Build/configure applications to ensure successful individual authentication prior to shared account access.
+
+Ensure each user's identity is received and used in audit data in all relevant circumstances.
+
+Design, develop, and implement a method to log use of any account to which more than one person has access. Restrict interactive access to shared accounts to the fewest persons possible."
+      reference   : "800-53|AU-10,800-53r5|AU-10,CAT|II,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-213933r1167475_rule,STIG-ID|SQL6-D0-004000,STIG-Legacy|SV-93833,STIG-Legacy|V-79127,Vuln-ID|V-213933"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "SQL6-D0-006700 - SQL Server software installation account must be restricted to authorized users."
+      info        : "When dealing with change control issues, it should be noted any changes to the hardware, software, and/or firmware components of the information system and/or application can have significant effects on the overall security of the system.
+
+If the system were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals that are part of a robust change management process. Accordingly, only qualified and authorized individuals must be allowed access to information system components for purposes of initiating changes, including upgrades and modifications.
+
+DBA and other privileged administrative or application owner accounts are granted privileges that allow actions that can have a great impact on SQL Server security and operation. It is especially important to grant privileged access to only those persons who are qualified and authorized to use them.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "From a command prompt, open lusrmgr.msc. Navigate to Users and right-click Individual User. Select Properties >> Member Of.
+
+Configure SQL Server and OS settings and access controls to restrict user access to objects and data that the user is authorized to view/use."
+      reference   : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(6),800-53r5|CM-5(6),CAT|I,CCI|CCI-001499,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(6),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-213952r960960_rule,STIG-ID|SQL6-D0-006700,STIG-Legacy|SV-93873,STIG-Legacy|V-79167,Vuln-ID|V-213952"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+    </report>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "SQL6-D0-006800 - Database software, including DBMS configuration files, must be stored in dedicated directories, separate from the host OS and other applications."
+      info            : "When dealing with change control issues, it should be noted any changes to the hardware, software, and/or firmware components of the information system and/or application can potentially have significant effects on the overall security of the system.
+
+Multiple applications can provide a cumulative negative effect. A vulnerability and subsequent exploit to one application can lead to an exploit of other applications sharing the same security context. For example, an exploit to a web server process that leads to unauthorized administrative access to host system directories can most likely lead to a compromise of all applications hosted by the same system. Database software not installed using dedicated directories both threatens and is threatened by other hosted applications. Access controls defined for one application may by default provide access to the other application's database objects or directories. Any method that provides any level of separation of security context assists in the protection between applications.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Re-install SQL Server application components using dedicated directories that are separate from the operating system.
+
+Relocate or reinstall other application software that currently shares directories with SQL Server components.
+
+Separate from the operating system and/or temporary storage."
+      reference       : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(6),800-53r5|CM-5(6),CAT|II,CCI|CCI-001499,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(6),NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2,Rule-ID|SV-213953r960960_rule,STIG-ID|SQL6-D0-006800,STIG-Legacy|SV-93875,STIG-Legacy|V-79169,Vuln-ID|V-213953"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : "Manual Review Required"
+      powershell_args : "get-itemproperty -path 'hklm:\software\microsoft\microsoft sql server' -name 'installedinstances' | select installedinstances | format-list"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "SQL6-D0-007600 - SQL Server must be configured to prohibit or restrict the use of organization-defined protocols as defined in the Ports, Protocols, and Services Management (PPSM) Category Assurance List (CAL) and vulnerability assessments."
+      info        : "To prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable or restrict unused or unnecessary protocols on information systems.
+
+Applications are capable of providing a wide variety of functions and services. Some of the functions and services provided by default may not be necessary to support essential organizational operations. Additionally, it is sometimes convenient to provide multiple services from a single component (e.g., email and web services); however, doing so increases risk over limiting the services provided by any one component.
+
+To support the requirements and principles of least functionality, the application must support the organizational requirements providing only essential capabilities and limiting the use of protocols to only those required, authorized, and approved to conduct official business or to address authorized quality of life issues.
+
+SQL Server using protocols deemed unsafe is open to attack through those protocols. This can allow unauthorized access to the database and through the database to other components of the information system.
+
+Satisfies: SRG-APP-000142-DB-000094, SRG-APP-000383-DB-000364"
+      solution    : "In SQL Server Configuration Manager >> SQL Server Network Configuration >> Protocols, right-click each listed protocol that is enabled but not authorized and Select 'Disable'."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-171r3|03.04.06b.,800-53|CM-7b.,800-53r5|CM-7b.,CAT|II,CCI|CCI-000382,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-213961r1167480_rule,STIG-ID|SQL6-D0-007600,STIG-Legacy|SV-93891,STIG-Legacy|V-79185,SWIFT-CSCv1|2.3,Vuln-ID|V-213961"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : "0"
+      reg_key     : "HKLM\SOFTWARE\Microsoft\Microsoft SQL Server\@INSTANCE_ID@\MSSQLServer\SuperSocketNetLib\Np"
+      reg_item    : "Enabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.2 Client Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.2 Client DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.2 Server Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.2 Server DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.0 Client Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.0 Client DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.0 Server Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.0 Server DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.1 Client Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.1 Client DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.1 Server Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "TLS 1.1 Server DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 2.0 Client Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 2.0 Client DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 2.0 Server Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 2.0 Server DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 3.0 Client Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 3.0 Client DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 3.0 Server Enabled"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server"
+          reg_item    : "Enabled"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "SSL 3.0 Server DisabledByDefault"
+          value_type  : POLICY_DWORD
+          value_data  : 1
+          reg_key     : "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server"
+          reg_item    : "DisabledByDefault"
+          reg_option  : CAN_NOT_BE_NULL
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "SQL6-D0-008300 - Confidentiality of information during transmission is controlled through the use of an approved TLS version."
+          info        : "Transport Layer Security (TLS) encryption is a required security setting as a number of known vulnerabilities have been reported against Secure Sockets Layer (SSL) and earlier versions of TLS. Encryption of private information is essential to ensuring data confidentiality. If private information is not encrypted, it can be intercepted and easily read by an unauthorized party. SQL Server must use a FIPS-approved minimum TLS version 1.2, and all non-FIPS-approved SSL and TLS versions must be disabled. NIST SP 800-52 Rev.2 specifies the preferred configurations for government systems.
+
+References:
+TLS Support 1.2 for SQL Server: https://support.microsoft.com/en-us/kb/3135244
+TLS Registry Settings:  https://docs.microsoft.com/en-us/windows-server/security/tls/tls-registry-settings"
+          solution    : "Important Note: Incorrectly modifying the Windows Registry can result in serious system errors. Before making any modifications, ensure you have a recent backup of the system and registry settings.
+
+Access the SQL Server.
+Access an administrator command prompt.
+Type 'regedit' to launch the Registry Editor.
+
+Enable TLS 1.2:
+
+1.Navigate to the path HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols.
+   a.If the 'TLS 1.2' key does not exist, right-click 'Protocols'.
+   b.Click 'New'.
+   c.Click 'Key'.
+   d.Type the name 'TLS 1.2'.
+
+2.Navigate to the 'TLS 1.2' subkey.
+   a.If the subkey 'Client' does not exist, right-click 'TLS 1.2'
+   b.Click 'New'.
+   c.Click 'Key'.
+   d.Type the name 'Client'.
+   e.Repeat steps A - D for the 'Server' subkey.
+
+3.Navigate to the 'Client' subkey.
+   a.If the value 'Enabled' does not exist, right-click on 'Client'.
+   b.Click 'New'.
+   c.Click 'DWORD'.
+   d.Enter 'Enabled' as the name.
+   e.Repeat steps A-D for the value 'DisabledByDefault'.
+
+4.Double-click 'Enabled'.
+
+5.In Value Data, enter '1'.
+
+6.Click 'OK'.
+
+7.Double-click 'DisabledByDefault'.
+
+8.In Value Data, enter '0'.
+
+9.Click 'OK'.
+
+10.Repeat steps 3 - 9 for the 'Server' subkey.
+
+
+Disable unwanted SSL/TLS protocol versions:
+
+1.Navigate to the path HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols.
+   a.If the 'TLS 1.0' key does not exist, right-click 'Protocols'.
+   b.Click 'New'.
+   c.Click 'Key'.
+   d.Type the name 'TLS 1.0'.
+
+2.Navigate to the 'TLS 1.0' subkey.
+   a.If the subkey 'Client' does not exist, right-click 'TLS 1.0'.
+   b.Click 'New'.
+   c.Click 'Key'.
+   d.Type the name 'Client'.
+   e.Repeat steps A - D for the 'Server' subkey.
+
+3.Navigate to the 'Client' subkey.
+   a.If the value 'Enabled' does not exist, right-click on 'Client'.
+   b.Click 'New'.
+   c.Click 'DWORD'.
+   d.Enter 'Enabled' as the name.
+   e.Repeat steps A-D for the value 'DisabledByDefault'.
+
+4.Double-click 'Enabled'.
+
+5.In Value Data, enter '0'.
+
+6.Click 'OK'.
+
+7.Double-click 'DisabledByDefault'.
+
+8.In Value Data, enter '1'.
+
+9.Click 'OK'.
+
+10.Repeat steps 3 - 9 for the 'Server' subkey.
+
+11.Repeat steps 1 - 10 for 'TLS 1.1', 'SSL 2.0', and 'SSL 3.0'."
+          reference   : "800-171|3.5.10,800-171r3|03.05.07c.,800-53|IA-5(1)(c),800-53r5|IA-5(1)(c),CAT|I,CCI|CCI-000197,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(1)(c),NESA|T5.2.3,NIAv2|CY6,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-213967r961029_rule,STIG-ID|SQL6-D0-008300,STIG-Legacy|SV-106625,STIG-Legacy|V-97521,SWIFT-CSCv1|4.1,TBA-FIISB|26.1,Vuln-ID|V-213967"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "SQL6-D0-008400 - SQL Server must enforce authorized access to all PKI private keys stored/utilized by SQL Server."
+      info        : "The DoD standard for authentication is DoD-approved PKI certificates. PKI certificate-based authentication is performed by requiring the certificate holder to cryptographically prove possession of the corresponding private key.
+
+If the private key is stolen, an attacker can use the private key(s) to impersonate the certificate holder. In cases where SQL Server-stored private keys are used to authenticate SQL Server to the system's clients, loss of the corresponding private keys would allow an attacker to successfully perform undetected man in the middle attacks against SQL Server system and its clients.
+
+Both the holder of a digital certificate and the issuing authority must take careful measures to protect the corresponding private key. Private keys should always be generated and protected in FIPS 140-2 or FIPS 140-3 validated cryptographic modules.
+
+All access to the private key(s) of SQL Server must be restricted to authorized and authenticated users. If unauthorized users have access to one or more of SQL Server's private keys, an attacker could gain access to the key(s) and use them to impersonate the database on the network or otherwise perform unauthorized actions."
+      solution    : "Enable use of FIPS-compliant algorithms.
+
+Start >> Control Panel >> Administrative Tools >> Local Security Policy >> Local Policies >> Security Options
+
+Double-click 'System cryptography: Use FIPS-compliant algorithms for encryption, hashing, and signing.'
+
+Click Enabled >> Apply."
+      reference   : "800-171|3.5.2,800-171r3|03.05.12,800-53|IA-5(2)(b),800-53r5|IA-5(2)(a)(1),CAT|I,CCI|CCI-000186,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ITSG-33|IA-5(2)(b),NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-213968r961041_rule,STIG-ID|SQL6-D0-008400,STIG-Legacy|SV-93903,STIG-Legacy|V-79197,Vuln-ID|V-213968"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\System\Currentcontrolset\Control\Lsa\Fipsalgorithmpolicy"
+      reg_item    : "Enabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "SQL6-D0-008700 - SQL Server must use NIST FIPS 140-2/140-3-validated cryptographic operations for encryption, hashing, and signing."
+      info        : "Use of weak or not validated cryptographic algorithms undermines the purposes of utilizing encryption and digital signatures to protect data. Weak algorithms can be easily broken, and not validated cryptographic modules may not implement algorithms correctly. Unapproved cryptographic modules or algorithms should not be relied on for authentication, confidentiality, or integrity. Weak cryptography could allow an attacker to gain access to, and modify data stored in, the database as well as the administration settings of SQL Server.
+
+Applications, including DBMSs, utilizing cryptography are required to use approved NIST FIPS 140-2/140-3 validated cryptographic modules that meet the requirements of applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+NSA Type- (where =1, 2, 3, 4) products are NSA-certified, hardware-based encryption modules.
+
+The standard for validating cryptographic modules will transition to the NIST FIPS 140-3 publication.
+
+FIPS 140-2 modules can remain active for up to five years after validation or until September 21, 2026, when the FIPS 140-2 validations will be moved to the historical list. Even on the historical list, CMVP supports the purchase and use of these modules for existing systems. While federal agencies decide when they move to FIPS 140-3 only modules, purchasers are reminded that for several years there may be a limited selection of FIPS 140-3 modules from which to choose. CMVP recommends purchasers consider all modules that appear on the Validated Modules Search Page:
+https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules
+
+More information on the FIPS 140-3 transition can be found here:
+https://csrc.nist.gov/Projects/fips-140-3-transition-effort/
+
+Satisfies: SRG-APP-000179-DB-000114, SRG-APP-000176-DB-000068, SRG-APP-000224-DB-000384, SRG-APP-000514-DB-000381, SRG-APP-000514-DB-000382, SRG-APP-000514-DB-000383"
+      solution    : "In Windows, open Administrative Tools >> Local Security Policy. Expand Local Policies >> Security Options. In the right-side pane, double-click 'System cryptography: Use FIPS compliant algorithms for encryption, hashing, and signing'.
+
+In the dialog box that appears, if the radio buttons are active, click 'Enabled', and then click 'Apply'. If the radio buttons are grayed out, use Group Policy Management (on the appropriate server for this domain) to enforce the Enabled policy, and deploy it to the server(s) running SQL Server."
+      reference   : "800-53|IA-7,800-53r5|IA-7,CAT|I,CCI|CCI-000803,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),ITSG-33|IA-7,ITSG-33|IA-7a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T7.4.1,QCSC-v1|13.2,Rule-ID|SV-213969r1167483_rule,STIG-ID|SQL6-D0-008700,STIG-Legacy|SV-93905,STIG-Legacy|V-79199,Vuln-ID|V-213969"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type  : POLICY_DWORD
+      value_data  : 1
+      reg_key     : "HKLM\System\Currentcontrolset\Control\Lsa\Fipsalgorithmpolicy"
+      reg_item    : "Enabled"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : USER_RIGHTS_POLICY
+      description : "SQL6-D0-009900 - SQL Server must prevent unauthorized and unintended information transfer via Instant File Initialization (IFI)."
+      info        : "The purpose of this control is to prevent information, including encrypted representations of information, produced by the actions of a prior user/role (or the actions of a process acting on behalf of a prior user/role) from being available to any current user/role (or current process) that obtains access to a shared system resource (e.g., registers, main memory, secondary storage) after the resource has been released back to the information system. Control of information in shared resources is also referred to as object reuse.
+
+When Instant File Initialization (IFI) is in use, the deleted disk content is overwritten only as new data is written to the files. For this reason, the deleted content might be accessed by an unauthorized principal until some other data writes on that specific area of the data file."
+      solution    : "If IFI is not documented as being required, disable instant file initialization for the instance of SQL Server by removing the SQL Service SID and/or service account from the 'Perform volume maintenance tasks' Local Rights Assignment."
+      reference   : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CAT|II,CCI|CCI-001090,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,Rule-ID|SV-213976r1137657_rule,STIG-ID|SQL6-D0-009900,STIG-Legacy|SV-93919,STIG-Legacy|V-79213,Vuln-ID|V-213976"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type  : USER_RIGHT
+      value_data  : "@SQL_SERVICE_SID@"
+      right_type  : SeManageVolumePrivilege
+      check_type  : CHECK_NOT_EQUAL
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "SQL6-D0-010000 - Access to database files must be limited to relevant processes and to authorized, administrative users."
+      info            : "SQL Server must prevent unauthorized and unintended information transfer via shared system resources. Permitting only SQL Server processes and authorized, administrative users to have access to the files where the database resides helps ensure that those files are not shared inappropriately and are not open to backdoor access and manipulation.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Remove any unauthorized permission grants from SQL Server data, log, and backup directories.
+
+1) On the 'Security' tab, highlight the user entry.
+2) Click 'Remove'."
+      reference       : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CAT|II,CCI|CCI-001090,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,Rule-ID|SV-213977r1137658_rule,STIG-ID|SQL6-D0-010000,STIG-Legacy|SV-93921,STIG-Legacy|V-79215,Vuln-ID|V-213977"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : ".*\\Administrators:\(I\)\(F\).*"
+      powershell_args : "$f=$env:programfiles + '\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup';icacls $f;"
+      check_type      : CHECK_REGEX
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : REGISTRY_SETTING
+      description : "SQL6-D0-011200 - SQL Server must record time stamps in audit records and application data that can be mapped to Coordinated Universal Time (UTC, formerly GMT)."
+      info        : "If time stamps are not consistently applied and there is no common time reference, it is difficult to perform forensic analysis.
+
+Time stamps generated by SQL Server must include date and time. Time is commonly expressed in Coordinated Universal Time (UTC), a modern continuation of Greenwich Mean Time (GMT), or local time with an offset from UTC."
+      solution    : "Where possible, configure the operating system to automatic synchronize with an official time server, using NTP.
+
+Where there is reason not to implement automatic synchronization with an official time server, using NTP, document the reason, and the procedure for maintaining the correct time, and obtain AO approval. Enforce the procedure."
+      reference   : "800-171|3.3.7,800-171r3|03.03.07b.,800-53|AU-8b.,800-53r5|AU-8b.,CAT|II,CCI|CCI-001890,CN-L3|8.1.4.3(b),CSF|PR.PT-1,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.17,ITSG-33|AU-8,NESA|T3.6.7,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-213986r961443_rule,STIG-ID|SQL6-D0-011200,STIG-Legacy|SV-93939,STIG-Legacy|V-79233,TBA-FIISB|37.4,Vuln-ID|V-213986"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type  : POLICY_TEXT
+      value_data  : "NTP"
+      reg_key     : "HKLM\System\Currentcontrolset\Services\W32Time\Parameters"
+      reg_item    : "Type"
+      reg_option  : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "SQL6-D0-011500 - Windows must enforce access restrictions associated with changes to the configuration of the SQL Server instance."
+      info            : "Failure to provide logical access restrictions associated with changes to configuration may have significant effects on the overall security of the system.
+
+When dealing with access restrictions pertaining to change control, it should be noted that any changes to the hardware, software, and/or firmware components of the information system can potentially have significant effects on the overall security of the system.
+
+Accordingly, only qualified and authorized individuals should be allowed to obtain access to system components for the purposes of initiating changes, including upgrades and modifications.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Remove users from the local Administrators group who are not authorized."
+      reference       : "800-171|3.4.5,800-171r3|03.04.05,800-53|CM-5(1),800-53r5|CM-5(1)(a),CAT|II,CCI|CCI-001813,CSF|PR.IP-1,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.4,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.19,ISO-27001-2022|A.8.31,ISO-27001-2022|A.8.32,ITSG-33|CM-5(1),NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.3,QCSC-v1|7.2,Rule-ID|SV-213988r961461_rule,STIG-ID|SQL6-D0-011500,STIG-Legacy|SV-93943,STIG-Legacy|V-79237,Vuln-ID|V-213988"
+      see_also        : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type      : POLICY_TEXT
+      value_data      : "Manual Review Required"
+      powershell_args : "net localgroup administrators | format-list"
+      check_type      : CHECK_REGEX
+      severity        : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"WARNING" type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "EnableErrorReporting"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\Software\Microsoft\Microsoft SQL Server\130"
+          reg_item    : "EnableErrorReporting"
+          reg_option  : CAN_BE_NULL
+          severity    : MEDIUM
+        </custom_item>
+
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "CustomerFeedback"
+          value_type  : POLICY_DWORD
+          value_data  : 0
+          reg_key     : "HKLM\Software\Microsoft\Microsoft SQL Server\130"
+          reg_item    : "CustomerFeedback"
+          reg_option  : CAN_BE_NULL
+          severity    : MEDIUM
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "SQL6-D0-016000 - SQL Server must configure Customer Feedback and Error Reporting."
+          info        : "By default, Microsoft SQL Server enables participation in the customer experience improvement program (CEIP). This program collects information about how its customers are using the product. Specifically, SQL Server collects information about the installation experience, feature usage, and performance. This information helps Microsoft improve the product to better meet customer needs."
+          solution    : "To disable participation in the CEIP program, change the value of the following registry keys to zero (0).
+
+To enable participation in the CEIP program, change the value of the following registry keys to one (1).
+
+HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SQL Server\[InstanceId]\CPE\CustomerFeedback
+HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SQL Server\[InstanceId]\CPE\EnableErrorReporting
+HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SQL Server\130\CustomerFeedback
+HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SQL Server\130\EnableErrorReporting
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214026r961863_rule,STIG-ID|SQL6-D0-016000,STIG-Legacy|SV-94019,STIG-Legacy|V-79313,SWIFT-CSCv1|2.3,Vuln-ID|V-214026"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : REGISTRY_SETTING
+          description : "Telemetry Directory"
+          value_type  : POLICY_TEXT
+          value_data  : ""
+          reg_key     : "HKLM\SOFTWARE\Microsoft\Microsoft SQL Server\@INSTANCE_ID@\CPE"
+          reg_item    : "UserRequestedLocalAuditDirectory"
+          reg_option  : CAN_NOT_BE_NULL
+          check_type  : CHECK_NOT_EQUAL
+        </custom_item>
+      </condition>
+
+      <then>
+        <if>
+          <condition auto:"WARNING" type:"AND">
+            <custom_item>
+              type                 : AUDIT_POWERSHELL
+              description          : "permissions"
+              value_type           : POLICY_TEXT
+              value_data           : ""
+              powershell_args      : "$f='@TELEMETRY_PATH@';icacls $f;"
+              only_show_cmd_output : YES
+              severity             : MEDIUM
+            </custom_item>
+
+            <custom_item>
+              type         : SERVICE_POLICY
+              description  : "SQLTELEMETRY"
+              value_type   : SERVICE_SET
+              value_data   : "Automatic"
+              service_name : "SQLTELEMETRY"
+            </custom_item>
+
+            <custom_item>
+              type         : SERVICE_POLICY
+              description  : "SSASTELEMETRY"
+              value_type   : SERVICE_SET
+              value_data   : "Automatic"
+              service_name : "SSASTELEMETRY"
+            </custom_item>
+          </condition>
+
+          <then>
+            <report type:"PASSED">
+              description : "SQL6-D0-016100 - SQL Server must configure SQL Server Usage and Error Reporting Auditing."
+              info        : "By default, Microsoft SQL Server enables participation in the customer experience improvement program (CEIP). This program collects information about how its customers are using the product. Specifically, SQL Server collects information about the installation experience, feature usage, and performance. This information helps Microsoft improve the product to better meet customer needs. The Local Audit component of SQL Server Usage Feedback collection writes data collected by the service to a designated folder, representing the data (logs) that will be sent to Microsoft. The purpose of the Local Audit is to allow customers to see all data Microsoft collects with this feature, for compliance, regulatory or privacy validation reasons."
+              solution    : "Configure the instance to audit telemetry data. More information about auditing telemetry data can be found at https://msdn.microsoft.com/en-us/library/mt743085.aspx.
+
+Create a folder to store the telemetry audit data in.
+
+Grant the SQLTELEMETRY service the following permissions on the folder:
+
+- List folder contents
+- Read
+- Write
+
+Create and configure the following registry key:
+Note: InstanceId refers to the type and instance of the feature. (e.g., MSSQL13.SqlInstance, MSAS13.SSASInstance, MSRS13.SSRSInstance)
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\[InstanceId]\CPE\UserRequestedLocalAuditDirectory [string]
+
+Set the 'UserRequestedLocalAuditDirectory' key value to the path of the telemetry audit folder.
+
+Set the telemetry service to start automatically. Restart the service.
+- For Database Engine, use SQL Server CEIP service (<INSTANCENAME>).
+- For Analysis Services, use SQL Server Analysis Services CEIP (<INSTANCENAME>).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+              reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214027r961863_rule,STIG-ID|SQL6-D0-016100,STIG-Legacy|SV-94021,STIG-Legacy|V-79315,SWIFT-CSCv1|2.3,Vuln-ID|V-214027"
+              see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+              show_output : YES
+            </report>
+          </then>
+        </if>
+      </then>
+
+      <else>
+        <report type:"WARNING">
+          description : "SQL6-D0-016100 - SQL Server must configure SQL Server Usage and Error Reporting Auditing."
+          info        : "By default, Microsoft SQL Server enables participation in the customer experience improvement program (CEIP). This program collects information about how its customers are using the product. Specifically, SQL Server collects information about the installation experience, feature usage, and performance. This information helps Microsoft improve the product to better meet customer needs. The Local Audit component of SQL Server Usage Feedback collection writes data collected by the service to a designated folder, representing the data (logs) that will be sent to Microsoft. The purpose of the Local Audit is to allow customers to see all data Microsoft collects with this feature, for compliance, regulatory or privacy validation reasons.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+          solution    : "Configure the instance to audit telemetry data. More information about auditing telemetry data can be found at https://msdn.microsoft.com/en-us/library/mt743085.aspx.
+
+Create a folder to store the telemetry audit data in.
+
+Grant the SQLTELEMETRY service the following permissions on the folder:
+
+- List folder contents
+- Read
+- Write
+
+Create and configure the following registry key:
+Note: InstanceId refers to the type and instance of the feature. (e.g., MSSQL13.SqlInstance, MSAS13.SSASInstance, MSRS13.SSRSInstance)
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\[InstanceId]\CPE\UserRequestedLocalAuditDirectory [string]
+
+Set the 'UserRequestedLocalAuditDirectory' key value to the path of the telemetry audit folder.
+
+Set the telemetry service to start automatically. Restart the service.
+- For Database Engine, use SQL Server CEIP service (<INSTANCENAME>).
+- For Analysis Services, use SQL Server Analysis Services CEIP (<INSTANCENAME>)."
+          reference   : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214027r961863_rule,STIG-ID|SQL6-D0-016100,STIG-Legacy|SV-94021,STIG-Legacy|V-79315,SWIFT-CSCv1|2.3,Vuln-ID|V-214027"
+          see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type         : SERVICE_POLICY
+      description  : "SQL6-D0-017800 - The SQL Server Browser service must be disabled unless specifically required and approved."
+      info         : "The SQL Server Browser simplifies the administration of SQL Server, particularly when multiple instances of SQL Server coexist on the same computer. It avoids the need to hard-assign port numbers to the instances and to set and maintain those port numbers in client systems. It enables administrators and authorized users to discover database management system instances, and the databases they support, over the network. SQL Server uses the SQL Server Browser service to enumerate instances of the Database Engine installed on the computer. This enables client applications to browse for a server, and helps clients distinguish between multiple instances of the Database Engine on the same computer.
+
+This convenience also presents the possibility of unauthorized individuals gaining knowledge of the available SQL Server resources. Therefore, it is necessary to consider whether the SQL Server Browser is needed. Typically, if only a single instance is installed, using the default name (MSSQLSERVER) and port assignment (1433), the Browser is not adding any value. The more complex the installation, the more likely SQL Server Browser is to be helpful.
+
+This requirement is not intended to prohibit use of the Browser service in any circumstances.  It calls for administrators and management to consider whether the benefits of its use outweigh the potential negative consequences of it being used by an attacker to browse the current infrastructure and retrieve a list of running SQL Server instances.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution     : "If SQL Server Browser is needed, document the justification and obtain the appropriate authorization.
+
+Where SQL Server Browser is judged unnecessary, the Service can be disabled.
+
+To disable, in the Services tool, double-click 'SQL Server Browser'. Set 'Startup Type' to 'Disabled'. If 'Service Status' is 'Running', click on 'Stop'. Click on 'OK'."
+      reference    : "800-171|3.4.2,800-171r3|03.04.02a.,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|MS_SQL_Server_2016_Instance_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO-27001-2022|A.8.9,ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-214042r961863_rule,STIG-ID|SQL6-D0-017800,STIG-Legacy|SV-94055,STIG-Legacy|V-79349,SWIFT-CSCv1|2.3,Vuln-ID|V-214042"
+      see_also     : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+      value_type   : SERVICE_SET
+      value_data   : "Disabled"
+      service_name : "SQLBrowser"
+      severity     : MEDIUM
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_MSSQL_2016_Instance-OS_v3r6.audit from DISA MS SQL Server 2016 Instance v3r6 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device. Check Windows version and verify that Remote Registry service is enabled on the target."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_MS_SQL_Server_2016_Y26M04_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

@@ -1,0 +1,1496 @@
+#TRUSTED 7a8e5e2361e49c59f91341016734310a3213dfa9b14fd28bc1e8cca151643ec9592f45800f3946d6cc78b08650e472f112df72d7a5720fa5a2e7aa59afdcc68ddcec94856e32cc304a8ce3262b2ccbbef535f5b5dc56aa37de81c649c46cf5cbc8b19f24666e9ba37347b2f602189a5e82f63be7cd54ca5501ed1e1f31e7a6c4922d9767e1bbec3e4953933bd4d0dc3be53191b797335e3cf3524f1262b1b6fe433abc42b5257679968bdd0f16894877f8ba78dacd3080ae3855a872ae4da2a1b11b66f20f11e4478ba4886bdb7d020c5d2811fa670ba9a483abefa4c682404bffdbf8a77bf3139c7ef65922204899e6dec98af349f55e854f79bbf9c14a798f25e336dfd1b695b0ac5f1b377d6c2b4b15adae347cb6413180f65b4d467e8e5a3249102c00ffe9224cd54e02dd50e726f47fb1e7976c1725b00cc22d4787893a7b322960646de4075b1fd1ae51306c08fe1b50e8b49fc83dd6fdd8fbb35fb206cde0a898df7aee8e3430c6bd762de1356661c70d7968e2c5f059f325a0215de250369ca0d1356c2c3ffc7ea321ff3fa8250f17281789216c23b9b8790c6ffb95b7f0ef6fc8bb5825fd01c418940755c03518baaf250229a1b1dd073ee71caa5d9cff7378e5d89e9efe14ecabb39883a59c7ff588a63a4416bfae51314e9896f11aac0f4ad089979f0ca8e7f801e83af66dbf102c7293a5bad7e98ce9a9680a93
+#TRUST-RSA-SHA256 127ae80b98f4b8a137cd3931da8bd8fb750b45bec669ddb0b4d5882d602687632f577b25cd5a74501f342e89fe57f98d39629a696745c1208d29e4f7f1feb09ca0fd4c626626adb8a4a7c793b782709683e65c79c4146a1074ee70e2441c465ea4576c45e04ef020e94dc75afc62703a434d64280e2f2642035de437029b808125017e5d45393b7b8d596340e063d2aee4772ca8c41e3e0421ea3194eacf0b3882b69db75e46e3c95ac3cb253803852de477cc3ddeba91d830875b5204c52082f7c4b93a57884b201f7470d804570e7e4848271f96e3424cfde96d320e654a4ce7d2a67021e4834f7380d8967ba7811ad0cf9ab5d2dadb7d2c48eef989aca5354c38e66e7153ab819d929733ed452678afdb3bcdcb70f999f8f4cc2aaa689f36c37eea89bb4e51d2587e1a50cc4ef5e7fdcc12c52a68b7cadc32bf2adb6ef7c750ee6307cb934ec73343dd1b8300c027d2dc64ca0e9ca1914b796f2df0ed54d14509f5785098cadea984f97e3aa708c981e1a0363fe9de45508c0233b251b9b40b57ef1c029cde68f3ec810e0d7cf97238f686504dc788f6d874558ebdd54e7bc2d0c47f705935d89796f68175db8b217da502b5528723e6461a80fc063e9339529f7bdc5bac814a5a5455675688e0c4cd7c55d30391c70c3278592fc4ebd6971d0536070647d33f8c8996b257fcd4787b6302217d7589ed3f6ba7461ce80590
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2024/06/17 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA VMware vSphere 6.7 ESXi v1r3 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG VMware vSphere 6.7 ESXi v1r3</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>VMware vSphere 6.7</name>
+#  <profile>ESXi</profile>
+#  <version>1.3.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip</link>
+#</spec>
+#<labels>vmware,vsphere,esxi,disa,update_20230227</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>LOG_DIR</name>
+#    <default>\[datastore1\] logs</default>
+#    <description>Log Directory</description>
+#    <info>ESXi datastore directory where the system logs are stored.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOG_HOST</name>
+#    <default>127.0.0.1</default>
+#    <description>Syslog Host</description>
+#    <info>Host address of the sytem log server for the target to send logs to.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>VLAN_ID</name>
+#    <default>0</default>
+#    <description>Native VLAN ID for the physical switch connected to the ESXI host.</description>
+#    <info>False</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#  <variable>
+#    <name>SSH_BANNER</name>
+#    <default>You are accessing a U.S. Government \(USG\) Information System \(IS\) that is provided for USG-authorized use only. By using this IS \(which includes any device attached to this IS\), you consent to the following conditions: -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct \(PM\), law enforcement \(LE\), and counterintelligence \(CI\) investigations. -At any time, the USG may inspect and seize data stored on this IS. -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose. -This IS includes security measures \(e.g., authentication and access controls\) to protect USG interests--not for your personal benefit or privacy. -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.</default>
+#    <description>SSH Banner text</description>
+#    <info>The text of the SSH logon banner file. The contents of the text must meet DoD requirements.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>AUDIT_EXCEPTION_USERS</name>
+#    <default>root</default>
+#    <description>ESXi : audit-exception-users</description>
+#    <info>List of users who are exceptions to lockdown mode rules</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"VMware">
+
+<report type:"PASSED">
+  description : "DISA_STIG_VMware_vSphere_6.7_ESXi_v1r3.audit from DISA VMware vSphere 6.7 ESXi v1r3 STIG"
+  reference   : "DISA_Benchmark|VMware_vSphere_6-7_ESXi_STIG"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000001 - Access to the ESXi host must be limited by enabling Lockdown Mode."
+  info        : "Enabling Lockdown Mode disables direct access to an ESXi host, requiring the host to be managed remotely from vCenter Server. This is done to ensure the roles and access controls implemented in vCenter are always enforced and users cannot bypass them by logging on to a host directly. By forcing all interaction to occur through vCenter Server, the risk of someone inadvertently attaining elevated privileges or performing tasks that are not properly audited is greatly reduced.
+
+Satisfies: SRG-OS-000027-VMM-000080, SRG-OS-000123-VMM-000620"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Security Profile.
+
+Click 'Edit' in 'Lockdown Mode' and enable ('Normal' or 'Strict').
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+$level = 'lockdownNormal' OR 'lockdownStrict'
+$vmhost = Get-VMHost -Name <hostname> | Get-View
+$lockdown = Get-View $vmhost.ConfigManager.HostAccessManager
+$lockdown.ChangeLockdownMode($level)
+
+Note: In Strict Lockdown Mode, the DCUI service is stopped. If the connection to vCenter Server is lost and the vSphere Client is no longer available, the ESXi host becomes inaccessible."
+  reference   : "800-171|3.1.1,800-53|AC-2(2),800-53|AC-10,800-53r5|AC-2(2),800-53r5|AC-10,CAT|II,CCI|CCI-000054,CCI|CCI-001682,CN-L3|7.1.3.2(e),CSF|PR.AC-1,CSF|PR.AC-4,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(2),ITSG-33|AC-10,NESA|T5.5.1,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-239258r674703_rule,STIG-ID|ESXI-67-000001,Vuln-ID|V-239258"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:lockdownMode\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name=\'name\']/audit:val\"/> - Lockdown Mode : <xsl:value-of select=\"audit:propSet/audit:val/audit:lockdownMode\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name=\'name\']/audit:val\"/> - <xsl:text>Lockdown Mode : NOT found</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Lockdown Mode : "
+  expect      : "Lockdown Mode : lockdown(Normal|Strict)$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000002 - The ESXi host must verify the DCUI.Access list."
+  info        : "Lockdown mode disables direct host access, requiring that administrators manage hosts from vCenter Server. However, if a host becomes isolated from vCenter Server, the administrator is locked out and can no longer manage the host. If using normal Lockdown Mode, avoid becoming locked out of an ESXi host that is running in Lockdown Mode by setting DCUI.Access to a list of highly trusted users who can override Lockdown Mode and access the DCUI. The DCUI is not running in strict Lockdown Mode."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'DCUI.Access' value, and configure it to root.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-AdvancedSetting -Name DCUI.Access | Set-AdvancedSetting -Value 'root'"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239259r674706_rule,STIG-ID|ESXI-67-000002,SWIFT-CSCv1|2.3,Vuln-ID|V-239259"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='DCUI.Access']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='DCUI.Access']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='DCUI.Access']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>DCUI.Access : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "DCUI.Access : "
+  expect      : "DCUI.Access : root$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000003 - The ESXi host must verify the exception users list for Lockdown Mode."
+  info        : "In vSphere, users can be added to the Exception Users list from the vSphere Web Client. These users do not lose their permissions when the host enters Lockdown Mode.
+
+Before adding service accounts such as a backup agent to the Exception Users list, verify that the list of users who are exempted from losing permissions is legitimate and as needed per the environment. Users who do not require special permissions should not be exempted from Lockdown Mode."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Security Profile.
+
+Under 'Lockdown Mode', click 'Edit' and remove unnecessary users from the exceptions list."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239260r674709_rule,STIG-ID|ESXI-67-000003,SWIFT-CSCv1|2.3,Vuln-ID|V-239260"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key=\'DCUI.Access\']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name=\'name\']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key=\'DCUI.Access\']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key=\'DCUI.Access\']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name=\'name\']/audit:val\"/> - <xsl:text>DCUI.Access : NOT found</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "DCUI.Access : "
+  expect      : "DCUI.Access : @AUDIT_EXCEPTION_USERS@$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000004 - Remote logging for ESXi hosts must be configured."
+  info        : "Remote logging to a central log host provides a secure, centralized store for ESXi logs. By gathering host log files onto a central host, it can more easily monitor all hosts with a single tool. It can also do aggregate analysis and searching to look for such things as coordinated attacks on multiple hosts. Logging to a secure, centralized log server also helps prevent log tampering and also provides a long-term audit record.
+
+Satisfies: SRG-OS-000032-VMM-000130, SRG-OS-000342-VMM-001230, SRG-OS-000479-VMM-001990"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Syslog.global.logHost' value, and configure it to a site-specific syslog server.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Syslog.global.logHost | Set-AdvancedSetting -Value '<syslog server hostname>'"
+  reference   : "800-171|3.1.12,800-53|AC-17(1),800-53|AU-4(1),800-53r5|AC-17(1),800-53r5|AU-4(1),CAT|II,CCI|CCI-000067,CCI|CCI-001851,CN-L3|8.1.4.4(c),CN-L3|8.1.10.6(i),CSF|PR.AC-3,CSF|PR.DS-4,CSF|PR.PT-1,CSF|PR.PT-4,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(1),ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,NESA|T5.4.4,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-239261r854586_rule,STIG-ID|ESXI-67-000004,SWIFT-CSCv1|2.6,Vuln-ID|V-239261"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Syslog.global.logHost']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Syslog.global.logHost']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Syslog.global.logHost']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Syslog.global.logHost : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Syslog.global.logHost : "
+  expect      : "Syslog.global.logHost : @LOG_HOST@"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000005 - The ESXi host must enforce the limit of three consecutive invalid logon attempts by a user."
+  info        : "By limiting the number of failed logon attempts, the risk of unauthorized access via user password guessing, otherwise known as brute forcing, is reduced. Once the configured number of attempts is reached, the account is locked by the ESXi host."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Security.AccountLockFailures' value, and configure it to '3'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-AdvancedSetting -Name Security.AccountLockFailures | Set-AdvancedSetting -Value 3"
+  reference   : "800-171|3.1.8,800-53|AC-7a.,800-53r5|AC-7a.,CAT|II,CCI|CCI-000044,CN-L3|8.1.4.1(b),DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,Rule-ID|SV-239262r674715_rule,STIG-ID|ESXI-67-000005,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2,Vuln-ID|V-239262"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Security.AccountLockFailures']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.AccountLockFailures']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.AccountLockFailures']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Security.AccountLockFailures : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Security.AccountLockFailures : "
+  expect      : "Security.AccountLockFailures : 3$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000006 - The ESXi host must enforce the unlock timeout of 15 minutes after a user account is locked out."
+  info        : "By enforcing a reasonable unlock timeout after multiple failed logon attempts, the risk of unauthorized access via user password guessing, otherwise known as brute forcing, is reduced. Users must wait for the timeout period to elapse before subsequent logon attempts are allowed."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit' and select the 'Security.AccountUnlockTime' value and configure it to '900'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-AdvancedSetting -Name Security.AccountUnlockTime | Set-AdvancedSetting -Value 900"
+  reference   : "800-171|3.1.8,800-53|AC-7b.,800-53r5|AC-7b.,CAT|II,CCI|CCI-002238,CN-L3|7.1.2.7(f),CN-L3|7.1.3.1(c),DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7b.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.7,PCI-DSSv4.0|8.3.4,Rule-ID|SV-239263r854587_rule,STIG-ID|ESXI-67-000006,TBA-FIISB|36.2.4,TBA-FIISB|45.1.2,Vuln-ID|V-239263"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Security.AccountUnlockTime']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.AccountUnlockTime']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.AccountUnlockTime']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Security.AccountUnlockTime : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Security.AccountUnlockTime : "
+  expect      : "Security.AccountUnlockTime : 900$"
+</custom_item>
+
+<report type:"WARNING">
+  description : "ESXI-67-000007 - The ESXi host must display the Standard Mandatory DoD Notice and Consent Banner before granting access to the system via the DCUI."
+  info        : "Failure to display the DoD logon banner prior to a logon attempt will negate legal proceedings resulting from unauthorized access to system resources.
+
+Satisfies: SRG-OS-000023-VMM-000060, SRG-OS-000024-VMM-000070
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From a PowerCLI command prompt while connected to the ESXi host, copy the following contents into a script(.ps1 file) and run to set the DCUI screen to display the DoD logon banner:
+
+<script begin>
+
+$value = @'
+{bgcolor:black} {/color}{align:left}{bgcolor:black}{color:yellow}{hostname} , {ip}{/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:black}{color:yellow}{esxproduct} {esxversion}{/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:black}{color:yellow}{memory} RAM{/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:black}{color:white}        {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}                                                                                                                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}  You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only. By      {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}  using this IS (which includes any device attached to this IS), you consent to the following conditions:                 {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}                                                                                                                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}  -       The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited     {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}          to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law      {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}          enforcement (LE), and counterintelligence (CI) investigations.                                                  {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}                                                                                                                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}  -       At any time, the USG may inspect and seize data stored on this IS.                                              {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}                                                                                                                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}  -       Communications using, or data stored on, this IS are not private, are subject to routine monitoring,            {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}          interception, and search, and may be disclosed or used for any USG-authorized purpose.                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}                                                                                                                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}  -       This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not     {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}          for your personal benefit or privacy.                                                                           {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}                                                                                                                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}  -       Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching    {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}          or monitoring of the content of privileged communications, or work product, related to personal representation  {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}          or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work       {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}          product are private and confidential. See User Agreement for details.                                           {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{align:left}{bgcolor:yellow}{color:black}                                                                                                                          {/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+{bgcolor:black} {/color}{align:left}{bgcolor:dark-grey}{color:white}  <F2> Accept Conditions and Customize System / View Logs{/align}{align:right}<F12> Accept Conditions and Shut Down/Restart  {bgcolor:black} {/color}{/color}{/bgcolor}{/align}
+{bgcolor:black} {/color}{bgcolor:dark-grey}{color:black}                                                                                                                          {/color}{/bgcolor}
+'@
+
+Get-VMHost | Get-AdvancedSetting -Name Annotations.WelcomeMessage | Set-AdvancedSetting -Value $value
+
+<script end>"
+  reference   : "800-171|3.1.9,800-53|AC-8a.,800-53|AC-8b.,800-53r5|AC-8a.,800-53r5|AC-8b.,CAT|II,CCI|CCI-000048,CCI|CCI-000050,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8a.,ITSG-33|AC-8b.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,NIAv2|AM10f,Rule-ID|SV-239264r674721_rule,STIG-ID|ESXI-67-000007,TBA-FIISB|45.2.4,Vuln-ID|V-239264"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000008 - The ESXi host must display the Standard Mandatory DoD Notice and Consent Banner before granting access to the system via SSH."
+  info        : "Failure to display the DoD logon banner prior to a logon attempt will negate legal proceedings resulting from unauthorized access to system resources."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Config.Etc.issue' value, and set it to the following:
+
+'You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only. By using this IS (which includes any device attached to this IS), you consent to the following conditions: -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations. -At any time, the USG may inspect and seize data stored on this IS. -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose. -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy. -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.'
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Config.Etc.issue | Set-AdvancedSetting -Value '<insert logon banner>'"
+  reference   : "800-171|3.1.9,800-53|AC-8a.,800-53r5|AC-8a.,CAT|II,CCI|CCI-000048,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-239265r674724_rule,STIG-ID|ESXI-67-000008,TBA-FIISB|45.2.4,Vuln-ID|V-239265"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Config.Etc.issue']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.Etc.issue']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.Etc.issue']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Config.Etc.issue : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "[Cc]onfig\.[Ee]tc\.[Ii]ssue : .*$"
+  expect      : "@SSH_BANNER@"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000030 - The ESXi host must produce audit records containing information to establish what type of events occurred."
+  info        : "Without establishing what types of events occurred, it would be difficult to establish, correlate, and investigate the events leading up to an outage or attack.
+
+Satisfies: SRG-OS-000037-VMM-000150, SRG-OS-000063-VMM-000310"
+  solution    : "From the vSphere Client, select the ESXi Host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Config.HostAgent.log.level' value, and configure it to 'info'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Config.HostAgent.log.level | Set-AdvancedSetting -Value 'info'"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53|AU-12b.,800-53r5|AU-3,800-53r5|AU-12b.,CAT|III,CCI|CCI-000130,CCI|CCI-000171,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-12b.,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-239285r674784_rule,STIG-ID|ESXI-67-000030,SWIFT-CSCv1|6.4,Vuln-ID|V-239285"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.log.level']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.log.level']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.log.level']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Config.HostAgent.log.level : NOT found</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Config.HostAgent.log.level : "
+  expect      : "Config.HostAgent.log.level : info$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000031 - The ESXi host must enforce password complexity by requiring that at least one uppercase character be used."
+  info        : "To enforce the use of complex passwords, minimum numbers of characters of different classes are mandated. The use of complex passwords reduces the ability of attackers to successfully obtain valid passwords using guessing or exhaustive search techniques. Complexity requirements increase the password search space by requiring users to construct passwords from a larger character set than they may otherwise use.
+
+Satisfies: SRG-OS-000069-VMM-000360, SRG-OS-000070-VMM-000370, SRG-OS-000071-VMM-000380, SRG-OS-000078-VMM-000450, SRG-OS-000072-VMM-000390, SRG-OS-000266-VMM-000940"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Security.PasswordQualityControl' value, and configure it to 'similar=deny retry=3 min=disabled,disabled,disabled,disabled,15'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Security.PasswordQualityControl | Set-AdvancedSetting -Value 'similar=deny retry=3 min=disabled,disabled,disabled,disabled,15'"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53|IA-5(1)(b),800-53r5|IA-5(1)(a),800-53r5|IA-5(1)(b),CAT|II,CCI|CCI-000192,CCI|CCI-000193,CCI|CCI-000194,CCI|CCI-000195,CCI|CCI-000205,CCI|CCI-001619,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),ITSG-33|IA-5(1)(b),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,NIAv2|AM22d,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-239286r674787_rule,STIG-ID|ESXI-67-000031,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-239286"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Security.PasswordQualityControl']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.PasswordQualityControl']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.PasswordQualityControl']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Security.PasswordQualityControl : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Security.PasswordQualityControl : "
+  expect      : "Security.PasswordQualityControl : similar=deny retry=3 min=disabled,disabled,disabled,disabled,15$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000032 - The ESXi host must prohibit the reuse of passwords within five iterations."
+  info        : "If a user or root used the same password continuously or was allowed to change it back shortly after being forced to change it to something else, it would provide a potential intruder with the opportunity to keep guessing at one user's password until it was guessed correctly."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Select the 'Security.PasswordHistory' value and configure it to '5'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-AdvancedSetting -Name Security.PasswordHistory | Set-AdvancedSetting -Value 5"
+  reference   : "800-171|3.5.8,800-53|IA-5(1)(e),800-53r5|IA-5(1)(e),CAT|II,CCI|CCI-000200,CSF|PR.AC-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(e),NESA|T5.2.3,NIAv2|AM22c,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-239287r674790_rule,STIG-ID|ESXI-67-000032,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.3,Vuln-ID|V-239287"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Security.PasswordHistory']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.PasswordHistory']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Security.PasswordHistory']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Security.PasswordHistory : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Security.PasswordHistory : "
+  expect      : "Security.PasswordHistory : 5$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000034 - The ESXi host must disable the Managed Object Browser (MOB)."
+  info        : "The MOB provides a way to explore the object model used by the VMkernel to manage the host and enables configurations to be changed as well. This interface is meant to be used primarily for debugging the vSphere SDK, but because there are no access controls it could also be used as a method to obtain information about a host being targeted for unauthorized access."
+  solution    : "From the vSphere Client, select the ESXi Host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit' and select the 'Config.HostAgent.plugins.solo.enableMob' value and configure it to 'false'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Config.HostAgent.plugins.solo.enableMob | Set-AdvancedSetting -Value false"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-239289r674796_rule,STIG-ID|ESXI-67-000034,SWIFT-CSCv1|2.3,Vuln-ID|V-239289"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.plugins.solo.enableMob']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.plugins.solo.enableMob']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.plugins.solo.enableMob']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Config.HostAgent.plugins.solo.enableMob : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Config.HostAgent.plugins.solo.enableMob : "
+  expect      : "Config.HostAgent.plugins.solo.enableMob : false"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000035 - The ESXi host must be configured to disable nonessential capabilities by disabling SSH."
+  info        : "The ESXi Shell is an interactive command line interface (CLI) available at the ESXi server console. The ESXi shell provides temporary access to commands essential for server maintenance. Intended primarily for use in break-fix scenarios, the ESXi shell is well suited for checking and modifying configuration details, not always generally accessible, using the vSphere Client.
+
+The ESXi shell is accessible remotely using SSH by users with the Administrator role. Under normal operating conditions, SSH access to the host must be disabled as is the default. As with the ESXi shell, SSH is also intended only for temporary use during break-fix scenarios. SSH must therefore be disabled under normal operating conditions and must only be enabled for diagnostics or troubleshooting. Remote access to the host must therefore be limited to the vSphere Client or Host Client at all other times.
+
+Satisfies: SRG-OS-000095-VMM-000480, SRG-OS-000297-VMM-001040, SRG-OS-000298-VMM-001050"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Services.
+
+Under 'Services', select 'SSH' service and click the 'Stop' button to stop the service. Use Edit Startup policy to 'Start and stop manually' and click 'OK'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-VMHostService | Where {$_.Label -eq 'SSH'} | Set-VMHostService -Policy Off
+Get-VMHost | Get-VMHostService | Where {$_.Label -eq 'SSH'} | Stop-VMHostService"
+  reference   : "800-171|3.1.1,800-171|3.1.2,800-171|3.1.12,800-171|3.4.6,800-171|3.4.7,800-53|AC-17(1),800-53|AC-17(9),800-53|CM-7a.,800-53r5|AC-17(1),800-53r5|AC-17(9),800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CCI|CCI-002314,CCI|CCI-002322,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CN-L3|8.1.4.4(c),CN-L3|8.1.10.6(i),CSF|PR.AC-3,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17,ITSG-33|AC-17(1),ITSG-33|CM-7a.,NESA|T5.4.4,NESA|T5.4.5,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,Rule-ID|SV-239290r854588_rule,STIG-ID|ESXI-67-000035,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.6,Vuln-ID|V-239290"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='TSM-SSH']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='TSM-SSH']/audit:label\"/> : running = <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='TSM-SSH']/audit:running\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>SSH : running = NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "SSH : running ="
+  expect      : "SSH : running = false"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000036 - The ESXi host must disable ESXi Shell unless needed for diagnostics or troubleshooting."
+  info        : "The ESXi Shell is an interactive command line environment available locally from the DCUI or remotely via SSH. Activities performed from the ESXi Shell bypass vCenter RBAC and audit controls.
+
+The ESXi shell should only be turned on when needed to troubleshoot/resolve problems that cannot be fixed through the vSphere client."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Services.
+
+Under 'Services', select 'ESXi Shell' service and click the 'Stop' button to stop the service. Use Edit Startup policy to 'Start and stop manually' and click 'OK'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-VMHostService | Where {$_.Label -eq 'ESXi Shell'} | Set-VMHostService -Policy Off
+Get-VMHost | Get-VMHostService | Where {$_.Label -eq 'ESXi Shell'} | Stop-VMHostService"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-239291r674802_rule,STIG-ID|ESXI-67-000036,SWIFT-CSCv1|2.3,Vuln-ID|V-239291"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='TSM']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='TSM']/audit:label\"/> : running = <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='TSM']/audit:running\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>ESXi Shell : running = NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "ESXi Shell : running ="
+  expect      : "ESXi Shell : running = false"
+</custom_item>
+
+<report type:"WARNING">
+  description : "ESXI-67-000037 - The ESXi host must use Active Directory for local user authentication."
+  info        : "Join ESXi hosts to an Active Directory (AD) domain to eliminate the need to create and maintain multiple local user accounts. Using AD for user authentication simplifies the ESXi host configuration, ensures password complexity and reuse policies are enforced, and reduces the risk of security breaches and unauthorized access.
+
+Note: If the AD group 'ESX Admins' (default) exists, then all users and groups that are assigned as members to this group will have full administrative access to all ESXi hosts the domain.
+
+Satisfies: SRG-OS-000104-VMM-000500, SRG-OS-000109-VMM-000550, SRG-OS-000112-VMM-000560, SRG-OS-000113-VMM-000570
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Authentication Services.
+
+Click 'Join Domain' and enter the AD domain to join. Select the 'Using credentials' radio button, enter the credentials of an account with permissions to join machines to AD (use UPN naming - user@domain), and then click 'OK'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-VMHostAuthentication | Set-VMHostAuthentication -JoinDomain -Domain 'domain name' -User 'username' -Password 'password'"
+  reference   : "800-171|3.5.1,800-171|3.5.4,800-53|IA-2,800-53|IA-2(5),800-53|IA-2(8),800-53|IA-2(9),800-53r5|IA-2,800-53r5|IA-2(5),800-53r5|IA-2(8),CAT|III,CCI|CCI-000764,CCI|CCI-000770,CCI|CCI-001941,CCI|CCI-001942,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,ITSG-33|IA-2(5),ITSG-33|IA-2(5)(a),ITSG-33|IA-2(5)(b),ITSG-33|IA-2(8),ITSG-33|IA-2(9),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-239292r854589_rule,STIG-ID|ESXI-67-000037,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-239292"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000038 - ESXi hosts using Host Profiles and/or Auto Deploy must use the vSphere Authentication Proxy to protect passwords when adding themselves to Active Directory."
+  info        : "If a host is configured to join an Active Directory domain using Host Profiles and/or Auto Deploy, the Active Directory credentials are saved in the profile and are transmitted over the network. To avoid having to save Active Directory credentials in the Host Profile and to avoid transmitting Active Directory credentials over the network, use the vSphere Authentication Proxy.
+
+Satisfies: SRG-OS-000104-VMM-000500, SRG-OS-000109-VMM-000550, SRG-OS-000112-VMM-000560, SRG-OS-000113-VMM-000570
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From the vSphere Client, go to Home >> Host Profiles and select a Host Profile to edit.
+
+View the settings under Security and Services >> Security Settings >> Authentication Configuration >> Active Directory Configuration >> Join Domain Method.
+
+Set the method used to join hosts to a domain to 'Use vSphere Authentication Proxy to add the host to domain' and provide the IP address of the vSphere Authentication Proxy server."
+  reference   : "800-171|3.5.1,800-171|3.5.4,800-53|IA-2,800-53|IA-2(5),800-53|IA-2(8),800-53|IA-2(9),800-53r5|IA-2,800-53r5|IA-2(5),800-53r5|IA-2(8),CAT|II,CCI|CCI-000764,CCI|CCI-000770,CCI|CCI-001941,CCI|CCI-001942,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,ITSG-33|IA-2(5),ITSG-33|IA-2(5)(a),ITSG-33|IA-2(5)(b),ITSG-33|IA-2(8),ITSG-33|IA-2(9),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-239293r854590_rule,STIG-ID|ESXI-67-000038,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-239293"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000039 - Active Directory ESX Admin group membership must not be used when adding ESXi hosts to Active Directory."
+  info        : "When adding ESXi hosts to Active Directory (AD), all user/group accounts assigned to the AD group 'ESX Admins' will have full administrative access to the host. If this group is not controlled or known to the System Administrators, it may be used for inappropriate access to the host. Therefore, the default group must be changed to a site-specific AD group and membership therein must be severely restricted.
+
+Satisfies: SRG-OS-000104-VMM-000500, SRG-OS-000109-VMM-000550, SRG-OS-000112-VMM-000560, SRG-OS-000113-VMM-000570"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configuration >> System >> Advanced System Settings.
+
+Click 'Edit' and select the 'Config.HostAgent.plugins.hostsvc.esxAdminsGroup' key and configure its value to an appropriate Active Directory group other than 'ESX Admins'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Config.HostAgent.plugins.hostsvc.esxAdminsGroup | Set-AdvancedSetting -Value <AD Group>"
+  reference   : "800-171|3.5.1,800-171|3.5.4,800-53|IA-2,800-53|IA-2(5),800-53|IA-2(8),800-53|IA-2(9),800-53r5|IA-2,800-53r5|IA-2(5),800-53r5|IA-2(8),CAT|III,CCI|CCI-000764,CCI|CCI-000770,CCI|CCI-001941,CCI|CCI-001942,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,ITSG-33|IA-2(5),ITSG-33|IA-2(5)(a),ITSG-33|IA-2(5)(b),ITSG-33|IA-2(8),ITSG-33|IA-2(9),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM18,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-239294r854591_rule,STIG-ID|ESXI-67-000039,SWIFT-CSCv1|4.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-239294"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.plugins.hostsvc.esxAdminsGroup']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.plugins.hostsvc.esxAdminsGroup']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Config.HostAgent.plugins.hostsvc.esxAdminsGroup']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Config.HostAgent.plugins.hostsvc.esxAdminsGroup : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Config.HostAgent.plugins.hostsvc.esxAdminsGroup : "
+  not_expect  : "Config.HostAgent.plugins.hostsvc.esxAdminsGroup : .*ESX Admins$"
+</custom_item>
+
+<report type:"WARNING">
+  description : "ESXI-67-000040 - The ESXi host must use multifactor authentication for local DCUI access to privileged accounts."
+  info        : "To ensure accountability and prevent unauthenticated access, privileged users must utilize multifactor authentication to prevent potential misuse and compromise of the system.
+
+Note: This feature requires an existing PKI and AD integration.
+
+Satisfies: SRG-OS-000107-VMM-000530, SRG-OS-000376-VMM-001520, SRG-OS-000377-VMM-001530, SRG-OS-000403-VMM-001640
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "The following are prerequisites to configuration of smart card authentication for the ESXi DCUI:
+
+- Active Directory domain that supports smart card authentication, smart card readers, and smart cards;
+- ESXi joined to an Active Directory domain; and
+- Trusted certificates for root and intermediary certificate authorities.
+
+From the vSphere Client, select the ESXi host and go to Configure >> System >> Authentication Services, click 'Edit', and check the 'Enable Smart Card Authentication' checkbox.
+
+At the 'Certificates' tab, click the green plus sign to import trusted certificate authority certificates and click 'OK'."
+  reference   : "800-171|3.5.1,800-171|3.5.3,800-171|3.13.15,800-53|IA-2(3),800-53|IA-2(12),800-53|SC-23(5),800-53r5|IA-2(1),800-53r5|IA-2(12),800-53r5|SC-23(5),CAT|III,CCI|CCI-000767,CCI|CCI-001953,CCI|CCI-001954,CCI|CCI-002470,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2,ITSG-33|IA-2a.,ITSG-33|IA-2(3),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-239295r854592_rule,STIG-ID|ESXI-67-000040,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-239295"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000041 - The ESXi host must set a timeout to automatically disable idle shell sessions after two minutes."
+  info        : "If a user forgets to log out of their local or remote ESXi Shell session, the idle connection will remain open indefinitely and increase the likelihood of inappropriate host access via session hijacking. The 'ESXiShellInteractiveTimeOut' allows the automatic termination of idle shell sessions.
+
+Satisfies: SRG-OS-000163-VMM-000700, SRG-OS-000279-VMM-001010"
+  solution    : "From the vSphere Client, select the ESXi Host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'UserVars.ESXiShellInteractiveTimeOut' value, and configure it to '120'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name UserVars.ESXiShellInteractiveTimeOut | Set-AdvancedSetting -Value 120"
+  reference   : "800-171|3.1.11,800-171|3.13.9,800-53|AC-12,800-53|SC-10,800-53r5|AC-12,800-53r5|SC-10,CAT|II,CCI|CCI-001133,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.5.1,NIAv2|NS49,Rule-ID|SV-239296r878140_rule,STIG-ID|ESXI-67-000041,SWIFT-CSCv1|2.6,Vuln-ID|V-239296"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiShellInteractiveTimeOut']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiShellInteractiveTimeOut']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiShellInteractiveTimeOut']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>UserVars.ESXiShellInteractiveTimeOut : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "UserVars.ESXiShellInteractiveTimeout : "
+  expect      : "UserVars.ESXiShellInteractiveTimeout : 120$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000042 - The ESXi host must terminate shell services after 10 minutes."
+  info        : "When the ESXi Shell or SSH services are enabled on a host, they will run indefinitely. To avoid having these services left running, set the 'ESXiShellTimeOut'. The 'ESXiShellTimeOut' defines a window of time after which the ESXi Shell and SSH services will be stopped automatically.
+
+Satisfies: SRG-OS-000163-VMM-000700, SRG-OS-000279-VMM-001010"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'UserVars.ESXiShellTimeOut' value, and configure it to '600'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name UserVars.ESXiShellTimeOut | Set-AdvancedSetting -Value 600"
+  reference   : "800-171|3.1.11,800-171|3.13.9,800-53|AC-12,800-53|SC-10,800-53r5|AC-12,800-53r5|SC-10,CAT|II,CCI|CCI-001133,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.5.1,NIAv2|NS49,Rule-ID|SV-239297r878140_rule,STIG-ID|ESXI-67-000042,SWIFT-CSCv1|2.6,Vuln-ID|V-239297"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiShellTimeOut']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiShellTimeOut']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiShellTimeOut']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>UserVars.ESXiShellTimeout : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "UserVars.ESXiShellTimeout : "
+  expect      : "UserVars.ESXiShellTimeout : 600$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000043 - The ESXi host must log out of the console UI after two minutes."
+  info        : "When the direct console user interface (DCUI) is enabled and logged in, it should be automatically logged out if left logged in to avoid access by unauthorized persons. The 'DcuiTimeOut' setting defines a window of time after which the DCUI will be logged out.
+
+Satisfies: SRG-OS-000163-VMM-000700, SRG-OS-000279-VMM-001010"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'UserVars.DcuiTimeOut' value, and configure it to '120'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name UserVars.DcuiTimeOut | Set-AdvancedSetting -Value 120"
+  reference   : "800-171|3.1.11,800-171|3.13.9,800-53|AC-12,800-53|SC-10,800-53r5|AC-12,800-53r5|SC-10,CAT|II,CCI|CCI-001133,CCI|CCI-002361,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.5.1,NIAv2|NS49,Rule-ID|SV-239298r878140_rule,STIG-ID|ESXI-67-000043,SWIFT-CSCv1|2.6,Vuln-ID|V-239298"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.DcuiTimeOut']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.DcuiTimeOut']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.DcuiTimeOut']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>UserVars.DcuiTimeOut : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "UserVars.DcuiTimeOut : "
+  expect      : "UserVars.DcuiTimeOut : 120$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000045 - The ESXi host must enable a persistent log location for all locally stored logs."
+  info        : "ESXi can be configured to store log files on an in-memory file system. This occurs when the host's '/scratch' directory is linked to '/tmp/scratch'. When this is done, only a single day's worth of logs is stored at any time. In addition, log files will be reinitialized upon each reboot. This presents a security risk as user activity logged on the host is only stored temporarily and will not persist across reboots. This can also complicate auditing and make it harder to monitor events and diagnose issues. ESXi host logging should always be configured to a persistent datastore.
+
+Note: Scratch space is configured automatically during installation or first boot of an ESXi host and does not usually need to be manually configured. ESXi Installable creates a 4 GB Fat16 partition on the target device during installation if there is sufficient space and if the device is considered 'local'.
+
+If ESXi is installed on an SD card or USB device, a persistent log location may not be configured upon install as normal."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit' and select the 'Syslog.global.logDir' value and set it to a known persistent location.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Syslog.global.logDir | Set-AdvancedSetting -Value 'New Log Location'"
+  reference   : "800-53|AU-4,800-53r5|AU-4,CAT|II,CCI|CCI-001849,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-239300r854596_rule,STIG-ID|ESXI-67-000045,Vuln-ID|V-239300"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Syslog.global.logDir']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Syslog.global.logDir']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Syslog.global.logDir']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Syslog.global.logDir : NOT found</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "[Ss]yslog\.[Gg]lobal\.[Ll]og[Dd]ir : .*$"
+  expect      : "@LOG_DIR@"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000046 - The ESXi host must configure NTP time synchronization."
+  info        : "To ensure the accuracy of the system clock, it must be synchronized with an authoritative time source within DoD. Many system functions, including time-based logon and activity restrictions, automated reports, system logs, and audit records, depend on an accurate system clock. If there is no confidence in the correctness of the system clock, time-based functions may not operate as intended and records may be of diminished value.
+
+Satisfies: SRG-OS-000355-VMM-001330, SRG-OS-000356-VMM-001340"
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Time Configuration.
+
+Click 'Edit' to configure the NTP service to start and stop with the host and with authoritative DoD time sources.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+$NTPServers = 'ntpserver1','ntpserver2'
+Get-VMHost | Add-VMHostNTPServer $NTPServers
+Get-VMHost | Get-VMHostService | Where {$_.Label -eq 'NTP Daemon'} | Set-VMHostService -Policy On
+Get-VMHost | Get-VMHostService | Where {$_.Label -eq 'NTP Daemon'} | Start-VMHostService"
+  reference   : "800-171|3.3.7,800-53|AU-8(1)(a),800-53|AU-8(1)(b),800-53r5|SC-45(1),CAT|II,CCI|CCI-001891,CCI|CCI-002046,CN-L3|8.1.4.3(b),CSF|PR.PT-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-239301r878143_rule,STIG-ID|ESXI-67-000046,TBA-FIISB|37.4,Vuln-ID|V-239301"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='ntpd']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='ntpd']/audit:label\"/> : running = <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='ntpd']/audit:running\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>NTP Daemon : running = NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "NTP Daemon : running ="
+  expect      : "NTP Daemon : running = true"
+</custom_item>
+
+<report type:"WARNING">
+  description : "ESXI-67-000048 - The ESXi host must protect the confidentiality and integrity of transmitted information by isolating vMotion traffic."
+  info        : "While encrypted vMotion is available now, vMotion traffic should still be sequestered from other traffic to further protect it from attack. This network must be only be accessible to other ESXi hosts preventing outside access to the network.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configuration of the vMotion VMkernel will be unique to each environment.
+
+As an example, to modify the IP address and VLAN information to the correct network on a distributed switch, do the following:
+
+From the vSphere Client, go to Networking >> Select a distributed switch >> Select a port group >> Configure >> Settings >> Edit >> VLAN.
+
+Change the 'VLAN Type' to 'VLAN' and change the 'VLAN ID' to a network allocated and dedicated to vMotion traffic exclusively."
+  reference   : "800-171|3.13.8,800-53|SC-8,800-53r5|SC-8,CAT|II,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-239303r854599_rule,STIG-ID|ESXI-67-000048,Vuln-ID|V-239303"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000049 - The ESXi host must protect the confidentiality and integrity of transmitted information by protecting ESXi management traffic."
+  info        : "The vSphere management network provides access to the vSphere management interface on each component. Services running on the management interface provide an opportunity for an attacker to gain privileged access to the systems. Any remote attack most likely would begin with gaining entry to this network.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> Networking >> VMkernel adapters.
+
+Select the Management VMkernel and click 'Edit'.
+
+On the Port properties tab, uncheck everything but 'Management.'
+
+On the IP Settings tab, enter the appropriate IP address and subnet information and click 'OK'.
+
+Set the appropriate VLAN ID >> Configure >> Networking >> Virtual switches.
+
+Select the Management portgroup and click 'Edit'.
+
+On the properties tab, enter the appropriate VLAN ID and click 'OK'."
+  reference   : "800-171|3.13.8,800-53|SC-8,800-53r5|SC-8,CAT|II,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-239304r854600_rule,STIG-ID|ESXI-67-000049,Vuln-ID|V-239304"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000050 - The ESXi host must protect the confidentiality and integrity of transmitted information by isolating IP-based storage traffic."
+  info        : "Virtual machines might share virtual switches and VLANs with the IP-based storage configurations. IP-based storage includes vSAN, iSCSI, and NFS. This configuration might expose IP-based storage traffic to unauthorized virtual machine users. IP-based storage frequently is not encrypted. It can be viewed by anyone with access to this network.
+
+To restrict unauthorized users from viewing the IP-based storage traffic, the IP-based storage network must be logically separated from the production traffic. Configuring the IP-based storage adaptors on separate VLANs or network segments from other VMkernels and virtual machines will limit unauthorized users from viewing the traffic.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configuration of an IP-Based VMkernel will be unique to each environment. However, as an example, to modify the IP address and VLAN information to the correct network on a standard switch for an iSCSI VMkernel, do the following:
+
+vSAN Example:
+From the vSphere Client, select the ESXi host and go to Configure >> Networking >> VMkernel adapters.
+
+Select the dedicated vSAN VMkernel adapter and click Edit settings.
+
+On the Port properties tab, uncheck everything but 'vSAN.'
+
+On the IP Settings tab, enter the appropriate IP address and subnet information and click 'OK'.
+
+Set the appropriate VLAN ID by navigating to Configure >> Networking >> Virtual switches.
+
+Select the appropriate portgroup (iSCSI, NFS, vSAN) and click Edit settings.
+
+On the properties tab, enter the appropriate VLAN ID and click 'OK'."
+  reference   : "800-171|3.13.8,800-53|SC-8,800-53r5|SC-8,CAT|II,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-239305r854601_rule,STIG-ID|ESXI-67-000050,Vuln-ID|V-239305"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000052 - The ESXi host must protect the confidentiality and integrity of transmitted information by using different TCP/IP stacks where possible."
+  info        : "Three different TCP/IP stacks are available by default on ESXi: Default, Provisioning, and vMotion.
+
+To better protect and isolate sensitive network traffic within ESXi, administrators must configure each of these stacks. Additional custom TCP/IP stacks can be created if desired.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> Networking >> TCP/IP configuration.
+
+Select a TCP/IP stack and click 'Edit'.
+
+Enter the appropriate site-specific IP address information for the particular TCP/IP stack and click 'OK'."
+  reference   : "800-171|3.13.8,800-53|SC-8,800-53r5|SC-8,CAT|III,CCI|CCI-002418,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,Rule-ID|SV-239306r854602_rule,STIG-ID|ESXI-67-000052,Vuln-ID|V-239306"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000053 - SNMP must be configured properly on the ESXi host."
+  info        : "If SNMP is not being used, it must remain disabled. If it is being used, the proper trap destination must be configured. If SNMP is not properly configured, monitoring information can be sent to a malicious host that can then use this information to plan an attack."
+  solution    : "To disable SNMP, run the following command from a PowerCLI command prompt while connected to the ESXi Host:
+
+Get-VMHostSnmp | Set-VMHostSnmp -Enabled $false
+
+or
+
+From a console or ssh session, run the follow command:
+
+esxcli system snmp set -e no
+
+To configure SNMP for v3 targets, use the 'esxcli system snmp set' command set."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239307r674850_rule,STIG-ID|ESXI-67-000053,SWIFT-CSCv1|2.3,Vuln-ID|V-239307"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='snmpd']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='snmpd']/audit:label\"/> : running = <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:service/audit:service[audit:key='snmpd']/audit:running\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>SNMP Server : running = NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "SNMP Server : running ="
+  expect      : "SNMP Server : running = false"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000054 - The ESXi host must enable bidirectional CHAP authentication for iSCSI traffic."
+  info        : "When enabled, vSphere performs bidirectional authentication of both the iSCSI target and host. There is a potential for a MiTM attack, when not authenticating both the iSCSI target and host, in which an attacker might impersonate either side of the connection to steal data. Bidirectional authentication mitigates this risk."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> Storage >> Storage Adapters.
+
+Select the iSCSI adapter >> Properties >> Authentication and click the 'Edit' button.
+
+Set Authentication method to 'Use bidirectional CHAP' and enter a unique secret for each traffic flow direction.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-VMHostHba | Where {$_.Type -eq 'iscsi'} | Set-VMHostHba -ChapType Required -ChapName 'chapname' -ChapPassword 'password' -MutualChapEnabled $true -MutualChapName 'mutualchapname' -MutualChapPassword 'mutualpassword'"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239308r674853_rule,STIG-ID|ESXI-67-000054,SWIFT-CSCv1|2.3,Vuln-ID|V-239308"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"//audit:returnval/audit:propSet/audit:val[@xsi:type=\'HostConfigInfo\']/audit:storageDevice/audit:hostBusAdapter[contains (@xsi:type,\'InternetScsi\')]\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval/audit:propSet/audit:val[@xsi:type=\'HostConfigInfo\']/audit:storageDevice/audit:hostBusAdapter[contains (@xsi:type,\'InternetScsi\')]\">"
+  xsl_stmt    : "<xsl:value-of select=\"../../../../audit:propSet[audit:name=\'name\']/audit:val\"/> (<xsl:value-of select=\"audit:device\"/>) - chapAuthEnabled : <xsl:value-of select=\"audit:authenticationProperties/audit:chapAuthEnabled\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"//audit:propSet[audit:name=\'name\']/audit:val\"/> - <xsl:text>No iSCSI devices found</xsl:text><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "chapAuthEnabled : "
+  not_expect  : "chapAuthEnabled : False$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000055 - The ESXi host must disable Inter-VM transparent page sharing."
+  info        : "Published academic papers have demonstrated that by forcing a flush and reload of cache memory, it is possible to measure memory timings to try to determine an AES encryption key in use on another virtual machine running on the same physical processor of the host server if Transparent Page Sharing is enabled between the two virtual machines. This technique works only in a highly controlled system configured in a non-standard way that VMware believes would not be recreated in a production environment.
+
+Although VMware believes information being disclosed in real-world conditions is unrealistic, out of an abundance of caution, upcoming ESXi update releases will no longer enable TPS between virtual machines by default (TPS will still be used within individual VMs)."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Mem.ShareForceSalting' value, and configure it to '2'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Mem.ShareForceSalting | Set-AdvancedSetting -Value 2"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239309r674856_rule,STIG-ID|ESXI-67-000055,SWIFT-CSCv1|2.3,Vuln-ID|V-239309"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Mem.ShareForceSalting']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Mem.ShareForceSalting']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Mem.ShareForceSalting']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Mem.ShareForceSalting : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Mem.ShareForceSalting : "
+  expect      : "Mem.ShareForceSalting : 2$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000057 - The ESXi host must configure the firewall to block network traffic by default - incoming"
+  info        : "In addition to service-specific firewall rules, ESXi has a default firewall rule policy to allow or deny incoming and outgoing traffic. Reduce the risk of attack by making sure this is set to deny incoming and outgoing traffic."
+  solution    : "From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHostFirewallDefaultPolicy | Set-VMHostFirewallDefaultPolicy -AllowIncoming $false -AllowOutgoing $false"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239311r674862_rule,STIG-ID|ESXI-67-000057,SWIFT-CSCv1|2.3,Vuln-ID|V-239311"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:firewall/audit:defaultPolicy/audit:incomingBlocked\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - Firewall Default Policy : Incoming Blocked = <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:firewall/audit:defaultPolicy/audit:incomingBlocked\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Firewall Default Policy : Incoming Blocked = NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Firewall Default Policy : Incoming Blocked = "
+  expect      : "Firewall Default Policy : Incoming Blocked = true"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000057 - The ESXi host must configure the firewall to block network traffic by default - outgoing"
+  info        : "In addition to service-specific firewall rules, ESXi has a default firewall rule policy to allow or deny incoming and outgoing traffic. Reduce the risk of attack by making sure this is set to deny incoming and outgoing traffic."
+  solution    : "From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHostFirewallDefaultPolicy | Set-VMHostFirewallDefaultPolicy -AllowIncoming $false -AllowOutgoing $false"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239311r674862_rule,STIG-ID|ESXI-67-000057,SWIFT-CSCv1|2.3,Vuln-ID|V-239311"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:firewall/audit:defaultPolicy/audit:outgoingBlocked\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - Firewall Default Policy : Outgoing Blocked = <xsl:value-of select=\"audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:firewall/audit:defaultPolicy/audit:outgoingBlocked\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Firewall Default Policy : Outgoing Blocked =NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Firewall Default Policy : Outgoing Blocked = "
+  expect      : "Firewall Default Policy : Outgoing Blocked = true"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000058 - The ESXi host must enable BPDU filter on the host to prevent being locked out of physical switch ports with Portfast and BPDU Guard enabled."
+  info        : "BPDU Guard and Portfast are commonly enabled on the physical switch to which the ESXi host is directly connected to reduce the STP convergence delay.
+
+If a BPDU packet is sent from a virtual machine on the ESXi host to the physical switch so configured, a cascading lockout of all the uplink interfaces from the ESXi host can occur. To prevent this type of lockout, BPDU Filter can be enabled on the ESXi host to drop any BPDU packets being sent to the physical switch.
+
+The caveat is that certain SSL VPNs that use Windows bridging capability can legitimately generate BPDU packets. The administrator should verify that there are no legitimate BPDU packets generated by virtual machines on the ESXi host prior to enabling BPDU Filter. If BPDU Filter is enabled in this situation, enabling Reject Forged Transmits on the virtual switch port group adds protection against Spanning Tree loops."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Net.BlockGuestBPDU' value, and configure it to '1'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VMHost | Get-AdvancedSetting -Name Net.BlockGuestBPDU | Set-AdvancedSetting -Value 1"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239312r674865_rule,STIG-ID|ESXI-67-000058,SWIFT-CSCv1|2.3,Vuln-ID|V-239312"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Net.BlockGuestBPDU']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Net.BlockGuestBPDU']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Net.BlockGuestBPDU']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Net.BlockGuestBPDU : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Net.BlockGuestBPDU : "
+  expect      : "Net.BlockGuestBPDU : 1$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000059 - The virtual switch Forged Transmits policy must be set to reject on the ESXi host."
+  info        : "If the virtual machine operating system changes the MAC address, the operating system can send frames with an impersonated source MAC address at any time. This allows an operating system to stage malicious attacks on the devices in a network by impersonating a network adaptor authorized by the receiving network.
+
+This means the virtual switch does not compare the source and effective MAC addresses.
+
+To protect against MAC address impersonation, all virtual switches should have forged transmissions set to reject. Reject Forged Transmit can be set at the vSwitch and/or the Portgroup level. Switch-level settings can be overridden at the Portgroup level."
+  solution    : "From the vSphere Client, go to Configure >> Networking >> Virtual Switches.
+
+For each virtual switch and port group, click Edit settings (dots) and change 'Forged Transmits' to reject.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VirtualSwitch | Get-SecurityPolicy | Set-SecurityPolicy -ForgedTransmits $false
+Get-VirtualPortGroup | Get-SecurityPolicy | Set-SecurityPolicy -ForgedTransmitsInherited $true"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239313r674868_rule,STIG-ID|ESXI-67-000059,SWIFT-CSCv1|2.3,Vuln-ID|V-239313"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:network/audit:vswitch\">"
+  xsl_stmt    : "<xsl:value-of select=\"../../../../audit:propSet[audit:name='name']/audit:val\"/> - VSwitch : <xsl:value-of select=\"audit:name\"/> - Allow Forged Transmits : <xsl:value-of select=\"audit:spec/audit:policy/audit:security/audit:forgedTransmits\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : " - Allow Forged Transmits : "
+  expect      : " - Allow Forged Transmits : false"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000060 - The virtual switch MAC Address Change policy must be set to reject on the ESXi host."
+  info        : "If the virtual machine operating system changes the MAC address, it can send frames with an impersonated source MAC address at any time. This allows it to stage malicious attacks on the devices in a network by impersonating a network adaptor authorized by the receiving network.
+
+This will prevent VMs from changing their effective MAC address. It will affect applications that require this functionality, how a layer 2 bridge will operate, and applications that require a specific MAC address for licensing. Reject MAC Changes can be set at the vSwitch and/or the Portgroup level. Switch-level settings can be overridden at the Portgroup level."
+  solution    : "From the vSphere Client, go to Configure >> Networking >> Virtual Switches.
+
+For each virtual switch and port group, click Edit settings (dots) and change 'MAC Address Changes' to reject.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VirtualSwitch | Get-SecurityPolicy | Set-SecurityPolicy -MacChanges $false
+Get-VirtualPortGroup | Get-SecurityPolicy | Set-SecurityPolicy -MacChangesInherited $true"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239314r674871_rule,STIG-ID|ESXI-67-000060,SWIFT-CSCv1|2.3,Vuln-ID|V-239314"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:network/audit:vswitch\">"
+  xsl_stmt    : "<xsl:value-of select=\"../../../../audit:propSet[audit:name='name']/audit:val\"/> - VSwitch : <xsl:value-of select=\"audit:name\"/> - Allow MAC Changes : <xsl:value-of select=\"audit:spec/audit:policy/audit:security/audit:macChanges\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : " - Allow MAC Changes : "
+  expect      : " - Allow MAC Changes : false"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000061 - The virtual switch Promiscuous Mode policy must be set to reject on the ESXi host."
+  info        : "When Promiscuous Mode is enabled for a virtual switch, all virtual machines connected to the Portgroup have the potential of reading all packets across that network, meaning only the virtual machines connected to that Portgroup.
+
+Promiscuous Mode is disabled by default on the ESXi Server, and this is the recommended setting. Promiscuous Mode can be set at the vSwitch and/or the Portgroup level. Switch-level settings can be overridden at the Portgroup level."
+  solution    : "From the vSphere Client go to Configure >> Networking >> Virtual Switches.
+
+For each virtual switch and port group, click Edit settings (dots) and change 'Promiscuous Mode' to reject.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following commands:
+
+Get-VirtualSwitch | Get-SecurityPolicy | Set-SecurityPolicy -AllowPromiscuous $false
+Get-VirtualPortGroup | Get-SecurityPolicy | Set-SecurityPolicy -AllowPromiscuousInherited $true"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239315r674874_rule,STIG-ID|ESXI-67-000061,SWIFT-CSCv1|2.3,Vuln-ID|V-239315"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:network/audit:vswitch\">"
+  xsl_stmt    : "<xsl:value-of select=\"../../../../audit:propSet[audit:name='name']/audit:val\"/> - VSwitch : <xsl:value-of select=\"audit:name\"/> - Allow Promiscuous : <xsl:value-of select=\"audit:spec/audit:policy/audit:security/audit:allowPromiscuous\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : " - Allow Promiscuous : "
+  expect      : " - Allow Promiscuous : false"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000062 - The ESXi host must prevent unintended use of the dvFilter network APIs."
+  info        : "If the organization is not using products that use the dvfilter network API, the host should not be configured to send network information to a VM.
+
+If the API is enabled, an attacker might attempt to connect a VM to it, potentially providing access to the network of other VMs on the host. If the organization is using a product that uses this API, verify that the host has been configured correctly. If the organization is not using such a product, ensure the setting is blank."
+  solution    : "From the vSphere Client, select the ESXi Host and go to Configure >> System >> Advanced System Settings.
+
+Click 'Edit', select the 'Net.DVFilterBindIpAddress' value, and remove any incorrect addresses.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-AdvancedSetting -Name Net.DVFilterBindIpAddress | Set-AdvancedSetting -Value ''"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239316r674877_rule,STIG-ID|ESXI-67-000062,SWIFT-CSCv1|2.3,Vuln-ID|V-239316"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='Net.DVFilterBindIpAddress']/audit:value/text()\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Net.DVFilterBindIpAddress']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='Net.DVFilterBindIpAddress']/audit:value\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>Net.DVFilterBindIpAddress : NOT found</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "Net.DVFilterBindIpAddress : "
+  expect      : "Net.DVFilterBindIpAddress : NOT found$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000063 - For the ESXi host, all port groups must be configured to a value other than that of the native VLAN."
+  info        : "ESXi does not use the concept of native VLAN. Frames with VLAN specified in the port group will have a tag, but frames with VLAN not specified in the port group are not tagged and therefore will end up as belonging to the native VLAN of the physical switch.
+
+For example, frames on VLAN 1 from a Cisco physical switch will be untagged, because this is considered as the native VLAN. However, frames from ESXi specified as VLAN 1 will be tagged with a '1'; therefore, traffic from ESXi that is destined for the native VLAN will not be correctly routed (because it is tagged with a '1' instead of being untagged), and traffic from the physical switch coming from the native VLAN will not be visible (because it is not tagged).
+
+If the ESXi virtual switch port group uses the native VLAN ID, traffic from those VMs will not be visible to the native VLAN on the switch because the switch is expecting untagged traffic."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> Networking >> Virtual switches.
+
+Highlight the port group where VLAN ID is set to native VLAN ID and click Edit settings (dots).
+
+Change the VLAN ID to a non-native VLAN and click 'OK'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VirtualPortGroup -Name 'portgroup name' | Set-VirtualPortGroup -VLanId 'New VLAN#'"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239317r674880_rule,STIG-ID|ESXI-67-000063,SWIFT-CSCv1|2.3,Vuln-ID|V-239317"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:network/audit:portgroup\">"
+  xsl_stmt    : "<xsl:value-of select=\"../../../../audit:propSet[audit:name='name']/audit:val\"/> - Port Group : <xsl:value-of select=\"audit:spec/audit:name\"/> - VLAN : <xsl:value-of select=\"audit:spec/audit:vlanId\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "- VLAN : .*$"
+  not_expect  : "@VLAN_ID@"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000064 - For the ESXi host, all port groups must not be configured to VLAN 4095 unless Virtual Guest Tagging (VGT) is required - VGT is required."
+  info        : "When a port group is set to VLAN 4095, this activates VGT mode. In this mode, the vSwitch passes all network frames to the guest VM without modifying the VLAN tags, leaving it up to the guest to deal with them. VLAN 4095 should be used only if the guest has been specifically configured to manage VLAN tags itself. If VGT is enabled inappropriately, it might cause denial of service or allow a guest VM to interact with traffic on an unauthorized VLAN."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> Networking >> Virtual switches.
+
+Highlight a port group where VLAN ID is set to 4095 and click Edit settings (dots).
+
+Change the VLAN ID to an appropriate VLAN and click 'OK'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VirtualPortGroup -Name 'portgroup name' | Set-VirtualPortGroup -VLanId 'New VLAN#'"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239318r674883_rule,STIG-ID|ESXI-67-000064,SWIFT-CSCv1|2.3,Vuln-ID|V-239318"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:network/audit:portgroup\">"
+  xsl_stmt    : "<xsl:value-of select=\"../../../../audit:propSet[audit:name='name']/audit:val\"/> - Port Group : <xsl:value-of select=\"audit:spec/audit:name\"/> - VLAN : <xsl:value-of select=\"audit:spec/audit:vlanId\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : " - VLAN :"
+  not_expect  : " - VLAN : 4095$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000065 - For the ESXi host, all port groups must not be configured to VLAN values reserved by upstream physical switches."
+  info        : "Certain physical switches reserve certain VLAN IDs for internal purposes and often disallow traffic configured to these values. For example, Cisco Catalyst switches typically reserve VLANs 1001-1024 and 4094, while Nexus switches typically reserve 3968-4047 and 4094. Check the documentation for the specific switch. Using a reserved VLAN might result in a denial of service on the network."
+  solution    : "From the vSphere Client, select the ESXi host and go to Configure >> Networking >> Virtual switches.
+
+Highlight a port group where VLAN ID is set to a reserved value and click 'Edit' settings (dots).
+
+Change the VLAN ID to an appropriate VLAN and click 'OK'.
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VirtualPortGroup -Name 'portgroup name' | Set-VirtualPortGroup -VLanId 'New VLAN#'"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239319r674886_rule,STIG-ID|ESXI-67-000065,SWIFT-CSCv1|2.3,Vuln-ID|V-239319"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:propSet/audit:val[@xsi:type='HostConfigInfo']/audit:network/audit:portgroup\">"
+  xsl_stmt    : "<xsl:value-of select=\"../../../../audit:propSet[audit:name='name']/audit:val\"/> - Port Group : <xsl:value-of select=\"audit:spec/audit:name\"/> - VLAN : <xsl:value-of select=\"audit:spec/audit:vlanId\"/><xsl:text>&#10;</xsl:text>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : " - VLAN :"
+  not_expect  : " - VLAN : (100[1-9]|101[0-9]|102[0-4]|396[8-9]|39[7-9][0-9]|40[0-3][0-9]|404[0-7]|4094)$"
+</custom_item>
+
+<report type:"WARNING">
+  description : "ESXI-67-000066 - For physical switch ports connected to the ESXi host, the non-negotiate option must be configured for trunk links between external physical switches and virtual switches in Virtual Switch Tagging (VST) mode."
+  info        : "To communicate with virtual switches in VST mode, external switch ports must be configured as trunk ports. VST mode does not support Dynamic Trunking Protocol (DTP), so the trunk must be static and unconditional. The auto or desirable physical switch settings do not work with the ESXi Server because the physical switch communicates with the ESXi Server using DTP.
+
+The non-negotiate and on options unconditionally enable VLAN trunking on the physical switch and create a VLAN trunk link between the ESXi Server and the physical switch. The difference between non-negotiate and on options is that on mode still sends out DTP frames, whereas the non-negotiate option does not. The non-negotiate option should be used for all VLAN trunks to minimize unnecessary network traffic for virtual switches in VST mode.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Note that this check refers to an entity outside the physical scope of the ESXi server system.
+
+Document the configuration of external switch ports as trunk ports.
+
+Log in to the vendor-specific physical switch and disable DTP on the physical switch ports connected to the ESXi host.
+
+Update the documentation according to an organization-defined frequency or whenever modifications are made to either ESXi hosts or the upstream external switch ports."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239320r674889_rule,STIG-ID|ESXI-67-000066,SWIFT-CSCv1|2.3,Vuln-ID|V-239320"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000067 - All ESXi host-connected physical switch ports must be configured with spanning tree disabled."
+  info        : "Since VMware virtual switches do not support STP, the ESXi host-connected physical switch ports must have portfast configured if spanning tree is enabled to avoid loops within the physical switch network. If these are not set, potential performance and connectivity issues might arise.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Note that this check refers to an entity outside the scope of the ESXi server system.
+
+Document the upstream physical switch configuration for spanning tree protocol disablement and/or portfast configuration for all physical ports connected to ESXi hosts.
+
+Log in to the physical switch(es) and disable spanning tree protocol and/or configure portfast for all physical ports connected to ESXi hosts.
+
+Update the documentation on an organization defined frequency or whenever modifications are made to either ESXi hosts or the upstream physical switches."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239321r674892_rule,STIG-ID|ESXI-67-000067,SWIFT-CSCv1|2.3,Vuln-ID|V-239321"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000068 - All ESXi host-connected virtual switch VLANs must be fully documented and have only the required VLANs."
+  info        : "When defining a physical switch port for trunk mode, only specified VLANs must be configured on the VLAN trunk link. The risk with not fully documenting all VLANs on the vSwitch is that it is possible that a physical trunk port might be configured without needed VLANs, or with unneeded VLANs. This could enable an administrator to either accidentally or maliciously connect a VM to an unauthorized VLAN.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Note that this check refers to an entity outside the scope of the ESXi server system.
+
+Remove any VLANs trunked across physical ports connected to ESXi hosts that are not in use."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239322r674895_rule,STIG-ID|ESXI-67-000068,SWIFT-CSCv1|2.3,Vuln-ID|V-239322"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000070 - The ESXi host must not provide root/administrator-level access to CIM-based hardware monitoring tools or other third-party applications."
+  info        : "The CIM system provides an interface that enables hardware-level management from remote applications via a set of standard APIs. Create a limited-privilege, read-only service account for CIM. Grant this role to the user on the ESXi server. Place this user in the Exception Users list. When/where write access is required, create/enable a limited-privilege service account and grant only the minimum required privileges.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Create a role for the CIM account:
+
+From the Host Client, go to Manage >> Security & Users.
+
+Select 'Roles' and click 'Add Role'.
+
+Provide a name for the new role and select Host >> Cim >> Ciminteraction and click 'Add'.
+
+Add a CIM user account:
+
+From the Host Client, go to Manage >> Security & Users.
+
+Select 'Users' and click 'Add User'.
+
+Provide a name, description, and password for the new user and click 'Add'.
+
+Assign the CIM account permissions to the host with the new role.
+
+From the Host Client, select the ESXi host, right-click, and go to 'Permissions'.
+
+Click 'Add User', select the CIM account from the drop-down list, select the new CIM role from the drop-down list, and click 'Add User'."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239323r674898_rule,STIG-ID|ESXI-67-000070,SWIFT-CSCv1|2.3,Vuln-ID|V-239323"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000071 - The SA must verify the integrity of the installation media before installing ESXi."
+  info        : "Always check the SHA1 or MD5 hash after downloading an ISO, offline bundle, or patch to ensure integrity and authenticity of the downloaded files.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "If the hash returned from the 'md5sum' or 'sha1sum' commands do not match the vendor's hash, the downloaded software must be discarded.
+
+If the physical media is obtained from VMware and the security seal is broken, the software must be returned to VMware for replacement."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239324r674901_rule,STIG-ID|ESXI-67-000071,SWIFT-CSCv1|2.3,Vuln-ID|V-239324"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "ESXI-67-000072 - The ESXi host must have all security patches and updates installed."
+  info        : "Installing software updates is a fundamental mitigation against the exploitation of publicly known vulnerabilities.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "If vCenter Update Manager is used on the network, hosts can be remediated from the vSphere Web Client.
+
+From the vSphere Client, go to Hosts and Clusters >> Updates.
+
+Check under 'Attached Baselines'. If there are no baselines attached, select the drop-down 'Attach >> Attach Baseline or Baseline Group'. Select 'attach' and select the type of patches.
+
+Click on Check Compliance to check Host(s) Compliance.
+
+To manually remediate a host, the patch file must be copied locally and the following command run from an SSH session connected to the ESXi host or from the ESXi shell:
+
+esxcli software vib update -d <path to offline patch bundle.zip>"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239325r674904_rule,STIG-ID|ESXI-67-000072,SWIFT-CSCv1|2.3,Vuln-ID|V-239325"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000074 - The ESXi host must exclusively enable TLS 1.2 for all endpoints."
+  info        : "TLS 1.0 and 1.1 are deprecated protocols with well-published shortcomings and vulnerabilities. TLS 1.2 should be enabled on all interfaces and SSLv3, TL 1.1, and 1.0 disabled where supported.
+
+Mandating TLS 1.2 may break third-party integrations and add-ons to vSphere. Test these integrations carefully after implementing TLS 1.2 and roll back where appropriate.
+
+On interfaces where required functionality is broken with TLS 1.2 this finding is not applicable until the third-party software supports TLS 1.2.
+
+Be sure to modify TLS settings in the following order:
+
+1. Platform Services Controllers (if applicable)
+2. vCenter
+3. ESXi"
+  solution    : "From the vSphere Web Client, select the host and click Configure >> System >> Advanced System Settings.
+
+Find the 'UserVars.ESXiVPsDisabledProtocols' value and set it to the following:
+
+tlsv1,tlsv1.1,sslv3
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-AdvancedSetting -Name UserVars.ESXiVPsDisabledProtocols | Set-AdvancedSetting -Value 'tlsv1,tlsv1.1,sslv3'
+
+A host reboot is required for changes to take effect."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239326r674907_rule,STIG-ID|ESXI-67-000074,SWIFT-CSCv1|2.3,Vuln-ID|V-239326"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiVPsDisabledProtocols']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiVPsDisabledProtocols']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.ESXiVPsDisabledProtocols']/audit:value\"/><xsl:text>
+</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>UserVars.ESXiVPsDisabledProtocols : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "UserVars.ESXiVPsDisabledProtocols : "
+  expect      : "UserVars.ESXiVPsDisabledProtocols : sslv3,tlsv1,tlsv1.1$"
+</custom_item>
+
+<custom_item>
+  type        : AUDIT_ESX
+  description : "ESXI-67-000079 - The ESXi host must not suppress warnings that the local or remote shell sessions are enabled."
+  info        : "Warnings that local or remote shell sessions are enabled alert administrators to activity that they may not be aware of and need to investigate."
+  solution    : "From the vSphere Web Client, select the host and click Configure >> System >> Advanced System Settings.
+
+Find the 'UserVars.SuppressShellWarning' value and set it to the following:
+
+0
+
+or
+
+From a PowerCLI command prompt while connected to the ESXi host, run the following command:
+
+Get-VMHost | Get-AdvancedSetting -Name UserVars.SuppressShellWarning | Set-AdvancedSetting -Value '0'"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-239329r674916_rule,STIG-ID|ESXI-67-000079,SWIFT-CSCv1|2.3,Vuln-ID|V-239329"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+  xsl_stmt    : "<xsl:template match=\"/\">"
+  xsl_stmt    : "<xsl:for-each select=\"//audit:returnval\">"
+  xsl_stmt    : "<xsl:choose>"
+  xsl_stmt    : "<xsl:when test=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.SuppressShellWarning']\">"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.SuppressShellWarning']/audit:key\"/> : <xsl:value-of select=\"audit:propSet/audit:val/audit:option[audit:key='UserVars.SuppressShellWarning']/audit:value\"/><xsl:text>
+</xsl:text>"
+  xsl_stmt    : "</xsl:when>"
+  xsl_stmt    : "<xsl:otherwise>"
+  xsl_stmt    : "<xsl:value-of select=\"audit:propSet[audit:name='name']/audit:val\"/> - <xsl:text>UserVars.SuppressShellWarning : NOT configured</xsl:text>"
+  xsl_stmt    : "</xsl:otherwise>"
+  xsl_stmt    : "</xsl:choose>"
+  xsl_stmt    : "</xsl:for-each>"
+  xsl_stmt    : "</xsl:template>"
+  regex       : "UserVars.SuppressShellWarning : "
+  expect      : "UserVars.SuppressShellWarning : 0$"
+</custom_item>
+
+<report type:"WARNING">
+  description : "ESXI-67-000999 - The version of ESXi running on the server must be a supported version."
+  info        : "Security flaws with software applications are discovered daily. Vendors are constantly updating and patching their products to address newly discovered security vulnerabilities. Organizations (including any contractor to the organization) are required to promptly install security-relevant software updates (e.g., patches, service packs, and hot fixes). Flaws discovered during security assessments, continuous monitoring, incident response activities, or information system error handling must also be addressed expeditiously.
+
+Organization-defined time periods for updating security-relevant software may vary based on a variety of factors including, for example, the security category of the information system or the criticality of the update (i.e., severity of the vulnerability related to the discovered flaw).
+
+This requirement will apply to software patch management solutions that are used to install patches across the enclave and to applications that are not part of that patch management solution. For example, many browsers today provide the capability to install their own patch software. Patch criticality, as well as system criticality, will vary. Therefore, the tactical situations regarding the patch management process will also vary. This means the time period used must be a configurable parameter. Time frames for application of security-relevant software updates may be dependent upon the Information Assurance Vulnerability Management (IAVM) process.
+
+The application will be configured to check for and install security-relevant software updates within an identified time period from the availability of the update. The specific time period will be defined by an authoritative source (e.g., IAVM, CTOs, DTMs, and STIGs).
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Upgrade to a supported version."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,DISA_Benchmark|VMW_vSphere_6-7_ESXi_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-257278r919196_rule,STIG-ID|ESXI-67-000999,SWIFT-CSCv1|2.3,Vuln-ID|V-257278"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_VMW_vSphere_6-7_Y23M07_STIG.zip"
+</report>
+
+</check_type>

@@ -1,0 +1,2624 @@
+#TRUSTED 18a9ef26a16c2390332d5fe2d69ef8cfea312aac531d1bdc5f0f03c95b9dfad61e2d204256756e875241d683da0ff1c9bc778b25527878645c9e7853d560c554cb616e97e1692aec1fe43b588b76958586b68a3e20fbfceb3205c512a520cea355cf39dbce3367ae26372ba79af7cb69de2eae717fdc2d4d7b7f74b1be3de67cc8470204b1b544d72deec59a5ec511977f2172a7c89c63fc71a83ca980a2c6793d627aa13c02a8947a6068df5e756577b04675a8c3e65108a5f8483de18a7c6aac0f8740c3315b6f4b3eaf0c3453e6b9ed4d1cf14dabbf97b0d499b47d462ea35b5c9b04f6ffd8ec0aa49914a7e47e7b14e03f41dc44b543bce911251b22428fcf9000547faf6cc922b50ed71a535e36e86540d05403fe0c2664de1601470a7250acab93adbdd847f6f4391d4d2aaff3594bbf89871a4a17824635b8f892b7c3276c74a1a729d181ab7ce603c1d4edfd4abd7fd50cf32aa246c0103841d68597d115763636c76f6c3e01017a57eec01b77a7081559a099f45779792fddd2915dd2010ad1fc688b90209a00b717d3c774155f61c4804907abe9f21c3418e6978bace8bd818eac15eae546f2aeb95e750e482828181fb17bf5b4c7723962ff6235cb9b1caa68f111360fbc5d7e8806db3c66a6ccd3e298ad2005d80971b4eabeae6d2db2c1fae6357024d25cac78eae0299a40e541d95e29a4ba231416abd0c973
+#TRUST-RSA-SHA256 4366039caa1e4866a8b825ea6076a64df851dd9aa2df94219f568da1b5f24d4779c90cfef0157c41bdd58ffc1c67230deb2e3ff6ef76ccfe86d2241b576ed207cb0ca59d96560ad86ca2ec256183bdf5bdcfa48aca72eabcefa319abf0001e69f197a4b94224585cd33e91516710151dd8a65c2d8f677276f00c915c1292aeffb3153b66cd9e29c528417caa3fbfdfd6dd673809a7699462e1d2c1953f69d1978edf25d6ebb2eef339aab950404f6f9c7d9adfb7444ff7da9d6533e02415a95ff7671f5af8c6d661f7102d2e26873b059f8ea62e9f26efb32b643009ce91499ee683d0df8559625e2e1c73f40016cea57793fe5ecf2091de09f0b33e2897bdb4c735526de4cf30797e7b4b6755aa135d3f4075ec761f632fd77f902404ff23ee38978c044e808a74722d1bd8a4776ed241258f889b64eb9bc4c23622a8442891fdd1002cda8ce65db5daebe99e32f03a5905f4eacfe18eae9c847615e58e2615a01f0b06c6e66c7a88374a9f1548f77679284a281a37674616f8a5a9bc6551cf24f689902b6e0d81118896144a794108098d304f9e8a1b92dc51338da739b832d86fcacce733fa93c188e29f31b958f026d483074f2bb63ebcffab1d723dc0cdd9572a22d3a35ed3ae6dd223017deede92956ba405a85e593a62db0d6534b9d881f546005e33e3096750e658dfaa4fd5b3d4af13a118caad68deba80f064c7e9
+#
+# This script is Copyright (C) 2004-2026 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2026/06/09 $
+#
+# description : This .audit is designed against the CIS Google Cloud Platform Foundation Benchmark v5.0.0
+#
+#<ui_metadata>
+#<display_name>CIS Google Cloud Platform Foundation v5.0.0 L2</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Google Cloud Platform Foundation</name>
+#  <profile>L2</profile>
+#  <version>5.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/22181</link>
+#</spec>
+#<labels>cis</labels>
+#<benchmark_refs>CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>SAMPLE_RATE</name>
+#    <default>1</default>
+#    <description>Backend Service Logging Sample Rate</description>
+#    <info>Specifies the sampling probability that an HTTP(S) access entry gets logged.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>POSTGRESQL_LOG_STATEMENT</name>
+#    <default>ddl</default>
+#    <description>PostgreSQL Log Statement Database Flag</description>
+#    <info>A value of 'ddl' is recommended unless otherwise directed by your organization's logging policy.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"GCP">
+
+<if>
+  <condition auto:"FAILED" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "Encrypter"
+      request        : "listProjectIAM"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value | ( [.bindings[] | select((.role == \"roles/cloudkms.admin\") or (.role == \"roles/cloudkms.cryptoKeyEncrypter\")).members[] ]) | group_by(.) | map({User: ., Count: length}) | .[] | select(.Count == 2).User | unique as $user | \"Project Number: \($projectNumber), Project ID: \($projectId), Service Account Admin and Cloud KMS CryptoKey Encrypter: \($user[])\""
+      regex          : "Service Account Admin and Cloud KMS CryptoKey Encrypter:"
+      not_expect     : "Service Account Admin and Cloud KMS CryptoKey Encrypter: .+"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Encrypter/Decrypter"
+      request        : "listProjectIAM"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value | ( [.bindings[] | select((.role == \"roles/cloudkms.admin\") or (.role == \"roles/cloudkms.cryptoKeyEncrypterDecrypter\")).members[] ]) | group_by(.) | map({User: ., Count: length}) | .[] | select(.Count == 2).User | unique as $user | \"Project Number: \($projectNumber), Project ID: \($projectId), Service Account Admin and Cloud KMS CryptoKey Encrypter/Decrypter: \($user[])\""
+      regex          : "Service Account Admin and Cloud KMS CryptoKey Encrypter/Decrypter:"
+      not_expect     : "Service Account Admin and Cloud KMS CryptoKey Encrypter/Decrypter: .+"
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "Decrypter"
+      request        : "listProjectIAM"
+      json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value | ( [.bindings[] | select((.role == \"roles/cloudkms.admin\") or (.role == \"roles/cloudkms.cryptoKeyDecrypter\")).members[] ]) | group_by(.) | map({User: ., Count: length}) | .[] | select(.Count == 2).User | unique as $user | \"Project Number: \($projectNumber), Project ID: \($projectId), Service Account Admin and Cloud KMS CryptoKey Decrypter: \($user[])\""
+      regex          : "Service Account Admin and Cloud KMS CryptoKey Decrypter:"
+      not_expect     : "Service Account Admin and Cloud KMS CryptoKey Decrypter: .+"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "1.12 Ensure That Separation of Duties Is Enforced While Assigning KMS Related Roles to Users"
+      info        : "It is recommended that the principle of 'Separation of Duties' is enforced while assigning KMS related roles to users.
+
+The built-in/predefined IAM role Cloud KMS Admin allows the user/identity to create, delete, and manage service account(s).
+The built-in/predefined IAM role Cloud KMS CryptoKey Encrypter/Decrypter allows the user/identity (with adequate privileges on concerned resources) to encrypt and decrypt data at rest using an encryption key(s).
+
+The built-in/predefined IAM role Cloud KMS CryptoKey Encrypter allows the user/identity (with adequate privileges on concerned resources) to encrypt data at rest using an encryption key(s).
+The built-in/predefined IAM role Cloud KMS CryptoKey Decrypter allows the user/identity (with adequate privileges on concerned resources) to decrypt data at rest using an encryption key(s).
+
+Separation of duties is the concept of ensuring that one individual does not have all necessary permissions to be able to complete a malicious action. In Cloud KMS, this could be an action such as using a key to access and decrypt data a user should not normally have access to. Separation of duties is a business control typically used in larger organizations, meant to help avoid security or privacy incidents and errors. It is considered best practice.
+
+No user(s) should have Cloud KMS Admin and any of the Cloud KMS CryptoKey Encrypter/Decrypter, Cloud KMS CryptoKey Encrypter, Cloud KMS CryptoKey Decrypter roles assigned at the same time."
+      solution    : "From Google Cloud Console
+
+ -
+
+Go to IAM & Admin/IAM using https://console.cloud.google.com/iam-admin/iam
+
+ -
+
+For any member having Cloud KMS Admin and any of the Cloud KMS CryptoKey Encrypter/Decrypter, Cloud KMS CryptoKey Encrypter, Cloud KMS CryptoKey Decrypter roles granted/assigned, click the Delete Bin icon to remove the role from the member.
+
+Note: Removing a role should be done based on the business requirement.
+
+Impact:
+
+Removed roles should be assigned to another user based on business needs."
+      reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "1.1.3 Ensure Folders Are Structured By Environment And Sensitivity"
+  info        : "Ensure that GCP Resource Manager folders are structured primarily by environment (for example, production, non-production, sandbox) and sensitivity (for example, security, logging, shared services, regulated workloads), rather than mirroring the corporate org chart. Folders should group projects that share similar security requirements and controls so that appropriate Organization Policies, IAM policies, and other guardrails can be applied consistently at the folder level.
+
+A clear folder structure based on environment and sensitivity makes it easier to apply consistent guardrails and centralized security controls to projects that have similar risk profiles and compliance needs. Folders enable hierarchical policy inheritance where stricter controls can be applied to production folders while development folders can have more relaxed policies for experimentation. Poorly defined or ad-hoc folder structures complicate policy management, increase the chance of misapplied controls, and can lead to mixing workloads with different data sensitivities under the same set of controls. Without proper folder segregation, a compromised development project can be used to pivot into production resources, security policies cannot be enforced consistently, and compliance auditing becomes significantly more complex.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From Google Cloud Admin Console
+
+ - Work with security, platform, and application teams to agree on a small set of top-level OUs such as:
+
+ - Security / Management
+ - Shared Services / Infrastructure
+ - Prod
+ - Non-Prod (dev, test, staging)
+ - You may also define dedicated OUs for highly regulated workloads.
+
+ - Create Folder Structure in GCP
+
+ - Navigate to Google Cloud Console at https://console.cloud.google.com
+ - Select your organization from the organization dropdown
+ - Go to IAM & Admin -> Manage resources
+ - Click CREATE FOLDER at the top
+ - For each top-level folder in your design:
+
+ - Enter Folder name (e.g., \"Production\")
+ - Select Organization as the parent
+ - Click CREATE
+
+ - For sub-folders (e.g., \"Regulated\" under \"Production\"):
+
+ - Click CREATE FOLDER
+ - Enter Folder name (e.g., \"Regulated\")
+ - Select the parent folder (e.g., \"Production\")
+ - Click CREATE
+
+ - Repeat until the complete folder structure is created
+
+ -
+
+Export or list all existing projects and their current folders. Create a simple mapping from each project to its target folder based on environment and sensitivity.
+
+ -
+
+Move Projects to Environment/Sensitivity-Based Folders
+
+ - Navigate to IAM & Admin -> Manage resources
+ - Start with low-risk projects (sandbox and non-production):
+
+ - Locate the project in the current hierarchy
+ - Click the three-dot menu next to the project
+ - Select Move
+ - In the Select a destination dialog, choose the target folder from your folder structure
+ - Click MOVE
+
+ - Test that workloads continue to function after the move
+ - After validating low-risk moves, proceed with production and high-sensitivity projects.
+
+ - After projects have been moved, remove old folders that no longer reflect the target structure.
+
+ - Ensure no active projects remain directly under the root unless explicitly justified and documented.
+ - Update architecture docs, onboarding runbooks, and project request processes to require new projects to be created in the correct folder based on environment and sensitivity.
+
+Impact:
+
+Restructuring folders by environment and sensitivity can require moving projects, changing inherited Organization Policies and IAM policies, and updating automation that assumes existing folder paths. This may introduce short-term operational overhead, including policy revalidation, testing of workloads under new guardrails, and coordination with application and platform teams to avoid unintended service disruption. Projects may experience changes in inherited permissions and policy constraints when moved to new folders."
+  reference   : "800-171|3.13.4,800-171r3|03.13.04,800-53|SC-4,800-53r5|SC-4,CSCv8|3.12,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,LEVEL|2M"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "1.13 Ensure API Keys Only Exist for Active Services"
+  info           : "API Keys should only be used for services in cases where other authentication methods are unavailable. Unused keys with their permissions in tact may still exist within a project. Keys are insecure because they can be viewed publicly, such as from within a browser, or they can be accessed on a device where the key resides. It is recommended to use standard authentication flow instead.
+
+To avoid the security risk in using API keys, it is recommended to use standard authentication flow instead. Security risks involved in using API-Keys appear below:
+
+ -
+
+API keys are simple encrypted strings
+
+ -
+
+API keys do not identify the user or the application making the API request
+
+ -
+
+API keys are typically accessible to clients, making it easy to discover and steal an API key"
+  solution       : "From Google Cloud Console
+
+ -
+
+Go to APIs & Services\\Credentials using https://console.cloud.google.com/apis/credentials.
+
+ -
+
+In the section API Keys, to delete API Keys: Click the Delete Bin Icon in front of every API Key Name.
+
+From Google Cloud Command Line
+
+ - Run the following from within the project you wish to audit
+
+gcloud services api-keys list --filter
+
+ - Run the following command, providing the ID of the key or fully qualified identifier for the key for <key_id>:
+
+gcloud services api-keys delete <key_id>
+
+Impact:
+
+Deleting an API key will break dependent applications (if any)."
+  reference      : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv7|16.8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listServicesApiKeys"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.keys[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Name: \(.name), Display Name: \(.displayName), Create Time: \(.createTime)\""
+  regex          : "Name:"
+  not_expect     : "Name:"
+</custom_item>
+
+<report type:"WARNING">
+  description : "1.1.4 Ensure Organization Policies Are Configured For Centralized Constraints"
+  info        : "Ensure that one or more baseline Organization Policies are configured at the organization or folder level in accordance with enterprise security requirements. Organization Policies act as preventive guardrails that set centralized constraints on how resources can be configured across all projects within the organization hierarchy. These policies can enforce security invariants such as preventing public IP addresses on compute instances, requiring OS Login for SSH access, restricting resource locations to approved regions, enforcing uniform bucket-level access on Cloud Storage, or limiting IAM policy member domains to prevent external sharing.
+
+Organization Policies do not grant permissions but instead set organization-wide limits on resource configurations and service usage, regardless of local project-level IAM policies. Without baseline guardrail Organization Policies, each project can configure resources inconsistently, disable security features, use unapproved regions, allow public access to resources, or share data with external domains. Configuring standard Organization Policies at the organization or folder level enforces preventive, centralized control over high-risk configurations, supports consistent security posture at scale, and helps ensure that all projects operate within the organization's defined security baseline. Organization Policies are inherited down the resource hierarchy (organization -> folder -> project), making them an effective mechanism for enforcing security controls across large numbers of projects.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "IMPORTANT: Before enforcing Organization Policies, it is strongly recommended to use dry run mode to test policies without blocking any operations. Dry run mode allows you to preview what resources would be blocked and review violations in Cloud Asset Inventory before actual enforcement. This prevents unintended disruption to existing workloads.
+
+From Google Cloud Admin Console
+
+ -
+
+Design or confirm baseline Organization policies
+
+ - Navigate to Google Cloud Console at https://console.cloud.google.com
+ - Select your organization from the organization dropdown
+ - Go to IAM & Admin -> Organization Policies
+ - Review existing policies and identify gaps based on your security requirements
+ - Document which constraints need to be configured
+
+ -
+
+Configure organization policies at Organization level for each baseline security constraint identified in Step 1:
+
+ - In the Organization Policies page, search for the constraint (e.g., compute.requireOsLogin )
+ - Click Manage policy for that constraint
+ - Select Override parent's policy to configure the policy
+ - Configure the policy based on the constraint type:
+
+ - For boolean constraints (e.g., require OS Login, skip default network):
+
+ - Click on Add a rule
+ - Select Enforcement On to enable the constraint
+ - Add Condition for any exclusions as needed
+
+ - For list constraints (e.g., resource locations, allowed domains):
+
+ - For Policy enforcement select Merge with Parent or Replace
+ - Click on Add a rule
+ - Under Policy values, select how to enforce:
+
+ - Deny all or Allow all
+ - Custom - add specific allowed or denied values (e.g., specific regions, specific domains)
+
+ - Example for resource locations: Select Custom, choose Allow, add in:us-locations and in:eu-locations
+
+ - Click Set policy
+ - Verify the policy shows as \"Enforced\" in the Organization Policies list
+
+ -
+
+Configure Organization Policies at Folder Level (if using folder structure)
+If your organization uses folders for environment separation (e.g., Production, Non-Production):
+
+ - Navigate to the specific folder by selecting it in the organization hierarchy
+ - Go to IAM & Admin -> Organization Policies for that folder
+ - Configure folder-specific policies if different constraints are needed per environment
+
+ - Example: Stricter policies for production folders (deny all external IPs)
+ - Example: Relaxed policies for development folders (allow specific regions)
+
+ - Ensure folder-level policies do not weaken organization-level security controls unless explicitly approved
+
+Impact:
+
+Enforcing baseline Organization Policies can initially block some existing resource configurations, such as use of unapproved regions, creation of resources with public IPs, or external domain sharing. Teams may need to adjust deployment pipelines, Terraform configurations, and exception processes so legitimate use cases remain possible within the new guardrails. This can introduce short-term operational overhead and require careful testing, especially when applying new policies at the organization or root folder level. Organizations should test policies in non-production folders before applying them broadly."
+  reference   : "800-171|3.1.1,800-171r3|03.01.01,800-171r3|03.01.02,800-53|AC-2(1),800-53|AC-3,800-53r5|AC-2(1),800-53r5|AC-3,CN-L3|7.1.3.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv8|5.6,CSCv8|6.7,CSF|PR.AC-1,CSF|PR.AC-4,CSF|PR.PT-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.5.33,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-2(1),ITSG-33|AC-3,LEVEL|2M,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,TBA-FIISB|31.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "1.14 Ensure API Keys Are Restricted To Use by Only Specified Hosts and Apps"
+  info           : "API Keys should only be used for services in cases where other authentication methods are unavailable. In this case, unrestricted keys are insecure because they can be viewed publicly, such as from within a browser, or they can be accessed on a device where the key resides. It is recommended to restrict API key usage to trusted hosts, HTTP referrers and apps. It is recommended to use the more secure standard authentication flow instead.
+
+Security risks involved in using API-Keys appear below:
+
+ -
+
+API keys are simple encrypted strings
+
+ -
+
+API keys do not identify the user or the application making the API request
+
+ -
+
+API keys are typically accessible to clients, making it easy to discover and steal an API key
+
+In light of these potential risks, Google recommends using the standard authentication flow instead of API keys. However, there are limited cases where API keys are more appropriate. For example, if there is a mobile application that needs to use the Google Cloud Translation API, but doesn't otherwise need a backend server, API keys are the simplest way to authenticate to that API.
+
+In order to reduce attack vectors, API-Keys can be restricted only to trusted hosts, HTTP referrers and applications."
+  solution       : "From Google Cloud Console
+
+Leaving Keys in Place
+
+ -
+
+Go to APIs & Services\\Credentials using https://console.cloud.google.com/apis/credentials
+
+ -
+
+In the section API Keys, Click the API Key Name . The API Key properties display on a new page.
+
+ -
+
+In the Key restrictions section, set the application restrictions to any of HTTP referrers, IP addresses, Android apps, iOS apps.
+
+ -
+
+Click Save.
+
+ -
+
+Repeat steps 2,3,4 for every unrestricted API key.
+Note: Do not set HTTP referrers to wild-cards (* or *.[TLD] or .[TLD]/) allowing access to any/wide HTTP referrer(s)
+Do not set IP addresses and referrer to any host (0.0.0.0 or 0.0.0.0/0 or ::0)
+
+Removing Keys
+
+Another option is to remove the keys entirely.
+
+ -
+
+Go to APIs & Services\\Credentials using https://console.cloud.google.com/apis/credentials
+
+ -
+
+In the section API Keys, select the checkbox next to each key you wish to remove
+
+ -
+
+Select Delete and confirm.
+
+Impact:
+
+Setting Application Restrictions may break existing application functioning, if not done carefully."
+  reference      : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2M,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listServicesApiKeys"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.keys[] | select(has(\"restrictions\") | not) | \"Project Number: \($projectNumber), Project ID: \($projectId), Name: \(.name), Display Name: \(.displayName), Create Time: \(.createTime)\""
+  regex          : "Name:"
+  not_expect     : "Name:"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "1.15 Ensure API Keys Are Restricted to Only APIs That Application Needs Access"
+  info           : "API Keys should only be used for services in cases where other authentication methods are unavailable. API keys are always at risk because they can be viewed publicly, such as from within a browser, or they can be accessed on a device where the key resides. It is recommended to restrict API keys to use (call) only APIs required by an application.
+
+Security risks involved in using API-Keys are below:
+
+ -
+
+API keys are simple encrypted strings
+
+ -
+
+API keys do not identify the user or the application making the API request
+
+ -
+
+API keys are typically accessible to clients, making it easy to discover and steal an API key
+
+In light of these potential risks, Google recommends using the standard authentication flow instead of API-Keys. However, there are limited cases where API keys are more appropriate. For example, if there is a mobile application that needs to use the Google Cloud Translation API, but doesn't otherwise need a backend server, API keys are the simplest way to authenticate to that API.
+
+In order to reduce attack surfaces by providing least privileges, API-Keys can be restricted to use (call) only APIs required by an application."
+  solution       : "From Google Cloud Console
+
+ -
+
+Go to APIs & Services\\Credentials using https://console.cloud.google.com/apis/credentials
+
+ -
+
+In the section API Keys, Click the API Key Name . The API Key properties display on a new page.
+
+ -
+
+In the Key restrictions section go to API restrictions.
+
+ -
+
+Click the Select API drop-down to choose an API.
+
+ -
+
+Click Save.
+
+ -
+
+Repeat steps 2,3,4,5 for every unrestricted API key
+
+Note: Do not set API restrictions to Google Cloud APIs, as this option allows access to all services offered by Google cloud.
+
+From Google Cloud CLI
+
+ - List all API keys.
+
+gcloud services api-keys list
+
+ - Note the UID of the key to add restrictions to.
+ - Run the update command with the appropriate API target service or flags file with API target services and methods to add the required restrictions.
+
+Command with appropriate API target service:
+
+gcloud services api-keys update <UID> --api-target=service=<service>
+
+Command with flags file:
+
+gcloud services api-keys update <UID> --flags-file=<flags_file>.yaml
+
+Content of flags file:
+
+  - --api-target:
+      service: \"foo.service.com\"
+  - --api-target:
+      service: \"bar.service.com\"
+      methods:
+      - \"foomethod\"
+      - \"barmethod\"
+
+Note: Flags can be found by running:
+
+gcloud services api-keys update --help
+
+Note: Services can be found by running:
+
+gcloud services list
+
+or in this documentation
+https://cloud.google.com/sdk/gcloud/reference/services/api-keys/update
+
+Impact:
+
+Setting API restrictions may break existing application functioning, if not done carefully."
+  reference      : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listServicesApiKeys"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.keys[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Name: \(.name), Display Name: \(.displayName), Restrictions: \(.restrictions)\""
+  regex          : "Restrictions:"
+  not_expect     : "Restrictions: (null|.*\"cloudapis.googleapis.com\")"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "1.16 Ensure API Keys Are Rotated Every 90 Days"
+  info           : "API Keys should only be used for services in cases where other authentication methods are unavailable. If they are in use it is recommended to rotate API keys every 90 days.
+
+Security risks involved in using API-Keys are listed below:
+
+ -
+
+API keys are simple encrypted strings
+
+ -
+
+API keys do not identify the user or the application making the API request
+
+ -
+
+API keys are typically accessible to clients, making it easy to discover and steal an API key
+
+Because of these potential risks, Google recommends using the standard authentication flow instead of API Keys. However, there are limited cases where API keys are more appropriate. For example, if there is a mobile application that needs to use the Google Cloud Translation API, but doesn't otherwise need a backend server, API keys are the simplest way to authenticate to that API.
+
+Once a key is stolen, it has no expiration, meaning it may be used indefinitely unless the project owner revokes or regenerates the key.
+Rotating API keys will reduce the window of opportunity for an access key that is associated with a compromised or terminated account to be used.
+
+API keys should be rotated to ensure that data cannot be accessed with an old key that might have been lost, cracked, or stolen."
+  solution       : "From Google Cloud Console
+
+ -
+
+Go to APIs & Services\\Credentials using https://console.cloud.google.com/apis/credentials
+
+ -
+
+In the section API Keys, Click the API Key Name . The API Key properties display on a new page.
+
+ -
+
+Click REGENERATE KEY to rotate API key.
+
+ -
+
+Click Save.
+
+ -
+
+Repeat steps 2,3,4 for every API key that has not been rotated in the last 90 days.
+
+Note: Do not set HTTP referrers to wild-cards (* or *.[TLD] or .[TLD]/) allowing access to any/wide HTTP referrer(s)
+Do not set IP addresses and referrer to any host (0.0.0.0 or 0.0.0.0/0 or ::0)
+
+From Google Cloud CLI
+
+There is not currently a way to regenerate and API key using gcloud commands. To 'regenerate' a key you will need to create a new one, duplicate the restrictions from the key being rotated, and delete the old key.
+
+ - List existing keys.
+
+gcloud services api-keys list
+
+ -
+
+Note the UID and restrictions of the key to regenerate.
+
+ -
+
+Run this command to create a new API key. <key_name> is the display name of the new key.
+
+gcloud services api-keys create --display-name=\"<key_name>\"
+
+Note the UID of the newly created key
+
+ - Run the update command to add required restrictions.
+
+Note - the restriction may vary for each key. Refer to this documentation for the appropriate flags.
+https://cloud.google.com/sdk/gcloud/reference/services/api-keys/update
+
+gcloud services api-keys update <UID of new key>
+
+ - Delete the old key.
+
+gcloud services api-keys delete <UID of old key>
+
+Impact:
+
+Regenerating Key may break existing client connectivity as the client will try to connect with older API keys they have stored on devices."
+  reference      : "800-171|3.13.1,800-171|3.13.2,800-171r3|03.16.01,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-10,CSF2.0|PR.IR-03,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listServicesApiKeys"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.keys[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Name: \(.name), Display Name: \(.displayName), Create Time: \(.createTime) (\(.createTime | iso_8601_days_ago) days ago)\""
+  regex          : "Create Time:"
+  expect         : "Create Time:.*\(([0-9]|[1-8][0-9]|90) days ago\)"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "1.4 Ensure that Security Key Enforcement is Enabled for All Admin Accounts"
+  info        : "Setup Security Key Enforcement for Google Cloud Platform admin accounts.
+
+Google Cloud Platform users with Organization Administrator roles have the highest level of privilege in the organization. These accounts should be protected with the strongest form of two-factor authentication: Security Key Enforcement. Ensure that admins use Security Keys to log in instead of weaker second factors like SMS or one-time passwords (OTP). Security Keys are actual physical keys used to access Google Organization Administrator Accounts. They send an encrypted signature rather than a code, ensuring that logins cannot be phished.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "-
+
+Identify users with the Organization Administrator role.
+
+ -
+
+Setup Security Key Enforcement for each account. Learn more at: https://cloud.google.com/security-key/
+
+Impact:
+
+If an organization administrator loses access to their security key, the user could lose access to their account. For this reason, it is important to set up backup security keys."
+  reference   : "800-171|3.5.3,800-171r3|03.05.03,800-53|IA-2(1),800-53|IA-2(2),800-53r5|IA-2(1),800-53r5|IA-2(2),CN-L3|7.1.2.7(b),CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSCv7|16.3,CSCv8|6.3,CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO-27001-2022|A.5.16,ITSG-33|IA-2(1),ITSG-33|IA-2(2),LEVEL|2M,NESA|T5.4.2,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,NIAv2|AM36,NIAv2|VL3c,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "1.9 Ensure That Separation of Duties Is Enforced While Assigning Service Account Related Roles to Users"
+  info           : "It is recommended that the principle of 'Separation of Duties' is enforced while assigning service-account related roles to users.
+
+The built-in/predefined IAM role Service Account admin allows the user/identity to create, delete, and manage service account(s).
+The built-in/predefined IAM role Service Account User allows the user/identity (with adequate privileges on Compute and App Engine) to assign service account(s) to Apps/Compute Instances.
+
+Separation of duties is the concept of ensuring that one individual does not have all necessary permissions to be able to complete a malicious action. In Cloud IAM - service accounts, this could be an action such as using a service account to access resources that user should not normally have access to.
+
+Separation of duties is a business control typically used in larger organizations, meant to help avoid security or privacy incidents and errors. It is considered best practice.
+
+No user should have Service Account Admin and Service Account User roles assigned at the same time."
+  solution       : "From Google Cloud Console
+
+ -
+
+Go to IAM & Admin/IAM using https://console.cloud.google.com/iam-admin/iam.
+
+ -
+
+For any member having both Service Account Admin and Service account User roles granted/assigned, click the Delete Bin icon to remove either role from the member.
+Removal of a role should be done based on the business requirements.
+
+Impact:
+
+The removed role should be assigned to a different user based on business needs."
+  reference      : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listProjectIAM"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value | ( [.bindings[] | select((.role == \"roles/iam.serviceAccountAdmin\") or (.role == \"roles/iam.serviceAccountUser\")).members[] ]) | group_by(.) | map({User: ., Count: length}) | .[] | select(.Count == 2).User | unique as $user | \"Project Number: \($projectNumber), Project ID: \($projectId), Service Account Admin and User: \($user[])\""
+  regex          : "Service Account Admin and User:"
+  not_expect     : "Service Account Admin and User: .+"
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "metric"
+      request        : "listLoggingMetrics"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Metrics: \([.value.metrics[] | {name, filter}])\""
+      expect         : "\"filter\":\"resource\.type=\\\"gce_network\\\".*AND.*\([\s]*protoPayload\.methodName:\\\"compute\.networks\.insert\\\".*OR.*protoPayload\.methodName:\\\"compute\.networks\.patch\\\".*OR.*protoPayload\.methodName:\\\"compute\.networks\.delete\\\".*OR.*protoPayload\.methodName:\\\"compute\.networks\.removePeering\\\".*OR.*protoPayload\.methodName:\\\"compute\.networks\.addPeering\\\"[\s]*\).*\""
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "alert"
+      request        : "listAlertPolicies"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Alert Policies: \([.value.alertPolicies[] | select(.enabled == true) | .conditions[] | {name, \"filter\": .conditionThreshold.filter}])\""
+      expect         : "^Manual Review Required$"
+      match_all      : YES
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.10 Ensure That the Log Metric Filter and Alerts Exist for VPC Network Changes"
+      info        : "It is recommended that a metric filter and alarm be established for Virtual Private Cloud (VPC) network changes.
+
+It is possible to have more than one VPC within a project. In addition, it is also possible to create a peer connection between two VPCs enabling network traffic to route between VPCs.
+
+Monitoring changes to a VPC will help ensure VPC traffic flow is not getting impacted.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From Google Cloud Console
+
+Create the prescribed log metric:
+
+ -
+
+Go to Logging/Logs-based Metrics by visiting https://console.cloud.google.com/logs/metricsand click \"CREATE METRIC\".
+
+ -
+
+Click the down arrow symbol on Filter Bar at the rightmost corner and select Convert to Advanced Filter.
+
+ -
+
+Clear any text and add:
+
+resource.type=\"gce_network\"
+AND (protoPayload.methodName:\"compute.networks.insert\"
+OR protoPayload.methodName:\"compute.networks.patch\"
+OR protoPayload.methodName:\"compute.networks.delete\"
+OR protoPayload.methodName:\"compute.networks.removePeering\"
+OR protoPayload.methodName:\"compute.networks.addPeering\")
+
+ -
+
+Click Submit Filter . Display logs appear based on the filter text entered by the user.
+
+ -
+
+In the Metric Editor menu on the right, fill out the name field. Set Units to 1 (default) and Type to Counter . This ensures that the log metric counts the number of log entries matching the user's advanced logs query.
+
+ -
+
+Click Create Metric.
+
+Create the prescribed alert policy:
+
+ -
+
+Identify the newly created metric under the section User-defined Metrics at https://console.cloud.google.com/logs/metrics.
+
+ -
+
+Click the 3-dot icon in the rightmost column for the new metric and select Create alert from Metric . A new page appears.
+
+ -
+
+Fill out the alert policy configuration and click Save . Choose the alerting threshold and configuration that makes sense for the user's organization. For example, a threshold of 0 for the most recent value will ensure that a notification is triggered for every owner change in the project:
+
+Set `Aggregator` to `Count`
+
+Set `Configuration`:
+
+- Condition: above
+
+- Threshold: 0
+
+- For: most recent value
+
+ -
+
+Configure the desired notification channels in the section Notifications.
+
+ -
+
+Name the policy and click Save.
+
+From Google Cloud CLI
+
+Create the prescribed Log Metric:
+
+ - Use the command: gcloud logging metrics create
+
+Create the prescribed alert policy:
+
+ - Use the command: gcloud alpha monitoring policies create
+
+Impact:
+
+Enabling of logging may result in your project being charged for the additional logs usage. These charges could be significant depending on the size of the organization."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "metric"
+      request        : "listLoggingMetrics"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Metrics: \([.value.metrics[] | {name, filter}])\""
+      expect         : "\"filter\":\"resource\.type[\s]*=[\s]*\\\"gcs_bucket\\\".*AND.*protoPayload\.methodName[\s]*=[\s]*\\\"storage\.setIamPermissions\\\"\""
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "alert"
+      request        : "listAlertPolicies"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Alert Policies: \([.value.alertPolicies[] | select(.enabled == true) | .conditions[] | {name, \"filter\": .conditionThreshold.filter}])\""
+      expect         : "^Manual Review Required$"
+      match_all      : YES
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.11 Ensure That the Log Metric Filter and Alerts Exist for Cloud Storage IAM Permission Changes"
+      info        : "It is recommended that a metric filter and alarm be established for Cloud Storage Bucket IAM changes.
+
+Monitoring changes to cloud storage bucket permissions may reduce the time needed to detect and correct permissions on sensitive cloud storage buckets and objects inside the bucket.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From Google Cloud Console
+
+Create the prescribed log metric:
+
+ -
+
+Go to Logging/Logs-based Metrics by visiting https://console.cloud.google.com/logs/metricsand click \"CREATE METRIC\".
+
+ -
+
+Click the down arrow symbol on the Filter Bar at the rightmost corner and select Convert to Advanced Filter.
+
+ -
+
+Clear any text and add:
+
+resource.type=\"gcs_bucket\"
+AND protoPayload.methodName=\"storage.setIamPermissions\"
+
+ -
+
+Click Submit Filter . Display logs appear based on the filter text entered by the user.
+
+ -
+
+In the Metric Editor menu on right, fill out the name field. Set Units to 1 (default) and Type to Counter . This ensures that the log metric counts the number of log entries matching the user's advanced logs query.
+
+ -
+
+Click Create Metric.
+
+Create the prescribed Alert Policy:
+
+ -
+
+Identify the newly created metric under the section User-defined Metrics at https://console.cloud.google.com/logs/metrics.
+
+ -
+
+Click the 3-dot icon in the rightmost column for the new metric and select Create alert from Metric . A new page appears.
+
+ -
+
+Fill out the alert policy configuration and click Save . Choose the alerting threshold and configuration that makes sense for the user's organization. For example, a threshold of zero(0) for the most recent value will ensure that a notification is triggered for every owner change in the project:
+
+Set `Aggregator` to `Count`
+
+Set `Configuration`:
+
+- Condition: above
+
+- Threshold: 0
+
+- For: most recent value
+
+ -
+
+Configure the desired notifications channels in the section Notifications.
+
+ -
+
+Name the policy and click Save.
+
+From Google Cloud CLI
+
+Create the prescribed Log Metric:
+
+ - Use the command: gcloud beta logging metrics create
+
+Create the prescribed alert policy:
+
+ - Use the command: gcloud alpha monitoring policies create
+
+Impact:
+
+Enabling of logging may result in your project being charged for the additional logs usage. These charges could be significant depending on the size of the organization."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "metric"
+      request        : "listLoggingMetrics"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Metrics: \([.value.metrics[] | {name, filter}])\""
+      expect         : "\"filter\":\"protoPayload\.methodName[\s]*=[\s]*\\\"cloudsql\.instances\.update\\\""
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "alert"
+      request        : "listAlertPolicies"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Alert Policies: \([.value.alertPolicies[] | select(.enabled == true) | .conditions[] | {name, \"filter\": .conditionThreshold.filter}])\""
+      expect         : "^Manual Review Required$"
+      match_all      : YES
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.12 Ensure That the Log Metric Filter and Alerts Exist for SQL Instance Configuration Changes"
+      info        : "It is recommended that a metric filter and alarm be established for SQL instance configuration changes.
+
+Monitoring changes to SQL instance configuration changes may reduce the time needed to detect and correct misconfigurations done on the SQL server.
+
+Below are a few of the configurable options which may the impact security posture of an SQL instance:
+
+ -
+
+Enable auto backups and high availability: Misconfiguration may adversely impact business continuity, disaster recovery, and high availability
+
+ -
+
+Authorize networks: Misconfiguration may increase exposure to untrusted networks
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From Google Cloud Console
+
+Create the prescribed Log Metric:
+
+ -
+
+Go to Logging/Logs-based Metrics by visiting https://console.cloud.google.com/logs/metricsand click \"CREATE METRIC\".
+
+ -
+
+Click the down arrow symbol on the Filter Bar at the rightmost corner and select Convert to Advanced Filter.
+
+ -
+
+Clear any text and add:
+
+protoPayload.methodName=\"cloudsql.instances.update\"
+
+ -
+
+Click Submit Filter . Display logs appear based on the filter text entered by the user.
+
+ -
+
+In the Metric Editor menu on right, fill out the name field. Set Units to 1 (default) and Type to Counter . This ensures that the log metric counts the number of log entries matching the user's advanced logs query.
+
+ -
+
+Click Create Metric.
+
+Create the prescribed alert policy:
+
+ -
+
+Identify the newly created metric under the section User-defined Metrics at https://console.cloud.google.com/logs/metrics.
+
+ -
+
+Click the 3-dot icon in the rightmost column for the new metric and select Create alert from Metric . A new page appears.
+
+ -
+
+Fill out the alert policy configuration and click Save . Choose the alerting threshold and configuration that makes sense for the user's organization. For example, a threshold of zero(0) for the most recent value will ensure that a notification is triggered for every owner change in the user's project:
+
+Set `Aggregator` to `Count`
+
+Set `Configuration`:
+
+- Condition: above
+
+- Threshold: 0
+
+- For: most recent value
+
+ -
+
+Configure the desired notification channels in the section Notifications.
+
+ -
+
+Name the policy and click Save.
+
+From Google Cloud CLI
+
+Create the prescribed log metric:
+
+ - Use the command: gcloud logging metrics create
+
+Create the prescribed alert policy:
+
+ - Use the command: gcloud alpha monitoring policies create
+ - Reference for command usage: https://cloud.google.com/sdk/gcloud/reference/alpha/monitoring/policies/create
+
+Impact:
+
+Enabling of logging may result in your project being charged for the additional logs usage. These charges could be significant depending on the size of the organization."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<report type:"WARNING">
+  description : "2.15 Ensure 'Access Transparency' is 'Enabled'"
+  info        : "GCP Access Transparency provides audit logs for all actions that Google personnel take in your Google Cloud resources.
+
+Controlling access to your information is one of the foundations of information security. Given that Google Employees do have access to your organizations' projects for support reasons, you should have logging in place to view who, when, and why your information is being accessed.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From Google Cloud Console
+
+Add privileges to enable Access Transparency
+
+ -
+
+From the Google Cloud Home, within the project you wish to check, click on the Navigation hamburger menu in the top left. Hover over the 'IAM and Admin'. Select IAM in the top of the column that opens.
+
+ -
+
+Click the blue button the says +add at the top of the screen.
+
+ -
+
+In the principals field, select a user or group by typing in their associated email address.
+
+ -
+
+Click on the role field to expand it. In the filter field enter Access Transparency Admin and select it.
+
+ -
+
+Click save.
+
+Verify that the Google Cloud project is associated with a billing account
+
+ -
+
+From the Google Cloud Home, click on the Navigation hamburger menu in the top left. Select Billing.
+
+ -
+
+If you see This project is not associated with a billing account you will need to enter billing information or switch to a project with a billing account.
+
+Enable Access Transparency
+
+ -
+
+From the Google Cloud Home, click on the Navigation hamburger menu in the top left. Hover over the IAM & Admin Menu. Select settings in the middle of the column that opens.
+
+ -
+
+Click the blue button labeled Enable Access Transparency for Organization
+
+Impact:
+
+To use Access Transparency your organization will need to have at one of the following support level: Premium, Enterprise, Platinum, or Gold. There will be subscription costs associated with support, as well as increased storage costs for storing the logs. You will also not be able to turn Access Transparency off yourself, and you will need to submit a service request to Google Cloud Support."
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2M,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<report type:"WARNING">
+  description : "2.16 Ensure 'Access Approval' is 'Enabled'"
+  info        : "GCP Access Approval enables you to require your organizations' explicit approval whenever Google support try to access your projects. You can then select users within your organization who can approve these requests through giving them a security role in IAM. All access requests display which Google Employee requested them in an email or Pub/Sub message that you can choose to Approve. This adds an additional control and logging of who in your organization approved/denied these requests.
+
+Controlling access to your information is one of the foundations of information security. Google Employees do have access to your organizations' projects for support reasons. With Access Approval, organizations can then be certain that their information is accessed by only approved Google Personnel.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From Google Cloud Console
+
+ -
+
+From the Google Cloud Home, within the project you wish to enable, click on the Navigation hamburger menu in the top left. Hover over the Security Menu. Select Access Approval in the middle of the column that opens.
+
+ -
+
+The status will be displayed here. On this screen, there is an option to click Enroll . If it is greyed out and you see an error bar at the top of the screen that says Access Transparency is not enabled please view the corresponding reference within this section to enable it.
+
+ -
+
+In the second screen click Enroll.
+
+Grant an IAM Group or User the role with permissions to Add Users to be Access Approval message Recipients
+
+ -
+
+From the Google Cloud Home, within the project you wish to enable, click on the Navigation hamburger menu in the top left. Hover over the IAM and Admin . Select IAM in the middle of the column that opens.
+
+ -
+
+Click the blue button the says + ADD at the top of the screen.
+
+ -
+
+In the principals field, select a user or group by typing in their associated email address.
+
+ -
+
+Click on the role field to expand it. In the filter field enter Access Approval Approver and select it.
+
+ -
+
+Click save.
+
+Add a Group or User as an Approver for Access Approval Requests
+
+ -
+
+As a user with the Access Approval Approver permission, within the project where you wish to add an email address to which request will be sent, click on the Navigation hamburger menu in the top left. Hover over the Security Menu. Select Access Approval in the middle of the column that opens.
+
+ -
+
+Click Manage Settings
+
+ -
+
+Under Set up approval notifications, enter the email address associated with a Google Cloud User or Group you wish to send Access Approval requests to. All future access approvals will be sent as emails to this address.
+
+From Google Cloud CLI
+
+ - To update all services in an entire project, run the following command from an account that has permissions as an 'Approver for Access Approval Requests'
+
+gcloud access-approval settings update --project=<project name> --enrolled_services=all --notification_emails='<email recipient for access approval requests>@<domain name>'
+
+Impact:
+
+To use Access Approval your organization will need have enabled Access Transparency and have at one of the following support level: Enhanced or Premium. There will be subscription costs associated with these support levels, as well as increased storage costs for storing the logs. You will also not be able to turn the Access Transparency which Access Approval depends on, off yourself. To do so you will need to submit a service request to Google Cloud Support. There will also be additional overhead in managing user permissions. There may also be a potential delay in support times as Google Personnel will have to wait for their access to be approved."
+  reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2M,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "2.17 Ensure Logging is enabled for HTTP(S) Load Balancer"
+  info           : "Logging enabled on a HTTPS Load Balancer will show all network traffic and its destination.
+
+Logging will allow you to view HTTPS network traffic to your web applications."
+  solution       : "From Google Cloud Console
+
+ -
+
+From Google Cloud home open the Navigation Menu in the top left.
+
+ -
+
+Under the Networking heading select Network services.
+
+ -
+
+Select the HTTPS load-balancer you wish to audit.
+
+ -
+
+Select Edit then Backend Configuration.
+
+ -
+
+Select Edit on the corresponding backend service.
+
+ -
+
+Click Enable Logging.
+
+ -
+
+Set Sample Rate to a desired value. This is a percentage as a decimal point. 1.0 is 100%.
+
+From Google Cloud CLI
+
+ - Run the following command
+
+gcloud compute backend-services update <serviceName> --region=REGION --enable-logging --logging-sample-rate=<percentageAsADecimal>
+
+Impact:
+
+On high use systems with a high percentage sample rate, the logging file may grow to high capacity in a short amount of time. Ensure that the sample rate is set appropriately so that storage costs are not exorbitant."
+  reference      : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listBackendServices"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.items | keys[] as $k | .[$k].backendServices[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Backend Service: \(.selfLink), Logging Enabled: \(.logConfig.enable), Sample Rate: \(.logConfig.sampleRate)\""
+  regex          : "Logging Enabled:"
+  expect         : "Logging Enabled: true, Sample Rate: @SAMPLE_RATE@"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "2.4 Ensure That Retention Policies on Cloud Storage Buckets Used for Exporting Logs Are Configured Using Bucket Lock"
+  info           : "Enabling retention policies on log buckets will protect logs stored in cloud storage buckets from being overwritten or accidentally deleted. It is recommended to set up retention policies and configure Bucket Lock on all storage buckets that are used as log sinks.
+
+Logs can be exported by creating one or more sinks that include a log filter and a destination. As Cloud Logging receives new log entries, they are compared against each sink. If a log entry matches a sink's filter, then a copy of the log entry is written to the destination.
+
+Sinks can be configured to export logs in storage buckets. It is recommended to configure a data retention policy for these cloud storage buckets and to lock the data retention policy; thus permanently preventing the policy from being reduced or removed. This way, if the system is ever compromised by an attacker or a malicious insider who wants to cover their tracks, the activity logs are definitely preserved for forensics and security investigations."
+  solution       : "From Google Cloud Console
+
+ -
+
+If sinks are not configured, first follow the instructions in the recommendation: Ensure that sinks are configured for all Log entries.
+
+ -
+
+For each storage bucket configured as a sink, go to the Cloud Storage browser at https://console.cloud.google.com/storage/browser/<BUCKET_NAME>.
+
+ -
+
+Select the Bucket Lock tab near the top of the page.
+
+ -
+
+In the Retention policy entry, click the Add Duration link. The Set a retention policy dialog box appears.
+
+ -
+
+Enter the desired length of time for the retention period and click Save policy.
+
+ -
+
+Set the Lock status for this retention policy to Locked.
+
+From Google Cloud CLI
+
+ - To list all sinks destined to storage buckets:
+
+gcloud logging sinks list --folder=FOLDER_ID | --organization=ORGANIZATION_ID | --project=PROJECT_ID
+
+ - For each storage bucket listed above, set a retention policy and lock it:
+
+gsutil retention set [TIME_DURATION] gs://[BUCKET_NAME]
+gsutil retention lock gs://[BUCKET_NAME]
+
+For more information, visit https://cloud.google.com/storage/docs/using-bucket-lock#set-policy.
+
+Impact:
+
+Locking a bucket is an irreversible action. Once you lock a bucket, you cannot remove the retention policy from the bucket or decrease the retention period for the policy. You will then have to wait for the retention period for all items within the bucket before you can delete them, and then the bucket."
+  reference      : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listLoggingSinkBucketRetention"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.sinks[] | .name as $sink | select(.value.name != null) | .value | \"Project Number: \($projectNumber), Project ID: \($projectId), Bucket: \(.name), Retention Lock: \(.retentionPolicy.isLocked), Retention Period: \(.retentionPolicy.retentionPeriod)\""
+  regex          : "Retention Lock:"
+  expect         : "Retention Lock: true, Retention Period: [1-9]"
+  match_all      : YES
+</custom_item>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "metric"
+      request        : "listLoggingMetrics"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Metrics: \([.value.metrics[] | {name, filter}])\""
+      expect         : "\"filter\":\"resource\.type[\s]*=[\s]*\\\"gce_firewall_rule\\\".*AND.*protoPayload\.methodName:\\\"compute\.firewalls\.patch\\\".*OR.*protoPayload\.methodName:\\\"compute\.firewalls\.insert\\\".*OR.*protoPayload\.methodName:\\\"compute\.firewalls\.delete\\\"[\s]*\).*\""
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "alert"
+      request        : "listAlertPolicies"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Alert Policies: \([.value.alertPolicies[] | select(.enabled == true) | .conditions[] | {name, \"filter\": .conditionThreshold.filter}])\""
+      expect         : "^Manual Review Required$"
+      match_all      : YES
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.8 Ensure That the Log Metric Filter and Alerts Exist for VPC Network Firewall Rule Changes"
+      info        : "It is recommended that a metric filter and alarm be established for Virtual Private Cloud (VPC) Network Firewall rule changes.
+
+Monitoring for Create or Update Firewall rule events gives insight to network access changes and may reduce the time it takes to detect suspicious activity.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From Google Cloud Console
+
+Create the prescribed log metric:
+
+ -
+
+Go to Logging/Logs-based Metrics by visiting https://console.cloud.google.com/logs/metricsand click \"CREATE METRIC\".
+
+ -
+
+Click the down arrow symbol on the Filter Bar at the rightmost corner and select Convert to Advanced Filter.
+
+ -
+
+Clear any text and add:
+
+resource.type=\"gce_firewall_rule\"
+AND (protoPayload.methodName:\"compute.firewalls.patch\"
+OR protoPayload.methodName:\"compute.firewalls.insert\"
+OR protoPayload.methodName:\"compute.firewalls.delete\")
+
+ -
+
+Click Submit Filter . Display logs appear based on the filter text entered by the user.
+
+ -
+
+In the Metric Editor menu on the right, fill out the name field. Set Units to 1 (default) and Type to Counter . This ensures that the log metric counts the number of log entries matching the advanced logs query.
+
+ -
+
+Click Create Metric.
+
+Create the prescribed Alert Policy:
+
+ -
+
+Identify the newly created metric under the section User-defined Metrics at https://console.cloud.google.com/logs/metrics.
+
+ -
+
+Click the 3-dot icon in the rightmost column for the new metric and select Create alert from Metric . A new page displays.
+
+ -
+
+Fill out the alert policy configuration and click Save . Choose the alerting threshold and configuration that makes sense for the user's organization. For example, a threshold of zero(0) for the most recent value ensures that a notification is triggered for every owner change in the project:
+
+Set `Aggregator` to `Count`
+
+Set `Configuration`:
+
+- Condition: above
+
+- Threshold: 0
+
+- For: most recent value
+
+ -
+
+Configure the desired notifications channels in the section Notifications.
+
+ -
+
+Name the policy and click Save.
+
+From Google Cloud CLI
+
+Create the prescribed Log Metric
+
+ - Use the command: gcloud logging metrics create
+
+Create the prescribed alert policy:
+
+ - Use the command: gcloud alpha monitoring policies create
+
+Impact:
+
+Enabling of logging may result in your project being charged for the additional logs usage. These charges could be significant depending on the size of the organization."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<if>
+  <condition auto:"WARNING" type:"AND">
+    <custom_item>
+      type           : REST_API
+      description    : "metric"
+      request        : "listLoggingMetrics"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Metrics: \([.value.metrics[] | {name, filter}])\""
+      expect         : "\"filter\":\"resource\.type=\\\"gce_route\\\".*AND.*\([\s]*protoPayload\.methodName:\\\"compute\.routes\.delete\\\".*OR.*protoPayload\.methodName:\\\"compute\.routes\.insert\\\"[\s]*\).*\""
+      match_all      : YES
+    </custom_item>
+
+    <custom_item>
+      type           : REST_API
+      description    : "alert"
+      request        : "listAlertPolicies"
+      json_transform : ".projects[] | \"Project Number: \(.projectNumber), Project ID: \(.projectId), Alert Policies: \([.value.alertPolicies[] | select(.enabled == true) | .conditions[] | {name, \"filter\": .conditionThreshold.filter}])\""
+      expect         : "^Manual Review Required$"
+      match_all      : YES
+      severity       : MEDIUM
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "2.9 Ensure That the Log Metric Filter and Alerts Exist for VPC Network Route Changes"
+      info        : "It is recommended that a metric filter and alarm be established for Virtual Private Cloud (VPC) network route changes.
+
+Google Cloud Platform (GCP) routes define the paths network traffic takes from a VM instance to another destination. The other destination can be inside the organization VPC network (such as another VM) or outside of it. Every route consists of a destination and a next hop. Traffic whose destination IP is within the destination range is sent to the next hop for delivery.
+
+Monitoring changes to route tables will help ensure that all VPC traffic flows through an expected path.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "From Google Cloud Console
+
+Create the prescribed Log Metric:
+
+ -
+
+Go to Logging/Logs-based Metrics by visiting https://console.cloud.google.com/logs/metricsand click \"CREATE METRIC\".
+
+ -
+
+Click the down arrow symbol on the Filter Bar at the rightmost corner and select Convert to Advanced Filter
+
+ -
+
+Clear any text and add:
+
+resource.type=\"gce_route\"
+AND (protoPayload.methodName:\"compute.routes.delete\"
+OR protoPayload.methodName:\"compute.routes.insert\")
+
+ -
+
+Click Submit Filter . Display logs appear based on the filter text entered by the user.
+
+ -
+
+In the Metric Editor menu on the right, fill out the name field. Set Units to 1 (default) and Type to Counter . This ensures that the log metric counts the number of log entries matching the user's advanced logs query.
+
+ -
+
+Click Create Metric.
+
+Create the prescribed alert policy:
+
+ -
+
+Identify the newly created metric under the section User-defined Metrics at https://console.cloud.google.com/logs/metrics.
+
+ -
+
+Click the 3-dot icon in the rightmost column for the new metric and select Create alert from Metric . A new page displays.
+
+ -
+
+Fill out the alert policy configuration and click Save . Choose the alerting threshold and configuration that makes sense for the user's organization. For example, a threshold of zero(0) for the most recent value ensures that a notification is triggered for every owner change in the project:
+
+Set `Aggregator` to `Count`
+
+Set `Configuration`:
+
+- Condition: above
+
+- Threshold: 0
+
+- For: most recent value
+
+ -
+
+Configure the desired notification channels in the section Notifications.
+
+ -
+
+Name the policy and click Save.
+
+From Google Cloud CLI
+
+Create the prescribed Log Metric:
+
+ - Use the command: gcloud logging metrics create
+
+Create the prescribed the alert policy:
+
+ - Use the command: gcloud alpha monitoring policies create
+
+Impact:
+
+Enabling of logging may result in your project being charged for the additional logs usage. These charges could be significant depending on the size of the organization."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.01,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-2,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(a),CN-L3|8.1.4.3(b),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-2,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NESA|T3.6.2,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+      show_output : YES
+    </report>
+  </then>
+</if>
+
+<custom_item>
+  type           : REST_API
+  description    : "3.1 Ensure That the Default Network Does Not Exist in a Project"
+  info           : "To prevent use of default network, a project should not have a default network.
+
+The default network has a preconfigured network configuration and automatically generates the following insecure firewall rules:
+
+ - default-allow-internal: Allows ingress connections for all protocols and ports among instances in the network.
+ - default-allow-ssh: Allows ingress connections on TCP port 22(SSH) from any source to any instance in the network.
+ - default-allow-rdp: Allows ingress connections on TCP port 3389(RDP) from any source to any instance in the network.
+ - default-allow-icmp: Allows ingress ICMP traffic from any source to any instance in the network.
+
+These automatically created firewall rules do not get audit logged by default.
+
+Furthermore, the default network is an auto mode network, which means that its subnets use the same predefined range of IP addresses, and as a result, it's not possible to use Cloud VPN or VPC Network Peering with the default network.
+
+Based on organization security and networking requirements, the organization should create a new network and delete the default network."
+  solution       : "From Google Cloud Console
+
+ -
+
+Go to the VPC networks page by visiting: https://console.cloud.google.com/networking/networks/list.
+
+ -
+
+Click the network named default.
+
+ -
+
+On the network detail page, click EDIT.
+
+ -
+
+Click DELETE VPC NETWORK.
+
+ -
+
+If needed, create a new network to replace the default network.
+
+From Google Cloud CLI
+
+For each Google Cloud Platform project,
+
+ - Delete the default network:
+
+gcloud compute networks delete default
+
+ - If needed, create a new network to replace it:
+
+gcloud compute networks create NETWORK_NAME
+
+Prevention:
+
+The user can prevent the default network and its insecure default firewall rules from being created by setting up an Organization Policy to Skip default network creation at https://console.cloud.google.com/iam-admin/orgpolicies/compute-skipDefaultNetworkCreation.
+
+Impact:
+
+When an organization deletes the default network, it will need to remove all asests from that network and migrate them to a new network."
+  reference      : "800-171|3.1.16,800-171|3.1.17,800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171r3|03.01.16,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-53|AC-18,800-53|AC-18(1),800-53|AC-18(3),800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53r5|AC-18,800-53r5|AC-18(1),800-53r5|AC-18(3),800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,CSCv7|11.1,CSCv8|4.2,CSF|DE.AE-1,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-09,CSF2.0|ID.AM-08,CSF2.0|PR.AA-05,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.2,ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.9,ISO-27001-2022|A.8.20,ITSG-33|AC-18,ITSG-33|AC-18(1),ITSG-33|AC-18(3),ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,LEVEL|2A,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T5.4.2,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NIAv2|NS33,NIAv2|NS34,NIAv2|NS38,NIAv2|SS15a,NIAv2|SS16,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeNetworks"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | [(.value.items[] | {\"name\": .name})] as $networks | [(.value.items[] | select(.name == \"default\") | {\"name\": .name})] as $default | if ($default | length) > 0 then \"Project Number: \($projectNumber), Project ID: \($projectId), Default Network: YES - \($networks)\" else \"Project Number: \($projectNumber), Project ID: \($projectId), Default Network: NO \($networks)\" end"
+  regex          : "Default Network:"
+  expect         : "Default Network: NO"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "3.10 Ensure that VPC Flow Logs is Enabled for Every Subnet in a VPC Network"
+  info           : "Flow Logs is a feature that enables users to capture information about the IP traffic going to and from network interfaces in the organization's VPC Subnets. Once a flow log is created, the user can view and retrieve its data in Stackdriver Logging. It is recommended that Flow Logs be enabled for every business-critical VPC subnet.
+
+VPC networks and subnetworks not reserved for internal HTTP(S) load balancing provide logically isolated and secure network partitions where GCP resources can be launched. When Flow Logs are enabled for a subnet, VMs within that subnet start reporting on all Transmission Control Protocol (TCP) and User Datagram Protocol (UDP) flows.
+Each VM samples the TCP and UDP flows it sees, inbound and outbound, whether the flow is to or from another VM, a host in the on-premises datacenter, a Google service, or a host on the Internet. If two GCP VMs are communicating, and both are in subnets that have VPC Flow Logs enabled, both VMs report the flows.
+
+Flow Logs supports the following use cases:
+
+ - Network monitoring
+ - Understanding network usage and optimizing network traffic expenses
+ - Network forensics
+ - Real-time security analysis
+
+Flow Logs provide visibility into network traffic for each VM inside the subnet and can be used to detect anomalous traffic or provide insight during security workflows.
+
+The Flow Logs must be configured such that all network traffic is logged, the interval of logging is granular to provide detailed information on the connections, no logs are filtered, and metadata to facilitate investigations are included.
+
+Note : Subnets reserved for use by internal HTTP(S) load balancers do not support VPC flow logs."
+  solution       : "From Google Cloud Console
+
+ -
+
+Go to the VPC network GCP Console visiting https://console.cloud.google.com/networking/networks/list
+
+ -
+
+Click the name of a subnet, The Subnet details page displays.
+
+ -
+
+Click the EDIT button.
+
+ -
+
+Set Flow Logs to On.
+
+ -
+
+Expand the Configure Logs section.
+
+ -
+
+Set Aggregation Interval to 5 SEC.
+
+ -
+
+Check the box beside Include metadata.
+
+ -
+
+Set Sample rate to 100.
+
+ -
+
+Click Save.
+
+Note : It is not possible to configure a Log filter from the console.
+
+From Google Cloud CLI
+
+ - To enable VPC Flow Logs for a network subnet, run the following command:
+
+gcloud compute networks subnets update [SUBNET_NAME] --region [REGION] --enable-flow-logs --logging-aggregation-interval=interval-5-sec --logging-flow-sampling=1 --logging-metadata=include-all
+
+2.Verify a specific subnet:
+
+gcloud compute networks subnets describe SUBNET_NAME \\
+  --region=REGION \\
+  --format=\"get(logConfig.enable,logConfig.flowSampling
+
+Impact:
+
+Standard pricing for Stackdriver Logging, BigQuery, or Cloud Pub/Sub applies. VPC Flow Logs generation will be charged starting in GA as described in reference: https://cloud.google.com/vpc/"
+  reference      : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171|3.14.6,800-171|3.14.7,800-171r3|03.03.01,800-171r3|03.03.03,800-171r3|03.03.06a.,800-171r3|03.14.06,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53|SI-4,800-53|SI-4(4),800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,800-53r5|SI-4,800-53r5|SI-4(4),CN-L3|7.1.2.2(c),CN-L3|7.1.2.3(c),CN-L3|7.1.3.5(a),CN-L3|8.1.4.3(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv7|6.2,CSCv7|12.8,CSCv8|8.2,CSCv8|13.6,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|PR.PT-1,CSF|RS.AN-1,CSF|RS.AN-3,CSF|RS.CO-3,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-06,CSF2.0|DE.CM-09,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.8.15,ISO-27001-2022|A.8.16,ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,ITSG-33|SI-4,ITSG-33|SI-4(4),LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|NS32,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,SWIFT-CSCv1|6.5"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeSubnetworks"
+  json_transform : ".projects[].value.items[].subnetworks[] | select(.purpose == \"PRIVATE\") | \"Subnet: \(.selfLink), Enable Flow Logs: \(.enableFlowLogs), Aggregation Interval: \(.logConfig.aggregationInterval), Include Metadata: \(.logConfig.metadata), Sample Rate: \(.logConfig.flowSampling), Log Filtering: \(.logConfig.filterExpr)\""
+  regex          : "Enable Flow Logs:"
+  expect         : "Enable Flow Logs: true, Aggregation Interval: INTERVAL_5_SEC, Include Metadata: INCLUDE_ALL_METADATA, Sample Rate: 1, Log Filtering: (null|false)"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "3.12 Use Identity Aware Proxy (IAP) to Ensure Only Traffic From Google IP Addresses are 'Allowed'"
+  info        : "IAP authenticates the user requests to your apps via a Google single sign in. You can then manage these users with permissions to control access. It is recommended to use both IAP permissions and firewalls to restrict this access to your apps with sensitive information.
+
+IAP ensure that access to VMs is controlled by authenticating incoming requests. Access to your apps and the VMs should be restricted by firewall rules that allow only the proxy IAP IP addresses contained in the 35.235.240.0/20 subnet. Otherwise, unauthenticated requests can be made to your apps. To ensure that load balancing works correctly health checks should also be allowed.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From Google Cloud Console
+
+ - Go to the Cloud Console VPC network > Firewall rules https://console.cloud.google.com/networking/firewalls/list?_ga=2.72166934.480049361.1580860862-1336643914.1580248695.
+ - Select the checkbox next to the following rules:
+
+ - default-allow-http
+ - default-allow-https
+ - default-allow-internal
+
+ - Click Delete.
+ - Click Create firewall rule and set the following values:
+
+ - Name: allow-iap-traffic
+ - Targets: All instances in the network
+ - Source IP ranges (press Enter after you paste each value in the box, copy each full CIDR IP address):
+
+ - IAP Proxy Addresses 35.235.240.0/20
+ - Google Health Check 130.211.0.0/22
+ - Google Health Check 35.191.0.0/16
+
+ - Protocols and ports:
+
+ - Specified protocols and ports required for access and management of your app. For example most health check connection protocols would be covered by;
+ - tcp:80 (Default HTTP Health Check port)
+ - tcp:443 (Default HTTPS Health Check port)
+Note: if you have custom ports used by your load balancers, you will need to list them here
+
+ - When you're finished updating values, click Create.
+
+Impact:
+
+If firewall rules are not configured correctly, legitimate business services could be negatively impacted. It is recommended to make these changes during a time of low usage."
+  reference   : "800-171|3.1.1,800-171r3|03.01.01,800-53|AC-2(1),800-53r5|AC-2(1),CN-L3|7.1.3.2(d),CSCv7|16.2,CSCv8|5.6,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.18,ISO-27001-2022|A.8.2,ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),LEVEL|2M,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "3.6 Ensure That SSH Access Is Restricted From the Internet"
+  info           : "GCP Firewall Rules are specific to a VPC Network . Each rule either allows or denies traffic when its conditions are met. Its conditions allow the user to specify the type of traffic, such as ports and protocols, and the source or destination of the traffic, including IP addresses, subnets, and instances.
+
+Firewall rules are defined at the VPC network level and are specific to the network in which they are defined. The rules themselves cannot be shared among networks. Firewall rules only support IPv4 traffic. When specifying a source for an ingress rule or a destination for an egress rule by address, only an IPv4 address or IPv4 block in CIDR notation can be used. Generic (0.0.0.0/0) incoming traffic from the internet to VPC or VM instance using SSH on Port 22 can be avoided.
+
+GCP Firewall Rules within a VPC Network apply to outgoing (egress) traffic from instances and incoming (ingress) traffic to instances in the network. Egress and ingress traffic flows are controlled even if the traffic stays within the network (for example, instance-to-instance communication).
+For an instance to have outgoing Internet access, the network must have a valid Internet gateway route or custom route whose destination IP is specified. This route simply defines the path to the Internet, to avoid the most general (0.0.0.0/0) destination IP Range specified from the Internet through SSH with the default Port 22 . Generic access from the Internet to a specific IP Range needs to be restricted."
+  solution       : "From Google Cloud Console
+
+ - Go to VPC Network.
+ - Go to the Firewall Rules.
+ - Click the Firewall Rule you want to modify.
+ - Click Edit.
+ - Modify Source IP ranges to specific IP.
+ - Click Save.
+
+From Google Cloud CLI
+
+1.Update the Firewall rule with the new SOURCE_RANGE from the below command:
+
+gcloud compute firewall-rules update FirewallName --allow=[PROTOCOL[:PORT[-PORT]],...] --source-ranges=[CIDR_RANGE,...]
+
+Impact:
+
+All Secure Shell (SSH) connections from outside of the network to the concerned VPC(s) will be blocked. There could be a business need where SSH access is required from outside of the network to access resources associated with the VPC. In that case, specific source IP(s) should be mentioned in firewall rules to white-list access to SSH port for the concerned VPC(s)."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-171r3|03.13.01,800-171r3|03.13.06,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv7|12.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeFirewallRules"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.items[] | .selfLink as $selfLink | select(.direction == \"INGRESS\") | select(.sourceRanges[] == \"0.0.0.0/0\") | .sourceRanges as $sourceRanges | .allowed[] | .IPProtocol as $ipProtocol | .ports[] as $ports | \"Rule: \($selfLink), IP Protocol: \($ipProtocol), Ports: \($ports)\""
+  regex          : "IP Protocol: (tcp|null)"
+  not_expect     : "Ports: (null|([0-9]|1[0-9]|2[0-2])-(2[2-9]|[3-9][0-9]|[1-9][0-9]{2,})|22$)"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "3.7 Ensure That RDP Access Is Restricted From the Internet"
+  info           : "GCP Firewall Rules are specific to a VPC Network . Each rule either allows or denies traffic when its conditions are met. Its conditions allow users to specify the type of traffic, such as ports and protocols, and the source or destination of the traffic, including IP addresses, subnets, and instances.
+
+Firewall rules are defined at the VPC network level and are specific to the network in which they are defined. The rules themselves cannot be shared among networks. Firewall rules only support IPv4 traffic. When specifying a source for an ingress rule or a destination for an egress rule by address, an IPv4 address or IPv4 block in CIDR notation can be used. Generic (0.0.0.0/0) incoming traffic from the Internet to a VPC or VM instance using RDP on Port 3389 can be avoided.
+
+GCP Firewall Rules within a VPC Network . These rules apply to outgoing (egress) traffic from instances and incoming (ingress) traffic to instances in the network. Egress and ingress traffic flows are controlled even if the traffic stays within the network (for example, instance-to-instance communication).
+For an instance to have outgoing Internet access, the network must have a valid Internet gateway route or custom route whose destination IP is specified. This route simply defines the path to the Internet, to avoid the most general (0.0.0.0/0) destination IP Range specified from the Internet through RDP with the default Port 3389 . Generic access from the Internet to a specific IP Range should be restricted."
+  solution       : "From Google Cloud Console
+
+ - Go to VPC Network.
+ - Go to the Firewall Rules.
+ - Click the Firewall Rule to be modified.
+ - Click Edit.
+ - Modify Source IP ranges to specific IP.
+ - Click Save.
+
+From Google Cloud CLI
+
+1.Update RDP Firewall rule with new SOURCE_RANGE from the below command:
+
+gcloud compute firewall-rules update FirewallName --allow=[PROTOCOL[:PORT[-PORT]],...] --source-ranges=[CIDR_RANGE,...]
+
+Impact:
+
+All Remote Desktop Protocol (RDP) connections from outside of the network to the concerned VPC(s) will be blocked. There could be a business need where secure shell access is required from outside of the network to access resources associated with the VPC. In that case, specific source IP(s) should be mentioned in firewall rules to white-list access to RDP port for the concerned VPC(s)."
+  reference      : "800-171|3.13.1,800-171|3.13.5,800-171|3.13.6,800-171r3|03.13.01,800-171r3|03.13.06,800-53|CA-9,800-53|SC-7,800-53|SC-7(5),800-53r5|CA-9,800-53r5|SC-7,800-53r5|SC-7(5),CN-L3|7.1.2.2(c),CN-L3|8.1.10.6(j),CSCv7|9.2,CSCv7|12.4,CSCv8|4.4,CSCv8|4.5,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7,ITSG-33|SC-7(5),LEVEL|2A,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|GS7b,NIAv2|NS25,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|2.1,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeFirewallRules"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.items[] | .selfLink as $selfLink | select(.direction == \"INGRESS\") | select(.sourceRanges[] == \"0.0.0.0/0\") | .sourceRanges as $sourceRanges | .allowed[] | .IPProtocol as $ipProtocol | .ports[] as $ports | \"Rule: \($selfLink), IP Protocol: \($ipProtocol), Ports: \($ports)\""
+  regex          : "IP Protocol: (tcp|null)"
+  not_expect     : "Ports: (null|([0-9]|[1-2][0-9]{1,3}|3[0-2][0-9]{2,}|33[0-8][0-9])-(3389|339[0-9]|3[4-9][0-9]{2,}|[4-9][0-9]{3,}|[1-9][0-9]{4,})|3389$)"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "3.8 Ensure VPC Service Controls Is Enabled for Supported Google Cloud Services"
+  info        : "Ensure that VPC Service Controls are configured to create security perimeters around sensitive Google Cloud resources, preventing unauthorized data exfiltration and limiting access to resources from approved networks and identities. VPC Service Controls provide an additional layer of defense-in-depth by allowing organizations to define trust boundaries around GCP services and control data movement across those boundaries.
+
+VPC Service Controls provide critical protection against data exfiltration attacks by creating security perimeters that restrict data access based on client identity, device state, and network origin. Without VPC Service Controls, an attacker who compromises credentials or exploits misconfigurations can freely move data between projects, organizations, or external systems. VPC Service Controls enforce defense-in-depth by adding network-level access controls that complement IAM policies, preventing both malicious insiders and external attackers from exfiltrating sensitive data even if they obtain valid credentials. This control is essential for organizations handling regulated data or implementing zero-trust security architectures. VPC Service Controls also protect against supply chain attacks by restricting which services and APIs can interact with protected resources, reducing the blast radius of compromised third-party integrations or malicious code execution within the cloud environment.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Note: The following remediation instructions use Cloud Storage (GCS) as an example. Similar steps should be followed for other services supported by VPC Service Controls (BigQuery, Cloud SQL, Bigtable, etc.) by substituting the appropriate service API and project resources.
+
+From Google Cloud CLI
+
+1: Create an Access Context Manager Policy:
+
+# Check if policy exists
+gcloud access-context-manager policies list --organization=<ORG_ID>
+
+# If no policy exists, create one
+gcloud access-context-manager policies create \\
+  --organization=<ORG_ID> \\
+  --title=\"VPC Service Controls Policy\"
+
+2. Create a Service Perimeter to protect Cloud Storage buckets:
+
+# Get policy ID
+POLICY_ID=$(gcloud access-context-manager policies list \\
+  --organization=<ORG_ID> \\
+  --format=\"value(name)\")
+
+# Create perimeter in dry-run mode first
+gcloud access-context-manager perimeters create <PERIMETER_NAME> \\
+  --title=\"Production Data Perimeter\" \\
+  --resources=projects/<PROJECT_NUMBER> \\
+  --restricted-services=storage.googleapis.com \\
+  --policy=${POLICY_ID} \\
+  --perimeter-type=regular \\
+  --async
+
+3. Add multiple projects and services to the perimeter:
+
+gcloud access-context-manager perimeters update <PERIMETER_NAME> \\
+  --add-resources=projects/<PROJECT_NUMBER_1>,projects/<PROJECT_NUMBER_2> \\
+  --add-restricted-services=bigquery.googleapis.com,sqladmin.googleapis.com \\
+  --policy=${POLICY_ID}
+
+4. Test with dry-run mode before enforcement:
+
+# Create dry-run spec
+gcloud access-context-manager perimeters dry-run create <PERIMETER_NAME> \\
+  --policy=${POLICY_ID} \\
+  --resources=projects/<PROJECT_NUMBER> \\
+  --restricted-services=storage.googleapis.com
+
+5. Monitor dry-run logs to identify blocked requests:
+
+# Query VPC Service Controls logs for dry-run violations
+gcloud logging read \\
+  'protoPayload.metadata.\"@type\"=\"type.googleapis.com/google.cloud.audit.VpcServiceControlAuditMetadata\"
+  AND protoPayload.metadata.dryRun=true' \\
+  --limit=50 \\
+  --format=json \\
+  --project=<PROJECT_ID>
+
+6: After testing, enforce the perimeter:
+
+gcloud access-context-manager perimeters dry-run enforce <PERIMETER_NAME> \\
+  --policy=${POLICY_ID}
+
+7: Create access levels for conditional access (optional but recommended):
+
+gcloud access-context-manager levels create <ACCESS_LEVEL_NAME> \\
+  --title=\"Corporate Network Access\" \\
+  --basic-level-spec=<ACCESS_LEVEL_SPEC_FILE>.yaml \\
+  --policy=${POLICY_ID}
+
+Example access level spec file (access_level.yaml):
+
+combiningFunction: AND
+conditions:
+  - ipSubnetworks:
+      - \"203.0.113.0/24\" # Corporate IP range
+    members:
+      - \"user:admin@example.com\"
+
+Then add the access level to the perimeter:
+
+gcloud access-context-manager perimeters update <PERIMETER_NAME> \\
+  --add-access-levels=<ACCESS_LEVEL_NAME> \\
+  --policy=${POLICY_ID}
+
+Impact:
+
+Implementing VPC Service Controls requires careful planning as it restricts network access to protected resources. Services outside the perimeter will be denied access to resources inside the perimeter by default, which may impact:
+
+ - Application connectivity: Applications must be within the same perimeter or use authorized ingress/egress rules
+ - Data pipelines: Cross-project data flows require explicit perimeter bridges or access levels
+ - Third-party integrations: External services may be blocked and require perimeter configuration
+ - Administrative access: Admin tasks from non-corporate networks may be restricted unless access levels permit
+
+Organizations should use VPC Service Controls dry-run mode to test policies before enforcement to identify and remediate connectivity issues. There is no direct performance impact on services within the perimeter."
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-171|3.12.3,800-171|3.13.1,800-171|3.13.2,800-171|3.13.4,800-171|3.13.5,800-171r3|03.04.06,800-171r3|03.12.03,800-171r3|03.13.01,800-171r3|03.13.04,800-171r3|03.16.01,800-53|CA-7,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-4,800-53|SC-7,800-53r5|CA-7,800-53r5|CM-7,800-53r5|CM-12,800-53r5|CM-12(1),800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-4,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv8|3.12,CSCv8|3.13,CSCv8|12.2,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.CM-1,CSF|DE.CM-2,CSF|DE.CM-3,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-1,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.AM-3,CSF|ID.RA-1,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.IP-7,CSF|PR.IP-8,CSF|PR.PT-3,CSF|PR.PT-4,CSF|RS.AN-1,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|DE.AE-02,CSF2.0|DE.AE-03,CSF2.0|DE.CM-01,CSF2.0|DE.CM-02,CSF2.0|DE.CM-03,CSF2.0|DE.CM-06,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-07,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.5.36,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO-27001-2022|9.1,ISO-27001-2022|9.3.2,ISO-27001-2022|9.3.3,ISO/IEC-27001|A.13.1.3,ITSG-33|CA-7,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-4,ITSG-33|SC-4a.,ITSG-33|SC-7,LEVEL|2M,NESA|M1.2.2,NESA|M5.3.1,NESA|M5.4.1,NESA|M6.2.2,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "3.9 Ensure Private Service Connect is Used for Access to Google APIs"
+  info           : "Ensure that VPCs use Private Service Connect endpoints for access to Google APIs such as Cloud Storage, BigQuery, Pub/Sub, Artifact Registry, and other googleapis.com services, so that traffic from workloads to these APIs stays on the Google private network instead of traversing the public internet. Private Service Connect for Google APIs creates a dedicated endpoint in your VPC with firewall rule enforcement, providing more granular control than Private Google Access.
+
+Accessing Google APIs over the public internet exposes traffic to network-level threats, requires managing NAT gateways or external IPs, and makes it harder to enforce egress controls. Private Service Connect for Google APIs allows workloads to reach googleapis.com services over Google's private network using a dedicated endpoint in your VPC. Combined with VPC firewall rules, PSC ensures only authorized workloads from specific subnets or with specific network tags can access Google APIs, preventing unauthorized API usage and enforcing least-privilege network access. This control eliminates reliance on internet connectivity for API access, enables granular network segmentation per API consumer, supports VPC Service Controls integration, and is essential for zero-trust architectures requiring all Google API traffic to remain on private networks.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution       : "From Google Cloud CLI
+
+ - Create Private Service Connect endpoint for Google APIs
+
+Reserve an internal IP address for the PSC endpoint:
+
+gcloud compute addresses create psc-apis-endpoint \\
+  --global \\
+  --purpose=PRIVATE_SERVICE_CONNECT \\
+  --addresses=192.168.1.5 \\
+  --network=projects/PROJECT_ID/global/networks/VPC_NAME
+
+- Choose an IP address from RFC 1918 private range that doesn't conflict with existing subnet ranges in your VPC. Use gcloud compute networks subnets list --network=VPC_NAME to check existing subnet ranges.
+
+2. Create the PSC endpoint forwarding rule targeting Google's all-apis service attachment:
+
+gcloud compute forwarding-rules create pscapis \\
+  --global \\
+  --network=VPC_NAME \\
+  --address=psc-apis-endpoint \\
+  --target-google-apis-bundle=all-apis
+
+3. Configure DNS to resolve googleapis.com to PSC endpoint
+
+Create a private DNS zone for googleapis.com:
+
+gcloud dns managed-zones create googleapis-private-zone \\
+  --description=\"Private zone for googleapis.com\" \\
+  --dns-name=googleapis.com. \\
+  --networks=VPC_NAME \\
+  --visibility=private
+
+Add wildcard A record pointing to the PSC endpoint IP:
+
+gcloud dns record-sets create '*.googleapis.com.' \\
+  --zone=googleapis-private-zone \\
+  --type=A \\
+  --ttl=300 \\
+  --rrdatas=192.168.1.5
+
+- Replace 192.168.1.5 with the PSC endpoint IP from Step 1.
+- Optional: If your organization uses Container Registry (gcr.io) or Artifact Registry (pkg.dev), create additional DNS zones following the same pattern:
+
+4. Configure VPC firewall rules to restrict PSC endpoint access
+
+Create firewall rule allowing only specific subnets to access the PSC endpoint:
+
+gcloud compute firewall-rules create allow-psc-apis-from-app-subnet \\
+  --network=VPC_NAME \\
+  --allow=tcp:443 \\
+  --source-ranges=10.0.0.0/24 \\
+  --destination-ranges=192.168.1.5/32 \\
+  --description=\"Allow HTTPS to PSC endpoint from application subnet only\"
+
+ - Adjust --source-ranges to match your application subnet CIDR.
+- Use --source-tags for tag-based restrictions.
+
+5. Test connectivity from a VM
+
+From a VM in the VPC (without external IP), test that Google API calls resolve to the private PSC endpoint:
+
+# Test DNS resolution using getent
+getent hosts storage.googleapis.com
+
+# Should return: 192.168.1.5 storage.googleapis.com (PSC endpoint IP, not public IP)
+
+# Test Cloud Storage access
+gsutil ls gs://BUCKET_NAME
+
+# Should succeed without requiring external IP or NAT gateway
+
+ - Remove NAT gateway or external IPs (after validation)
+
+Once PSC connectivity is validated, remove unnecessary NAT gateways or external IPs that were previously required for Google API access.
+
+Impact:
+
+Implementing Private Service Connect for Google APIs requires creating PSC endpoints in each VPC and configuring DNS to resolve googleapis.com domains to the private endpoint IP addresses. This introduces per-endpoint charges and operational overhead for DNS management. Migrating from public API access requires updating DNS configurations, may require changes to firewall rules, and testing to ensure all Google API calls resolve correctly to private endpoints. There is no performance impact on API availability or latency. Workloads without proper firewall rules or DNS configuration will be unable to reach Google APIs after migration."
+  reference      : "800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171|3.13.5,800-171r3|03.04.06,800-171r3|03.13.01,800-171r3|03.16.01,800-53|CA-9,800-53|CM-7,800-53|CP-6,800-53|CP-7,800-53|PL-8,800-53|PM-7,800-53|SA-8,800-53|SC-7,800-53r5|CA-9,800-53r5|CM-7,800-53r5|CP-6,800-53r5|CP-7,800-53r5|PL-8,800-53r5|PM-7,800-53r5|SA-8,800-53r5|SC-7,CN-L3|8.1.10.6(j),CSCv8|12.2,CSCv8|13.4,CSF|DE.CM-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-4,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|ID.AM-03,CSF2.0|ID.AM-08,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.IR-01,CSF2.0|PR.IR-03,CSF2.0|PR.IR-04,CSF2.0|PR.PS-01,CSF2.0|PR.PS-06,GDPR|32.1.b,GDPR|32.1.c,GDPR|32.1.d,GDPR|32.2,HIPAA|164.306(a)(1),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.29,ISO-27001-2022|A.7.5,ISO-27001-2022|A.8.14,ISO-27001-2022|A.8.16,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.27,ISO-27001-2022|A.8.28,ISO/IEC-27001|A.13.1.3,ITSG-33|CM-7,ITSG-33|CP-6,ITSG-33|CP-7,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SC-7,LEVEL|2M,NESA|T2.2.4,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,NIAv2|SS3,NIAv2|SS15a,NIAv2|VL2,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.3,TBA-FIISB|43.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeNetworks"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.items[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Network: \(.selfLink)\""
+  expect         : "^Manual Review Required$"
+  severity       : MEDIUM
+</custom_item>
+
+<report type:"WARNING">
+  description : "4.10 Ensure That App Engine Applications Enforce HTTPS Connections"
+  info        : "In order to maintain the highest level of security all connections to an application should be secure by default.
+
+Insecure HTTP connections maybe subject to eavesdropping which can expose sensitive data.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Add a line to the app.yaml file controlling the application which enforces secure connections. For example
+
+handlers:
+- url: /.*
+  **secure: always**
+  redirect_http_response_code: 301
+  script: auto
+
+[https://cloud.google.com/appengine/docs/standard/python3/config/appref]
+
+Impact:
+
+All connections to appengine will automatically be redirected to the HTTPS endpoint ensuring that all connections are secured by TLS."
+  reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-171r3|03.05.07,800-171r3|03.05.12,800-171r3|03.13.08,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SA-15,800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SA-15,800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|18.5,CSCv8|3.10,CSCv8|16.11,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.IP-2,CSF|PR.PT-4,CSF2.0|ID.RA-09,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,CSF2.0|PR.PS-06,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO-27001-2022|A.5.8,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.14,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ISO-27001-2022|A.6.7,ISO-27001-2022|A.8.20,ISO-27001-2022|A.8.25,ISO-27001-2022|A.8.26,ISO-27001-2022|A.8.30,ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2M,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS5,NIAv2|SS6a,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.11 Ensure That Compute Instances Have Confidential Computing Enabled"
+  info           : "Google Cloud encrypts data at-rest and in-transit, but customer data must be decrypted for processing. Confidential Computing is a breakthrough technology that encrypts data in-use while it is being processed. Confidential Computing environments keep data encrypted in memory and elsewhere outside the central processing unit (CPU).
+
+Confidential VMs leverage hardware-based memory encryption technologies, such as AMD Secure Encrypted Virtualization (SEV), AMD SEV-SNP, and Intel Trust Domain Extensions (TDX), depending on the chosen machine type and CPU platform. Customer data will stay encrypted while it is used, indexed, queried, or trained on. Encryption keys are generated by and reside solely in dedicated hardware and are not exportable, enhancing isolation and security. Built-in hardware optimizations ensure Confidential Computing workloads experience minimal to no significant performance penalties.
+
+Confidential Computing enables customers' sensitive code and other data encrypted in memory during processing. Google does not have access to the encryption keys. Confidential VM can help alleviate concerns about risk related to either dependency on Google infrastructure or Google insiders' access to customer data in the clear."
+  solution       : "Confidential Computing can only be enabled when an instance is created. You must delete the current instance and create a new one.
+
+From Google Cloud Console
+
+ -
+
+Go to the VM instances page by visiting: https://console.cloud.google.com/compute/instances.
+
+ -
+
+Click CREATE INSTANCE.
+
+ -
+
+Fill out the desired configuration for your instance.
+
+ -
+
+Under the Confidential VM service section, check the option Enable the Confidential Computing service on this VM instance.
+
+ -
+
+Click Create.
+
+From Google Cloud CLI
+
+Create a new instance with Confidential Compute enabled.
+
+gcloud compute instances create <INSTANCE_NAME> --zone <ZONE> --confidential-compute --maintenance-policy=TERMINATE
+
+Impact:
+
+ - Confidential Computing for Compute instances does not support live migration. Unlike regular Compute instances, Confidential VMs experience disruptions during maintenance events like a software or hardware update.
+ - Additional charges may be incurred when enabling this security feature. See https://cloud.google.com/compute/confidential-vm/pricingfor more info."
+  reference      : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeInstances"
+  json_transform : ".projects[].value.items[] | select(.value.items | length > 0) | .value.items[] | \"Machine Type: \(.machineType), Instance: \(.selfLink), Enable Confidential Compute: \(.confidentialInstanceConfig.enableConfidentialCompute)\""
+  regex          : "machineTypes/n2d-"
+  expect         : "Enable Confidential Compute: true"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "4.12 Ensure the Latest Operating System Updates Are Installed On Your Virtual Machines in All Projects"
+  info        : "Google Cloud Virtual Machines have the ability via an OS Config agent API to periodically (about every 10 minutes) report OS inventory data. A patch compliance API periodically reads this data, and cross references metadata to determine if the latest updates are installed.
+
+This is not the only Patch Management solution available to your organization and you should weigh your needs before committing to using this method.
+
+Keeping virtual machine operating systems up to date is a security best practice. Using this service will simplify this process.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From Google Cloud Console
+
+Enabling OS Patch Management on a Project by Project Basis
+
+Install OS Config API for the Project
+
+ - Navigate into a project. In the expanded portal menu located at the top left of the screen hover over \"APIs & Services\". Then in the menu right of that select \"API Libraries\"
+ - Search for \"VM Manager (OS Config API) or scroll down in the left hand column and select the filter labeled \"Compute\" where it is the last listed. Open this API.
+ - Click the blue 'Enable' button.
+
+Add MetaData Tags for OSConfig Parsing
+
+ - From the main Google Cloud console, open the portal menu in the top left. Mouse over Computer Engine to expand the menu next to it.
+ - Under the \"Settings\" heading, select \"Metadata\".
+ - In this view there will be a list of the project wide metadata tags for VMs. Click edit and 'add item' in the key column type 'enable-osconfig' and in the value column set it to 'true'.
+
+From Command Line
+
+ - For project wide tagging, run the following command
+
+gcloud compute project-info add-metadata \\
+  --project <PROJECT_ID>\\
+  --metadata=enable-osconfig=TRUE
+
+Please see the reference /compute/docs/troubleshooting/vm-manager/verify-setup#metadata-enabled at the bottom for more options like instance specific tagging.
+
+Note: Adding a new tag via commandline may overwrite existing tags. You will need to do this at a time of low usage for the least impact.
+
+Install and Start the Local OSConfig for Data Parsing
+
+There is no way to centrally manage or start the Local OSConfig agent. Please view the reference of manage-os#agent-install to view specific operating system commands.
+
+Setup a project wide Service Account
+
+Please view Recommendation 4.1 to view how to setup a service account. Rerun the audit procedure to test if it has taken effect.
+
+Enable NAT or Configure Private Google Access to allow Access to Public Update Hosting
+
+For the sake of brevity, please see the attached resources to enable NAT or Private Google Access. Rerun the audit procedure to test if it has taken effect.
+
+From Command Line:
+
+Install OS Config API for the Project
+
+ - In each project you wish to audit run gcloud services enable osconfig.googleapis.com
+
+ Install and Start the Local OSConfig for Data Parsing
+
+Please view the reference of manage-os#agent-install to view specific operating system commands.
+
+ Setup a project wide Service Account
+
+Please view Recommendation 4.1 to view how to setup a service account. Rerun the audit procedure to test if it has taken effect.
+
+ Enable NAT or Configure Private Google Access to allow Access to Public Update Hosting
+
+For the sake of brevity, please see the attached resources to enable NAT or Private Google Access. Rerun the audit procedure to test if it has taken effect.
+
+Determine if Instances can connect to public update hosting
+
+Linux
+
+Debian Based Operating Systems
+
+sudo apt update
+
+The output should have a numbered list of lines with Hit: URL of updates.
+
+Redhat Based Operating Systems
+
+yum check-update
+
+The output should show a list of packages that have updates available.
+
+Windows
+
+ping http://windowsupdate.microsoft.com/
+
+The ping should successfully be delivered and received.
+
+Impact:
+
+Most Operating Systems require a restart or changing critical resources to apply the updates. Using the Google Cloud VM manager for its OS Patch management will incur additional costs for each VM managed by it. Please view the VM manager pricing reference for further information."
+  reference   : "800-171r3|03.16.02,800-53|SA-22,800-53r5|SA-22,CSCv7|2.2,CSCv8|2.2,CSF2.0|ID.AM-08,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|2M"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.7 Ensure VM Disks for Critical VMs Are Encrypted With Customer-Supplied Encryption Keys (CSEK)"
+  info           : "Customer-Supplied Encryption Keys (CSEK) are a feature in Google Cloud Storage and Google Compute Engine. If you supply your own encryption keys, Google uses your key to protect the Google-generated keys used to encrypt and decrypt your data. By default, Google Compute Engine encrypts all data at rest. Compute Engine handles and manages this encryption for you without any additional actions on your part. However, if you wanted to control and manage this encryption yourself, you can provide your own encryption keys.
+
+By default, Google Compute Engine encrypts all data at rest. Compute Engine handles and manages this encryption for you without any additional actions on your part. However, if you wanted to control and manage this encryption yourself, you can provide your own encryption keys.
+
+If you provide your own encryption keys, Compute Engine uses your key to protect the Google-generated keys used to encrypt and decrypt your data. Only users who can provide the correct key can use resources protected by a customer-supplied encryption key.
+
+Google does not store your keys on its servers and cannot access your protected data unless you provide the key. This also means that if you forget or lose your key, there is no way for Google to recover the key or to recover any data encrypted with the lost key.
+
+At least business critical VMs should have VM disks encrypted with CSEK."
+  solution       : "Currently there is no way to update the encryption of an existing disk. Therefore you should create a new disk with Encryption set to Customer supplied.
+
+From Google Cloud Console
+
+ - Go to Compute Engine Disks by visiting: https://console.cloud.google.com/compute/disks.
+ - Click CREATE DISK.
+ - Set Encryption type to Customer supplied,
+ - Provide the Key in the box.
+ - Select Wrapped key.
+ - Click Create.
+
+From Google Cloud CLI
+
+In the gcloud compute tool, encrypt a disk using the --csek-key-file flag during instance creation. If you are using an RSA-wrapped key, use the gcloud beta component:
+
+gcloud compute instances create <INSTANCE_NAME> --csek-key-file <example-file.json>
+
+To encrypt a standalone persistent disk:
+
+gcloud compute disks create <DISK_NAME> --csek-key-file <example-file.json>
+
+Impact:
+
+If you lose your encryption key, you will not be able to recover the data."
+  reference      : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeDisks"
+  json_transform : ".projects[] | select(.value.items | length > 0) | .value.items[] | select(.disks | length > 0) | .disks[] | \"Disk: \(.selfLink), Disk Encryption Key: \(.diskEncryptionKey)\""
+  regex          : "Disk Encryption Key:"
+  expect         : "Disk Encryption Key: [^$\\n\\r]*sha256"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.8 Ensure Compute Instances Are Launched With Shielded VM Enabled"
+  info           : "To defend against advanced threats and ensure that the boot loader and firmware on your VMs are signed and untampered, it is recommended that Compute instances are launched with Shielded VM enabled.
+
+Shielded VMs are virtual machines (VMs) on Google Cloud Platform hardened by a set of security controls that help defend against rootkits and bootkits.
+
+Shielded VM offers verifiable integrity of your Compute Engine VM instances, so you can be confident your instances haven't been compromised by boot- or kernel-level malware or rootkits. Shielded VM's verifiable integrity is achieved through the use of Secure Boot, virtual trusted platform module (vTPM)-enabled Measured Boot, and integrity monitoring.
+
+Shielded VM instances run firmware which is signed and verified using Google's Certificate Authority, ensuring that the instance's firmware is unmodified and establishing the root of trust for Secure Boot.
+
+Integrity monitoring helps you understand and make decisions about the state of your VM instances and the Shielded VM vTPM enables Measured Boot by performing the measurements needed to create a known good boot baseline, called the integrity policy baseline. The integrity policy baseline is used for comparison with measurements from subsequent VM boots to determine if anything has changed.
+
+Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails."
+  solution       : "To be able turn on Shielded VM on an instance, your instance must use an image with Shielded VM support.
+
+From Google Cloud Console
+
+ -
+
+Go to the VM instances page by visiting: https://console.cloud.google.com/compute/instances.
+
+ -
+
+Click on the instance name to see its VM instance details page.
+
+ -
+
+Click STOP to stop the instance.
+
+ -
+
+When the instance has stopped, click EDIT.
+
+ -
+
+In the Shielded VM section, select Turn on vTPM and Turn on Integrity Monitoring.
+
+ -
+
+Optionally, if you do not use any custom or unsigned drivers on the instance, also select Turn on Secure Boot.
+
+ -
+
+Click the Save button to modify the instance and then click START to restart it.
+
+From Google Cloud CLI
+
+You can only enable Shielded VM options on instances that have Shielded VM support. For a list of Shielded VM public images, run the gcloud compute images list command with the following flags:
+
+gcloud compute images list --project gce-uefi-images --no-standard-images
+
+ - Stop the instance:
+
+gcloud compute instances stop <INSTANCE_NAME>
+
+ - Update the instance:
+
+gcloud compute instances update <INSTANCE_NAME> --shielded-vtpm --shielded-vm-integrity-monitoring
+
+ - Optionally, if you do not use any custom or unsigned drivers on the instance, also turn on secure boot.
+
+gcloud compute instances update <INSTANCE_NAME> --shielded-vm-secure-boot
+
+ - Restart the instance:
+
+gcloud compute instances start <INSTANCE_NAME>
+
+Prevention:
+
+You can ensure that all new VMs will be created with Shielded VM enabled by setting up an Organization Policy to for Shielded VM at https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm. Learn more at:
+https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint."
+  reference      : "800-53|SI-16,800-53r5|SI-16,CSCv7|5.2,CSCv8|10.5,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-16,LEVEL|2A"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeInstances"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.items[] | .name as $computeZone | select(.value.items | length > 0) | .value.items[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Compute Zone: \($computeZone), Instance: \(.name), Enable Integrity Monitoring: \(.shieldedInstanceConfig.enableIntegrityMonitoring), Enable vTPM: \(.shieldedInstanceConfig.enableVtpm)\""
+  regex          : "Enable Integrity Monitoring:"
+  expect         : "Enable Integrity Monitoring: true, Enable vTPM: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "4.9 Ensure That Compute Instances Do Not Have Public IP Addresses"
+  info           : "Compute instances should not be configured to have external IP addresses.
+
+To reduce your attack surface, Compute instances should not have public IP addresses. Instead, instances should be configured behind load balancers, to minimize the instance's exposure to the internet."
+  solution       : "From Google Cloud Console
+
+ -
+
+Go to the VM instances page by visiting: https://console.cloud.google.com/compute/instances.
+
+ -
+
+Click on the instance name to go the the Instance detail page.
+
+ -
+
+Click Edit.
+
+ -
+
+For each Network interface, ensure that External IP is set to None.
+
+ -
+
+Click Done and then click Save.
+
+From Google Cloud CLI
+
+ - Describe the instance properties:
+
+gcloud compute instances describe <INSTANCE_NAME> --zone=<ZONE>
+
+ - Identify the access config name that contains the external IP address. This access config appears in the following format:
+
+networkInterfaces:
+- accessConfigs:
+ - kind: compute#accessConfig
+   name: External NAT
+   natIP: 130.211.181.55
+   type: ONE_TO_ONE_NAT
+
+ - Delete the access config.
+
+gcloud compute instances delete-access-config <INSTANCE_NAME> --zone=<ZONE> --access-config-name <ACCESS_CONFIG_NAME>
+
+In the above example, the ACCESS_CONFIG_NAME is External NAT . The name of your access config might be different.
+
+Prevention:
+You can configure the Define allowed external IPs for VM instances Organization Policy to prevent VMs from being configured with public IP addresses. Learn more at: https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess
+
+Impact:
+
+Removing the external IP address from your Compute instance may cause some applications to stop working."
+  reference      : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listComputeInstances"
+  json_transform : ".projects[].value.items[] | select(.value.items | length == 0) | .value.items[] | \"Instance: \(.selfLink), Access Configs: \(.networkInterfaces[].accessConfigs[])\""
+  regex          : "^((?!/gke-).)*Access Configs:"
+  not_expect     : ".+"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "5.2 Ensure That Cloud Storage Buckets Have Uniform Bucket-Level Access Enabled"
+  info           : "It is recommended that uniform bucket-level access is enabled on Cloud Storage buckets.
+
+It is recommended to use uniform bucket-level access to unify and simplify how you grant access to your Cloud Storage resources.
+
+Cloud Storage offers two systems for granting users permission to access your buckets and objects: Cloud Identity and Access Management (Cloud IAM) and Access Control Lists (ACLs). These systems act in parallel - in order for a user to access a Cloud Storage resource, only one of the systems needs to grant the user permission. Cloud IAM is used throughout Google Cloud and allows you to grant a variety of permissions at the bucket and project levels. ACLs are used only by Cloud Storage and have limited permission options, but they allow you to grant permissions on a per-object basis.
+
+In order to support a uniform permissioning system, Cloud Storage has uniform bucket-level access. Using this feature disables ACLs for all Cloud Storage resources: access to Cloud Storage resources then is granted exclusively through Cloud IAM. Enabling uniform bucket-level access guarantees that if a Storage bucket is not publicly accessible, no object in the bucket is publicly accessible either."
+  solution       : "From Google Cloud Console
+
+ -
+
+Open the Cloud Storage browser in the Google Cloud Console by visiting: https://console.cloud.google.com/storage/browser
+
+ -
+
+In the list of buckets, click on the name of the desired bucket.
+
+ -
+
+Select the Permissions tab near the top of the page.
+
+ -
+
+In the text box that starts with This bucket uses fine-grained access control..., click Edit.
+
+ -
+
+In the pop-up menu that appears, select Uniform.
+
+ -
+
+Click Save.
+
+From Google Cloud CLI
+
+Use the on option in a uniformbucketlevelaccess set command:
+
+gsutil uniformbucketlevelaccess set on gs://BUCKET_NAME/
+
+Prevention
+
+You can set up an Organization Policy to enforce that any new bucket has uniform bucket level access enabled. Learn more at:
+https://cloud.google.com/storage/docs/setting-org-policies#uniform-bucket
+
+Impact:
+
+If you enable uniform bucket-level access, you revoke access from users who gain their access solely through object ACLs.
+
+Certain Google Cloud services, such as Stackdriver, Cloud Audit Logs, and Datastore, cannot export to Cloud Storage buckets that have uniform bucket-level access enabled."
+  reference      : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listBuckets"
+  json_transform : ".projects[].value.items[] | \"Bucket: \(.selfLink), Uniform Bucket Level Access Enabled: \(.iamConfiguration.uniformBucketLevelAccess.enabled)\""
+  regex          : "Uniform Bucket Level Access Enabled:"
+  expect         : "Uniform Bucket Level Access Enabled: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "6.2.1 Ensure 'Log_error_verbosity' Database Flag for Cloud SQL PostgreSQL Instance Is Set to 'DEFAULT' or Stricter"
+  info           : "The log_error_verbosity flag controls the verbosity/details of messages logged. Valid values are:
+
+ - TERSE
+ - DEFAULT
+ - VERBOSE
+
+TERSE excludes the logging of DETAIL, HINT, QUERY, and CONTEXT error information.
+
+VERBOSE output includes the SQLSTATE error code, source code file name, function name, and line number that generated the error.
+
+Ensure an appropriate value is set to 'DEFAULT' or stricter.
+
+Auditing helps in troubleshooting operational problems and also permits forensic analysis. If log_error_verbosity is not set to the correct value, too many details or too few details may be logged. This flag should be configured with a value of 'DEFAULT' or stricter. This recommendation is applicable to PostgreSQL database instances."
+  solution       : "From Google Cloud Console
+
+ - Go to the Cloud SQL Instances page in the Google Cloud Console by visiting https://console.cloud.google.com/sql/instances.
+ - Select the PostgreSQL instance for which you want to enable the database flag.
+ - Click Edit.
+ - Scroll down to the Flags section.
+ - To set a flag that has not been set on the instance before, click Add a Database Flag, choose the flag log_error_verbosity from the drop-down menu and set appropriate value.
+ - Click Save to save your changes.
+ - Confirm your changes under Flags on the Overview page.
+
+From Google Cloud CLI
+
+ - Configure the log_error_verbosity database flag for every Cloud SQL PosgreSQL database instance using the below command.
+
+gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=<TERSE|DEFAULT|VERBOSE>
+
+Note : This command will overwrite all database flags previously set. To keep those and add new ones, include the values for all flags you want set on the instance; any flag not specifically included is set to its default value. For flags that do not take a value, specify the flag name followed by an equals sign (\"=\").
+
+Impact:
+
+Turning on logging will increase the required storage over time. Mismanaged logs may cause your storage costs to increase. Setting custom flags via command line on certain instances will cause all omitted flags to be reset to defaults. This may cause you to lose custom flags and could result in unforeseen complications or instance restarts. Because of this, it is recommended you apply these flags changes during a period of low usage."
+  reference      : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listSqlInstances"
+  json_transform : ".projects[].value.items[] | [.settings.databaseFlags[] | select(.name == \"log_error_verbosity\").value] as $value | \"Instance: \(.selfLink), Database Version: \(.databaseVersion), Log Error Verbosity: \($value[0])\""
+  regex          : "Database Version: POSTGRES"
+  expect         : "(?i)Log Error Verbosity: (TERSE|DEFAULT)"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "6.2.4 Ensure 'Log_statement' Database Flag for Cloud SQL PostgreSQL Instance Is Set Appropriately"
+  info           : "The value of log_statement flag determined the SQL statements that are logged. Valid values are:
+
+ - none
+ - ddl
+ - mod
+ - all
+
+The value ddl logs all data definition statements.
+The value mod logs all ddl statements, plus data-modifying statements.
+
+The statements are logged after a basic parsing is done and statement type is determined, thus this does not logs statements with errors. When using extended query protocol, logging occurs after an Execute message is received and values of the Bind parameters are included.
+
+A value of 'ddl' is recommended unless otherwise directed by your organization's logging policy.
+
+Auditing helps in forensic analysis. If log_statement is not set to the correct value, too many statements may be logged leading to issues in finding the relevant information from the logs, or too few statements may be logged with relevant information missing from the logs. Setting log_statement to align with your organization's security and logging policies facilitates later auditing and review of database activities.
+This recommendation is applicable to PostgreSQL database instances."
+  solution       : "From Google Cloud Console
+
+ - Go to the Cloud SQL Instances page in the Google Cloud Console by visiting https://console.cloud.google.com/sql/instances.
+ - Select the PostgreSQL instance for which you want to enable the database flag.
+ - Click Edit.
+ - Scroll down to the Flags section.
+ - To set a flag that has not been set on the instance before, click Add a Database Flag, choose the flag log_statement from the drop-down menu and set appropriate value.
+ - Click Save to save your changes.
+ - Confirm your changes under Flags on the Overview page.
+
+From Google Cloud CLI
+
+ - Configure the log_statement database flag for every Cloud SQL PosgreSQL database instance using the below command.
+
+gcloud sql instances patch <INSTANCE_NAME> --database-flags log_statement=<ddl|mod|all|none>
+
+Note : This command will overwrite all database flags previously set. To keep those and add new ones, include the values for all flags you want set on the instance; any flag not specifically included is set to its default value. For flags that do not take a value, specify the flag name followed by an equals sign (\"=\").
+
+Impact:
+
+Turning on logging will increase the required storage over time. Mismanaged logs may cause your storage costs to increase. Setting custom flags via command line on certain instances will cause all omitted flags to be reset to defaults. This may cause you to lose custom flags and could result in unforeseen complications or instance restarts. Because of this, it is recommended you apply these flags changes during a period of low usage."
+  reference      : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-171r3|03.03.02a.,800-171r3|03.03.02b.,800-171r3|03.03.03,800-171r3|03.03.06a.,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,CSF2.0|RS.AN-03,CSF2.0|RS.AN-06,CSF2.0|RS.AN-07,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listSqlInstances"
+  json_transform : ".projects[].value.items[] | [.settings.databaseFlags[] | select(.name == \"log_statement\").value] as $value | \"Instance: \(.selfLink), Database Version: \(.databaseVersion), Log Statement: \($value[0])\""
+  regex          : "Database Version: POSTGRES"
+  expect         : "Log Statement: @POSTGRESQL_LOG_STATEMENT@"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "6.7 Ensure That Cloud SQL Database Instances Do Not Have Public IPs"
+  info           : "It is recommended to configure Second Generation Sql instance to use private IPs instead of public IPs.
+
+To lower the organization's attack surface, Cloud SQL databases should not have public IPs. Private IPs provide improved network security and lower latency for your application."
+  solution       : "From Google Cloud Console
+
+ - Go to the Cloud SQL Instances page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
+ - Click the instance name to open its configuration overview.
+ - Select the Connections tab.
+ - Deselect the Public IP checkbox.
+ - Click Save to update the instance.
+
+From Google Cloud CLI
+
+ - For every instance remove its public IP and assign a private IP instead:
+
+gcloud sql instances patch <INSTANCE_NAME> --network=<VPC_NETWORK_NAME> --no-assign-ip
+
+ - Confirm the changes using the following command::
+
+gcloud sql instances describe <INSTANCE_NAME>
+
+Prevention:
+
+To prevent new SQL instances from getting configured with public IP addresses, set up a Restrict Public IP access on Cloud SQL instances Organization policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp.
+
+Impact:
+
+Removing the public IP address on SQL instances may break some applications that relied on it for database connectivity."
+  reference      : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-171r3|03.01.02,800-171r3|03.01.04,800-171r3|03.01.05a.,800-171r3|03.08.02,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO-27001-2022|A.5.3,ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.15,ISO-27001-2022|A.5.33,ISO-27001-2022|A.7.7,ISO-27001-2022|A.7.10,ISO-27001-2022|A.8.2,ISO-27001-2022|A.8.3,ISO-27001-2022|A.8.18,ISO-27001-2022|A.8.20,ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|2A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listSqlInstances"
+  json_transform : ".projects[].value.items[] | .selfLink as $selfLink | select(.backendType == \"SECOND_GEN\") | .ipAddresses[] | \"Instance: \($selfLink), IP Address: \(.ipAddress), Type: \(.type)\""
+  regex          : "Type:"
+  not_expect     : "Type: PRIMARY"
+  match_all      : YES
+</custom_item>
+
+<report type:"WARNING">
+  description : "7.2 Ensure That All BigQuery Tables Are Encrypted With Customer-Managed Encryption Key (CMEK)"
+  info        : "BigQuery by default encrypts the data as rest by employing Envelope Encryption using Google managed cryptographic keys. The data is encrypted using the data encryption keys and data encryption keys themselves are further encrypted using key encryption keys . This is seamless and do not require any additional input from the user. However, if you want to have greater control, Customer-managed encryption keys (CMEK) can be used as encryption key management solution for BigQuery Data Sets. If CMEK is used, the CMEK is used to encrypt the data encryption keys instead of using google-managed encryption keys.
+
+BigQuery by default encrypts the data as rest by employing Envelope Encryption using Google managed cryptographic keys. This is seamless and does not require any additional input from the user.
+
+For greater control over the encryption, customer-managed encryption keys (CMEK) can be used as encryption key management solution for BigQuery tables. The CMEK is used to encrypt the data encryption keys instead of using google-managed encryption keys. BigQuery stores the table and CMEK association and the encryption/decryption is done automatically.
+
+Applying the Default Customer-managed keys on BigQuery data sets ensures that all the new tables created in the future will be encrypted using CMEK but existing tables need to be updated to use CMEK individually.
+
+Note: Google does not store your keys on its servers and cannot access your protected data unless you provide the key. This also means that if you forget or lose your key, there is no way for Google to recover the key or to recover any data encrypted with the lost key.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "From Google Cloud CLI
+Use the following command to copy the data. The source and the destination needs to be same in case copying to the original table.
+
+bq cp --destination_kms_key <customer_managed_key> source_dataset.source_table destination_dataset.destination_table
+
+Impact:
+
+Using Customer-managed encryption keys (CMEK) will incur additional labor-hour investment to create, protect, and manage the keys."
+  reference   : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "7.3 Ensure That a Default Customer-Managed Encryption Key (CMEK) Is Specified for All BigQuery Data Sets"
+  info           : "BigQuery by default encrypts the data as rest by employing Envelope Encryption using Google managed cryptographic keys. The data is encrypted using the data encryption keys and data encryption keys themselves are further encrypted using key encryption keys . This is seamless and do not require any additional input from the user. However, if you want to have greater control, Customer-managed encryption keys (CMEK) can be used as encryption key management solution for BigQuery Data Sets.
+
+BigQuery by default encrypts the data as rest by employing Envelope Encryption using Google managed cryptographic keys. This is seamless and does not require any additional input from the user.
+
+For greater control over the encryption, customer-managed encryption keys (CMEK) can be used as encryption key management solution for BigQuery Data Sets. Setting a Default Customer-managed encryption key (CMEK) for a data set ensure any tables created in future will use the specified CMEK if none other is provided.
+
+Note: Google does not store your keys on its servers and cannot access your protected data unless you provide the key. This also means that if you forget or lose your key, there is no way for Google to recover the key or to recover any data encrypted with the lost key."
+  solution       : "From Google Cloud CLI
+
+The default CMEK for existing data sets can be updated by specifying the default key in the EncryptionConfiguration.kmsKeyName field when calling the datasets.insert or datasets.patch methods
+
+Impact:
+
+Using Customer-managed encryption keys (CMEK) will incur additional labor-hour investment to create, protect, and manage the keys."
+  reference      : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "getBqDataset"
+  json_transform : ".projects[].value.datasets[].value | \"Instance: \(.selfLink), KMS Key Name: \(.defaultEncryptionConfiguration.kmsKeyName)\""
+  regex          : "KMS Key Name:"
+  not_expect     : "KMS Key Name: null"
+</custom_item>
+
+<report type:"WARNING">
+  description : "7.4 Ensure all data in BigQuery has been classified"
+  info        : "BigQuery tables can contain sensitive data that for security purposes should be discovered, monitored, classified, and protected. Google Cloud's Sensitive Data Protection tools can automatically provide data classification of all BigQuery data across an organization.
+
+Using a cloud service or 3rd party software to continuously monitor and automate the process of data discovery and classification for BigQuery tables is an important part of protecting the data.
+
+Sensitive Data Protection is a fully managed data protection and data privacy platform that uses machine learning and pattern matching to discover and classify sensitive data in Google Cloud.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Enable profiling:
+
+ - Go to Cloud DLP by visiting https://console.cloud.google.com/dlp/landing/dataProfiles/configurations
+ - Click \"Create Configuration\"
+ - For projects follow https://cloud.google.com/dlp/docs/profile-project. For organizations or folders follow https://cloud.google.com/dlp/docs/profile-org-folder
+
+Review findings:
+
+ - Columns or tables with high data risk have evidence of sensitive information without additional protections. To lower the data risk score, consider doing the following:
+ - For columns containing sensitive data, apply a BigQuery policy tag to restrict access to accounts with specific access rights.
+ - De-identify the raw sensitive data using de-identification techniques like masking and tokenization.
+
+Incorporate findings into your security and governance operations:
+
+ - Enable sending findings into your security and posture services. You can publish data profiles to Security Command Center and Chronicle.
+ - Automate remediation or enable alerting of new or changed data risk with Pub/Sub.
+
+Impact:
+
+There is a cost associated with using Sensitive Data Protection. There is also typically a cost associated with 3rd party tools that perform similar processes and protection."
+  reference   : "800-171r3|03.03.03b.,800-171r3|03.14.08,800-53|AU-11,800-53|RA-2,800-53|SI-12,800-53r5|AU-11,800-53r5|CM-12,800-53r5|RA-2,800-53r5|SI-12,CSCv7|5.1,CSCv8|3.1,CSCv8|3.7,CSF|ID.AM-5,CSF|ID.RA-4,CSF|ID.RA-5,CSF|PR.PT-1,CSF2.0|ID.AM-05,CSF2.0|ID.AM-07,CSF2.0|ID.AM-08,CSF2.0|ID.RA-04,CSF2.0|ID.RA-05,CSF2.0|PR.PS-04,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO-27001-2022|A.5.12,ISO-27001-2022|A.5.28,ISO-27001-2022|A.8.15,ITSG-33|AU-11,ITSG-33|RA-2,ITSG-33|SI-12,ITSG-33|SI-12a.,LEVEL|2M,NESA|M2.2.1,NESA|M5.2.3,NESA|M5.2.4,NESA|M5.3.1,NESA|T1.3.1,NESA|T3.6.2,NIAv2|DR1,NIAv2|DR1a,NIAv2|DR1b,NIAv2|DR1c,NIAv2|DR2,NIAv2|DR3,NIAv2|DR4,NIAv2|DR5,NIAv2|DR6,NIAv2|SM7,PCI-DSSv3.2.1|3.1,PCI-DSSv3.2.1|10.7,PCI-DSSv4.0|3.2.1,PCI-DSSv4.0|10.5.1,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|11.2,QCSC-v1|13.2"
+  see_also    : "https://workbench.cisecurity.org/benchmarks/22181"
+</report>
+
+<custom_item>
+  type           : REST_API
+  description    : "8.1 Ensure that Dataproc Cluster is encrypted using Customer-Managed Encryption Key"
+  info           : "When you use Dataproc, cluster and job data is stored on Persistent Disks (PDs) associated with the Compute Engine VMs in your cluster and in a Cloud Storage staging bucket. This PD and bucket data is encrypted using a Google-generated data encryption key (DEK) and key encryption key (KEK). The CMEK feature allows you to create, use, and revoke the key encryption key (KEK). Google still controls the data encryption key (DEK).
+
+\"Cloud services offer the ability to protect data related to those services using encryption keys managed by the customer within Cloud KMS. These encryption keys are called customer-managed encryption keys (CMEK). When you protect data in Google Cloud services with CMEK, the CMEK key is within your control."
+  solution       : "From Google Cloud Console
+
+ - Login to the GCP Console and navigate to the Dataproc Cluster page by visiting https://console.cloud.google.com/dataproc/clusters.
+ - Select the project from the projects dropdown list.
+ - On the Dataproc Cluster page, click on the Create Cluster to create a new cluster with Customer managed encryption keys.
+ - On Create a cluster page, perform below steps:
+
+ - Inside Set up cluster section perform below steps:
+-In the Name textbox, provide a name for your cluster.
+
+ - From Location select the location in which you want to deploy a cluster.
+ - Configure other configurations as per your requirements.
+
+ - Inside Configure Nodes and Customize cluster section configure the settings as per your requirements.
+ - Inside Manage security section, perform below steps:
+
+ - From Encryption, select Customer-managed key.
+ - Select a customer-managed key from dropdown list.
+ - Ensure that the selected KMS Key have Cloud KMS CryptoKey Encrypter/Decrypter role assign to Dataproc Cluster service account (\"serviceAccount:service-<project_number>@compute-system.iam.gserviceaccount.com\").
+ - Click on Create to create a cluster.
+
+ - Once the cluster is created migrate all your workloads from the older cluster to the new cluster and delete the old cluster by performing the below steps:
+
+ - On the Clusters page, select the old cluster and click on Delete cluster.
+ - On the Confirm deletion window, click on Confirm to delete the cluster.
+ - Repeat step above for other Dataproc clusters available in the selected project.
+
+ - Change the project from the project dropdown list and repeat the remediation procedure for other Dataproc clusters available in other projects.
+
+From Google Cloud CLI
+
+Before creating cluster ensure that the selected KMS Key have Cloud KMS CryptoKey Encrypter/Decrypter role assign to Dataproc Cluster service account (\"serviceAccount:service-<project_number>@compute-system.iam.gserviceaccount.com\").
+Run clusters create command to create new cluster with customer-managed key:
+
+gcloud dataproc clusters create <cluster_name> --region=us-central1 --gce-pd-kms-key=<key_resource_name>
+
+The above command will create a new cluster in the selected region.
+
+Once the cluster is created migrate all your workloads from the older cluster to the new cluster and Run clusters delete command to delete cluster:
+
+gcloud dataproc clusters delete <cluster_name> --region=us-central1
+
+Repeat step no. 1 to create a new Dataproc cluster.
+Change the project by running the below command and repeat the remediation procedure for other projects:
+
+gcloud config set project <project_ID>\"
+
+Impact:
+
+Using Customer Managed Keys involves additional overhead in maintenance by administrators."
+  reference      : "800-171|3.5.2,800-171|3.13.16,800-171r3|03.05.07,800-171r3|03.13.08,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.DS-01,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ISO-27001-2022|A.5.10,ISO-27001-2022|A.5.16,ISO-27001-2022|A.5.17,ISO-27001-2022|A.5.33,ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+  see_also       : "https://workbench.cisecurity.org/benchmarks/22181"
+  request        : "listDataprocs"
+  json_transform : ".projects[] | .projectNumber as $projectNumber | .projectId as $projectId | .value.items[] | .name as $regionName | .value.clusters[] | \"Project Number: \($projectNumber), Project ID: \($projectId), Region Name: \($regionName), Cluster Name: \(.clusterName), Cluster UUID: \(.clusterUuid), Kms Key Name: \(.config.encryptionConfig.gcePdKmsKeyName)\""
+  regex          : "Kms Key Name"
+  not_expect     : "Kms Key Name: null"
+</custom_item>
+
+</check_type>

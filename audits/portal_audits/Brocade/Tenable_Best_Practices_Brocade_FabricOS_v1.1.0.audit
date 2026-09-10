@@ -1,0 +1,1222 @@
+#TRUSTED 3b13a26dd8eea0d6c16df442dee40c67b4601cfa790d30bd7c3927d7375cd2ebf4f135c1681f758565e03107e9d88a45c42016a1df7307739667fc91465ac5e2223af2f91b8b50c5ade87ebd42d0ecc916453966da6d8c56c5aeb9b13f59b5b375c2d4903998c495af6e6c66a0ee963aba2ea55130e4b1cedcb51337afff7ac9edb54e9e9267287104bd6fdf576c90791360cd742b2734d8d8eb40aeb54e355f116feeafa84f26df4bf63054804adbbe30f7dab8a3ab601099534f35a10d98c3ce4672e3270434194bdc45c35460523801ff89a0406d2768c72c0917fffa3c39fb37f0975e3295d69a184674353841b115439508d9366af3d640ce8f346eb962540cd7d4018c492262036c147f73b267cde67a7a5e5b17af664650a368233f119e6e37847cca43ddbe203866cdfe9bbe2d50344b436dafb54b70378707e76c3b42514a4d30d8b9bb95a5ac9ea608ef818d936e900c16e5ad41ff1bb7779131af0ee6d737a5ae6033c96a20444cc359a3442e0bab1b0a0f18b7a6fc43e300bcebd6772cd1f72c87ac59d9fdfb9ff031dc75a39d5287d4f3dc02f7d9acbe1d2e4284f0f17ac6270c1ef25c44981e6c256136ff1e88abd1a45e618646228e8299a78a946018e05b432befffd3ed953fd93039166b17cd6a84d4fb73d9ccb9744fb96e39a342cb35fedd621ecdfa6e11eb5bc15975f0da1c6055785ea4e17ee7da7f
+#TRUST-RSA-SHA256 5475c9e2cb9c33e6116221f579771902e00e7858a11eef6824e4a1223e4b6488b198e6ac2ebd9c9a9717914d60b80a852657fd9b8c9d8245185725d9a3def002590cd0d673af361313c0beabc4f059c007658168158bff955b07f27d8379eb996558cf1f57210ff4864c7761d9c73dab54a999d12301b36418c9f5c54d754205d19e88077d8fab368c3a74fbd097d4f69c0b10c02595d727499e8486d2b9cc81548e069d0073174965f8694e6314fc996e1cd0f0b45ce9dc1236caccdc6c7cc6cdea18041b2b17e975b6fa7eddbeea2be7f7b2b0f6ea6129b627b514418374815eef0b149c613c8bcc8536d12887a079b301ec9a5ae0677c2c6f3d941b29eba956c106e09cc3d45a37e21315ac6922ea209e4a982826032a07400d430791e50358dfed057602c4dee56d62903d7e5af4d97b971c5c159f5ef61b10863464e1cf03e067f968b66177057d7d72d4a16b8d2d3d759b2cedd4e5eb47f902c6037cf84e424f9c3c811dbaeec761cb33d38ff306c359beb66ab44f09a8031de5354bd7d961ebe6b6ef484c97ea721bc44eabdfa9a516793048cdd55a49814079c2912f79c881cc7540070ee656ee7debd804f702544f0d0e4003bad485166c2c9258087eb26d00229b4d6d0f376421e23b79322177c7e8e445faca2df09bafc588ac3b55639cb2e432150dbd8a13df5dc891e3a8eee4ca27ada3d3ff1ec82efa7e45cc
+#
+# This script is Copyright (C) 2004-2023 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.4 $
+# $Date: 2023/12/22 $
+#
+# Description : This .audit is designed to review the configuration of a Brocade Fabric OS switch
+#               and validate its settings against a comprehensive list of important settings.
+#
+#<ui_metadata>
+#<display_name>Tenable Best Practices Brocade FabricOS</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>Brocade FabricOS</name>
+#  <version>1.1.0</version>
+#  <link>https://docs.broadcom.com/docs/12380061</link>
+#</spec>
+#<labels>brocade,tenable,fabricos,update_20230227</labels>
+#<variables>
+#  <variable>
+#    <name>SYSLOG</name>
+#    <default>192\.168\.0\.1</default>
+#    <description>SYSLOG server IP</description>
+#    <info>The IP address of a trusted syslog daemon server for your organization.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>NTP_SERVER</name>
+#    <default>192\.168\.0\.1</default>
+#    <description>NTP server IP</description>
+#    <info>The IP address of a trusted NTP server for your organization. The default value is LOCL.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>SCP_SERVER</name>
+#    <default>192\.168\.0\.1</default>
+#    <description>SCP server IP</description>
+#    <info>The IP address of a trusted SCP server for your organization.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>SNMPv3_TRAPTARGET</name>
+#    <default>192\.168\.0\.1</default>
+#    <description>SNMPv3 trap target</description>
+#    <info>SNMPv3 IP address of traps, to add more replace 0 with 1,2 or 3 etc.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>BANNER_TEXT</name>
+#    <default>All unauthorized activity is monitored and logged.</default>
+#    <description>Banner config</description>
+#    <info>The banner displayed from the 'bannerset' configuration.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BANNER_MOTD</name>
+#    <default>All unauthorized activity is monitored and logged.</default>
+#    <description>Banner MOTD config</description>
+#    <info>The banner displayed from the 'motd' configuration.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Brocade">
+
+<custom_item>
+  type        : BANNER_CHECK
+  description : "Brocade - Banner Text"
+  info        : "Banner notifications can be implemented using messages or warning banners displayed before individuals log in to target systems.
+
+  It is recommended a banner is set to your approved organization content."
+  solution    : "The command to set a banner is as follows
+
+switch:admin> bannerset \"My banner\"
+
+or
+
+switch:admin> bannerset
+Please input context of security banner (press \".\" RETURN at the beginning of a newline to finish input):"
+  reference   : "800-171|3.1.9,800-53|AC-8,800-53r5|AC-8,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8,NESA|M1.3.6,TBA-FIISB|45.2.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  item        : "[Banner]"
+  content     : "@BANNER_TEXT@"
+</custom_item>
+
+<custom_item>
+  type        : BANNER_CHECK
+  description : "Brocade - MOTD Text"
+  info        : "Banner notifications can be implemented using messages or warning banners displayed before individuals log in to target systems.
+
+  It is recommended a banner is set to your approved organization content."
+  solution    : "The command to set a MOTD banner is as follows
+
+switch:admin> motd --set \"This is a chassis-level banner. It displays before the login.\""
+  reference   : "800-171|3.1.9,800-53|AC-8,800-53r5|AC-8,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8,NESA|M1.3.6,TBA-FIISB|45.2.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  item        : "[MOTD]"
+  content     : "@BANNER_MOTD@"
+</custom_item>
+
+## Block Telnet IPv4
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Disable Telnet IPv4"
+  info        : "Telnet is enabled by default.
+
+  To prevent passing clear text passwords over the network when connecting to the switch, you can block the Telnet protocol using an IP Filter policy"
+  solution    : "The command to disable Telnet is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 23 -proto
+
+ tcp -act deny"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv4.+active"
+  regex       : "tcp[\s]+23"
+  expect      : "deny"
+</custom_item>
+
+## Block Telnet IPv6
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Disable Telnet IPv6"
+  info        : "Telnet is enabled by default.
+
+  To prevent passing clear text passwords over the network when connecting to the switch, you can block the Telnet protocol using an IP Filter policy"
+  solution    : "The command to disable Telnet is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 23 -proto
+
+ tcp -act deny"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv6.+active"
+  regex       : "tcp[\s]+23"
+  expect      : "deny"
+</custom_item>
+
+## Permit SSH IPv4
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable SSH IPv4"
+  info        : "SSH uses asymmetric authentication to exchange keys and create a secure encrypted session.
+
+  It is recommended that you use Secure Shell (SSH) instead of Telnet."
+  solution    : "The command to enable SSH is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 22 -proto
+
+ tcp -act permit"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv4.+active"
+  regex       : "tcp[\s]+22"
+  expect      : "permit"
+</custom_item>
+
+## Permit SSH IPv6
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable SSH IPv6"
+  info        : "SSH uses asymmetric authentication to exchange keys and create a secure encrypted session.
+
+  It is recommended that you use Secure Shell (SSH) instead of Telnet."
+  solution    : "The command to enable SSH is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 22 -proto
+
+ tcp -act permit"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv6.+active"
+  regex       : "tcp[\s]+22"
+  expect      : "permit"
+</custom_item>
+
+## Block HTTP IPv4
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Disable HTTP IPv4"
+  info        : "The HTTP interface that is started by default has the same limitations as Telnet.
+
+  It is recommended that the HTTPS interface be configured and the HTTP interface be disabled."
+  solution    : "The command to disable HTTP is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 80 -proto
+
+ tcp -act deny"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv4.+active"
+  regex       : "tcp[\s]+80"
+  expect      : "deny"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Disable HTTP"
+  info        : "The HTTP interface that is started by default has the same limitations as Telnet.
+
+  It is recommended that the HTTPS interface be configured and the HTTP interface be disabled."
+  solution    : "The command to disable HTTP is as follows
+
+ switch:admin> seccertutil genkey
+
+ Generating a new key pair will automatically do the following:
+
+ 1. Delete all existing CSRs.
+
+ 2. Delete all existing certificates.
+
+ 3. Reset the certificate filename to none.
+
+ 4. Disable secure protocols.
+
+ Continue (yes, y, no, n): [no] y
+
+ Select key size [1024 or 2048]: 1024
+
+ Generating new rsa public/private key pair
+
+ Done."
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "http\.enabled"
+  expect      : "http\.enabled:0"
+</custom_item>
+
+## Block HTTP IPv6
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Disable HTTP IPv6"
+  info        : "The HTTP interface that is started by default has the same limitations as Telnet.
+
+  It is recommended that the HTTPS interface be configured and the HTTP interface be disabled."
+  solution    : "The command to disable HTTP is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 80 -proto
+
+ tcp -act deny"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv6.+active"
+  regex       : "tcp[\s]+80"
+  expect      : "deny"
+</custom_item>
+
+## Permit HTTPS IPv4
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable HTTPS IPv4"
+  info        : "It is recommended that the HTTPS interface be configured and the HTTP interface be disabled.
+
+  HTTPS is HTTP traffic running over a Secure Sockets Layer (SSL)."
+  solution    : "The command to enable HTTPS is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 443 -proto
+
+ tcp -act permit"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv4.+active"
+  regex       : "tcp[\s]+443"
+  expect      : "permit"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable HTTPS"
+  info        : "It is recommended that the HTTPS interface be configured and the HTTP interface be disabled.
+
+  HTTPS is HTTP traffic running over a Secure Sockets Layer (SSL)."
+  solution    : "The command to enable HTTPS is as follows
+
+ switch:admin> seccertutil genkey
+
+ Generating a new key pair will automatically do the following:
+
+ 1. Delete all existing CSRs.
+
+ 2. Delete all existing certificates.
+
+ 3. Reset the certificate filename to none.
+
+ 4. Disable secure protocols.
+
+ Continue (yes, y, no, n): [no] y
+
+ Select key size [1024 or 2048]: 1024
+
+ Generating new rsa public/private key pair
+
+ Done."
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "http\.ssl\.enabled"
+  expect      : "http\.ssl\.enabled:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable HTTPS ssl log"
+  info        : "HTTPS is HTTP traffic running over a Secure Sockets Layer (SSL).
+
+  Ensure the HTTP ssl logs are enabled."
+  solution    : "The command to enable HTTPS is as follows
+
+ switch:admin> seccertutil genkey
+
+ Generating a new key pair will automatically do the following:
+
+ 1. Delete all existing CSRs.
+
+ 2. Delete all existing certificates.
+
+ 3. Reset the certificate filename to none.
+
+ 4. Disable secure protocols.
+
+ Continue (yes, y, no, n): [no] y
+
+ Select key size [1024 or 2048]: 1024
+
+ Generating new rsa public/private key pair
+
+ Done."
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "http\.ssllog\.enabled"
+  expect      : "http\.ssllog\.enabled:1"
+</custom_item>
+
+## Permit HTTPS IPv6
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable HTTPS IPv6"
+  info        : "It is recommended that the HTTPS interface be configured and the HTTP interface be disabled.
+
+  HTTPS is HTTP traffic running over a Secure Sockets Layer (SSL)."
+  solution    : "The command to enable HTTPS is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 443 -proto
+
+ tcp -act permit"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv6.+active"
+  regex       : "tcp[\s]+443"
+  expect      : "permit"
+</custom_item>
+
+## Block TFTP IPv4
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Disable TFTP IPv4"
+  info        : "TFTP client and server should be disabled as they do not require any authentication.
+
+  Secure File Transfer Protocol (SFTP) and Secure Copy Protocol (SCP) are recommended as they are part of the SSH protocol suite."
+  solution    : "The command to disable TFTP is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 69 -proto
+
+ tcp -act deny"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv4.+active"
+  regex       : "tcp[\s]+69"
+  expect      : "deny"
+</custom_item>
+
+## Block TFTP IPv6
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Disable TFTP IPv6"
+  info        : "TFTP client and server should be disabled as they do not require any authentication.
+
+  Secure File Transfer Protocol (SFTP) and Secure Copy Protocol (SCP) are recommended as they are part of the SSH protocol suite."
+  solution    : "The command to disable TFTP is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 69 -proto
+
+ tcp -act deny"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv6.+active"
+  regex       : "tcp[\s]+69"
+  expect      : "deny"
+</custom_item>
+
+## Permit SFTP IPv4
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable SFTP IPv4"
+  info        : "Secure File Transfer Protocol (SFTP) and Secure Copy Protocol (SCP) are part of the SSH protocol suite.
+
+  They provide an encrypted session using public/private keys between client and server."
+  solution    : "The command to enable SFTP is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 115 -proto
+
+ tcp -act permit"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv4.+active"
+  regex       : "tcp[\s]+115"
+  expect      : "permit"
+</custom_item>
+
+## Permit SFTP IPv6
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable SFTP IPv6"
+  info        : "Secure File Transfer Protocol (SFTP) and Secure Copy Protocol (SCP) are part of the SSH protocol suite.
+
+  They provide an encrypted session using public/private keys between client and server."
+  solution    : "The command to enable SFTP is as follows
+
+ switch:admin> ipfilter --addrule policy_name -rule rule_number -sip any -dp 115 -proto
+
+ tcp -act permit"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "ipfilter --show"
+  context     : "ipv6.+active"
+  regex       : "tcp[\s]+115"
+  expect      : "permit"
+</custom_item>
+
+## Password Configuration
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - minimum number of lowercase characters set to 1"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The minimum number of lowercase characters that must appear in the password must be set to 1 or greater."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -lowercase 1"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.lowercase"
+  expect      : "passwdcfg\.lowercase:[1-9]"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - minimum number of uppercase characters set to 1"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The minimum number of uppercase characters that must appear in the password must be set to 1 or greater."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -uppercase 1"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.uppercase"
+  expect      : "passwdcfg\.uppercase:[1-9]"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - minimum number of numeric digits set to 1"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The minimum number of numeric digits that must appear in the password must be set to 1 or greater."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -digits 1"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.digits"
+  expect      : "passwdcfg\.digits:[1-9]"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - minimum number of punctuation characters set to 1"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The minimum number of punctuation character that must appear in the password must be set to 1 or greater."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -punctuation 1"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.punctuation"
+  expect      : "passwdcfg\.punctuation:+[1-9][0-9]*"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - minimum length of the password must be set to 9"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The minimum length of the password must be set to 9."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -minlength 9"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.minlength"
+  expect      : "passwdcfg\.minlength:([1-9][0-9]|9)"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - repeat characters must be set to 1"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The length of repeated character sequences must be set to 1."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -repeat 1"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(b),800-53r5|IA-5(1)(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(b),NESA|T5.2.3,NIAv2|AM22d,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.repeat"
+  expect      : "passwdcfg\.repeat:+[1-9][0-9]*"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - sequential characters must be set to 2"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The length of sequential character sequences must be set to 2."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -sequence 2"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(b),800-53r5|IA-5(1)(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(b),NESA|T5.2.3,NIAv2|AM22d,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.sequence"
+  expect      : "passwdcfg\.sequence:([1-9][0-9]|[2-9])"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - password history must be set to 1"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  The password history policy prevents users from recycling recently used passwords."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -history 1"
+  reference   : "800-171|3.5.8,800-53|IA-5(1)(e),800-53r5|IA-5(1)(e),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(e),NESA|T5.2.3,NIAv2|AM22c,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.history"
+  expect      : "passwdcfg\.history:([1-9][0-9]|[1-9])"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - minimum password age must be set to at least 30 days"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  Specifies the minimum number of days that must elapse before a user can change a password."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -minpasswordage 30"
+  reference   : "800-171|3.5.2,800-53|IA-5(1)(d),800-53r5|IA-5(1)(d),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(d),NESA|T5.2.3,NIAv2|AM20,NIAv2|AM21,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.minpasswordage"
+  expect      : "passwdcfg\.minpasswordage:([3-9][0-9])"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - maximum password age must be set to no more than 60 days"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  Specifies the maximum number of days that can elapse before a password must be changed."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -maxpasswordage 60"
+  reference   : "800-171|3.5.2,800-53|IA-5(1)(d),800-53r5|IA-5(1)(d),CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(d),NESA|T5.2.3,NIAv2|AM20,NIAv2|AM21,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.maxpasswordage"
+  expect      : "passwdcfg\.maxpasswordage:([1-5][0-9]|60)"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - password warning must be set to at least 30 days"
+  info        : "The password strength policy is enforced across all user accounts, and enforces a set of format rules to which new passwords must adhere.
+
+  Specifies the maximum number of days that can elapse before a password must be changed."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -warning 30"
+  reference   : "800-171|3.1.8,800-53|AC-7a.,800-53r5|AC-7a.,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.warning"
+  expect      : "passwdcfg\.warning:([3-9][0-9])"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - enable administrator account lockout"
+  info        : "The account lockout policy disables a user account when that user exceeds a specified number of failed login attempts, and is enforced across all user accounts.
+
+  The admin account lockout policy must be enabled and uses the same lockout threshold as the other permissions."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --enableadminlockout"
+  reference   : "800-171|3.1.8,800-53|AC-7a.,800-53r5|AC-7a.,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.adminlockout"
+  expect      : "passwdcfg\.adminlockout:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - lockout threshold set to 3"
+  info        : "The account lockout policy disables a user account when that user exceeds a specified number of failed login attempts, and is enforced across all user accounts.
+
+  Specifies the number of times a user can attempt to log in using an incorrect password before the account is locked."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -lockoutthreshold 3"
+  reference   : "800-171|3.1.8,800-53|AC-7a.,800-53r5|AC-7a.,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.lockoutthreshold"
+  expect      : "passwdcfg\.lockoutthreshold:[1-3]"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - lockout duration set to 30 minutes"
+  info        : "The account lockout policy disables a user account when that user exceeds a specified number of failed login attempts, and is enforced across all user accounts.
+
+  Specifies the time, in minutes, after which a previously locked account is automatically unlocked."
+  solution    : "Password authentication policies configured using the passwdCfg command
+
+ swd77:admin> passwdcfg --set -lockoutduration 30"
+  reference   : "800-171|3.1.8,800-53|AC-7a.,800-53r5|AC-7a.,CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-7a.,NESA|T5.5.1,NIAv2|AM24,PCI-DSSv3.2.1|8.1.6,PCI-DSSv4.0|8.3.4,TBA-FIISB|45.1.2,TBA-FIISB|45.2.1,TBA-FIISB|45.2.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "passwdcfg\.lockoutduration"
+  expect      : "passwdcfg\.lockoutduration:([1-9]\d{2,}|[3-9]\d{1,})"
+</custom_item>
+
+## User Configuration
+
+<custom_item>
+  type            : CONFIG_CHECK
+  description     : "Brocade - administrator account is enabled with admin role assigned"
+  info            : "Role-Based Action Control (RBAC) specifies the permissions that a user account has based on the role the account has been assigned.
+
+  The role that your account is associated with determines the level of access you have on that switch and in the fabric."
+  solution        : "User configuration policies are configured using the userconfig command command
+
+ swd77:admin> userconfig --change admin -e yes
+
+ swd77:admin> userconfig --change root -r admin"
+  reference       : "800-171|3.1.1,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also        : "https://docs.broadcom.com/docs/12380061"
+  cmd             : "userconfig --show -a"
+  context         : "Account name: admin"
+  regex           : "(Role:|Enabled:)"
+  expect          : "(Role: admin|Enabled: yes)"
+  min_occurrences : "2"
+</custom_item>
+
+<custom_item>
+  type            : CONFIG_CHECK
+  description     : "Brocade - root account is enabled with root role assigned"
+  info            : "Role-Based Action Control (RBAC) specifies the permissions that a user account has based on the role the account has been assigned.
+
+  The role that your account is associated with determines the level of access you have on that switch and in the fabric."
+  solution        : "User configuration policies are configured using the userconfig command
+
+ swd77:admin> userconfig --change root -e yes
+
+ swd77:admin> userconfig --change root -r root"
+  reference       : "800-171|3.1.1,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also        : "https://docs.broadcom.com/docs/12380061"
+  cmd             : "userconfig --show -a"
+  context         : "Account name: root"
+  regex           : "(Role:|Enabled:)"
+  expect          : "(Role: root|Enabled: yes)"
+  min_occurrences : "2"
+</custom_item>
+
+## FIPS Mode
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - FIPS Mode is enabled"
+  info        : "Federal information processing standards (FIPS) specify the security standards to be satisfied by a cryptographic module utilized in Fabric OS v6.0.0 and later to protect sensitive information in the switch.
+
+  FIPS mode, when enabled, is a chassis-wide setting that affects all logical switches. Once enabled, FIPS mode cannot be disabled."
+  solution    : "FIPS can be enabled using the fipscfg command
+
+ swd77:admin> fipscfg --enable fips"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "fips\.mode"
+  expect      : "fips\.mode:1"
+</custom_item>
+
+## Chassis Configuration
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enforce secure Config Upload/Download"
+  info        : "SCP encrypts data during transfer, thereby avoiding packet sniffers that attempt to extract useful information during data transfer.
+
+  Enables secure configuration upload or download."
+  solution    : "configurechassis command changes chassis-level system configuration settings
+
+ switch:admin> configurechassis
+
+cfgload attributes (yes, y, no, n): [no] y
+
+ Enforce secure config Upload/Download (yes, y, no, n): [no]y
+
+ Enforce signature validation for firmware (yes, y, no, n): [no]
+
+ Add Suffix to the uploaded file name (yes, y, no, n): [no]
+
+Custom attributes (yes, y, no, n): [no]
+
+system attributes (yes, y, no, n): [no]"
+  reference   : "800-171|3.13.8,800-53|SC-8,800-53r5|SC-8,CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSF|PR.DS-2,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ITSG-33|SC-8,ITSG-33|SC-8a.,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "cfgload\.secure"
+  expect      : "cfgload\.secure:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enforce signature validation for firmware"
+  info        : "This setting ensures that firmware packages are valid.
+
+  Enables signature validation enforcement."
+  solution    : "configurechassis command changes chassis-level system configuration settings
+
+ switch:admin> configurechassis
+
+cfgload attributes (yes, y, no, n): [no] y
+
+ Enforce secure config Upload/Download (yes, y, no, n): [no]
+
+ Enforce signature validation for firmware (yes, y, no, n): [no]y
+
+ Add Suffix to the uploaded file name (yes, y, no, n): [no]
+
+Custom attributes (yes, y, no, n): [no]
+
+system attributes (yes, y, no, n): [no]"
+  reference   : "800-53|SI-7(10),800-53r5|SI-7(10),CSF|PR.DS-6,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|SI-7,ITSG-33|SI-7a.,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "cfgload\.signed"
+  expect      : "cfgload\.signed:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable the power-on self-test (POST)"
+  info        : "POST includes two phases: POST Phase I mainly tests hardware and POST Phase II tests system functionality.
+
+  Use the diagPost command to display the current POST status."
+  solution    : "To enable POST:
+
+ switch:admin> diagenablepost
+
+ Config update Succeeded
+
+ Diagnostic POST is now enabled"
+  reference   : "800-53|SI-7(9),800-53r5|SI-7(9),CN-L3|8.1.2.3,CN-L3|8.1.4.6,CSF|PR.DS-6,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|SI-7,ITSG-33|SI-7a.,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "diag\.postDisable"
+  expect      : "diag\.postDisable:0"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable auditcfg"
+  info        : "This setting enables audit logging and to display the audit log configuration.
+
+  When managing SANs you may want to audit certain classes of events to ensure that you can view and generate an audit log for what is happening on a switch, particularly for security-related event changes."
+  solution    : "To enable audit logging:
+
+ switch:admin> auditcfg --enable
+
+ Audit filter is enabled"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "audit\.cfg\.state"
+  expect      : "audit\.cfg\.state:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Configures filters for a specified audit class"
+  info        : "This setting sets filters by configuring certain classes, to add or remove any of the classes in the filter list, to set severity levels for audit messages.
+
+  These events include login failures, zone configuration changes, firmware downloads, and other configuration changes."
+  solution    : "To configure the audit log filter:
+
+ switch:admin> auditcfg --class 1,2,3
+
+ Audit filter is configured"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "audit\.cfg\.class"
+  expect      : "audit\.cfg\.class:1,2,3,"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - All audit severity level must be audited"
+  info        : "When severity is set, only log messages of type severity_level and higher are displayed.
+
+  Valid values are INFO, WARNING, ERROR, and CRITICAL."
+  solution    : "To configure the audit log severity:
+
+ switch:admin> auditcfg --severity critical"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "audit\.cfg\.severity"
+  expect      : "audit\.cfg\.severity:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Forward all error logs to syslog daemon"
+  info        : "configure a switch to forward all error log entries to the syslog daemon (syslogd) of one or more specified servers.
+
+  The syslog daemon is a process available on most UNIX systems that reads and forwards system messages to the appropriate log files or user."
+  solution    : "To add an IP address to the list of machines to which system messages are sent:
+
+ switch:admin> syslogdipadd 1080::8:800:200C:417A
+
+ switch:admin> syslogdipshow
+
+ syslog.1 1080::8:800:200C:417A"
+  reference   : "800-171|3.3.8,800-53|AU-9(2),800-53r5|AU-9(2),CN-L3|8.1.3.5(d),CN-L3|8.1.4.3(c),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(2),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SS13e,PCI-DSSv3.2.1|10.5.3,PCI-DSSv3.2.1|10.5.4,PCI-DSSv4.0|10.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "syslog\.address\.1"
+  expect      : "syslog\.address\.1:@SYSLOG@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - The idle timeout for login session set to 30 minutes"
+  info        : "Users are logged out after 30 minutes of inactivity.
+
+  The execution of this command is subject to Virtual Fabric or Admin Domain restrictions that may be in place."
+  solution    : "To configure the audit log severity:
+
+ switch:admin> timeout 10
+
+ IDLE Timeout Changed to 10 minutes
+
+ The modified IDLE Timeout will be in effect after NEXT login"
+  reference   : "800-171|3.1.11,800-53|AC-12,800-53r5|AC-12,CN-L3|7.1.2.2(d),CN-L3|7.1.3.7(b),CN-L3|8.1.4.1(b),GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iii),ITSG-33|AC-12,NIAv2|NS49"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "system\.login\.timeout"
+  expect      : "system\.login\.timeout:[1-1800]"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Ensure a SSL certificate file is established"
+  info        : "Configure SSL by obtaining, installing, and activating digital certificates for SSL support.
+
+  In order for HTTPS to become enabled there must be an SSL certificate established."
+  solution    : "To import a PKI-based certificate
+
+ switch:admin> seccertutil import -config swcert"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "ssl\.certfile"
+  expect      : "ssl\.certfile:.*\.crt"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Authentication policy must be rejected"
+  info        : "The authentication (AUTH) policy allows you to configure DH-CHAP authentication on switches with Fabric OS.
+
+  By setting the policy to reject protects local switch from distributions of databases from other switches."
+  solution    : "To configure the switch to reject distribution of the Auth policy
+
+ switch:admin> fddcfg --localreject 'AUTH'"
+  reference   : "800-171|3.13.1,800-53|SC-7(11),800-53r5|SC-7(11),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|31.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "fdd\.acceptcfg\.auth"
+  expect      : "fdd\.acceptcfg\.auth:0"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Switch Connection Control policy must be rejected"
+  info        : "The switch connection control (SCC) policy is used to restrict which switches can join the fabric.
+
+  By setting the policy to reject protects local switch from distributions of databases from other switches."
+  solution    : "To configure the switch to reject distribution of the SCC policy
+
+ switch:admin> fddcfg --localreject 'SCC'"
+  reference   : "800-171|3.13.1,800-53|SC-7(11),800-53r5|SC-7(11),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|31.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "fdd\.acceptcfg\.scc"
+  expect      : "fdd\.acceptcfg\.scc:0"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Fabric Configuration Server policy must be rejected"
+  info        : "When the FCS policy is created, the WWN of the local switch is automatically included in the FCS list.
+
+  By setting the policy to reject protects local switch from distributions of databases from other switches."
+  solution    : "To configure the switch to reject distribution of the FCS policy
+
+ switch:admin> fddcfg --localreject 'FCS'"
+  reference   : "800-171|3.13.1,800-53|SC-7(11),800-53r5|SC-7(11),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|31.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "fdd\.acceptcfg\.fcs"
+  expect      : "fdd\.acceptcfg\.fcs:0"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Device Connection Control policy must be rejected"
+  info        : "Multiple DCC policies can be used to restrict which device ports can connect to which switch ports.
+
+  By setting the policy to reject protects local switch from distributions of databases from other switches."
+  solution    : "To configure the switch to reject distribution of the DCC policy
+
+ switch:admin> fddcfg --localreject 'DCC'"
+  reference   : "800-171|3.13.1,800-53|SC-7(11),800-53r5|SC-7(11),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|31.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "fdd\.acceptcfg\.dcc"
+  expect      : "fdd\.acceptcfg\.dcc:0"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - IPfilter policy must be rejected"
+  info        : "The IP Filter policy is a set of rules applied to the IP management interfaces as a packet filtering firewall.
+
+  By setting the policy to reject protects local switch from distributions of databases from other switches."
+  solution    : "To configure the switch to reject distribution of the IPfilter policy
+
+ switch:admin> fddcfg --localreject 'IPFILTER'"
+  reference   : "800-171|3.13.1,800-53|SC-7(11),800-53r5|SC-7(11),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|31.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "fdd\.acceptcfg\.ipf"
+  expect      : "fdd\.acceptcfg\.ipf:0"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Fabric Element Authentication must be rejected"
+  info        : "The Fabric Element Authentication (PWD) policy is a set of authentication measures the switch uses to authenticate users.
+
+  By setting the policy to reject protects local switch from distributions of databases from other switches."
+  solution    : "To configure the switch to reject distribution of the PWD policy
+
+ switch:admin> fddcfg --localreject 'PWD'"
+  reference   : "800-171|3.13.1,800-53|SC-7(11),800-53r5|SC-7(11),CN-L3|8.1.10.6(j),CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(11),NESA|T4.5.4,NIAv2|GS7c,PCI-DSSv3.2.1|1.3.1,PCI-DSSv3.2.1|1.3.2,PCI-DSSv3.2.1|1.3.3,PCI-DSSv3.2.1|1.3.5,PCI-DSSv4.0|1.3.1,PCI-DSSv4.0|1.4.2,PCI-DSSv4.0|1.4.3,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,TBA-FIISB|31.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "fdd\.acceptcfg\.pwd"
+  expect      : "fdd\.acceptcfg\.pwd:0"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Bottleneck detection must be enabled"
+  info        : "Enabling bottleneck detection enables both latency and congestion detection.
+
+  When you enable bottleneck detection on a switch, the settings are applied to all eligible ports on that switch."
+  solution    : "To configure bottleneck detection on brocade switch
+
+ switch:admin> bottleneckmon --enable"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "bottleneck\.enabled"
+  expect      : "bottleneck\.enabled:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Bottleneck alerts must be enabled"
+  info        : "Enables alerts when configured thresholds are exceeded on the ports that are enabled for bottleneck detection.
+
+  When enabled the command triggers an SNMP and a RASlog alert when the ports on the configured switch experience latency or congestion."
+  solution    : "To configure bottleneck alerts on brocade switch
+
+ switch:admin> bottleneckmon --enable -alert"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "bottleneck\.sw.alert"
+  expect      : "bottleneck\.sw.alert:5"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Brocade licenses must not be expired"
+  info        : "Ensuring licenses are valid and timely updates are applied helps to remediate vulnerabilities or technical issues in the appliance.
+
+  Expired licenses have an output string of License has expired."
+  solution    : "To display the license keys on a switch
+
+ switch:admin> licenseshow"
+  reference   : "800-171|3.4.1,800-53|CM-8a.,800-53r5|CM-8a.,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.8.1.1,ITSG-33|CM-8,NESA|T1.2.1,NESA|T1.2.2,NIAv2|NS35,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "licenseshow"
+  not_expect  : ".*expired"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Review admin user listings"
+  info        : "A periodic review of users with administrative privileges ensures that organizational changes are reflected in the device configuration.
+
+  The administration account has access to all administration duties and administrative commands.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "To display all account information for a switch
+
+ switch:admin> userconfig --show -a"
+  reference   : "800-171|3.1.1,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "userconfig --show -a"
+  context     : "Account name:"
+  regex       : "Role:"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Review Enabled Accounts"
+  info        : "Review all enabled accounts, and make sure there are no unauthorized accounts enabled.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "To display all account information for a switch
+
+ switch:admin> userconfig --show -a"
+  reference   : "800-171|3.1.1,800-53|AC-2,800-53r5|AC-2,CN-L3|7.1.3.2(d),CSF|DE.CM-1,CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  cmd         : "userconfig --show -a"
+  regex       : "Account name"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Review the NTP server configuration"
+  info        : "Ensuring that approved NTP servers are used.
+
+  When multiple NTP server addresses are passed, tsClockServer sets the first obtainable address as the active NTP server."
+  solution    : "Setting the ntp server on a Brocade switch
+
+ switch:admin> tsclockserver ip_address"
+  reference   : "800-171|3.3.7,800-53|AU-8(1),800-53r5|SC-45(1),CN-L3|8.1.4.3(b),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),NESA|T3.6.7,NIAv2|NS44,NIAv2|NS45,NIAv2|NS46,NIAv2|NS47,PCI-DSSv3.2.1|10.4,PCI-DSSv3.2.1|10.4.1,PCI-DSSv3.2.1|10.4.3,PCI-DSSv4.0|10.6,PCI-DSSv4.0|10.6.1,PCI-DSSv4.0|10.6.2,PCI-DSSv4.0|10.6.3,QCSC-v1|8.2.1,QCSC-v1|13.2,TBA-FIISB|37.4"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "ts\.clockserver"
+  expect      : "ts\.clockserver:@NTP_SERVER@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable the track changes feature"
+  info        : "The track changes feature allows you to keep a record of specific changes that may not be considered switch events.
+
+  The output from the track changes feature is dumped to the system messages log for the switch."
+  solution    : "To enable the track changes feature on Brocade switch
+
+ switch:admin> trackchangesset 1"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "trackChanges\.status"
+  expect      : "trackChanges\.status:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Enable the track changes feature for SNMP traps"
+  info        : "The track changes feature allows you to keep a record of specific changes that may not be considered switch events.
+
+  Specify 1 to enable sending messages to the SNMP-TRAP in addition to the error log."
+  solution    : "To enable the track changes SNMP trap mode feature on Brocade switch
+
+ switch:admin> trackchangesset 1,1"
+  reference   : "800-171|3.3.8,800-53|AU-9(2),800-53r5|AU-9(2),CN-L3|8.1.3.5(d),CN-L3|8.1.4.3(c),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(2),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SS13e,PCI-DSSv3.2.1|10.5.3,PCI-DSSv3.2.1|10.5.4,PCI-DSSv4.0|10.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "trackChanges\.snmp-trap"
+  expect      : "trackChanges\.snmp-trap:1"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - SupportFTP parameters are set to SCP"
+  info        : "When uploading a configuration file the user must use SCP.
+
+  Ensure SCP is enabled for uploading files."
+  solution    : "To enable SCP on Brocade switch
+
+ switch:admin> supportftp -s"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "trace\.upload_protocol"
+  expect      : "trace\.upload_protocol:scp"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - SCP server host is approved"
+  info        : "When uploading a configuration file the user must use SCP.
+
+  Ensure the SCP server is approved by your organization."
+  solution    : "To enable SCP on Brocade switch
+
+ switch:admin> supportftp -s"
+  reference   : "800-171|3.1.5,800-53|AC-6(1),800-53r5|AC-6(1),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.4,ITSG-33|AC-6(1),NESA|T5.1.1,NESA|T5.4.4,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.3,NIAv2|AM31,NIAv2|GS3,NIAv2|GS4,NIAv2|GS8c,NIAv2|VL3b,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "trace\.ftp\.hostname"
+  expect      : "trace\.ftp\.hostname:@SCP_SERVER@"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - Set SNMP security level to authentication and privacy"
+  info        : "Recipients for SNMP traps are restricted according to security levels.
+
+  With authentication and privacy enabled SNMPv1 is not allowed and only SNMPv3 users with authPriv are allowed."
+  solution    : "To enable SNMP security level authentication and privacy
+
+ switch:admin>  snmpconfig --set seclevel"
+  reference   : "800-171|3.1.13,800-53|AC-17(2),800-53r5|AC-17(2),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.4.1(c),CSF|PR.AC-3,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.2.2,ITSG-33|AC-17(2),NESA|T5.4.2,NIAv2|AM37,PCI-DSSv3.2.1|2.3,PCI-DSSv4.0|2.2.7,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,SWIFT-CSCv1|2.6"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "snmp\.seclevel"
+  expect      : "snmp\.seclevel:2"
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - SNMPv3 trap targets are configured properly"
+  info        : "An unsolicited message that comes to the management station from the SNMP agent on the device is called a trap.
+
+  Brocade switches send traps out on UDP port 162 and to any configured port."
+  solution    : "To configure SNMPv3 traps
+
+ switch:admin> snmpconfig --set snmpv3"
+  reference   : "800-171|3.3.8,800-53|AU-9(2),800-53r5|AU-9(2),CN-L3|8.1.3.5(d),CN-L3|8.1.4.3(c),CSF|PR.PT-1,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.2,ITSG-33|AU-9(2),NESA|M5.2.3,NESA|M5.5.2,NIAv2|SS13e,PCI-DSSv3.2.1|10.5.3,PCI-DSSv3.2.1|10.5.4,PCI-DSSv4.0|10.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "snmp\.snmpv3TrapTarget\.0\.trapTargetAddr"
+  expect      : "snmp\.snmpv3TrapTarget\.0\.trapTargetAddr:@SNMPv3_TRAPTARGET@"
+  required    : NO
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - SNMPv3 uses SHA over MD5"
+  info        : "If SNMP v3 users are configured, they can use either MD5 or SHA for authentication.
+
+  The Secure Hash Algorithm is more secure than MD5."
+  solution    : "To configure SNMPv3 authentication protocol
+
+ switch:admin> snmpconfig --set snmpv3"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "snmp\.snmpv3Usm\.0\.usmAuthProtocol"
+  expect      : "snmp\.snmpv3Usm\.[0-5]\.usmAuthProtocol:2"
+  required    : NO
+</custom_item>
+
+<custom_item>
+  type        : CONFIG_CHECK
+  description : "Brocade - SNMP v3 uses AES instead of DES"
+  info        : "It is recommended that SNMPv3 uses AES-128 over DES for confidentiality.
+
+  Advanced Encryption Standard is a 128- or 256-bit fixed block size cipher."
+  solution    : "To configure SNMPv3 privilege protocol
+
+ switch:admin> snmpconfig --set snmpv3"
+  reference   : "800-171|3.13.11,800-53|SC-13,800-53r5|SC-13,CSF|PR.DS-5,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(e)(2)(ii),ISO/IEC-27001|A.10.1.1,ITSG-33|SC-13,ITSG-33|SC-13a.,NESA|M5.2.6,NESA|T7.4.1,NIAv2|CY3,NIAv2|CY4,NIAv2|CY5b,NIAv2|CY5c,NIAv2|CY5d,NIAv2|CY7,NIAv2|NS5e,QCSC-v1|6.2"
+  see_also    : "https://docs.broadcom.com/docs/12380061"
+  regex       : "snmp\.snmpv3Usm\.0\.usmPrivProtocol"
+  expect      : "snmp\.snmpv3Usm\.[0-5]\.usmPrivProtocol:[4-6]"
+  required    : NO
+</custom_item>
+
+</check_type>

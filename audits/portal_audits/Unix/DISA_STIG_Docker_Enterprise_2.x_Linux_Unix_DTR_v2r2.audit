@@ -1,0 +1,353 @@
+#TRUSTED a5d4e62a099169d9489e6d22a55fe9bc202b31f7a1c3f6b08e25d30777a9100c7661ac620b9234591511cb26897d6387521db438db5faaa79d80a69f5def3fc8172dacf5222c1b703b6fe785439a4c81ea1cfc2ae1caa571a1a225c1fe35f1ec4e5e11b7aec6a31051ed47d2556ad4739dd93c8bc4380f0971e61d31e8bd3f22138a0cda739517a657f01505164e7e2bd9e07d8928b5ff69a64d3ae529043cc784bfadc83589a675c097d5a9a8f19b19e569c40ba459de112571577eac3e13ec0cf6a252c423b74896e5bb3e3509ee4e0ab0706308e85926bee856b282d37f115d7ac01acd4efdef986b3f4d5d69e9c1086148bd057468b173d9d7a82968d47507d3aa8971e2c0c3fec0fdb7d4363d944306af416ac8deb506671e6f04cafef92bc04e00425e7e3db6ac4ed3d42b4ded277faedcec9014eff2db5568439218f2016518efaf91e6a4c859a8b863c733b16a8dedbd3a13c760cc8fcf9aca70ec666a1e686faac0cb99a90864cf23aca17b08a4a3079acc11d47cceffbfe2c475c02c6dbb2fb66c5f84c963c03bc1c410a3ca7bdb37a1561f7d71d7d423c0be536f02fc0f08dd9868aa8945ccd00b257c45bdcd588cfe260b7be7821c78a6a902d848fd86c6f0188f3df4ae6c745d18e61bf8d494394f292f43ed834d1308a97162bb6efa542b5d51c731ac0464cee2352aba915c93ea73ebefac6f08204fe6e5b1
+#TRUST-RSA-SHA256 651a9ebfa85bb51b96c87900951cc1839c4df199bf15678cb0bf1f25d42729f0db1e7466632813c8039b7fc28a229c9f3769063cde7162d9fb9c5e84e4ca54bb2b995b0d3a4349665167bc847e1cbb574f8ce79b82a2005374f015ba86e2eb4326e922ac6c1adb6873722339e263c45fc5a0e174397c0f5e6edbd06cd4456cceff50145ad1862c934e2cae1cbae7ee33623d228957c94837011cd30fe7bf2f010925dc90e14e74ec61658794eeb91d99ee5f23c4ba55eba7966f0e7ff30e886fd735f1f9b65ab5f53a70585d3e463a64a961f6c885b4d3fdeb40d298ae006f87455b8714b539467886cb47242906c3b20f622c1ffaa1d8137a069156e6b3ba41817821e5efc1963ad4b077d43f2f551a69c65527e6de925975d80bd2efae4f8cdb7038f14c0cc1301dd8b738ce2367d80ac0ba2582c1c22d8fcabe6a7392738500728d2ede88fa71596de51a5b1207dff1e6462b65143d77a73b16be9aa52704b0dca58a8d7cf44d50c8944a01c1657dd1b77ffc5df2c4d7876a82e533ff6ab451e933c68f48a7bb2329e78f557626ef284c333fb994ea86dfdda269d16099c7008b58b534c804e9e202ea3523da49ab86c3260ae3f6081441c86d3e5d6a9c73c0549ea2c764eb6a1ea3270a2de94767166b8fc3167103733fa867a6f62d431158bff390cd99f22d3dc6819385bc5ccabf7edf44c6a2c4f666653ea0508b3450
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2024/08/28 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Docker Enterprise 2.x Linux/UNIX v2r2 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Docker Enterprise 2.x Linux/Unix DTR v2r2</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Docker Enterprise 2.x</name>
+#  <profile>OS Linux/Unix DTR</profile>
+#  <version>2.2.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip</link>
+#</spec>
+#<labels>disa,docker_enterprise_linux_2.x,agent</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>DTR_IP</name>
+#    <default>127.0.0.1</default>
+#    <description>Docker Trusted Registry IP</description>
+#    <info>The Docker Trusted Registry (DTR) IP.</info>
+#    <value_type>HOSTNAME_IP_ADDRESS</value_type>
+#  </variable>
+#  <variable>
+#    <name>DTR_PORT</name>
+#    <default>443</default>
+#    <description>Docker Trusted Registry Port</description>
+#    <info>The Docker Trusted Registry (DTR) Port.</info>
+#    <value_type>INTEGER</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Check if this is a Docker Host"
+      cmd         : "/usr/bin/docker version --format '{{.Server.Platform.Name}}'"
+      expect      : "^Docker Engine - Enterprise.*$"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "DISA_STIG_Docker_Enterprise_2.x_Linux_Unix_DTR_v2r2.audit from DISA Docker Enterprise 2.x Linux/UNIX v2r2 STIG"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001180 - A policy set using the built-in role-based access control (RBAC) capabilities in the Docker Trusted Registry (DTR) component of Docker Enterprise must be set - repositoryAccess"
+      info        : "Both the Universal Control Plane (UCP) and DTR components of Docker Enterprise leverage the same authentication and authorization backplane known as eNZi. eNZi provides UCP and DTR with role-based access control functionality to enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies. These policies are defined in the System Security Plan along with organization information, application user roles, system resources and access requirements. The eNZi backplane includes its own managed user database, and also allows for LDAP integration in UCP and DTR. While role-based access control mechanisms are provided regardless of whether or not LDAP integration is enabled, it is recommended to enable LDAP integration to better meet the requirements of this control.
+
+Satisfies: SRG-APP-000033, SRG-APP-000243, SRG-APP-000246, SRG-APP-000247, SRG-APP-000267, SRG-APP-000328, SRG-APP-000340, SRG-APP-000342, SRG-APP-000378, SRG-APP-000380, SRG-APP-000384, SRG-APP-000038, SRG-APP-000039, SRG-APP-000080, SRG-APP-000311, SRG-APP-000313, SRG-APP-000314
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Verify that the applied organization, team and user permissions in DTR are configured per the SSP.
+
+via UI:
+
+As a Docker EE Admin, navigate to 'Organizations' and setup the list of organizations and teams within those organizations per the requirements set forth by the SSP. Navigate to 'Users' and assign users to appropriate organizations, teams and repositories per the SSP.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE admin, execute the following commands on a machine that can communicate with the DTR management console:
+
+AUTHTOKEN=$(curl -kLsS -u <username>:<password> 'https://[dtr_url]/auth/token' | jq -r .token)
+
+Execute the following command to give teams in an organization access to the appropriate repositories per the System Security Plan:
+
+curl -k -H 'Authorization: Bearer $AUTHTOKEN' -X PUT 'https://[dtr_url]/api/v0/repositories/[namespace]/[reponame]/teamAccess/[teamname]'
+
+Execute the following commands on a machine that can communicate with the UCP management console to add/remove members to/from the team with access to these repositories as appropriate per the SSP:
+
+AUTHTOKEN=$(curl -sk -d '{'username':'[ucp_username]','password':'[ucp_password]'}' https://[ucp_url]/auth/login | jq -r .auth_token)
+
+Add: curl -sk -H 'Authorization: Bearer $AUTHTOKEN' -X PUT https://[ucp_url]/accounts/[orgNameOrID]/teams/[teamNameOrID]/members/[memberNameOrID]
+Remove: curl -sk -H 'Authorization: Bearer $AUTHTOKEN' -X DELETE https://[ucp_url]/accounts/[orgNameOrID]/teams/[teamNameOrID]/members/[memberNameOrID]"
+      reference   : "800-171|3.1.1,800-171|3.1.3,800-171|3.1.5,800-171|3.1.7,800-171|3.4.5,800-171|3.4.7,800-171|3.4.9,800-171|3.13.4,800-53|AC-3,800-53|AC-3(4),800-53|AC-4,800-53|AC-6(8),800-53|AC-6(10),800-53|AC-16a.,800-53|AU-10,800-53|CM-5(1),800-53|CM-7(2),800-53|CM-11(2),800-53|SC-4,800-53|SC-5(1),800-53|SC-5(2),800-53|SI-11b.,800-53r5|AC-3,800-53r5|AC-3(4),800-53r5|AC-4,800-53r5|AC-6(8),800-53r5|AC-6(10),800-53r5|AC-16a.,800-53r5|AU-10,800-53r5|CM-5(1)(a),800-53r5|CM-7(2),800-53r5|SC-4,800-53r5|SC-5(1),800-53r5|SC-5(2),800-53r5|SI-11b.,CAT|II,CCI|CCI-000166,CCI|CCI-000213,CCI|CCI-001090,CCI|CCI-001094,CCI|CCI-001095,CCI|CCI-001314,CCI|CCI-001368,CCI|CCI-001414,CCI|CCI-001764,CCI|CCI-001812,CCI|CCI-001813,CCI|CCI-002165,CCI|CCI-002233,CCI|CCI-002235,CCI|CCI-002262,CCI|CCI-002263,CCI|CCI-002264,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSF|DE.AE-1,CSF|DE.CM-1,CSF|DE.CM-3,CSF|ID.AM-3,CSF|PR.AC-4,CSF|PR.AC-5,CSF|PR.DS-4,CSF|PR.DS-5,CSF|PR.IP-1,CSF|PR.PT-1,CSF|PR.PT-3,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|ID.AM-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.8.2.1,ISO/IEC-27001|A.8.2.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ISO/IEC-27001|A.12.6.2,ITSG-33|AC-3,ITSG-33|AC-3(4),ITSG-33|AC-4,ITSG-33|AC-6,ITSG-33|AC-16a.,ITSG-33|AU-10,ITSG-33|CM-5(1),ITSG-33|CM-7(2),ITSG-33|SC-4,ITSG-33|SC-4a.,ITSG-33|SC-5(1),ITSG-33|SC-5(2),ITSG-33|SI-11c.,NESA|T1.3.2,NESA|T1.3.3,NESA|T3.3.1,NESA|T4.2.1,NESA|T4.3.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.4.6,NESA|T5.5.4,NESA|T5.6.1,NESA|T5.7.2,NESA|T7.3.3,NESA|T7.5.2,NESA|T7.5.3,NESA|T7.6.4,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|GS8e,NIAv2|GS10c,NIAv2|GS11a,NIAv2|GS12a,NIAv2|GS14a,NIAv2|GS15a,NIAv2|GS16a,NIAv2|NS13a,NIAv2|NS13b,NIAv2|NS13c,NIAv2|NS14,NIAv2|SS13c,NIAv2|SS15a,NIAv2|SS15c,NIAv2|SS23,NIAv2|SS27a,NIAv2|SS27b,NIAv2|SS28,NIAv2|SS29,NIAv2|SS32,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|7.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-235782r960792_rule,STIG-ID|DKER-EE-001180,STIG-Legacy|SV-104707,STIG-Legacy|V-95357,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.3,SWIFT-CSCv1|2.4,SWIFT-CSCv1|5.1,SWIFT-CSCv1|6.4,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3,Vuln-ID|V-235782"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "DKER-EE-001880 - The Docker Enterprise self-signed certificates in Docker Trusted Registry (DTR) must be replaced with DoD trusted, signed certificates."
+      info        : "Docker Enterprise includes the following capabilities that are considered non-essential:
+
+*NOTE: disabling these capabilities negatively affects the operation of Universal Control Plane (UCP) and DTR and should be disregarded when UCP and DTR are installed. The security capabilities provided by UCP and DTR offset any potential vulnerabilities associated with not disabling these essential capabilities the Engine provides.
+
+(Docker Engine - Enterprise: Standalone) - The majority of these items were originally identified as part of the CIS Docker Benchmark, which as of the CIS Docker Benchmark v1.2.0, are still applicable to Docker Engine - Enterprise 18.09
+- inter-container communication (icc)* (CIS Docker Benchmark Recommendation 2.1)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- userland proxy for loopback traffic* (CIS Docker Benchmark Recommendation 2.15)
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+- Swarm Mode (CIS Docker Benchmark Recommendation 7.1)
+
+(Docker Engine - Enterprise: As part of a UCP cluster)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+
+(UCP)
+- Managed user database
+- self-signed certificates
+- periodic usage reporting and API tracking
+- allow users and administrators to schedule containers on all nodes, including UCP managers and DTR nodes
+
+(DTR)
+- periodic data usage/analytics reporting
+- create repository on push
+- self-signed certificates
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Integrate DTR with a trusted CA.
+
+via UI:
+
+In the DTR web console, navigate to 'System' | 'General' and click on the 'Show TLS Settings' link in the 'Domain & Proxies' section. Fill in the 'TLS Root CA' field with the contents of the external public CA certificate. Assuming the user generated a server certificate from that CA for DTR, also fill in the 'TLS Certificate Chain' and 'TLS Private Key' fields with the contents of the public/private certificates respectively. The 'TLS Certificate Chain' field must include both the DTR server certificate and any intermediate certificates. Click on the 'Save' button.
+
+via CLI:
+
+Linux: Execute the following command as a superuser on one of the UCP Manager nodes in the cluster:
+
+docker run -it --rm docker/dtr:[dtr_version] reconfigure --dtr-ca '$(cat [ca.pem])' --dtr-cert '$(cat [dtr_cert.pem])' --dtr-key '$(cat [dtr_private_key.pem])'"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-235794r960963_rule,STIG-ID|DKER-EE-001880,STIG-Legacy|SV-104759,STIG-Legacy|V-95621,SWIFT-CSCv1|2.3,Vuln-ID|V-235794"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+      cmd         : "/usr/bin/echo '' | /usr/bin/openssl s_client -connect @DTR_IP@:@DTR_PORT@ | /usr/bin/openssl x509 -noout -text"
+      expect      : "Manual_Review"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001900 - The Create repository on push option in Docker Trusted Registry (DTR) must be disabled in Docker Enterprise."
+      info        : "Docker Enterprise includes the following capabilities that are considered non-essential:
+
+*NOTE: disabling these capabilities negatively affects the operation of Universal Control Plane (UCP) and DTR and should be disregarded when UCP and DTR are installed. The security capabilities provided by UCP and DTR offset any potential vulnerabilities associated with not disabling these essential capabilities the Engine provides.
+
+(Docker Engine - Enterprise: Standalone) - The majority of these items were originally identified as part of the CIS Docker Benchmark, which as of the CIS Docker Benchmark v1.2.0, are still applicable to Docker Engine - Enterprise 18.09
+- inter-container communication (icc)* (CIS Docker Benchmark Recommendation 2.1)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- userland proxy for loopback traffic* (CIS Docker Benchmark Recommendation 2.15)
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+- Swarm Mode (CIS Docker Benchmark Recommendation 7.1)
+
+(Docker Engine - Enterprise: As part of a UCP cluster)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+
+(UCP)
+- Managed user database
+- self-signed certificates
+- periodic usage reporting and API tracking
+- allow users and administrators to schedule containers on all nodes, including UCP managers and DTR nodes
+
+(DTR)
+- periodic data usage/analytics reporting
+- create repository on push
+- self-signed certificates
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Disable the 'Create repository on push' option in DTR:
+
+via UI:
+
+As a Docker EE Admin, navigate to 'System' | 'General' in the DTR management console. Click the 'Create repository on push' slider to disable this capability.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine with connectivity to the DTR management console:
+
+AUTHTOKEN=$(curl -sk -u <username>:<password> 'https://[dtr_url]/auth/token' | jq -r .token)
+curl -k -H 'Authorization: Bearer $AUTHTOKEN' -X POST -d '{'createRepositoryOnPush':true}' -H 'Content-Type: application/json' 'https://[dtr_url]/api/v0/meta/settings'"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-235796r960963_rule,STIG-ID|DKER-EE-001900,STIG-Legacy|SV-104763,STIG-Legacy|V-95625,SWIFT-CSCv1|2.3,Vuln-ID|V-235796"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-001920 - Periodic data usage and analytics reporting in Docker Trusted Registry (DTR) must be disabled in Docker Enterprise."
+      info        : "Docker Enterprise includes the following capabilities that are considered non-essential:
+
+*NOTE: disabling these capabilities negatively affects the operation of Universal Control Plane (UCP) and DTR and should be disregarded when UCP and DTR are installed. The security capabilities provided by UCP and DTR offset any potential vulnerabilities associated with not disabling these essential capabilities the Engine provides.
+
+(Docker Engine - Enterprise: Standalone) - The majority of these items were originally identified as part of the CIS Docker Benchmark, which as of the CIS Docker Benchmark v1.2.0, are still applicable to Docker Engine - Enterprise 18.09
+- inter-container communication (icc)* (CIS Docker Benchmark Recommendation 2.1)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- userland proxy for loopback traffic* (CIS Docker Benchmark Recommendation 2.15)
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+- Swarm Mode (CIS Docker Benchmark Recommendation 7.1)
+
+(Docker Engine - Enterprise: As part of a UCP cluster)
+- insecure registry communication (CIS Docker Benchmark Recommendation 2.4)
+- AUFS storage driver (applicable on Linux only) (CIS Docker Benchmark Recommendation 2.5)
+- listening on the TCP Daemon socket
+- experimental features (CIS Docker Benchmark Recommendation 2.17)
+
+(UCP)
+- Managed user database
+- self-signed certificates
+- periodic usage reporting and API tracking
+- allow users and administrators to schedule containers on all nodes, including UCP managers and DTR nodes
+
+(DTR)
+- periodic data usage/analytics reporting
+- create repository on push
+- self-signed certificates
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Disable usage and API analytics tracking in DTR:
+
+via UI:
+
+As a Docker EE Admin, navigate to 'System' | 'General' in the DTR management console. Click the 'Send data' slider to disable this capability.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine with connectivity to the DTR management console:
+
+AUTHTOKEN=$(curl -sk -u <username>:<password> 'https://[dtr_url]/auth/token' | jq -r .token)
+curl -k -H 'Authorization: Bearer $AUTHTOKEN' -X POST -d '{'reportAnalytics':false}' -H 'Content-Type: application/json' 'https://[dtr_url]/api/v0/meta/settings'"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CAT|II,CCI|CCI-000381,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,Rule-ID|SV-235798r960963_rule,STIG-ID|DKER-EE-001920,STIG-Legacy|SV-104767,STIG-Legacy|V-95629,SWIFT-CSCv1|2.3,Vuln-ID|V-235798"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <report type:"WARNING">
+      description : "DKER-EE-003840 - Vulnerability scanning must be enabled for all repositories in the Docker Trusted Registry (DTR) component of Docker Enterprise."
+      info        : "DTR can scan Docker images for vulnerabilities and this capability should be enabled to meet the requirements of this control.
+
+When enabled, for every Docker image that is pushed to DTR, a scan of each of the image layers is conducted. An analysis of all packages and compiled binaries is done for each image layer and if a package or binary is associated with a known vulnerability as identified by the MITRE CVE or NIST NVD databases, then it is flagged in DTR.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Enable vulnerability scanning:
+
+via UI:
+
+As a Docker EE Admin, navigate to 'System' | 'Security' in the DTR management console. Click the 'Enable Scanning' slider to enable this capability. Sync (online) or upload (offline) the vulnerability database.
+
+via CLI:
+
+Linux (requires curl and jq): As a Docker EE Admin, execute the following commands from a machine with connectivity to the DTR management console:
+
+AUTHTOKEN=$(curl -sk -u <username>:<password> 'https://[dtr_url]/auth/token' | jq -r .token)
+curl -k -H 'Authorization: Bearer $AUTHTOKEN' -X POST -d '{'scanningEnabled':true}' -H 'Content-Type: application/json' 'https://[dtr_url]/api/v0/meta/settings'
+
+If DTR is offline, upload the latest vulnerability database (retrievable via Docker Enterprise subscription):
+
+AUTHTOKEN=$(curl -sk -u <username>:<password> 'https://[dtr_url]/auth/token' | jq -r .token)
+UPDATE_FILE='[path_to_cve_database].tar'
+curl -k -H 'Authorization: Bearer $AUTHTOKEN' -H 'Content-Type: multipart/form-data' -H 'Accept: application/json' -X PUT -F upload=@${UPDATE_FILE} 'https://[dtr_url]/api/v0/imagescan/scan/update?online=false'"
+      reference   : "800-171|3.11.2,800-53|RA-5(5),800-53r5|RA-5(5),CAT|II,CCI|CCI-001067,CSF|DE.CM-8,CSF|ID.RA-1,CSF|PR.IP-12,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5(5),NESA|M5.4.1,PCI-DSSv3.2.1|6.1,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|11.2,Rule-ID|SV-235840r961563_rule,STIG-ID|DKER-EE-003840,STIG-Legacy|SV-104851,STIG-Legacy|V-95713,SWIFT-CSCv1|1.2,Vuln-ID|V-235840"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "DKER-EE-003930 - Docker Trusted Registry (DTR) must be integrated with a trusted certificate authority (CA) in Docker Enterprise."
+      info        : "Both the Universal Control Plane (UCP) and DTR components of Docker Enterprise leverage the same authentication and authorization backplane known as eNZi. The eNZi backplane includes its own managed user database, and also allows for LDAP integration in UCP and DTR. To meet the requirements of this control, configure LDAP integration. UCP also includes two certificate authorities for establishing root of trust. One CA is used to sign client bundles and the other is used for TLS communication between UCP components and nodes. Both of these CAs should be integrated with an external, trusted CA. DTR should be integrated with this same external, trusted CA as well.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Integrate DTR with a trusted CA.
+
+via UI:
+
+In the DTR web console, navigate to 'System' | 'General' and click on the 'Show TLS Settings' link in the 'Domain & Proxies' section. Fill in the 'TLS Root CA' field with the contents of the trusted CA certificate. Assuming the user has generated a server certificate from that CA for DTR, also fill in the 'TLS Certificate Chain' and 'TLS Private Key' fields with the contents of the public/private certificates respectively. The 'TLS Certificate Chain' field must include both the DTR server certificate and any intermediate certificates. Click on the 'Save' button.
+
+via CLI:
+
+Linux: Execute the following command as a superuser on one of the UCP Manager nodes in the cluster:
+
+docker run -it --rm docker/dtr:[dtr_version] reconfigure --dtr-ca '$(cat [ca.pem])' --dtr-cert '$(cat [dtr_cert.pem])' --dtr-key '$(cat [dtr_private_key.pem])'"
+      reference   : "800-171|3.13.15,800-53|SC-23(5),800-53r5|SC-23(5),CAT|II,CCI|CCI-002470,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-23,ITSG-33|SC-23a.,NESA|T4.5.1,QCSC-v1|5.2.1,Rule-ID|SV-235842r961596_rule,STIG-ID|DKER-EE-003930,STIG-Legacy|SV-104857,STIG-Legacy|V-95719,Vuln-ID|V-235842"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+      cmd         : "/usr/bin/echo '' | /usr/bin/openssl s_client -connect @DTR_IP@:@DTR_PORT@ | /usr/bin/openssl x509 -noout -text"
+      expect      : "Manual_Review"
+      severity    : MEDIUM
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "DKER-EE-004260 - Only trusted, signed images must be stored in Docker Trusted Registry (DTR) in Docker Enterprise."
+      info        : "The Universal Control Plane (UCP) and DTR components of Docker Enterprise can be used in concert to perform an integrity check of organization-defined software at startup. In the context of Docker Enterprise, software would be analogous to Docker images that have been pulled from trusted or untrusted sources. Docker Hub is the most common upstream endpoint for retrieving Docker images. However, only 'Docker Certified' images on Docker Hub are considered trusted and come with SLAs and trusted signatures from their respective vendors. All other images from Docker Hub or other external registries must be carefully inspected and triaged prior to use. Docker Content Trust (DCT) provides for content integrity checking mechanisms on Docker images. DCT can be combined with LDAP, DTR and UCP to enforce image signatures from users/accounts in LDAP. Therefore, to meet the requirements of this control, it is imperative that UCP has LDAP integration enabled and that content trust enforcement is enabled and properly configured.
+
+Satisfies: SRG-APP-000475, SRG-APP-000480, SRG-APP-000484, SRG-APP-000485, SRG-APP-000386
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "This fix only applies to the DTR component of Docker Enterprise.
+
+Store only trusted, signed images in DTR.
+
+via CLI:
+
+Linux: Execute the following commands as a user with access to the repository in DTR for which image signing is being enabled:
+
+docker login [dtr_url]
+docker trust signer add --key [ucp_client_bundle_cert].pem [ucp_user] [dtr_url]/[namespace]/[imageName]
+docker trust key load [ucp_client_bundle_key].pem
+docker tag [source_image] [dtr_url]/[namespace]/[imageName]:[tag]
+export DOCKER_CONTENT_TRUST=1
+docker push [dtr_url]/[namespace]/[imageName]:[tag]"
+      reference   : "800-171|3.4.8,800-53|CM-7(5)(b),800-53|SI-7(1),800-53|SI-7(5),800-53|SI-7(8),800-53r5|CM-7(5)(b),800-53r5|SI-7(1),800-53r5|SI-7(5),800-53r5|SI-7(8),CAT|II,CCI|CCI-001774,CCI|CCI-002710,CCI|CCI-002715,CCI|CCI-002723,CCI|CCI-002724,CN-L3|7.1.3.5(b),CSF|PR.DS-6,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.RA-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,DISA_Benchmark|Docker_Enterprise_2-x_Linux-UNIX_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.12.5.1,ISO/IEC-27001|A.12.6.2,ITSG-33|CM-7,ITSG-33|SI-7,ITSG-33|SI-7a.,ITSG-33|SI-7(1),NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2,Rule-ID|SV-235846r961740_rule,STIG-ID|DKER-EE-004260,STIG-Legacy|SV-104865,STIG-Legacy|V-95727,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.2,SWIFT-CSCv1|6.4,TBA-FIISB|44.2.2,TBA-FIISB|49.2.3,Vuln-ID|V-235846"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "DISA_STIG_Docker_Enterprise_2.x_Linux_Unix_DTR_v2r2.audit from DISA Docker Enterprise 2.x Linux/UNIX v2r2 STIG"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Docker_Enterprise_2-x_Linux-Unix_V2R2_STIG.zip"
+    </report>
+  </else>
+</if>
+
+</check_type>

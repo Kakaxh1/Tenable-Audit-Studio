@@ -1,0 +1,2285 @@
+#TRUSTED 3a5e650760647719b2cc838f2c11d42e0c0f3539441d438e9f837ed4e8ef9f516cc323769ff2d4fd91b85cd9663f9c22030d9eac004878b2d0893a387c27448fddee9313b245d59ae833b3346f8c78971e29aaa4dfbc46722926b6eb1542295b60741b415c7d7e6507be4806303966abf00eba68ea12b44755efc74bee2c7f32dc37838b4e5721d7811baa2fa8e68bcf3d1eadde2f293216f56e4a3e7d4e44b35db749767f748e34c83d6142c990a2407e9fa0fe2a9d2e0169a28fc5d05f921431c2580a2f5b9cd4eef88fd361ca4d4d5aa8ddcfa6faaf4b682a1fba57c8929b159a7d659969ef8775f48c613d62aa6a2da650635354553600828993ed141e76164d6bebdcdd12919cd0328e9e4439ce4d8d566c183dd18b3f0520180eb38d0b811d789aac96f04574773b78a3e13315eb9d84ff67a0d6b67b65cf3ab81a060594b313cd5e9a67441bfd555da50d16644c4083be9365398265368e081e89fea421aef626e925aca71ed5dbd31d22c50aff2f22f260779abff04dee80ad2d066601298eac4a2d13c7fae7fa67806e7d92b6761d83a61ac6e3f188d306600fc71aa192eec78a765fdfeeea631c2e345c66edcb80b999af0dc5c013e549fac2d2d011405671b93530acde46281071214e3709463bdd308398ca2c11eaaf8c73915379c79f54a433bbb461a0015f6048e23b588a7dc984d69bc5d1322f72b70a486b
+#TRUST-RSA-SHA256 4839d164b2e3686b7ceb6b210782267c56ee1ce29e4e9445eac88d584d282cb690b050f28759dcc791c268d1ec701cd792f7b6307df0237236f99224b8426fac645cf0eda3f6784f87d3f1f79688316f681f012577a95fe52be41cc21e79273a147c7e6d7144d81054efb4755271ce624c0f5ab3806a9cab2748d688fe32afd02df8ab6505d32e28b9eb944d8af264a39957ce996f77d39da9bbe1f8219ea21ceaf7165111a341ce6b1bd54436a786f2d66fb0b0df2acce4853af04c87a1c169ec59d92906267b6aa6382a78f850021f27fea26b0ec97fae97efa7d8852987b3c8df3779c415e03fbd4913d723b4c89385a1c498e503ded3fdbc1482bc6b5ddc8ea59ee97ca5c12e851c8e791403beb18e0dff8529bbbab661788666f2bd2c0d811d62594e3f416cdfccf465b57ee6d74b9433edb461d5f7f461e3b80d610caeb45a41ba9a5607815e84f4d2b5875c0ad339a1465e30d951e0f506983c3eef3aa8fa918e7ebb9d8656e704c9ced29b50f131f34ea319bc29d8a5fef57c3b16063acdd99bd649943a7bc4961a4256e39020678629ce3dd267d73287ab1739e7e00dbc17893ed7a57ad300b40d3c4cdfa4aa0fa3e06bf217b322daab93cf08fc41aa9bd2db93e02c99bec68646fff345dab19b7d26df8679da90ea704ea29bb1f0e188859a2b0cf7b97ae5c20106276561d126601a4c162bbb2c293cf2e3c77e56
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.3 $
+# $Date: 2025/01/06 $
+#
+# description : This document implements the security configuration as recommended by the
+#               CIS Mozilla Firefox 102 ESR Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS Mozilla Firefox 102 ESR Windows L1 v1.0.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Mozilla Firefox 102 ESR</name>
+#  <profile>L1 OS Windows</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/files/4299</link>
+#</spec>
+#<labels>windows_firefox,agent</labels>
+#<benchmark_refs>CCE,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>MOZILLA_CONFIG</name>
+#    <default>C:\Program Files (X86)\Mozilla Firefox\mozilla.cfg</default>
+#    <description>Mozilla configuration file</description>
+#    <info>This is the location where the mozilla configuration file can be found.</info>
+#    <value_type>WIN_FILE_PATH</value_type>
+#  </variable>
+#  <variable>
+#    <name>LOCKING_FILE</name>
+#    <default>C:\Program Files (x86)\Mozilla Firefox\defaults\pref\local-settings.js</default>
+#    <description>Locking File</description>
+#    <info>This is the location where the file that loads and locks the setting in the configuration file.</info>
+#    <value_type>WIN_FILE_PATH</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Windows" version:"2">
+<group_policy:"Firefox">
+
+<if>
+  <condition type:"OR">
+    <custom_item>
+      type        : REG_CHECK
+      description : "Firefox is installed"
+      value_type  : POLICY_TEXT
+      value_data  : "HKLM\Software\Mozilla\Mozilla Firefox"
+      reg_option  : MUST_EXIST
+    </custom_item>
+
+    <custom_item>
+      type        : REG_CHECK
+      description : "Firefox ESR is installed"
+      value_type  : POLICY_TEXT
+      value_data  : "HKLM\Software\Mozilla\Mozilla Firefox ESR"
+      reg_option  : MUST_EXIST
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Mozilla_Firefox_102_ESR_v1.0.0_Windows_Level1.audit for CIS Mozilla Firefox 102 ESR v1.0.0"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+    </report>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "1.1 Create local-settings.js file - general.config.filename"
+      info        : "The local-settings.js file is used by Firefox to reference and load the mozilla.cfg file which contains all the locked preferences.
+
+Rationale:
+
+Loading a custom configuration file is a primary mechanism for setting and enforcing security requirements within Firefox.
+
+Impact:
+
+None."
+      solution    : "Perform the following procedure:
+
+Navigate to the defaults/pref directory inside the Firefox installation directory and create a file called local-settings.js.
+
+Include the following lines in local-settings.js:
+
+   pref('general.config.obscure_value', 0);
+   pref('general.config.filename', 'mozilla.cfg');
+
+Default Value:
+
+Not configured."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@LOCKING_FILE@"
+      regex       : '^[\\s]*pref\\("general.config.filename",[\\s]*'
+      expect      : '^[\\s]*pref\\("general.config.filename",[\\s]*"mozilla.cfg"\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "1.1 Create local-settings.js file - general.config.obscure"
+      info        : "The local-settings.js file is used by Firefox to reference and load the mozilla.cfg file which contains all the locked preferences.
+
+Rationale:
+
+Loading a custom configuration file is a primary mechanism for setting and enforcing security requirements within Firefox.
+
+Impact:
+
+None."
+      solution    : "Perform the following procedure:
+
+Navigate to the defaults/pref directory inside the Firefox installation directory and create a file called local-settings.js.
+
+Include the following lines in local-settings.js:
+
+   pref('general.config.obscure_value', 0);
+   pref('general.config.filename', 'mozilla.cfg');
+
+Default Value:
+
+Not configured."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@LOCKING_FILE@"
+      regex       : '^[\\s]*pref\\("general.config.obscure_value",[\\s]*'
+      expect      : '^[\\s]*pref\\("general.config.obscure_value",[\\s]*0\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "1.2 Create mozilla.cfg file"
+      info        : "The mozilla.cfg file is used by Firefox to configure all the locked preferences.
+
+Rationale:
+
+Loading a custom configuration file is a primary mechanism for setting and enforcing security requirements in Firefox.
+
+Impact:
+
+None."
+      solution    : "Perform the following procedure:
+
+Navigate to the Firefox installation directory and create a file called mozilla.cfg.
+
+The first line of the file must be a comment:
+
+//
+
+Default Value:
+
+Not configured."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*\/.*'
+      expect      : '^[\\s]*\/.*'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "1.3 Protect Firefox Binaries"
+      info            : "Ensure that Firefox is installed and owned by an administrative account in order to protect the binaries and to prevent users from circumventing security settings.
+
+Rationale:
+
+When Firefox is installed by an ordinary user, the software is installed into the user's profile / home directory. This avoids the requirement for administrative access during installation and upgrades, but also allows users to circumvent security settings defined in settings.js and mozilla.cfg files. Having the installation owned by an administrative user can also protect binary and configuration files from malware that is executed in an ordinary user's browser.
+
+Impact:
+
+Ordinary users will not be able to update or patch Firefox; only Administrators can perform upgrades.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution        : "Install Firefox into a shared location that can be accessed by users but modified only by Administrators.
+
+Default Value:
+
+N/A"
+      reference       : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1M,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also        : "https://workbench.cisecurity.org/files/4299"
+      value_type      : POLICY_TEXT
+      value_data      : ""
+      powershell_args : "Get-ChildItem -Path C:\ -Filter firefox.exe -Recurse -ErrorAction SilentlyContinue -Force"
+      severity        : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "1.4 Set permissions on local-settings.js - Administrators"
+      info            : "Set permissions on local-settings.js so that it can only be modified or deleted by an Administrator.
+
+Rationale:
+
+Any users with the ability to modify the local-settings.js file can bypass all security configurations by changing the file or deleting it.
+
+Impact:
+
+Non-administrative users will not be able to write to the local-settings.js."
+      solution        : "Deny non-administrators the ability to write to local-settings.js.
+
+Default Value:
+
+Not configured."
+      reference       : "800-171|3.4.5,800-53|CM-5(6),800-53r5|CM-5(6),CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-5(6),LEVEL|1A,NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2"
+      see_also        : "https://workbench.cisecurity.org/files/4299"
+      value_type      : POLICY_TEXT
+      value_data      : ".*\\Administrators:\(I\)\(F\).*"
+      powershell_args : "icacls '@LOCKING_FILE@'"
+      check_type      : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "1.4 Set permissions on local-settings.js - Users"
+      info            : "Set permissions on local-settings.js so that it can only be modified or deleted by an Administrator.
+
+Rationale:
+
+Any users with the ability to modify the local-settings.js file can bypass all security configurations by changing the file or deleting it.
+
+Impact:
+
+Non-administrative users will not be able to write to the local-settings.js."
+      solution        : "Deny non-administrators the ability to write to local-settings.js.
+
+Default Value:
+
+Not configured."
+      reference       : "800-171|3.4.5,800-53|CM-5(6),800-53r5|CM-5(6),CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-5(6),LEVEL|1A,NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2"
+      see_also        : "https://workbench.cisecurity.org/files/4299"
+      value_type      : POLICY_TEXT
+      value_data      : ".*\\Users:\(DENY\)\(W\).*"
+      powershell_args : "icacls '@LOCKING_FILE@'"
+      check_type      : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "1.5 Set permissions on mozilla.cfg - Administrators"
+      info            : "Set permissions on mozilla.cfg so that it can only be modified or deleted by an Administrator.
+
+Rationale:
+
+Any users with the ability to modify the mozilla.cfg file can bypass all security configurations by changing the file or deleting it.
+
+Impact:
+
+Non-admirative user will not be able to write to the mozilla.cfg file."
+      solution        : "Deny non-administrators the ability to write to mozilla.cfg.
+
+Default Value:
+
+Not configured."
+      reference       : "800-171|3.4.5,800-53|CM-5(6),800-53r5|CM-5(6),CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-5(6),LEVEL|1A,NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2"
+      see_also        : "https://workbench.cisecurity.org/files/4299"
+      value_type      : POLICY_TEXT
+      value_data      : ".*\\Administrators:\(I\)\(F\).*"
+      powershell_args : "icacls '@MOZILLA_CONFIG@'"
+      check_type      : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type            : AUDIT_POWERSHELL
+      description     : "1.5 Set permissions on mozilla.cfg - Users"
+      info            : "Set permissions on mozilla.cfg so that it can only be modified or deleted by an Administrator.
+
+Rationale:
+
+Any users with the ability to modify the mozilla.cfg file can bypass all security configurations by changing the file or deleting it.
+
+Impact:
+
+Non-admirative user will not be able to write to the mozilla.cfg file."
+      solution        : "Deny non-administrators the ability to write to mozilla.cfg.
+
+Default Value:
+
+Not configured."
+      reference       : "800-171|3.4.5,800-53|CM-5(6),800-53r5|CM-5(6),CSF|PR.IP-1,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-5(6),LEVEL|1A,NESA|T3.2.3,NESA|T5.1.1,NESA|T5.6.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.3,QCSC-v1|7.2"
+      see_also        : "https://workbench.cisecurity.org/files/4299"
+      value_type      : POLICY_TEXT
+      value_data      : ".*\\Users:\(DENY\)\(W\).*"
+      powershell_args : "icacls '@MOZILLA_CONFIG@'"
+      check_type      : CHECK_REGEX
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "2.1 Enable Automatic Updates - app.update.enabled"
+      info        : "This setting configures Firefox to automatically download and install updates as they are made available.
+
+Rationale:
+
+Security updates ensure that users are safe from known software bugs and vulnerabilities.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set the following values to true:
+
+app.update.enabled
+
+app.update.auto
+
+app.update.staging.enabled
+
+Type about:config in the address bar
+
+Type app.update.enabled in the filter
+
+Configure the setting as prescribed.
+
+Type app.update.auto in the filter
+
+Configure the setting as prescribed.
+
+Type app.update.staging.enabled in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('app.update.enabled', true);
+lockPref('app.update.auto', true);
+lockPref('app.update.staging.enabled', true);
+
+Default Value:
+
+app.update.enabled=true
+
+app.update.auto=true
+
+app.update.staging.enabled=true"
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.5,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("app.update.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("app.update.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "2.1 Enable Automatic Updates - app.update.auto"
+      info        : "This setting configures Firefox to automatically download and install updates as they are made available.
+
+Rationale:
+
+Security updates ensure that users are safe from known software bugs and vulnerabilities.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set the following values to true:
+
+app.update.enabled
+
+app.update.auto
+
+app.update.staging.enabled
+
+Type about:config in the address bar
+
+Type app.update.enabled in the filter
+
+Configure the setting as prescribed.
+
+Type app.update.auto in the filter
+
+Configure the setting as prescribed.
+
+Type app.update.staging.enabled in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('app.update.enabled', true);
+lockPref('app.update.auto', true);
+lockPref('app.update.staging.enabled', true);
+
+Default Value:
+
+app.update.enabled=true
+
+app.update.auto=true
+
+app.update.staging.enabled=true"
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.5,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("app.update.auto",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("app.update.auto",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "2.1 Enable Automatic Updates - app.update.staging.enabled"
+      info        : "This setting configures Firefox to automatically download and install updates as they are made available.
+
+Rationale:
+
+Security updates ensure that users are safe from known software bugs and vulnerabilities.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set the following values to true:
+
+app.update.enabled
+
+app.update.auto
+
+app.update.staging.enabled
+
+Type about:config in the address bar
+
+Type app.update.enabled in the filter
+
+Configure the setting as prescribed.
+
+Type app.update.auto in the filter
+
+Configure the setting as prescribed.
+
+Type app.update.staging.enabled in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('app.update.enabled', true);
+lockPref('app.update.auto', true);
+lockPref('app.update.staging.enabled', true);
+
+Default Value:
+
+app.update.enabled=true
+
+app.update.auto=true
+
+app.update.staging.enabled=true"
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.5,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("app.update.staging.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("app.update.staging.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "2.2 Set Search Provider Update Behavior"
+      info        : "This setting dictates whether Firefox will update installed search providers. Search providers allow the user to search directly from the 'Search bar' which is adjacent to the URL bar.
+
+Rationale:
+
+Software updates help ensure that users are safe from known software bugs and vulnerabilities.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set browser.search.update to true:
+
+Type about:config in the address bar
+
+Type browser.search.update in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('browser.search.update', true);
+
+Default Value:
+
+true"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("browser.search.update",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("browser.search.update",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "2.3 Set Update Interval Time Checks"
+      info        : "This setting configures the amount of time the system waits in between each check for updates.
+
+Rationale:
+
+Frequent checks for updates will help mitigate vulnerabilities.
+
+Impact:
+
+app.update.enabled must be set to true for this preference to take effect."
+      solution    : "To establish the recommended configuration, set app.update.interval to 43200:
+
+Type about:config in the address bar
+
+Type app.update.interval in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('app.update.interval', 43200);
+
+Default Value:
+
+43200"
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-53|RA-5,800-53r5|RA-5,CSCv8|7.1,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.7.1,PCI-DSSv3.2.1|6.1,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("app.update.interval",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("app.update.interval",[\\s]*43200\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "2.4 Set Update Wait Time Prompt"
+      info        : "This setting determines the amount of time, in seconds, which the system will wait before displaying the Software Update dialogue box (after an unobtrusive alert has already been shown).
+
+Rationale:
+
+Encouraging the user to update software as soon as possible mitigates the risk that a system will be left vulnerable.
+
+Impact:
+
+For this preference to have an effect app.update.enabled must be true."
+      solution    : "To establish the recommended configuration, set app.update.promptWaitTime to 172800:
+
+Type about:config in the address bar
+
+Type app.update.promptWaitTime in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('app.update.promptWaitTime', 172800);
+
+Default Value:
+
+691200"
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-53|RA-5,800-53r5|RA-5,CSCv8|7.1,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.7.1,PCI-DSSv3.2.1|6.1,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("app.update.promptWaitTime",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("app.update.promptWaitTime",[\\s]*172800\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "3.1 Disable Network Prefetch"
+      info        : "This setting configures if Firefox is allowed to make URL requests without user consent.
+
+Rationale:
+
+Prefetching URLs could lead to misinformation on browser history such a a website that was not visited but the user hovered over the URL link. This can be misleading in a forensic investigation.
+
+In addition, there is a chance that information can be leaked about a local network if connected to a public network.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set Network.dns.disablePrefetch to true:
+
+Type about:config in the address bar
+
+Type Network.dns.disablePrefetch in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('Network.dns.disablePrefetch', true);
+
+Default Value:
+
+False (Enabled)."
+      reference   : "800-171|3.13.1,800-53|SC-7(3),800-53|SC-7(4),800-53r5|SC-7(3),800-53r5|SC-7(4),CN-L3|8.1.10.6(j),CSCv8|9.3,CSF|PR.AC-5,CSF|PR.PT-4,CSF2.0|DE.CM-01,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.IR-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.13.1.3,ITSG-33|SC-7(3),ITSG-33|SC-7(4),LEVEL|1M,NESA|T4.5.4,NIAv2|GS1,NIAv2|GS2a,NIAv2|GS2b,PCI-DSSv3.2.1|1.1,PCI-DSSv3.2.1|1.2,PCI-DSSv3.2.1|1.2.1,PCI-DSSv3.2.1|1.3,PCI-DSSv4.0|1.2.1,PCI-DSSv4.0|1.4.1,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|8.2.1,SWIFT-CSCv1|1.1,TBA-FIISB|43.1,TBA-FIISB|44.1.2"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("Network.dns.disablePrefetch",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("Network.dns.disablePrefetch",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "3.2 Disable NTLM v1"
+      info        : "This setting controls the use of NT Lan Manager (NTLM) v1 protocol that can be used for authentication to resources that request or require this authentication type.
+
+Rationale:
+
+NTLM v1 contains cryptographic weaknesses that can be easily exploited to obtain user credentials.
+
+Impact:
+
+This may affect websites and browsers that require the use of NTLM v1"
+      solution    : "To establish the recommended configuration, set network.auth.force-generic-ntlm-v1 to false:
+
+Type about:config in the address bar
+
+Type network.auth.force-generic-ntlm-v1 in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('network.auth.force-generic-ntlm-v1', false)
+
+Default Value:
+
+False
+
+Additional Information:
+
+This configuration was previously set with 'network.negotiate-auth.allow-insecure-ntlm-v1'"
+      reference   : "800-171|3.5.2,800-53|IA-5(6),800-53r5|IA-5(6),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-5(6),LEVEL|1A,NESA|T5.2.3,QCSC-v1|5.2.2,QCSC-v1|13.2,SWIFT-CSCv1|5.4,TBA-FIISB|26.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("network.auth.force-generic-ntlm-v1",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("network.auth.force-generic-ntlm-v1",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "3.3 Disable WebRTC - media.peerconnection.enabled"
+      info        : "These settings determine whether Web Real Time Communications (WebRTC) is allowed. WebRTC is used for peer-to-peer communication such as file sharing or video calls.
+
+Rationale:
+
+WebRTC can expose private information such as internal IP addresses and computer settings.
+
+Impact:
+
+WebRTC will not be accessible to users."
+      solution    : "To establish the recommended configuration, set the following values to false:
+
+media.peerconnection
+
+media.peerconnection.use_document_iceservers
+
+Type about:config in the address bar
+
+Type media.peerconnection in the filter
+
+Ensure the setting is set as prescribed.
+
+Type media.peerconnection.use_document_iceservers in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('media.peerconnection.enabled', false);
+lockPref('media.peerconnection.use_document_iceservers', false);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("media.peerconnection.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("media.peerconnection.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "3.3 Disable WebRTC - media.peerconnection.use_document_iceservers"
+      info        : "These settings determine whether Web Real Time Communications (WebRTC) is allowed. WebRTC is used for peer-to-peer communication such as file sharing or video calls.
+
+Rationale:
+
+WebRTC can expose private information such as internal IP addresses and computer settings.
+
+Impact:
+
+WebRTC will not be accessible to users."
+      solution    : "To establish the recommended configuration, set the following values to false:
+
+media.peerconnection
+
+media.peerconnection.use_document_iceservers
+
+Type about:config in the address bar
+
+Type media.peerconnection in the filter
+
+Ensure the setting is set as prescribed.
+
+Type media.peerconnection.use_document_iceservers in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('media.peerconnection.enabled', false);
+lockPref('media.peerconnection.use_document_iceservers', false);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("media.peerconnection.use_document_iceservers",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("media.peerconnection.use_document_iceservers",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "3.5 Set File URI Origin Policy"
+      info        : "This setting determines the restrictions placed on the scripts and links loaded into the browser from local HTML files.
+
+Rationale:
+
+Applying the same origin policy to local files will help mitigate the risk of unauthorized access to sensitive information.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set security.fileuri.strict_origin_policy to true:
+
+Type about:config in the address bar
+
+Type security.fileuri.strict_origin_policy in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('security.fileuri.strict_origin_policy', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("security.fileuri.strict_origin_policy",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("security.fileuri.strict_origin_policy",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <report type:"WARNING">
+      description : "3.6 Validate Proxy Settings"
+      info        : "Firefox can be configured to use one or more proxy servers. When a proxy server is configured for a given protocol (HTTP, FTP, Gopher, etc), Firefox will send applicable requests to that proxy server for fulfillment. It is recommended that the list of proxy servers configured in Firefox be reviewed to ensure it contains only trusted proxy servers.
+
+Rationale:
+
+Depending on the protocol used, the proxy server will have access to read and/or alter all information communicated between Firefox and the target server, such a web site.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform the following procedure:
+
+Drop down the Firefox menu
+
+Click on Settings
+
+Scroll down to the Network Settings section
+
+Click on Settings Button
+
+Ensure that the proxy listed (if any) is the one configured and approved by the enterprise.
+
+Default Value:
+
+No proxy."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1M,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+    </report>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "4.1 Block Mixed Active Content"
+      info        : "This setting disables the ability to view HTTP content such as JavaScript, CSS, objects, and xhr requests.
+
+Rationale:
+
+Blocking active mixed content minimizes the risk of man-in-the-middle attacks.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set security.mixed_content.block_active_content to true:
+
+Type about:config in the address bar
+
+Type security.mixed_content.block_active_content in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('security.mixed_content.block_active_content', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53|SI-8,800-53r5|SI-3,800-53r5|SI-8,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSCv7|7.9,CSCv8|9.6,CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,ITSG-33|SI-8,LEVEL|1A,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("security.mixed_content.block_active_content",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("security.mixed_content.block_active_content",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "4.4 Set Security TLS Version Maximum"
+      info        : "This setting sets the maximum required protocol version for the Transport Layer Security (TLS).
+
+Rationale:
+
+Setting TLS 1.2 as the maximum authorized protocol version mitigates the risk of using an insecure connection."
+      solution    : "To establish the recommended configuration, set security.tls.version.max to 3:
+
+Type about:config in the address bar
+
+Type security.tls.version.max in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('security.tls.version.max', 3);
+
+Default Value:
+
+4"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("security.tls.version.max",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("security.tls.version.max",[\\s]*3\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "4.5 Set Security TLS Version Minimum"
+      info        : "This setting sets the minimum protocol version that may be used when negotiating TLS/SSL sessions.
+
+Rationale:
+
+Setting TLS 1.2 as the minimum protocol version mitigates the risk of negotiating an insecure protocol, such as TSL 1.0 or SSL 2.0.
+
+Impact:
+
+Communications that require an older version of TLS/SSL will be blocked."
+      solution    : "To establish the recommended configuration, set security.tls.version.min to 3:
+
+Type about:config in the address bar
+
+Type security.tls.version.min in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('security.tls.version.min', 3);
+
+Default Value:
+
+3"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,CSF2.0|PR.AA-05,CSF2.0|PR.DS-02,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|1A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("security.tls.version.min",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("security.tls.version.min",[\\s]*3\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "5.1 Block Pop-up Windows"
+      info        : "This setting allows for the configuration of the Firefox pop-up blocker.
+
+Rationale:
+
+By enabling the pop-up blocker, all pop-ups will be blocked which will guard a user against malicious attacks launched using a pop-up window.
+
+Impact:
+
+Legitimate pop-ups will be blocked."
+      solution    : "To establish the recommended configuration, set privacy.popups.policy to 1:
+
+Type about:config in the address bar
+
+Type privacy.popups.policy in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('privacy.popups.policy', 1);
+
+Default Value:
+
+1"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("privacy.popups.policy",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("privacy.popups.policy",[\\s]*1\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "5.2 Disable Closing of Windows via Scripts"
+      info        : "This setting allows the configuration of how Firefox handles scripts from closing browser windows.
+
+Rationale:
+
+Preventing an arbitrary web site from closing the browser window will reduce the probability of a user losing work or state being performed in another tab within the same window.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set dom.allow_scripts_to_close_windows to false:
+
+Type about:config in the address bar
+
+Type dom.allow_scripts_to_close_windows in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('dom.allow_scripts_to_close_windows', false);
+
+Default Value:
+
+False"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("dom.allow_scripts_to_close_windows",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("dom.allow_scripts_to_close_windows",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "5.3 Disable Displaying JavaScript in History URLs"
+      info        : "This setting controls JavaScript URLs history from being displayed in the history bar.
+
+Rationale:
+
+Various browser elements, even a simple link, can embed javascript: URLs and access the javascript: protocol. The JavaScript statement used in a javascript: URL can be used to encapsulate a specially crafted URL that performs a malicious function.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set browser.urlbar.filter.javascript to true:
+
+Type about:config in the address bar
+
+Type browser.urlbar.filter.javascript in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('browser.urlbar.filter.javascript', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("browser.urlbar.filter.javascript",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("browser.urlbar.filter.javascript",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "5.4 Disable Moving or Resizing of Windows via Scripts"
+      info        : "This setting allows the configuration of how Firefox handles scripts from moving or resizing browser windows.
+
+Rationale:
+
+Arbitrary web sites can disguise an attack taking place in a minimized background window by moving or resizing browser windows.
+
+Impact:
+
+Scripts will not be able to move or resize browser windows.
+
+This is the default behavior."
+      solution    : "To establish the recommended configuration, set dom.disable_window_move_resize to true:
+
+Type about:config in the address bar
+
+Type dom.disable_window_move_resize in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('dom.disable_window_move_resize', true);
+
+Default Value:
+
+False (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7,800-53|CM-7(1),800-53|SI-7,800-53|SI-7(1),800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|SI-7,800-53r5|SI-7(1),CN-L3|7.1.3.5(b),CSCv8|2.7,CSF|PR.DS-6,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.RA-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|SI-7,ITSG-33|SI-7a.,ITSG-33|SI-7(1),LEVEL|1M,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.2"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("dom.disable_window_move_resize",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("dom.disable_window_move_resize",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK_NOT
+      description : "5.5 Disable Raising or Lowering of Windows via Scripts"
+      info        : "This setting allows the configuration of how Firefox handles scripts from raising or lowering browser windows.
+
+Rationale:
+
+An arbitrary web site raising or lowering the browser window can cause improper input or can help disguise an attack taking place in a lowered window.
+
+Impact:
+
+Scripts will not be able to raise or lower browser windows."
+      solution    : "To establish the recommended configuration, set dom.disable_window_flip to true:
+
+Type about:config in the address bar
+
+Type dom.disable_window_flip in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('dom.disable_window_flip', true);
+
+Default Value:
+
+True (Disabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7,800-53|CM-7(1),800-53|SI-7,800-53|SI-7(1),800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|SI-7,800-53r5|SI-7(1),CN-L3|7.1.3.5(b),CSCv8|2.7,CSF|PR.DS-6,CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|DE.CM-09,CSF2.0|ID.RA-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(c)(1),HIPAA|164.312(c)(2),HIPAA|164.312(e)(2)(i),ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|SI-7,ITSG-33|SI-7a.,ITSG-33|SI-7(1),LEVEL|1M,NESA|T3.4.1,NESA|T7.3.2,NESA|T7.3.3,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,PCI-DSSv3.2.1|10.5.5,QCSC-v1|3.2,SWIFT-CSCv1|2.3,SWIFT-CSCv1|6.2"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("dom.disable_window_flip",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("dom.disable_window_flip",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.2 Disabled Browser Sign-ins"
+      info        : "This policy setting controls whether a user can sign into Firefox with an account to use services.
+
+Rationale:
+
+Syncing user data especially from a personal account can contain data that is not appropriate for an enterprise environment.
+
+Impact:
+
+Users will not be able to sign into the Firefox browser."
+      solution    : "To establish the recommended configuration, set identity.fxaccounts.enabled to false:
+
+Type about:config in the address bar
+
+Type identity.fxaccounts.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('identity.fxaccounts.enabled', false);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("identity.fxaccounts.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("identity.fxaccounts.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.3 Disable Firefox Shield Studies"
+      info        : "Shield Studies are controlled tests that allow proposed changes to be compared to the current default version of Firefox for representative populations before releasing and pushing those changes to everyone else.
+
+Rationale:
+
+If you decide to opt-in to Shield Studies, you agree to let Firefox collect data for their use. This data includes usage hours, what day Firefox was used on, study info (Study Name/ID, Experimental Branch), and study status transition events. Allowing this data to be shared with Firefox could lead to inadvertently sharing sensitive data.
+
+Impact:
+
+Data will not be shared with Firefox."
+      solution    : "To establish the recommended configuration, set app.shield.optoutstudies.enabled to true:
+
+Type about:config in the address bar
+
+Type app.shield.optoutstudies.enabled in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('app.shield.optoutstudies.enabled', true)
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("app.shield.optoutstudies.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("app.shield.optoutstudies.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.5 Disable Geolocation Serivces"
+      info        : "This settings determines whether Firefox will provide geographic location information to websites.
+
+Rationale:
+
+Geo-location services can expose private information to remote websites.
+
+Impact:
+
+Geo-locations services will be unavailable. Site that use geo-location (Google Maps tec.) will not be able to attain information to pinpoint location."
+      solution    : "To establish the recommended configuration, set geo.enabled to false:
+
+Type about:config in the address bar
+
+Type geo.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('geo.enabled', false);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("geo.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("geo.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.6 Disable Pocket"
+      info        : "Previously known as 'Read It Later', Pocket is a social bookmark service that allows users to save a variety of content to one place and access it later from any device. This content includes web pages, blogs, videos, and news sources.
+
+Rationale:
+
+When using Pocket, users agree to let Firefox collect information including their browser and device type. In addition, this information along with other information (including some personal information) related to Pocket user accounts may be provided to third parties. Firefox also asks users to provide usernames and passwords for third party sites in order to access articles and information published on them. Firefox states that cookies and other analytics tools are necessary for the Pocket website to function and cannot be switched off.
+
+Impact:
+
+Data such as web pages, blogs, videos, and news sources will not be shared via Pocket."
+      solution    : "To establish the recommended configuration, set extensions.pocket.enabled to false:
+
+Type about:config in the address bar
+
+Type extensions.pocket.enabled in the filter
+
+Configure the setting as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('extensions.pocket.enabled', false)
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.9,800-171|3.13.13,800-53|CM-10,800-53|CM-11,800-53|SC-18,800-53r5|CM-10,800-53r5|CM-11,800-53r5|SC-18,CSCv8|9.4,CSF|DE.CM-3,CSF|DE.CM-5,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|SC-18,LEVEL|1M,NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,SWIFT-CSCv1|5.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("extensions.pocket.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("extensions.pocket.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.7 Disable Sending Data"
+      info        : "Firefox by default sends information about Firefox to Mozilla servers. This data can include, but is not limited to IP address, system specifications, browsing history, bookmarks, and open tabs.
+
+Rationale:
+
+Sending data to Firefox could lead to sensitive data being exposed.
+
+Impact:
+
+The browser will not send system information back to Firefox."
+      solution    : "To establish the recommended configuration, set app.normandy.enabled to false:
+
+Type about:config in the address bar
+
+Type app.normandy.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('app.normandy.enabled', false);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("app.normandy.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("app.normandy.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.8 Disallow Credential Storage"
+      info        : "Firefox allows for credentials to be stored in its credential store for certain websites.
+
+Rationale:
+
+Stored credentials may be harvested by an adversary that gains local privileges equal to or greater than the principal running Firefox, which may increase the scope and impact of a breach. However, preventing Firefox from storing credentials will not prevent such an adversary from harvesting credentials used while compromised.
+
+Impact:
+
+Credentials will not be stored for websites."
+      solution    : "To establish the recommended configuration, set signon.rememberSignons to false:
+
+Type about:config in the address bar
+
+Type signon.rememberSignons in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('signon.rememberSignons', false);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("signon.rememberSignons",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("signon.rememberSignons",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.9 Do Not Accept Third Party Cookies"
+      info        : "This setting enables or disables the ability for third-party cookies to be downloaded to the system. Third party cookies are cookies sent by a domain that differs from the domain in the browser's address bar.
+
+Rationale:
+
+Third party cookies are often used for tracking user browsing behaviors, which has privacy implications. However, preventing third-party cookies does not completely mitigate privacy concerns as several other active tracking mechanisms exist [1].
+
+Impact:
+
+Blocking third-party cookies may adversely affect the functionality of some sites."
+      solution    : "To establish the recommended configuration, set network.cookie.cookieBehavior to 1:
+
+Type about:config in the address bar
+
+Type network.cookie.cookieBehavior in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('network.cookie.cookieBehavior', 1);
+
+Default Value:
+
+5"
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("network.cookie.cookieBehavior",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("network.cookie.cookieBehavior",[\\s]*1\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.10 Enable Enhanced Tracking Protection"
+      info        : "This setting controls whether Firefox's Enhanced Tracking Protection is enabled. Enhanced Tracking Protection will automatically block known third-party tracking cookies.
+
+Rationale:
+
+Allowing third-party cookies could potentially allow tracking of your web activities by third-party entities which may expose information that could be used for an attack on the end-user.
+
+Impact:
+
+Disabling third-party cookies could cause some websites to not function as expected."
+      solution    : "To establish the recommended configuration, set browser.contentblocking.category to true:
+
+Type about:config in the address bar
+
+Type browser.contentblocking.category in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('browser.contentblocking.category', true);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("browser.contentblocking.category",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("browser.contentblocking.category",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.11 Enable Tracking Protection - privacy.donottrackheader.enabled"
+      info        : "These settings configures what is allowed to be tracked by websites to which the browser connects.
+
+Rationale:
+
+Enabling do not track instructs the browser to send an optional header in HTTP requests made from the app that indicates a preference not to be tracked by websites. This optional header is voluntary in nature, having no method to enforce adherence and providing no guarantee that web sites will honor the preference. However, a large number of websites do honor it so there is privacy benefit in enabling it."
+      solution    : "To establish the recommended configuration, set the following values to true:
+
+privacy.donottrackheader.enabled
+
+privacy.trackingprotection.enabled
+
+privacy.trackingprotection.pbmode
+
+Type about:config in the address bar
+
+Type privacy.donottrackheader.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+Type privacy.trackingprotection.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+Type privacy.trackingprotection.pbmode in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('privacy.donottrackheader.enabled', true);
+lockPref('privacy.trackingprotection.enabled', true);
+lockPref('privacy.trackingprotection.pbmode', true);
+
+Default Value:
+
+privacy.donottrackheader.enabled=false
+
+privacy.trackingprotection.enabled = false
+
+privacy.trackingprotection.pbmode = false
+
+Additional Information:
+
+privacy.trackingprotection.pbmode is only available on FF43 and up (ESR is at v38). Leaving here because it does no harm and this benchmark is likely to be used by many for standard version."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("privacy.donottrackheader.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("privacy.donottrackheader.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.11 Enable Tracking Protection - privacy.trackingprotection.enabled"
+      info        : "These settings configures what is allowed to be tracked by websites to which the browser connects.
+
+Rationale:
+
+Enabling do not track instructs the browser to send an optional header in HTTP requests made from the app that indicates a preference not to be tracked by websites. This optional header is voluntary in nature, having no method to enforce adherence and providing no guarantee that web sites will honor the preference. However, a large number of websites do honor it so there is privacy benefit in enabling it."
+      solution    : "To establish the recommended configuration, set the following values to true:
+
+privacy.donottrackheader.enabled
+
+privacy.trackingprotection.enabled
+
+privacy.trackingprotection.pbmode
+
+Type about:config in the address bar
+
+Type privacy.donottrackheader.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+Type privacy.trackingprotection.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+Type privacy.trackingprotection.pbmode in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('privacy.donottrackheader.enabled', true);
+lockPref('privacy.trackingprotection.enabled', true);
+lockPref('privacy.trackingprotection.pbmode', true);
+
+Default Value:
+
+privacy.donottrackheader.enabled=false
+
+privacy.trackingprotection.enabled = false
+
+privacy.trackingprotection.pbmode = false
+
+Additional Information:
+
+privacy.trackingprotection.pbmode is only available on FF43 and up (ESR is at v38). Leaving here because it does no harm and this benchmark is likely to be used by many for standard version."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("privacy.trackingprotection.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("privacy.trackingprotection.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.11 Enable Tracking Protection - privacy.trackingprotection.pbmode"
+      info        : "These settings configures what is allowed to be tracked by websites to which the browser connects.
+
+Rationale:
+
+Enabling do not track instructs the browser to send an optional header in HTTP requests made from the app that indicates a preference not to be tracked by websites. This optional header is voluntary in nature, having no method to enforce adherence and providing no guarantee that web sites will honor the preference. However, a large number of websites do honor it so there is privacy benefit in enabling it."
+      solution    : "To establish the recommended configuration, set the following values to true:
+
+privacy.donottrackheader.enabled
+
+privacy.trackingprotection.enabled
+
+privacy.trackingprotection.pbmode
+
+Type about:config in the address bar
+
+Type privacy.donottrackheader.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+Type privacy.trackingprotection.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+Type privacy.trackingprotection.pbmode in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('privacy.donottrackheader.enabled', true);
+lockPref('privacy.trackingprotection.enabled', true);
+lockPref('privacy.trackingprotection.pbmode', true);
+
+Default Value:
+
+privacy.donottrackheader.enabled=false
+
+privacy.trackingprotection.enabled = false
+
+privacy.trackingprotection.pbmode = false
+
+Additional Information:
+
+privacy.trackingprotection.pbmode is only available on FF43 and up (ESR is at v38). Leaving here because it does no harm and this benchmark is likely to be used by many for standard version."
+      reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,LEVEL|1A,NESA|T3.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("privacy.trackingprotection.pbmode",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("privacy.trackingprotection.pbmode",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.12 Set Delay for Enabling Security Sensitive Dialog Boxes"
+      info        : "This feature sets the amount of time in milliseconds that elapse before the buttons on security-sensitive dialog boxes are enabled.
+
+Rationale:
+
+This delay help prevents Firefox users from inadvertently installing malicious software.
+
+Impact:
+
+Buttons on security-sensitive dialog boxes will be delayed 2000 milliseconds."
+      solution    : "To establish the recommended configuration, set security.dialog_enable_delay to 2000:
+
+Type about:config in the address bar
+
+Type security.dialog_enable_delay in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('security.dialog_enable_delay', 2000);
+
+Default Value:
+
+1000"
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,LEVEL|1A,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("security.dialog_enable_delay",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("security.dialog_enable_delay",[\\s]*2000\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "6.13 Disabled Delete Data Upon Shutdown"
+      info        : "This setting allows for the deletion of user data upon closing the browser.
+
+Rationale:
+
+Deleting browser data will delete information that may be important for a computer investigation and investigators such as Computer Forensics Analysts may not be able to retrieve pertinent information to the investigation.
+
+Impact:
+
+None - This is the default behavior.
+
+Note: This setting will preserve browsing history that could contain a user's personal browsing history. Please make sure that this setting is in compliance with organizational policies."
+      solution    : "To establish the recommended configuration, set Privacy.sanitize.SanitizeOnShutdown to false:
+
+Type about:config in the address bar
+
+Type Privacy.sanitize.SanitizeOnShutdown in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('Privacy.sanitize.SanitizeOnShutdown', false);
+
+Default Value:
+
+False (Disabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("Privacy.sanitize.SanitizeOnShutdown",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("Privacy.sanitize.SanitizeOnShutdown",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.1 Disable Auto-Install of Add-ons"
+      info        : "This configuration will enable or disable the ability for websites to automatically install add-ons without an allow list. If this setting is enabled, a whitelist for add-ons that are approved must be created.
+
+Rationale:
+
+Add-ons are extensions of the browser that add new functionality to Firefox or change its appearance. These run in a user s session allowing them do manipulate data and the behavior of the way Firefox interacts with other application and user commands. If malicious add-ons are installed automatically, a user s security could be completely compromised.
+
+Impact:
+
+Users will not be able to download and install add-ons from websites unless an allow list is created."
+      solution    : "To establish the recommended configuration, set xpinstall.whitelist.required to true:
+
+Type about:config in the address bar
+
+Type xpinstall.whitelist.required in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('xpinstall.whitelist.required', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.4.9,800-171|3.13.13,800-53|CM-10,800-53|CM-11,800-53|SC-18,800-53r5|CM-10,800-53r5|CM-11,800-53r5|SC-18,CSCv7|7.2,CSCv8|9.4,CSF|DE.CM-3,CSF|DE.CM-5,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|SC-18,LEVEL|1A,NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,SWIFT-CSCv1|5.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("xpinstall.whitelist.required",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("xpinstall.whitelist.required",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.2 Disable Development Tools"
+      info        : "This setting configures whether or not development tools are available to the user. Firefox Developer Tools is a set of web developer tools built into Firefox that can be used to examine, edit, and debug HTML, CSS, and JavaScript.
+
+Rationale:
+
+Information needed by an attacker to begin looking for possible vulnerabilities in a web browser includes information about the web browser and plug-ins or modules being used. When debugging or trace information is enabled in a production web browser, information about the web browser, such as web browser type, version, patches installed, plug-ins and modules installed, type of code being used by the hosted application, and any back ends being used for data storage may be displayed. Because this information may be placed in logs and general messages during normal operation of the web browser, an attacker does not have to cause an error condition to gain this information.
+
+Impact:
+
+Users with creative roles that require development tools will need additional permissions granted based on their role."
+      solution    : "To establish the recommended configuration, set devtools.application.enabled to false:
+
+Type about:config in the address bar
+
+Type devtools.application.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('devtools.application.enabled', false);"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("devtools.application.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("devtools.application.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.3 Disable Encrypted Media Extensions"
+      info        : "This setting configures whether encrypted media extensions (EME) are downloaded automatically without user consent. EME is a JavaScript API for playing DRMed video content in HTML.
+
+Rationale:
+
+Downloading media from the internet without user consent could lead to malicious content being downloaded and deployed to the system.
+
+Impact:
+
+Users will have to consent to downloading EMEs."
+      solution    : "To establish the recommended configuration, set media.eme.enabled to false:
+
+Type about:config in the address bar
+
+Type media.eme.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('media.eme.enabled', false);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7a.,800-53r5|CM-7a.,CN-L3|7.1.3.5(c),CN-L3|8.1.4.4(a),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1M,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.1,PCI-DSSv4.0|2.2.3,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("media.eme.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("media.eme.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.4 Disable Popups Initiated by Plugins"
+      info        : "This feature controls popups that are initiated by plug-ins.
+
+Rationale:
+
+Disabling plug-in popups (except from white-listed sites) from being displayed, can guard against attacks that are launched using a pop-up.
+
+Impact:
+
+Pop-ups will not be displayed."
+      solution    : "To establish the recommended configuration, set privacy.popups.disable_from_plugins to 2:
+
+Type about:config in the address bar
+
+Type privacy.popups.disable_from_plugins in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('privacy.popups.disable_from_plugins', 2)
+
+Default Value:
+
+3"
+      reference   : "800-171|3.4.9,800-171|3.13.13,800-53|CM-10,800-53|CM-11,800-53|SC-18,800-53r5|CM-10,800-53r5|CM-11,800-53r5|SC-18,CSCv7|7.2,CSCv8|9.4,CSF|DE.CM-3,CSF|DE.CM-5,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|SC-18,LEVEL|1A,NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,SWIFT-CSCv1|5.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("privacy.popups.disable_from_plugins",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("privacy.popups.disable_from_plugins",[\\s]*2\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.5 Disabled Recommended Extensions"
+      info        : "This setting configures if Firefox can send recommendations on extensions based on user data as they navigate the web.
+
+Rationale:
+
+Enabling recommended extensions could allow data to be transmitted to a third-party, which could lead to sensitive data being exposed.
+
+Impact:
+
+Recommendations on extensions will not be extended to users."
+      solution    : "To establish the recommended configuration, set extensions.htmlaboutaddons.recommendations.enabled to false:
+
+Type about:config in the address bar
+
+Type extensions.htmlaboutaddons.recommendations.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('extensions.htmlaboutaddons.recommendations.enabled', false);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-171|3.4.9,800-171|3.13.13,800-53|CM-10,800-53|CM-11,800-53|SC-18,800-53r5|CM-10,800-53r5|CM-11,800-53r5|SC-18,CSCv8|9.4,CSF|DE.CM-3,CSF|DE.CM-5,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|SC-18,LEVEL|1M,NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,SWIFT-CSCv1|5.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("extensions.htmlaboutaddons.recommendations.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("extensions.htmlaboutaddons.recommendations.enabled",[\\s]*false\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.6 Enable Extension Auto Update"
+      info        : "This feature configures Firefox to automatically download and install updates as they are made available.
+
+Rationale:
+
+Security updates ensure that users are safe from known software bugs and vulnerabilities.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set extensions.update.autoUpdateDefault to true:
+
+Type about:config in the address bar
+
+Type extensions.update.autoUpdateDefault in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('extensions.update.autoUpdateDefault', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.5,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("extensions.update.autoUpdateDefault",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("extensions.update.autoUpdateDefault",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.7 Enable Extension Block List"
+      info        : "This feature enables Mozilla Firefox to retrieve a list of blocked applications from the server.
+
+Rationale:
+
+Enabling Mozilla to access the list of blocked applications mitigates the risk of installing a known malicious application.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set extensions.blocklist.enabled to true:
+
+Type about:config in the address bar
+
+Type extensions.blocklist.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('extensions.blocklist.enabled', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.4.9,800-171|3.13.13,800-53|CM-10,800-53|CM-11,800-53|SC-18,800-53r5|CM-10,800-53r5|CM-11,800-53r5|SC-18,CSCv7|7.2,CSCv8|9.4,CSF|DE.CM-3,CSF|DE.CM-5,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.2,ITSG-33|SC-18,LEVEL|1A,NIAv2|SU3,QCSC-v1|3.2,QCSC-v1|8.2.1,SWIFT-CSCv1|5.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("extensions.blocklist.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("extensions.blocklist.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.8 Enable Extension Update"
+      info        : "This feature configures Firefox to prompt when updates are made available.
+
+Rationale:
+
+Security updates ensure that users are safe from known software bugs and vulnerabilities.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set extensions.update.enabled to true:
+
+Type about:config in the address bar
+
+Type extensions.update.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('extensions.update.enabled', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|RA-7,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.5,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,CSF2.0|GV.SC-10,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|ID.RA-01,CSF2.0|ID.RA-08,CSF2.0|PR.PS-02,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1A,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("extensions.update.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("extensions.update.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.9 Enable Warning for External Protocol Handler"
+      info        : "This feature configures whether a user is warned before opening an external application for pre-configured protocols were its behavior is undefined.
+
+Rationale:
+
+Enabling a warning to appear before passing data to an external application mitigates the risk that sensitive information will be made vulnerable to outside threats.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set network.protocol-handler.warn-external-default to true:
+
+Type about:config in the address bar
+
+Type network.protocol-handler.warn-external-default in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('network.protocol-handler.warn-external-default', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,LEVEL|1A,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("network.protocol-handler.warn-external-default",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("network.protocol-handler.warn-external-default",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "7.10 Set Extension Update Interval Time Checks"
+      info        : "This feature sets the amount of time the system waits between checking for updates.
+
+Rationale:
+
+Setting a specific amount of time between automatically checking for updates mitigates the risk that a system will left vulnerable to known risks for an extended period of time.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set extensions.update.interval to 86400:
+
+Type about:config in the address bar
+
+Type extensions.update.interval in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('extensions.update.interval', 86400);
+
+Note: Configuring this setting to a value less than 86400 also conforms with this benchmark.
+
+Default Value:
+
+86400"
+      reference   : "800-171|3.14.1,800-53|SI-2(3),800-53r5|SI-2(3),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSF|ID.RA-1,CSF|PR.IP-12,CSF2.0|ID.IM-01,CSF2.0|ID.IM-02,CSF2.0|ID.IM-03,CSF2.0|PR.PS-02,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-2(3),LEVEL|1A,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.3,QCSC-v1|11.2,SWIFT-CSCv1|2.2"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("extensions.update.interval",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("extensions.update.interval",[\\s]*86400\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "8.1 Block Reported Attack Sites"
+      info        : "This setting can be configured to alert a user if they are visiting a known malicious website.
+
+Rationale:
+
+Enabling this feature will decrease the probability of a user falling victim to a known malicious web site.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set browser.safebrowsing.malware.enabled to true:
+
+Type about:config in the address bar
+
+Type browser.safebrowsing.malware.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('browser.safebrowsing.malware.enabled', true);
+
+Default Value:
+
+True"
+      reference   : "800-171|3.14.2,800-171|3.14.4,800-171|3.14.5,800-53|SI-3,800-53r5|SI-3,CN-L3|7.1.3.6(b),CN-L3|8.1.4.5,CN-L3|8.1.9.6(a),CN-L3|8.1.9.6(b),CN-L3|8.1.10.5(b),CN-L3|8.1.10.7(a),CN-L3|8.1.10.7(b),CSF|DE.CM-4,CSF|DE.DP-3,CSF2.0|PR.DS-01,CSF2.0|PR.DS-02,CSF2.0|PR.DS-10,GDPR|32.1.b,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.2.1,ITSG-33|SI-3,LEVEL|1A,NIAv2|GS8a,PCI-DSSv3.2.1|5.1,PCI-DSSv3.2.1|5.1.1,PCI-DSSv4.0|5.2.1,QCSC-v1|3.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,TBA-FIISB|49.2.1,TBA-FIISB|49.2.2,TBA-FIISB|49.3.1,TBA-FIISB|49.3.2,TBA-FIISB|50.2.1,TBA-FIISB|51.2.4,TBA-FIISB|51.2.7"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("browser.safebrowsing.malware.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("browser.safebrowsing.malware.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "8.2 Block Reported Web Forgeries"
+      info        : "This setting can be configured to alert the user if they are visiting a known phishing website.
+
+Rationale:
+
+Enabling this feature helps mitigate the threat of phishing attacks.
+
+Impact:
+
+None - This is the default behavior."
+      solution    : "To establish the recommended configuration, set browser.safebrowsing.phishing.enabled to true:
+
+Type about:config in the address bar
+
+Type browser.safebrowsing.phishing.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('browser.safebrowsing.phishing.enabled', true);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-53|SI-8,800-53r5|SI-8,CSCv8|9.2,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-8,LEVEL|1A,QCSC-v1|3.2,QCSC-v1|8.2.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("browser.safebrowsing.phishing.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("browser.safebrowsing.phishing.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "8.3 Enable Cryptomining Protection"
+      info        : "This setting controls whether Firefox's Cryptomining Protection is enabled. Cryptomining Protection will automatically block known crypto mining domains that server crypto mining scripts. Crypto mining scripts utilize a computer's central processing unit (CPU) to invisibly mine cryptocurrency.
+
+Rationale:
+
+This feature allows Firefox to stop potential malicious content from loading.
+
+Impact:
+
+Legitimate scrips or content may not load properly."
+      solution    : "To establish the recommended configuration, set privacy.trackingprotection.cryptomining.enabled to true:
+
+Type about:config in the address bar
+
+Type privacy.trackingprotection.cryptomining.enabled in the filter
+
+Ensure the setting is set as prescribed.
+
+OR
+
+Open the mozilla.cfg file in the installation directory with a text editor
+
+Add the following lines to mozilla.cfg:
+
+lockPref('privacy.trackingprotection.cryptomining.enabled', true);
+
+Default Value:
+
+True (Enabled)."
+      reference   : "800-53|SI-8,800-53r5|SI-8,CSCv8|9.2,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SI-8,LEVEL|1M,QCSC-v1|3.2,QCSC-v1|8.2.1"
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+      value_type  : POLICY_TEXT
+      value_data  : "@MOZILLA_CONFIG@"
+      regex       : '^[\\s]*lockPref\\("privacy.trackingprotection.cryptomining.enabled",[\\s]*'
+      expect      : '^[\\s]*lockPref\\("privacy.trackingprotection.cryptomining.enabled",[\\s]*true\\);[\\s]*$'
+      file_option : CAN_NOT_BE_NULL
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Mozilla_Firefox_102_ESR_v1.0.0_Windows_Level1.audit for CIS Mozilla Firefox 102 ESR v1.0.0"
+      info        : "Firefox is not installed or remote registry service is disabled.
+      NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/4299"
+    </report>
+  </else>
+</if>
+
+</group_policy>
+</check_type>

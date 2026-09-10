@@ -1,0 +1,1759 @@
+#TRUSTED 2243da885367a3e73978de4a202057cb49009cbdd2091ec2b57137bf041899f4a23121ed92496c32605ae4a8b0773cc9378e45bd1b73b704a0440d635bb55bf51ea375a5fb75e2868adcfa4cb494abc003555f106d6747732d628663f0663576fadde26dd82ab204c52315042c665f0b9f7a5c996801a47e71f1047e5225eb5f85d44cb790143600c8a3541ece39462e68d0a3523142aaa78417fb1eec72576e14ad16aee92ee2bbfa35bdc67ef99b8e6a1adae8527310420515c73603575b80ced4bdbdc69249d5d1d3be9326ec760a3bcfc58e420dd32b8347b6924719732b0ddf428acbe7a8fcbec9e828b47be07950fd62f3d381a989bf586ebd5eb77e6bc16be95e00c635e3779798539f7dc693c1e6b2948b86334247845b8653b93f6d67b56683fff6b6284b7a0b7a745b5825a9d2624b0354e3e6315dc4a4c18b29aad5d4552f7ad8fcfadad39744470f1e3fca24b0e27beb1f36532a2dccfedbc357c8a36232e2602cbe0ed7dc02ba328e63217579a77a1e4040c8d9b1fc25565089a2206f7908779d74f856fde5e74dca30fdc10d5d9b72efa35fd781928200a31d1a786f1044d5fb1eb72f49b9098cceea31ef0ac0905b688ae166f2c9a9ccd6589975662fca2fa336b0979bb555976a29c1b12d66bfe1385d76e2ba113b1efad2dfd441dbc2c4b076acd37d6f6e7f1f4c11aaa4065a4f10aff0fb3ea24b971af6
+#TRUST-RSA-SHA256 698a5a0bdf5be71b87bb75f627bced4fd7b6dee37527cf1e9a890cba88655dd85c559f8d3136adb132061e31d4bc895edc39306d8549ae2c01ecdcb04576926c702d58c30fa8ebdc6d332955c01694ce173cb83d356702a272f7db3a511af17582e2c52f7e1c7e58a01bb8d50e88657d78b1b66e70be230c49eb495f1e2699006228c933f976e0508c98871c65277be3b9b2372c655379f423b8269482b6a860ba626987a884c706d49ceb4bdf3f8ce88d5a9a2f312466d6ff99882b0664b9638f3ab687f36b556e56d785d9f510696acdbc904c8d82fc03af663f132213a28d0d537df2b712c534dcd8069982a0476d820c3b9195f3020b43d39c53712b0938d67d5f7b8c8395c6d1247921f5b98cab8679c3a47b9a0f43e54f6a70a87b9cca7c040342caecdb19074a1a0dc7914e60645fc11cfe83c44c42d252e8345eeab5daf684797c0b9d844b45fb3d08d7af738bc647c85106c69978ae8fdfc17f30a9cb0cac623a48b9058ae899a588ab5fc8ace09c3fc453e179cbeede7afae6e97d084cb77edfb4897fbdc492652a9d7f3c7718dfd27a4014d6e71a08a078b431fb9c9666952bfccf718e2f9c15b08247c46a1d6e11f1cd393a163f745cec6da9e17d7ec29c717f2319878d597f5d829db2168d911b2c0915f544ab2e578d9930e952a8fd1166f3b2ba50b837fca843ab58706c12b578aa4b8733810ab99e5ac2f8
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.0 $
+# $Date: 2024/08/19 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               DISA Arista MLS DCS-7000 Series NDM v1r4 STIG.
+#
+#<ui_metadata>
+#<display_name>DISA STIG Arista MLS DCS-7000 Series NDM v1r4</display_name>
+#<spec>
+#  <type>DISA STIG</type>
+#  <name>Arista MLS DCS-7000 Series NDM</name>
+#  <version>1.4.0</version>
+#  <link>https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip</link>
+#</spec>
+#<labels>arista,disa,eos,ndm</labels>
+#<benchmark_refs>CAT,CCE,CCI,DISA_Benchmark,Group-ID,Rule-ID,STIG-ID,STIG-Legacy,Vuln-ID</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>NTP_SERVER_1</name>
+#    <default>192.168.1.10</default>
+#    <description>NTP Server 1</description>
+#    <info>The primary NTP server.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>NTP_SERVER_2</name>
+#    <default>192.168.2.10</default>
+#    <description>NTP Server 2</description>
+#    <info>The secondary NTP server.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>BANNER_LOGIN</name>
+#    <default>You are accessing a U.S. Government \\(USG\\) Information System \\(IS\\) that is provided for USG-authorized use only\.</default>
+#    <description>Banner login</description>
+#    <info>The standard DoD-approved use notification and access banner.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Arista">
+
+<custom_item>
+  description : "AMLS-NM-000100 - The Arista Multilayer Switch must have a local infrequently used account to be used as an account of last resort with full access to the network device."
+  info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks. Password complexity is one factor of several that determines how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that needs to be tested before the password is compromised.
+
+Typically, the account of last resort is a built-in account with full privileges to the network device. This account should only be used when the authentication mechanism is unreachable and configuration or maintenance actions must be taken."
+  solution    : "Configure the Arista Multilayer Switch with a local infrequently used account to be used as an account of last resort with full access to the network device."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-217354r961863_rule,STIG-ID|AMLS-NM-000100,STIG-Legacy|SV-75271,STIG-Legacy|V-60815,SWIFT-CSCv1|2.3,Vuln-ID|V-217354"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "username admin"
+  expect      : "^[\s]*username admin .* role .+ secret (0|5|sha512) .+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000110 - The Arista Multilayer Switch account of last resort must have a password with a length of 15 characters."
+  info        : "Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks. Password complexity is one factor of several that determines how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that needs to be tested before the password is compromised.
+
+Typically, the account of last resort is a built-in account with full privileges to the network device. This account should only be used when the authentication mechanism is unreachable and configuration or maintenance actions must be taken."
+  solution    : "Configure the Arista Multilayer Switch account of last resort with a password with a length of at least 15 characters.
+
+To configure the password minimum length, enter the following commands:
+
+configure
+management security
+password minimum length 15"
+  reference   : "800-171|3.5.7,800-53|IA-5(1)(a),800-53r5|IA-5(1)(a),CAT|II,CCI|CCI-000205,CN-L3|7.1.2.7(e),CN-L3|7.1.3.1(b),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ISO/IEC-27001|A.9.4.3,ITSG-33|IA-5(1)(a),NESA|T5.2.3,NIAv2|AM19a,NIAv2|AM19b,NIAv2|AM19c,NIAv2|AM19d,NIAv2|AM22a,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-217355r984092_rule,STIG-ID|AMLS-NM-000110,STIG-Legacy|SV-75289,STIG-Legacy|V-60833,SWIFT-CSCv1|4.1,TBA-FIISB|26.2.1,TBA-FIISB|26.2.4,Vuln-ID|V-217355"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management security"
+  regex       : "password minimum length"
+  expect      : "^[\s]*password minimum length (1[5-9]|2[0-9]|3[1-2])"
+</custom_item>
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      description : "Check for logging host"
+      regex       : "logging host"
+      expect      : "^[\s]*logging host .+"
+    </custom_item>
+
+    <custom_item>
+      description : "Check for logging trap"
+      cmd         : "show logging"
+      regex       : "^[\s]*Trap logging:"
+      expect      : "informational"
+    </custom_item>
+
+    <custom_item>
+      description : "Check for aaa accounting logging"
+      regex       : "aaa accounting commands all default start-stop logging"
+      expect      : "^[\s]*aaa accounting commands all default start-stop logging .+"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "AMLS-NM-000120 - The Arista Multilayer Switch must automatically audit account creation."
+      info        : "Upon gaining access to a network device, an attacker will often first attempt to create a persistent method of reestablishing access. One way to accomplish this is to create a new account. Notification of account creation helps to mitigate this risk. Auditing account creation provides the necessary reconciliation that account management procedures are being followed. Without this audit trail, personnel without the proper authorization may gain access to critical network nodes."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-000018,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217356r960777_rule,STIG-ID|AMLS-NM-000120,STIG-Legacy|SV-75291,STIG-Legacy|V-60835,TBA-FIISB|36.2.3,Vuln-ID|V-217356"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"PASSED">
+      description : "AMLS-NM-000130 - The Arista Multilayer Switch must automatically audit account modification."
+      info        : "Since the accounts in the network device are privileged or system-level accounts, account management is vital to the security of the network device. Account management by a designated authority ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel with the appropriate and necessary privileges. Auditing account modification along with an automatic notification to appropriate individuals will provide the necessary reconciliation that account management procedures are being followed. If modifications to management accounts are not audited, reconciliation of account management procedures cannot be tracked."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001403,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217357r960780_rule,STIG-ID|AMLS-NM-000130,STIG-Legacy|SV-75293,STIG-Legacy|V-60837,TBA-FIISB|36.2.3,Vuln-ID|V-217357"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"PASSED">
+      description : "AMLS-NM-000140 - The Arista Multilayer Switch must automatically audit account disabling actions."
+      info        : "Account management, as a whole, ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel. Auditing account disabling actions will support account management procedures. When device management accounts are disabled, user or service accessibility may be affected. Auditing also ensures authorized active accounts remain enabled and available for use when required."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001404,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217358r960783_rule,STIG-ID|AMLS-NM-000140,STIG-Legacy|SV-75295,STIG-Legacy|V-60839,TBA-FIISB|36.2.3,Vuln-ID|V-217358"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"PASSED">
+      description : "AMLS-NM-000150 - The Arista Multilayer Switch must automatically audit account removal actions."
+      info        : "Account management, as a whole, ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel. Auditing account removal actions will support account management procedures. When device management accounts are terminated, user or service accessibility may be affected. Auditing also ensures authorized active accounts remain enabled and available for use when required."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001405,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217359r960786_rule,STIG-ID|AMLS-NM-000150,STIG-Legacy|SV-75297,STIG-Legacy|V-60841,TBA-FIISB|36.2.3,Vuln-ID|V-217359"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"PASSED">
+      description : "AMLS-NM-000170 - The Arista Multilayer Switch must protect against an individual (or process acting on behalf of an individual) falsely denying having performed organization-defined actions to be covered by non-repudiation."
+      info        : "This requirement supports non-repudiation of actions taken by an administrator and is required in order to maintain the integrity of the configuration management process. All configuration changes to the network device are logged, and administrators authenticate with two-factor authentication before gaining administrative access. Together, these processes will ensure the administrators can be held accountable for the configuration changes they implement.
+
+To meet this requirement, the network device must log administrator access and activity."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-53|AU-10,800-53r5|AU-10,CAT|III,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217361r960864_rule,STIG-ID|AMLS-NM-000170,STIG-Legacy|SV-75301,STIG-Legacy|V-60845,Vuln-ID|V-217361"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"PASSED">
+      description : "AMLS-NM-000180 - The Arista Multilayer Switch must generate audit records when successful/unsuccessful attempts to access privileges occur."
+      info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|III,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217362r960885_rule,STIG-ID|AMLS-NM-000180,STIG-Legacy|SV-75303,STIG-Legacy|V-60847,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217362"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"PASSED">
+      description : "AMLS-NM-000190 - The Arista Multilayer Switch must produce audit log records containing sufficient information to establish what type of event occurred."
+      info        : "It is essential for security personnel to know what is being done, what was attempted, where it was done, when it was done, and by whom it was done in order to compile an accurate risk assessment. Associating event types with detected events in the application and audit logs provides a means of investigating an attack; recognizing resource utilization or capacity thresholds; or identifying an improperly configured network device. Without this capability, it would be difficult to establish, correlate, and investigate the events leading up to an outage or attack."
+      solution    : "Enable logging on the switch with sufficient detail to establish what type of event occurred.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3a.,CAT|III,CCI|CCI-000130,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217363r960891_rule,STIG-ID|AMLS-NM-000190,STIG-Legacy|SV-75305,STIG-Legacy|V-60849,SWIFT-CSCv1|6.4,Vuln-ID|V-217363"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"PASSED">
+      description : "AMLS-NM-000200 - The Arista Multilayer Switch must generate audit records containing the full-text recording of privileged commands."
+      info        : "Reconstruction of harmful events or forensic analysis is not possible if audit records do not contain enough information.
+
+Organizations consider limiting the additional audit information to only that information explicitly needed for specific audit requirements. The additional information required is dependent on the type of information (i.e., sensitivity of the data and the environment within which it resides). At a minimum, the organization must audit full-text recordings of privileged commands. The organization must maintain audit trails in sufficient detail to reconstruct events to determine the cause and impact of compromise."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3(1),800-53r5|AU-3(1),CAT|III,CCI|CCI-000135,CN-L3|7.1.3.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3(1),NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217364r960909_rule,STIG-ID|AMLS-NM-000200,STIG-Legacy|SV-75307,STIG-Legacy|V-60851,SWIFT-CSCv1|6.4,Vuln-ID|V-217364"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+  </then>
+
+  <else>
+    <report type:"FAILED">
+      description : "AMLS-NM-000120 - The Arista Multilayer Switch must automatically audit account creation."
+      info        : "Upon gaining access to a network device, an attacker will often first attempt to create a persistent method of reestablishing access. One way to accomplish this is to create a new account. Notification of account creation helps to mitigate this risk. Auditing account creation provides the necessary reconciliation that account management procedures are being followed. Without this audit trail, personnel without the proper authorization may gain access to critical network nodes."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-000018,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217356r960777_rule,STIG-ID|AMLS-NM-000120,STIG-Legacy|SV-75291,STIG-Legacy|V-60835,TBA-FIISB|36.2.3,Vuln-ID|V-217356"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"FAILED">
+      description : "AMLS-NM-000130 - The Arista Multilayer Switch must automatically audit account modification."
+      info        : "Since the accounts in the network device are privileged or system-level accounts, account management is vital to the security of the network device. Account management by a designated authority ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel with the appropriate and necessary privileges. Auditing account modification along with an automatic notification to appropriate individuals will provide the necessary reconciliation that account management procedures are being followed. If modifications to management accounts are not audited, reconciliation of account management procedures cannot be tracked."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001403,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217357r960780_rule,STIG-ID|AMLS-NM-000130,STIG-Legacy|SV-75293,STIG-Legacy|V-60837,TBA-FIISB|36.2.3,Vuln-ID|V-217357"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"FAILED">
+      description : "AMLS-NM-000140 - The Arista Multilayer Switch must automatically audit account disabling actions."
+      info        : "Account management, as a whole, ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel. Auditing account disabling actions will support account management procedures. When device management accounts are disabled, user or service accessibility may be affected. Auditing also ensures authorized active accounts remain enabled and available for use when required."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001404,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217358r960783_rule,STIG-ID|AMLS-NM-000140,STIG-Legacy|SV-75295,STIG-Legacy|V-60839,TBA-FIISB|36.2.3,Vuln-ID|V-217358"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"FAILED">
+      description : "AMLS-NM-000150 - The Arista Multilayer Switch must automatically audit account removal actions."
+      info        : "Account management, as a whole, ensures access to the network device is being controlled in a secure manner by granting access to only authorized personnel. Auditing account removal actions will support account management procedures. When device management accounts are terminated, user or service accessibility may be affected. Auditing also ensures authorized active accounts remain enabled and available for use when required."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.1.1,800-53|AC-2(4),800-53r5|AC-2(4),CAT|II,CCI|CCI-001405,CN-L3|7.1.3.2(d),CSF|DE.CM-3,CSF|PR.AC-1,CSF|PR.AC-4,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|PR.AA-01,CSF2.0|PR.AA-05,CSF2.0|PR.DS-10,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(4),NESA|T5.2.2,NIAv2|AM9a,NIAv2|AM9b,NIAv2|AM9c,NIAv2|AM9d,NIAv2|AM9e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,Rule-ID|SV-217359r960786_rule,STIG-ID|AMLS-NM-000150,STIG-Legacy|SV-75297,STIG-Legacy|V-60841,TBA-FIISB|36.2.3,Vuln-ID|V-217359"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"FAILED">
+      description : "AMLS-NM-000170 - The Arista Multilayer Switch must protect against an individual (or process acting on behalf of an individual) falsely denying having performed organization-defined actions to be covered by non-repudiation."
+      info        : "This requirement supports non-repudiation of actions taken by an administrator and is required in order to maintain the integrity of the configuration management process. All configuration changes to the network device are logged, and administrators authenticate with two-factor authentication before gaining administrative access. Together, these processes will ensure the administrators can be held accountable for the configuration changes they implement.
+
+To meet this requirement, the network device must log administrator access and activity."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-53|AU-10,800-53r5|AU-10,CAT|III,CCI|CCI-000166,CSF|PR.PT-1,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-10,NESA|T4.3.1,NESA|T7.3.3,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217361r960864_rule,STIG-ID|AMLS-NM-000170,STIG-Legacy|SV-75301,STIG-Legacy|V-60845,Vuln-ID|V-217361"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"FAILED">
+      description : "AMLS-NM-000180 - The Arista Multilayer Switch must generate audit records when successful/unsuccessful attempts to access privileges occur."
+      info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|III,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217362r960885_rule,STIG-ID|AMLS-NM-000180,STIG-Legacy|SV-75303,STIG-Legacy|V-60847,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217362"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"FAILED">
+      description : "AMLS-NM-000190 - The Arista Multilayer Switch must produce audit log records containing sufficient information to establish what type of event occurred."
+      info        : "It is essential for security personnel to know what is being done, what was attempted, where it was done, when it was done, and by whom it was done in order to compile an accurate risk assessment. Associating event types with detected events in the application and audit logs provides a means of investigating an attack; recognizing resource utilization or capacity thresholds; or identifying an improperly configured network device. Without this capability, it would be difficult to establish, correlate, and investigate the events leading up to an outage or attack."
+      solution    : "Enable logging on the switch with sufficient detail to establish what type of event occurred.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3,800-53r5|AU-3a.,CAT|III,CCI|CCI-000130,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.3.3(a),CN-L3|8.1.4.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217363r960891_rule,STIG-ID|AMLS-NM-000190,STIG-Legacy|SV-75305,STIG-Legacy|V-60849,SWIFT-CSCv1|6.4,Vuln-ID|V-217363"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+
+    <report type:"FAILED">
+      description : "AMLS-NM-000200 - The Arista Multilayer Switch must generate audit records containing the full-text recording of privileged commands."
+      info        : "Reconstruction of harmful events or forensic analysis is not possible if audit records do not contain enough information.
+
+Organizations consider limiting the additional audit information to only that information explicitly needed for specific audit requirements. The additional information required is dependent on the type of information (i.e., sensitivity of the data and the environment within which it resides). At a minimum, the organization must audit full-text recordings of privileged commands. The organization must maintain audit trails in sufficient detail to reconstruct events to determine the cause and impact of compromise."
+      solution    : "Enable logging on the switch with sufficient detail to fulfill the specifications set forth in the VulDiscussion.
+
+To configure logging to a remote syslog server at the informational level, enter:
+
+switch#config
+switch(config)#logging host [ip address]
+switch(config)#logging trap informational
+
+Then configure the following AAA:
+
+aaa accounting commands all default start-stop logging [group radius]"
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-3(1),800-53r5|AU-3(1),CAT|III,CCI|CCI-000135,CN-L3|7.1.3.3(b),CSF|PR.PT-1,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3(1),NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217364r960909_rule,STIG-ID|AMLS-NM-000200,STIG-Legacy|SV-75307,STIG-Legacy|V-60851,SWIFT-CSCv1|6.4,Vuln-ID|V-217364"
+      see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+    </report>
+  </else>
+</if>
+
+<custom_item>
+  description : "AMLS-NM-000160 - The Arista Multilayer Switch must display the Standard Mandatory DoD Notice and Consent Banner before granting access to the device."
+  info        : "Display of the DoD-approved use notification before granting access to the network device ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via logon interfaces with human users."
+  solution    : "Configure the switch to display the Standard DoD Notice and Consent banner.
+
+To configure the banner, enter the following commands from the configuration mode interface. Replace the bracketed data with the DoD Banner.
+
+switch(config)#banner login
+[DoD Banner]
+EOF"
+  reference   : "800-171|3.1.9,800-53|AC-8a.,800-53r5|AC-8a.,CAT|II,CCI|CCI-000048,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|AC-8a.,NESA|M5.2.5,NESA|T5.5.1,NIAv2|AM10a,NIAv2|AM10b,NIAv2|AM10c,NIAv2|AM10d,NIAv2|AM10e,Rule-ID|SV-217360r960843_rule,STIG-ID|AMLS-NM-000160,STIG-Legacy|SV-75299,STIG-Legacy|V-60843,TBA-FIISB|45.2.4,Vuln-ID|V-217360"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "banner login"
+  expect      : "^[\s]*banner login @BANNER_LOGIN@ EOF"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000210 - The Arista Multilayer Switch must be configured to prohibit the use of all unnecessary and/or nonsecure functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments."
+  info        : "In order to prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable unused or unnecessary physical and logical ports/protocols on information systems.
+
+Network devices are capable of providing a wide variety of functions and services. Some of the functions and services provided by default may not be necessary to support essential organizational operations. Additionally, it is sometimes convenient to provide multiple services from a single component (e.g., email and web services); however, doing so increases risk over limiting the services provided by any one component.
+
+To support the requirements and principles of least functionality, the network device must support the organizational requirements providing only essential capabilities and limiting the use of ports, protocols, and/or services to only those required, authorized, and approved to conduct official business or to address authorized quality of life issues.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the network device to prohibit the use of all unnecessary and/or nonsecure functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments.
+
+To configure an access control list, use the following commands:
+
+configure
+ip access-list [name]
+10 deny [protocol] [src port] [src mask] [dst port] [dst mask] [options]
+exit
+
+To apply an access control list to an interface, use the following commands from the interface configuration mode:
+
+ip access-group [name] [direction]"
+  reference   : "800-171|3.4.6,800-171|3.4.7,800-53|CM-7b.,800-53r5|CM-7b.,CAT|II,CCI|CCI-000382,CN-L3|7.1.3.5(c),CN-L3|7.1.3.7(d),CN-L3|8.1.4.4(b),CSF|PR.IP-1,CSF|PR.PT-3,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-7a.,NIAv2|SS13b,NIAv2|SS14a,NIAv2|SS14c,PCI-DSSv3.2.1|2.2.2,PCI-DSSv4.0|2.2.4,QCSC-v1|3.2,Rule-ID|SV-217365r960966_rule,STIG-ID|AMLS-NM-000210,STIG-Legacy|SV-75309,STIG-Legacy|V-60853,SWIFT-CSCv1|2.3,Vuln-ID|V-217365"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show ip access-lists"
+  regex       : ""
+  expect      : "ip access-lists command information"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000220 - The Arista Multilayer Switch must use multifactor authentication for local access to privileged accounts."
+  info        : "Multifactor authentication is defined as: using two or more factors to achieve authentication.
+
+Factors include:
+(i) Something a user knows (e.g., password/PIN);
+(ii) Something a user has (e.g., cryptographic identification device, token); or
+(iii) Something a user is (e.g., biometric).
+
+To assure accountability and prevent unauthenticated access, privileged users must utilize multifactor authentication to prevent potential misuse and compromise of the system.
+
+Local access is defined as access to an organizational information system by a user (or process acting on behalf of a user) communicating through a direct connection without the use of a network.
+
+Applications integrating with the DoD Active Directory and utilizing the DoD CAC are examples of compliant multifactor authentication solutions."
+  solution    : "Configure the network device or its associated authentication server to use multifactor authentication for local access to privileged accounts.
+
+To configure the local device to authenticate via its authentication server, enter the following command from the configuration mode interface. Replace the bracketed value with the configured server group name or the name of the server type to validate against all configured servers of that type.
+
+switch(config)#aaa authentication login console group [radius] local"
+  reference   : "800-171|3.5.3,800-53|IA-2(3),800-53r5|IA-2(1),CAT|II,CCI|CCI-000767,CN-L3|7.1.3.1(a),CN-L3|7.1.3.1(e),CN-L3|8.1.4.1(a),CN-L3|8.1.4.2(a),CN-L3|8.5.4.1(a),CSF|PR.AC-1,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),ITSG-33|IA-2(3),NESA|T2.3.8,NESA|T5.3.1,NESA|T5.4.2,NESA|T5.5.1,NESA|T5.5.2,NESA|T5.5.3,NIAv2|AM2,NIAv2|AM8,NIAv2|AM14b,QCSC-v1|5.2.2,QCSC-v1|13.2,Rule-ID|SV-265635r997392_rule,STIG-ID|AMLS-NM-000220,SWIFT-CSCv1|1.2,TBA-FIISB|35.1,TBA-FIISB|36.1,Vuln-ID|V-265635"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authentication login"
+  expect      : "^[\s]*aaa authentication login console group .+ local"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000240 - The Arista Multilayer Switch must terminate all network connections associated with a device management session at the end of the session, or the session must be terminated after 10 minutes of inactivity except to fulfill documented and validated mission requirements."
+  info        : "Terminating an idle session within a short time period reduces the window of opportunity for unauthorized personnel to take control of a management session enabled on the console or console port that has been left unattended. In addition, quickly terminating an idle session will also free up resources committed by the managed network element.
+
+Terminating network connections associated with communications sessions includes, for example, de-allocating associated TCP/IP address/port pairs at the operating system level, or de-allocating networking assignments at the application level if multiple application sessions are using a single, operating system-level network connection. This does not mean that the device terminates all sessions or network access; it only ends the inactive session and releases the resources associated with that session."
+  solution    : "Configure the network device to terminate the connection associated with a device management session at the end of the session or after 10 minutes of inactivity.
+
+Arista switches have a configurable timeout function that automatically closes connections to the switch upon reaching an organization-defined period of time.
+
+Configuration Example:
+
+switch(config)#management ssh
+switch(config-mgmt-ssh)#idle-timeout 10
+
+Configure the switch to terminate an idle ssh connection after 10 minutes of inactivity."
+  reference   : "800-171|3.13.9,800-53|SC-10,800-53r5|SC-10,CAT|II,CCI|CCI-001133,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-10,ITSG-33|SC-10a.,NESA|T2.3.8,NESA|T4.5.1,NESA|T5.5.1,Rule-ID|SV-217366r961068_rule,STIG-ID|AMLS-NM-000240,STIG-Legacy|SV-75315,STIG-Legacy|V-60857,SWIFT-CSCv1|2.6,Vuln-ID|V-217366"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management ssh"
+  regex       : "idle-timeout"
+  expect      : "^[\s]*idle-timeout ([1-9]|10)"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000280 - The Arista Multilayer Switch must be configured to synchronize internal information system clocks with the primary and secondary time sources located in different geographic regions using redundant authoritative time sources - NTP Server 1"
+  info        : "The loss of connectivity to a particular authoritative time source will result in the loss of time synchronization (free-run mode) and increasingly inaccurate time stamps on audit events and other functions.
+
+Multiple time sources provide redundancy by including a secondary source. Time synchronization is usually a hierarchy; clients synchronize time to a local source while that source synchronizes its time to a more accurate source. The network device must utilize an authoritative time server and/or be configured to use redundant authoritative time sources. This requirement is related to the comparison done in CCI-001891.
+
+DoD-approved solutions consist of a combination of a primary and secondary time source using a combination or multiple instances of the following: a time server designated for the appropriate DoD network (NIPRNet/SIPRNet); United States Naval Observatory (USNO) time servers; and/or the Global Positioning System (GPS). The secondary time source must be located in a different geographic region than the primary time source."
+  solution    : "Configure the network device to synchronize internal information system clocks with the primary and secondary time sources located in different geographic regions using redundant authoritative time sources.
+
+Configuration Example:
+
+switch(config)#ntp server HOST
+switch(config)#ntp server HOST prefer"
+  reference   : "800-171|3.3.7,800-171|3.4.2,800-53|AU-8(2),800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CCI|CCI-001893,CN-L3|8.1.4.3(b),CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.PT-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),ITSG-33|CM-6b.,NESA|T3.2.1,NESA|T3.6.7,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217367r987682_rule,STIG-ID|AMLS-NM-000280,STIG-Legacy|SV-75323,STIG-Legacy|V-60865,SWIFT-CSCv1|2.3,TBA-FIISB|37.4,Vuln-ID|V-217367"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "ntp server @NTP_SERVER_1@"
+  expect      : "^[\s]*ntp server @NTP_SERVER_1@ (prefer)?"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000280 - The Arista Multilayer Switch must be configured to synchronize internal information system clocks with the primary and secondary time sources located in different geographic regions using redundant authoritative time sources - NTP Server 2"
+  info        : "The loss of connectivity to a particular authoritative time source will result in the loss of time synchronization (free-run mode) and increasingly inaccurate time stamps on audit events and other functions.
+
+Multiple time sources provide redundancy by including a secondary source. Time synchronization is usually a hierarchy; clients synchronize time to a local source while that source synchronizes its time to a more accurate source. The network device must utilize an authoritative time server and/or be configured to use redundant authoritative time sources. This requirement is related to the comparison done in CCI-001891.
+
+DoD-approved solutions consist of a combination of a primary and secondary time source using a combination or multiple instances of the following: a time server designated for the appropriate DoD network (NIPRNet/SIPRNet); United States Naval Observatory (USNO) time servers; and/or the Global Positioning System (GPS). The secondary time source must be located in a different geographic region than the primary time source."
+  solution    : "Configure the network device to synchronize internal information system clocks with the primary and secondary time sources located in different geographic regions using redundant authoritative time sources.
+
+Configuration Example:
+
+switch(config)#ntp server HOST
+switch(config)#ntp server HOST prefer"
+  reference   : "800-171|3.3.7,800-171|3.4.2,800-53|AU-8(2),800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CCI|CCI-001893,CN-L3|8.1.4.3(b),CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.PT-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.4,ITSG-33|AU-8(1),ITSG-33|CM-6b.,NESA|T3.2.1,NESA|T3.6.7,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217367r987682_rule,STIG-ID|AMLS-NM-000280,STIG-Legacy|SV-75323,STIG-Legacy|V-60865,SWIFT-CSCv1|2.3,TBA-FIISB|37.4,Vuln-ID|V-217367"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "ntp server @NTP_SERVER_2@"
+  expect      : "^[\s]*ntp server @NTP_SERVER_2@ (prefer)?"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000290 - The Arista Multilayer Switch must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT)."
+  info        : "If time stamps are not consistently applied and there is no common time reference, it is difficult to perform forensic analysis.
+
+Time stamps generated by the application include date and time. Time is commonly expressed in Coordinated Universal Time (UTC), a modern continuation of Greenwich Mean Time (GMT), or local time with an offset from UTC."
+  solution    : "Configure the network device to record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT).
+
+This can be configured with the following command:
+
+clock timezone GMT"
+  reference   : "800-171|3.3.7,800-53|AU-8b.,800-53r5|AU-8b.,CAT|II,CCI|CCI-001890,CN-L3|8.1.4.3(b),CSF|PR.PT-1,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-8,NESA|T3.6.7,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217368r961443_rule,STIG-ID|AMLS-NM-000290,STIG-Legacy|SV-75325,STIG-Legacy|V-60867,TBA-FIISB|37.4,Vuln-ID|V-217368"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "clock timezone GMT"
+  expect      : "^[\s]*clock timezone GMT"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000340 - Arista Multilayer Switches used for nonlocal maintenance sessions must implement cryptographic mechanisms to protect the integrity of nonlocal maintenance and diagnostic communications - telnet"
+  info        : "This requires the use of secure protocols instead of their unsecured counterparts, such as SSH instead of telnet, SCP instead of FTP, and HTTPS instead of HTTP."
+  solution    : "Configure the network device to use secure protocols instead of their unsecured counterparts.
+
+Configuration Example:
+
+Disable unsecure protocols.
+configure
+management telnet
+shutdown
+exit
+management api http-commands
+no protocol http
+protocol https
+exit
+
+Other protocols (FTP) can be denied using AAA and RBAC. For connections that require use of these maintenance protocols, creation of SSH tunnels can fulfill this security requirement. This is summarized here and available at length in the Common Criteria guidance document.
+
+Configuration Example:
+
+management ssh
+tunnel NEW
+local port 514
+ssh-server syslogServer user authuser port 22
+remote host localhost port 514
+no shutdown"
+  reference   : "800-171|3.7.5,800-53|MA-4(6),800-53r5|MA-4(6),CAT|II,CCI|CCI-002890,CSF|PR.MA-2,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217369r961554_rule,STIG-ID|AMLS-NM-000340,STIG-Legacy|SV-75327,STIG-Legacy|V-60869,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217369"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management telnet"
+  expect      : "shutdown"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000340 - Arista Multilayer Switches used for nonlocal maintenance sessions must implement cryptographic mechanisms to protect the integrity of nonlocal maintenance and diagnostic communications - api http"
+  info        : "This requires the use of secure protocols instead of their unsecured counterparts, such as SSH instead of telnet, SCP instead of FTP, and HTTPS instead of HTTP."
+  solution    : "Configure the network device to use secure protocols instead of their unsecured counterparts.
+
+Configuration Example:
+
+Disable unsecure protocols.
+configure
+management telnet
+shutdown
+exit
+management api http-commands
+no protocol http
+protocol https
+exit
+
+Other protocols (FTP) can be denied using AAA and RBAC. For connections that require use of these maintenance protocols, creation of SSH tunnels can fulfill this security requirement. This is summarized here and available at length in the Common Criteria guidance document.
+
+Configuration Example:
+
+management ssh
+tunnel NEW
+local port 514
+ssh-server syslogServer user authuser port 22
+remote host localhost port 514
+no shutdown"
+  reference   : "800-171|3.7.5,800-53|MA-4(6),800-53r5|MA-4(6),CAT|II,CCI|CCI-002890,CSF|PR.MA-2,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217369r961554_rule,STIG-ID|AMLS-NM-000340,STIG-Legacy|SV-75327,STIG-Legacy|V-60869,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217369"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management api http-commands"
+  not_expect  : "protocol http"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000340 - Arista Multilayer Switches used for nonlocal maintenance sessions must implement cryptographic mechanisms to protect the integrity of nonlocal maintenance and diagnostic communications - api https"
+  info        : "This requires the use of secure protocols instead of their unsecured counterparts, such as SSH instead of telnet, SCP instead of FTP, and HTTPS instead of HTTP."
+  solution    : "Configure the network device to use secure protocols instead of their unsecured counterparts.
+
+Configuration Example:
+
+Disable unsecure protocols.
+configure
+management telnet
+shutdown
+exit
+management api http-commands
+no protocol http
+protocol https
+exit
+
+Other protocols (FTP) can be denied using AAA and RBAC. For connections that require use of these maintenance protocols, creation of SSH tunnels can fulfill this security requirement. This is summarized here and available at length in the Common Criteria guidance document.
+
+Configuration Example:
+
+management ssh
+tunnel NEW
+local port 514
+ssh-server syslogServer user authuser port 22
+remote host localhost port 514
+no shutdown"
+  reference   : "800-171|3.7.5,800-53|MA-4(6),800-53r5|MA-4(6),CAT|II,CCI|CCI-002890,CSF|PR.MA-2,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217369r961554_rule,STIG-ID|AMLS-NM-000340,STIG-Legacy|SV-75327,STIG-Legacy|V-60869,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217369"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management api http-commands"
+  expect      : "protocol https"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000350 - Arista Multilayer Switches used for nonlocal maintenance sessions must implement cryptographic mechanisms to protect the confidentiality of nonlocal maintenance and diagnostic communications - telnet"
+  info        : "This requires the use of secure protocols instead of their unsecured counterparts, such as SSH instead of telnet, SCP instead of FTP, and HTTPS instead of HTTP."
+  solution    : "Configure the network device to use secure protocols instead of their unsecured counterparts.
+
+Configuration Example:
+
+Disable unsecure protocols.
+configure
+management telnet
+shutdown
+exit
+management api http-commands
+no protocol http
+protocol https
+exit
+
+Other protocols (FTP) can be denied using AAA and RBAC. For connections that require use of these maintenance protocols, creation of SSH tunnels can fulfill this security requirement. This is summarized here and available at length in the Common Criteria guidance document.
+
+Configuration Example:
+
+management ssh
+tunnel NEW
+local port 514
+ssh-server syslogServer user authuser port 22
+remote host localhost port 514
+no shutdown"
+  reference   : "800-171|3.7.5,800-53|MA-4(6),800-53r5|MA-4(6),CAT|II,CCI|CCI-003123,CSF|PR.MA-2,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217370r961557_rule,STIG-ID|AMLS-NM-000350,STIG-Legacy|SV-75329,STIG-Legacy|V-60871,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217370"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management telnet"
+  expect      : "shutdown"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000350 - Arista Multilayer Switches used for nonlocal maintenance sessions must implement cryptographic mechanisms to protect the confidentiality of nonlocal maintenance and diagnostic communications - api http"
+  info        : "This requires the use of secure protocols instead of their unsecured counterparts, such as SSH instead of telnet, SCP instead of FTP, and HTTPS instead of HTTP."
+  solution    : "Configure the network device to use secure protocols instead of their unsecured counterparts.
+
+Configuration Example:
+
+Disable unsecure protocols.
+configure
+management telnet
+shutdown
+exit
+management api http-commands
+no protocol http
+protocol https
+exit
+
+Other protocols (FTP) can be denied using AAA and RBAC. For connections that require use of these maintenance protocols, creation of SSH tunnels can fulfill this security requirement. This is summarized here and available at length in the Common Criteria guidance document.
+
+Configuration Example:
+
+management ssh
+tunnel NEW
+local port 514
+ssh-server syslogServer user authuser port 22
+remote host localhost port 514
+no shutdown"
+  reference   : "800-171|3.7.5,800-53|MA-4(6),800-53r5|MA-4(6),CAT|II,CCI|CCI-003123,CSF|PR.MA-2,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217370r961557_rule,STIG-ID|AMLS-NM-000350,STIG-Legacy|SV-75329,STIG-Legacy|V-60871,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217370"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management api http-commands"
+  not_expect  : "protocol http"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000350 - Arista Multilayer Switches used for nonlocal maintenance sessions must implement cryptographic mechanisms to protect the confidentiality of nonlocal maintenance and diagnostic communications - api https"
+  info        : "This requires the use of secure protocols instead of their unsecured counterparts, such as SSH instead of telnet, SCP instead of FTP, and HTTPS instead of HTTP."
+  solution    : "Configure the network device to use secure protocols instead of their unsecured counterparts.
+
+Configuration Example:
+
+Disable unsecure protocols.
+configure
+management telnet
+shutdown
+exit
+management api http-commands
+no protocol http
+protocol https
+exit
+
+Other protocols (FTP) can be denied using AAA and RBAC. For connections that require use of these maintenance protocols, creation of SSH tunnels can fulfill this security requirement. This is summarized here and available at length in the Common Criteria guidance document.
+
+Configuration Example:
+
+management ssh
+tunnel NEW
+local port 514
+ssh-server syslogServer user authuser port 22
+remote host localhost port 514
+no shutdown"
+  reference   : "800-171|3.7.5,800-53|MA-4(6),800-53r5|MA-4(6),CAT|II,CCI|CCI-003123,CSF|PR.MA-2,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|MA-4(6),NESA|T2.3.4,NESA|T5.4.4,QCSC-v1|5.2.2,Rule-ID|SV-217370r961557_rule,STIG-ID|AMLS-NM-000350,STIG-Legacy|SV-75329,STIG-Legacy|V-60871,SWIFT-CSCv1|2.6,TBA-FIISB|45.2.3,Vuln-ID|V-217370"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management api http-commands"
+  expect      : "protocol https"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000360 - The Arista Multilayer Switch must generate audit records for privileged activities or other system-level access - aaa commands"
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+  solution    : "Configure the network device to generate audit records for privileged activities or other system-level access.
+
+aaa accounting commands all default start-stop
+aaa accounting exec default start-stop
+aaa accounting system default start-stop"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217371r961827_rule,STIG-ID|AMLS-NM-000360,STIG-Legacy|SV-75331,STIG-Legacy|V-60873,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217371"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa accounting commands all default start-stop"
+  expect      : "^[\s]*aaa accounting commands all default start-stop.+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000360 - The Arista Multilayer Switch must generate audit records for privileged activities or other system-level access - aaa exec"
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+  solution    : "Configure the network device to generate audit records for privileged activities or other system-level access.
+
+aaa accounting commands all default start-stop
+aaa accounting exec default start-stop
+aaa accounting system default start-stop"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217371r961827_rule,STIG-ID|AMLS-NM-000360,STIG-Legacy|SV-75331,STIG-Legacy|V-60873,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217371"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa accounting exec default start-stop"
+  expect      : "^[\s]*aaa accounting exec default start-stop.+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000360 - The Arista Multilayer Switch must generate audit records for privileged activities or other system-level access - aaa system"
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+  solution    : "Configure the network device to generate audit records for privileged activities or other system-level access.
+
+aaa accounting commands all default start-stop
+aaa accounting exec default start-stop
+aaa accounting system default start-stop"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217371r961827_rule,STIG-ID|AMLS-NM-000360,STIG-Legacy|SV-75331,STIG-Legacy|V-60873,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217371"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa accounting system default start-stop"
+  expect      : "^[\s]*aaa accounting system default start-stop.+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000370 - The Arista Multilayer Switch must generate audit records showing starting and ending time for administrator access to the system - trap logging"
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+  solution    : "Configure the network device to generate audit records showing starting and ending time for administrator access to the system.
+
+Enable logging level 6 to ensure this event is captured.
+
+Switch(config)#logging trap 6
+switch(config)#logging level all 6"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217372r961830_rule,STIG-ID|AMLS-NM-000370,STIG-Legacy|SV-75333,STIG-Legacy|V-60875,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217372"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show logging"
+  regex       : "Trap logging:"
+  expect      : "informational"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000370 - The Arista Multilayer Switch must generate audit records showing starting and ending time for administrator access to the system - all logging"
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the network device to generate audit records showing starting and ending time for administrator access to the system.
+
+Enable logging level 6 to ensure this event is captured.
+
+Switch(config)#logging trap 6
+switch(config)#logging level all 6"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217372r961830_rule,STIG-ID|AMLS-NM-000370,STIG-Legacy|SV-75333,STIG-Legacy|V-60875,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217372"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show logging"
+  regex       : ""
+  expect      : "show logging command information"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000380 - The Arista Multilayer Switch must generate audit records when concurrent logons from different workstations occur - trap logging"
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter)."
+  solution    : "Configure the network device to generate audit records when concurrent logons from different workstations occur.
+
+Enable logging level 6 to ensure this event is captured.
+
+Switch(config)#logging trap 6
+switch(config)#logging level all 6"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217373r961833_rule,STIG-ID|AMLS-NM-000380,STIG-Legacy|SV-75335,STIG-Legacy|V-60877,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217373"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show logging"
+  regex       : "Trap logging:"
+  expect      : "informational"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000380 - The Arista Multilayer Switch must generate audit records when concurrent logons from different workstations occur - show logging"
+  info        : "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the network device to generate audit records when concurrent logons from different workstations occur.
+
+Enable logging level 6 to ensure this event is captured.
+
+Switch(config)#logging trap 6
+switch(config)#logging level all 6"
+  reference   : "800-171|3.3.1,800-171|3.3.2,800-53|AU-12c.,800-53r5|AU-12c.,CAT|II,CCI|CCI-000172,CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|7.1.3.3(c),CN-L3|8.1.3.5(a),CN-L3|8.1.3.5(b),CN-L3|8.1.4.3(a),CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF2.0|DE.CM-01,CSF2.0|DE.CM-03,CSF2.0|DE.CM-09,CSF2.0|PR.PS-04,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ISO/IEC-27001|A.12.4.1,ITSG-33|AU-12c.,NESA|T3.6.2,NESA|T3.6.5,NESA|T3.6.6,NIAv2|SM8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217373r961833_rule,STIG-ID|AMLS-NM-000380,STIG-Legacy|SV-75335,STIG-Legacy|V-60877,SWIFT-CSCv1|6.4,TBA-FIISB|45.1.1,Vuln-ID|V-217373"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show logging"
+  regex       : ""
+  expect      : "show logging command information"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000400 - The Arista Multilayer Switch must, at a minimum, off-load audit records for interconnected systems in real time - trap logging"
+  info        : "Information stored in one location is vulnerable to accidental or incidental deletion or alteration.
+
+Off-loading is a common process in information systems with limited audit storage capacity."
+  solution    : "Configure the network device to off-load interconnected systems in real time and off-load standalone systems weekly.
+
+Arista EOS logs can be exported to, including by a regular syslog server.
+
+Configuration Example:
+
+switch(config)#logging host[ a.b.c.d]
+switch(config)#logging trap informational"
+  reference   : "800-53|AU-4(1),800-53r5|AU-4(1),CAT|II,CCI|CCI-001851,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217374r961860_rule,STIG-ID|AMLS-NM-000400,STIG-Legacy|SV-75339,STIG-Legacy|V-60881,Vuln-ID|V-217374"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show logging"
+  regex       : "Trap logging:"
+  expect      : "informational"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000400 - The Arista Multilayer Switch must, at a minimum, off-load audit records for interconnected systems in real time - logging host"
+  info        : "Information stored in one location is vulnerable to accidental or incidental deletion or alteration.
+
+Off-loading is a common process in information systems with limited audit storage capacity."
+  solution    : "Configure the network device to off-load interconnected systems in real time and off-load standalone systems weekly.
+
+Arista EOS logs can be exported to, including by a regular syslog server.
+
+Configuration Example:
+
+switch(config)#logging host[ a.b.c.d]
+switch(config)#logging trap informational"
+  reference   : "800-53|AU-4(1),800-53r5|AU-4(1),CAT|II,CCI|CCI-001851,CSF|PR.DS-4,CSF|PR.PT-1,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-4,NESA|T3.3.1,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|13.2,Rule-ID|SV-217374r961860_rule,STIG-ID|AMLS-NM-000400,STIG-Legacy|SV-75339,STIG-Legacy|V-60881,Vuln-ID|V-217374"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "logging host"
+  expect      : "^[\s]*logging host .+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000420 - The Arista Multilayer Switch must protect the audit records of nonlocal accesses to privileged accounts and the execution of privileged functions - trap logging"
+  info        : "Auditing may not be reliable when performed by the network device to which the user being audited has privileged access. The privileged user may inhibit auditing or modify audit records. This control enhancement helps mitigate this risk by requiring that privileged access be further defined between audit-related privileges and other privileges, thus limiting the users with audit-related privileges. Reducing the risk of audit compromises by privileged users can also be achieved by performing audit activity on a separate information system or by using storage media that cannot be modified (e.g., write-once recording devices)."
+  solution    : "Configure the system to protect the audit records of nonlocal accesses to privileged accounts and the execution of privileged functions.
+
+Enable remote logging with:
+
+config
+logging host a.b.c.d
+logging trap informational
+
+To assign a user to a role, use the command:
+
+username [name] role [role name]
+
+To deny access to logging functions via RBAC:
+
+role [name]
+deny command logging [all]"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-217375r961863_rule,STIG-ID|AMLS-NM-000420,STIG-Legacy|SV-75341,STIG-Legacy|V-60883,SWIFT-CSCv1|2.3,Vuln-ID|V-217375"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show logging"
+  regex       : "Trap logging:"
+  expect      : "informational"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000420 - The Arista Multilayer Switch must protect the audit records of nonlocal accesses to privileged accounts and the execution of privileged functions - logging host"
+  info        : "Auditing may not be reliable when performed by the network device to which the user being audited has privileged access. The privileged user may inhibit auditing or modify audit records. This control enhancement helps mitigate this risk by requiring that privileged access be further defined between audit-related privileges and other privileges, thus limiting the users with audit-related privileges. Reducing the risk of audit compromises by privileged users can also be achieved by performing audit activity on a separate information system or by using storage media that cannot be modified (e.g., write-once recording devices)."
+  solution    : "Configure the system to protect the audit records of nonlocal accesses to privileged accounts and the execution of privileged functions.
+
+Enable remote logging with:
+
+config
+logging host a.b.c.d
+logging trap informational
+
+To assign a user to a role, use the command:
+
+username [name] role [role name]
+
+To deny access to logging functions via RBAC:
+
+role [name]
+deny command logging [all]"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-217375r961863_rule,STIG-ID|AMLS-NM-000420,STIG-Legacy|SV-75341,STIG-Legacy|V-60883,SWIFT-CSCv1|2.3,Vuln-ID|V-217375"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "logging host"
+  expect      : "^[\s]*logging host .+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000420 - The Arista Multilayer Switch must protect the audit records of nonlocal accesses to privileged accounts and the execution of privileged functions - show user-account"
+  info        : "Auditing may not be reliable when performed by the network device to which the user being audited has privileged access. The privileged user may inhibit auditing or modify audit records. This control enhancement helps mitigate this risk by requiring that privileged access be further defined between audit-related privileges and other privileges, thus limiting the users with audit-related privileges. Reducing the risk of audit compromises by privileged users can also be achieved by performing audit activity on a separate information system or by using storage media that cannot be modified (e.g., write-once recording devices).
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure the system to protect the audit records of nonlocal accesses to privileged accounts and the execution of privileged functions.
+
+Enable remote logging with:
+
+config
+logging host a.b.c.d
+logging trap informational
+
+To assign a user to a role, use the command:
+
+username [name] role [role name]
+
+To deny access to logging functions via RBAC:
+
+role [name]
+deny command logging [all]"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|II,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-217375r961863_rule,STIG-ID|AMLS-NM-000420,STIG-Legacy|SV-75341,STIG-Legacy|V-60883,SWIFT-CSCv1|2.3,Vuln-ID|V-217375"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show user-account"
+  regex       : ""
+  expect      : "show user-account command information"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa group server"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa group server"
+  expect      : "^[\s]*aaa group server (radius|tacacs\+) .+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - radius/tacacs-server host"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "(radius|tacacs)-server"
+  expect      : "^[\s]*(radius|tacacs)-server host .+ (vrf .+)? key 7 .+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa login default group"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authentication login default group"
+  expect      : "^[\s]*aaa authentication login default group .+ (local)?"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa login console group"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authentication login console group"
+  expect      : "^[\s]*aaa authentication login console (group|.+) .+ (local)?"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa dot1x default group"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authentication dot1x"
+  expect      : "^[\s]*aaa authentication dot1x default group .+"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa policy on-success"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authentication policy on-success log"
+  expect      : "^[\s]*aaa authentication policy on-success log"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa policy on-failure"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authentication policy on-failure log"
+  expect      : "^[\s]*aaa authentication policy on-failure log"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa console"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authorization console"
+  expect      : "^[\s]*aaa authorization console"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa exec default"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authorization exec default"
+  expect      : "^[\s]*aaa authorization exec default[\s]*(radius|tacacs)?[\s]*local"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa commands all default"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa authorization commands all default local"
+  expect      : "^[\s]*aaa authorization commands all default local"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa exec default start-stop"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa accounting exec default start-stop logging"
+  expect      : "^[\s]*aaa accounting exec default start-stop logging"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa system default start-stop"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa accounting system default start-stop logging"
+  expect      : "^[\s]*aaa accounting system default start-stop logging"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - aaa commands all start-stop"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "aaa accounting commands all default start-stop logging"
+  expect      : "^[\s]*aaa accounting commands all default start-stop logging"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - no aaa root"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  regex       : "no aaa root"
+  expect      : "^[\s]*no aaa root"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - show aaa sessions"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show aaa sessions"
+  regex       : ".*"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-000430 - The Arista Multilayer Switch must employ AAA service to centrally manage authentication settings - show roles"
+  info        : "The use of authentication servers or other centralized management servers for providing centralized authentication services is required for network device management. Maintaining local administrator accounts for daily usage on each network device without centralized management is not scalable or feasible. Without centralized management, it is likely that credentials for some network devices will be forgotten, leading to delays in administration, which itself leads to delays in remediating production problems and in addressing compromises in a timely fashion.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  solution    : "Configure AAA services via a remote AAA server for all nonlocal accounts.
+
+Configuration:
+aaa group server [radius/tacacs] [name]
+[radius/tacacs]-server host [IP Address] vrf [name] key [key]
+aaa authentication login default group [group name] [radius/tacacs] [local]
+aaa authentication login console [group] [group name/radius/tacacs+] [local]
+aaa authentication dot1x default group [group] [radius]
+aaa authentication policy on-success log
+aaa authentication policy on-failure log
+aaa authorization console
+aaa authorization exec default [radius/tacacs] local
+aaa authorization commands all default local
+aaa accounting exec default start-stop logging
+aaa accounting system default start-stop logging
+aaa accounting commands all default start-stop logging
+no aaa root
+
+Example RBAC roles:
+
+role administrator
+ 10 permit command .*
+
+ role operator
+ 10 permit command show running-config [all|detail] sanitized
+ 20 deny command >|>>|extension|\||session|do|delete|copy|rmdir|mkdir|python-shell|bash|platform|scp|append|redirect|tee|more|less|who|show run.*
+ 25 deny command bash
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*
+ 30 deny mode config command (no |default ) (username|role|aaa|tcpdump|schedule|event.*)
+ 40 permit command .*"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53|CM-6(1),800-53r5|CM-6b.,800-53r5|CM-6(1),CAT|I,CCI|CCI-000366,CCI|CCI-000370,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,ITSG-33|CM-6(1),NESA|T3.2.1,NIAv2|NS5f,Rule-ID|SV-217376r961863_rule,STIG-ID|AMLS-NM-000430,STIG-Legacy|SV-75343,STIG-Legacy|V-60885,SWIFT-CSCv1|2.3,Vuln-ID|V-217376"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show role"
+  regex       : ".*"
+  expect      : "Manual Review Required"
+  severity    : MEDIUM
+</custom_item>
+
+<report type:"WARNING">
+  description : "AMLS-NM-000440 - The Arista Multilayer Switch must support organizational requirements to conduct backups of system-level information contained in the information system when changes occur or weekly, whichever is sooner."
+  info        : "System-level information includes default and customized settings and security attributes, including ACLs that relate to the network device configuration, as well as software required for the execution and operation of the device. Information system backup is a critical step in ensuring system integrity and availability. If the system fails and there is no backup of the system-level information, a denial of service condition is possible for all who utilize this critical network component.
+
+This control requires the network device to support the organizational central backup process for system-level information associated with the network device. This function may be provided by the network device itself; however, the preferred best practice is a centralized backup rather than each network device performing discrete backups.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Configure the network device to conduct backups of system-level information contained in the information system when changes occur or weekly, whichever is sooner.
+
+For weekly backups, the following chronologically scheduled command will back up the switch information one per day at noon:
+
+switch(config)#schedule [name] at [hh:mm:ss] interval 1440 max-log-files 100 command bash FastCli -p 15 -c $'enable\nshow tech-support > scp:[remote destination/filename]\n'
+
+The following event-handler will schedule backups any time the configuration is changed and written to memory:
+
+event-handler Copy-Config
+trigger on-startup-config
+action bash sudo ip netns exec ns-DATA scp /mnt/flash/startup-config [user@IPaddress/filepath/filename]
+delay 5"
+  reference   : "800-171|3.4.2,800-171|3.8.9,800-53|CM-6b.,800-53|CP-9b.,800-53r5|CM-6b.,800-53r5|CP-9b.,CAT|III,CCI|CCI-000366,CCI|CCI-000537,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF|PR.IP-4,CSF2.0|DE.CM-09,CSF2.0|PR.DS-01,CSF2.0|PR.DS-10,CSF2.0|PR.DS-11,CSF2.0|PR.PS-01,CSF2.0|RC.RP-03,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.3.1,ITSG-33|CM-6b.,ITSG-33|CP-9b.,NESA|T3.2.1,NESA|T3.5.1,Rule-ID|SV-217377r961863_rule,STIG-ID|AMLS-NM-000440,STIG-Legacy|SV-75345,STIG-Legacy|V-60887,SWIFT-CSCv1|2.3,Vuln-ID|V-217377"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+</report>
+
+<report type:"WARNING">
+  description : "AMLS-NM-000450 - The Arista MLS NDM must be using a version supported by the vendor."
+  info        : "Systems running an unsupported software/firmware version lack current security fixes required to mitigate the risks associated with recent vulnerabilities.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+  solution    : "Upgrade to a version supported by the vendor."
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|I,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-264428r992081_rule,STIG-ID|AMLS-NM-000450,SWIFT-CSCv1|2.3,Vuln-ID|V-264428"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+</report>
+
+<custom_item>
+  description : "AMLS-NM-000500 - The Arista Multilayer Switch must be updated to one of the minimum approved versions of EOS."
+  info        : "The Arista Multilayer Switch uses the EOS operating system. Updates to EOS contain new security-related features and security patches that address known vulnerabilities. Running a current DoD-approved software version improves the security posture of the network device."
+  solution    : "Configure the Arista Multilayer Switch to use an approved software version. Download the approved version from www.arista.com/support, copy the .swi file to flash via an approved file transfer mechanism, and then enter:
+
+Enable
+Configure
+Boot system flash:<your_image.swi>
+Write memory
+reload"
+  reference   : "800-171|3.4.2,800-53|CM-6b.,800-53r5|CM-6b.,CAT|III,CCI|CCI-000366,CN-L3|8.1.10.6(d),CSF|PR.IP-1,CSF2.0|DE.CM-09,CSF2.0|PR.PS-01,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6b.,NESA|T3.2.1,Rule-ID|SV-217378r961863_rule,STIG-ID|AMLS-NM-000500,STIG-Legacy|SV-81685,STIG-Legacy|V-67195,SWIFT-CSCv1|2.3,Vuln-ID|V-217378"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  cmd         : "show version"
+  regex       : "Software image version:"
+  expect      : "((4.14.1[1-9]|4.15.[3-9]|4.16.[0-9])(F|M))"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-200825 - The Arista Multilayer Switch must use FIPS-compliant mechanisms for authentication to a cryptographic module - SSH FIPS"
+  info        : "Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied upon to provide confidentiality or integrity, and DoD data may be compromised.
+
+Network devices utilizing encryption are required to use FIPS-compliant mechanisms for authenticating to cryptographic modules.
+
+FIPS 140-2 is the current standard for validating that mechanisms used to access cryptographic modules utilize authentication that meets DoD requirements."
+  solution    : "Enable FIPS restrictions via the following commands:
+Enable
+Configure
+Management ssh
+Fips restrictions
+Exit
+
+Additionally, the switch should be configured to use its Hardware Random Number Generator as a source of entropy for the SSH protocol. To enable this, configure:
+
+Enable
+Configure
+Management security
+Entropy source hardware
+
+Once this has been changed, regenerate the SSH RSA Keys with:
+
+Reset ssh hostkey rsa"
+  reference   : "800-53|IA-7,800-53r5|IA-7,CAT|II,CCI|CCI-000803,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),ITSG-33|IA-7,ITSG-33|IA-7a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T7.4.1,QCSC-v1|13.2,Rule-ID|SV-217379r961050_rule,STIG-ID|AMLS-NM-200825,STIG-Legacy|SV-81687,STIG-Legacy|V-67197,Vuln-ID|V-217379"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management ssh"
+  regex       : "fips restrictions"
+  expect      : "^[\s]*fips restrictions"
+</custom_item>
+
+<custom_item>
+  description : "AMLS-NM-200825 - The Arista Multilayer Switch must use FIPS-compliant mechanisms for authentication to a cryptographic module - entropy source"
+  info        : "Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied upon to provide confidentiality or integrity, and DoD data may be compromised.
+
+Network devices utilizing encryption are required to use FIPS-compliant mechanisms for authenticating to cryptographic modules.
+
+FIPS 140-2 is the current standard for validating that mechanisms used to access cryptographic modules utilize authentication that meets DoD requirements."
+  solution    : "Enable FIPS restrictions via the following commands:
+Enable
+Configure
+Management ssh
+Fips restrictions
+Exit
+
+Additionally, the switch should be configured to use its Hardware Random Number Generator as a source of entropy for the SSH protocol. To enable this, configure:
+
+Enable
+Configure
+Management security
+Entropy source hardware
+
+Once this has been changed, regenerate the SSH RSA Keys with:
+
+Reset ssh hostkey rsa"
+  reference   : "800-53|IA-7,800-53r5|IA-7,CAT|II,CCI|CCI-000803,CSF2.0|PR.AA-01,CSF2.0|PR.AA-03,DISA_Benchmark|Arista_DCS-7000_Series_NDM_STIG,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(d),ITSG-33|IA-7,ITSG-33|IA-7a.,NESA|M5.2.1,NESA|M5.2.6,NESA|M5.3.1,NESA|T7.4.1,QCSC-v1|13.2,Rule-ID|SV-217379r961050_rule,STIG-ID|AMLS-NM-200825,STIG-Legacy|SV-81687,STIG-Legacy|V-67197,Vuln-ID|V-217379"
+  see_also    : "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Arista_MLS_DCS-7000_Series_Y24M07_STIG.zip"
+  context     : "management security"
+  regex       : "entropy source hardware"
+  expect      : "^[\s]*entropy source hardware"
+</custom_item>
+
+</check_type>

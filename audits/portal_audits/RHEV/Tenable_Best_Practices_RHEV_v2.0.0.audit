@@ -1,0 +1,294 @@
+#TRUSTED 084a04fbd7e19f60b4a2ed0bc3c8b0f6bef573fe7cd4b102e5699176ea0f92971dd5ca35717b5709a57899f38b2a62de466ff36a4621ef6a018fc74b62658ed0de779db7b5b967a273985dc13201a04d715f5607ce785ae9662fe29fc62892f932158f23edcd6e85eb94237fa3c94b0ff559610e128430afbd6f67210de541796be676271b93067bd8b808bc2937e995195140be657d69c7299ec45c731563b9368303cd89e88afd2e0380ad44acf8c1f0c430c49257f58fa996a12f062dae80d5f9c6edbb1607746c9bb2f01a9cf8c37631d5b14e7da07fd7c650513e36316d52b0175cbd3ca9cf7cd77aaa1a1e4e0008f083e3856beec48ca8fd1ae739b82075929bf5af494f7f4c3c7b9867916fc731f627240bbf7e393e4471eb830f358e5ca3271995a0499d55c55e90429fd4f81e40bc651d09012072c88954ecc2ca022f267e11389f868d063b7aa4c26318238df28a9d7f88617e287eba7cf054d26298c7f0b16e7c860a3dca4af0bc142188b6f70aed0f1e3e1c269b61f405012691d764299858b0bff15be99654f47a6e7f8ff1388a6bf6a903cbe80606c1e0a2a598459480afd600ed6b4bca6b7f925c181b01ed8041f8d3557e5e97a3364aed478eab451d5b63bdfbe7f17565aaaa1ac4584638d3610cf1dfeb616ad11c38c76dbb8ccb46112568af92414a92b5ffba5b62caf8afd37400dd81e5356c779d4c4f
+#TRUST-RSA-SHA256 2d53adca410c0e7d386304df67e7b0bb0c54b80a3ef1e073b1f4a565ed23d67c1f06da942687c9afc6f11c5093aa31c5ed0ca372463d8aad11c9e893b1944a5b0119b26f7880827264e605bfc845fe8cae6735701f04856634aff7e82a40ec9383251ffbb3a308d8eb8f9ab669922302cbb191baed479c36444bcc5945f37ae088174137a240ac54b2803809c2f45e194b6219db71f2093e85a19c4e9a2c07205b879aa5cc2e080e18b96c63c1d05a9633d4baa9ce62dbc669cc05a1d98adc9f3976befe6ba109bd3e0dbe85accaa278660edd60f55665969e47e7b46d0869edabe6eba0e4026ee83bdd431c2d44cfab4d20ccda28cec188e457ebca11dc4d01adce9d8a8da543518062ef5b4b020b013b1027a0406020b06670bd25bca3314645e3fb26b12ed4ac394843c947ff557cc727be4fe2392327dfa4006e3e91ffa17fa5ed0b497dbe76907e33043bc448599ecfa7499029b10ddca8f414482f4fbbdfacb6ad178db9526d558f2160bc270951b1f74c6bb1688cdb1b03976efc659339c01c0a3557273763d9f9d11abe0d4bebe9ca9f5975a573549c5555c17a9fbeca32a2eaa2633897c38a82394d94f28be61dc9e9bbf3b126d8a9a1776e4a2553fc00ba0351f69ed4e95fb15704c8bbb8bcd740e0cf116e9fb9792edb370573157fabef54c138c6cddf8714fe2e1cab58f7f25945566f1b921080374349b54b54
+#
+# This script is Copyright (C) 2004-2023 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+#
+# $Revision: 1.3 $
+# $Date: 2023/12/22 $
+#
+# Description	: This .audit implements best practice recommendations for Red Hat
+#               Enterprise Virtualization Server
+#
+#<ui_metadata>
+#<display_name>Tenable RedHat Enterprise Virtualization</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>RedHat Enterprise Virtualization</name>
+#  <version>2.0.0</version>
+#  <link>https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index</link>
+#</spec>
+#<labels>rhev,tenable,update_20230227</labels>
+#</ui_metadata>
+
+<check_type:"RHEV">
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Product Info"
+  info           : "Review product information to verify the version in operation is still supported by the vendor.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getAPI"
+  json_transform : "\"Name : \(.product_info.name)\", \"Version: \(.product_info.version.full_version)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Clusters"
+  info           : "Review the list of clusters to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getClusters"
+  json_transform : ".[] | .[] | \"Name : \(.name), Version: \(.version.major).\(.version.minor), Description: \(.description)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Clusters Memory Balooning"
+  info           : "From https://www.ovirt.org/documentation/administration_guide/index.html:
+
+Memory Ballooning
+Virtual machines start with the full amount of virtual memory you have assigned to them. As virtual memory usage exceeds RAM, the host relies more on swap space. If enabled, memory ballooning lets virtual machines give up the unused portion of that memory. The freed memory can be reused by other processes and virtual machines on the host. The reduced memory footprint makes swapping less likely and improves performance."
+  solution       : "To enable memory ballooning, click the Optimization tab in the New Cluster or Edit Cluster windows. Then select the Enable Memory Balloon Optimization checkbox. This setting enables memory overcommitment on virtual machines running on the hosts in this cluster. When this check box is selected, the MoM starts ballooning where and when possible, with a limitation of the guaranteed memory size of every virtual machine."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getClusters"
+  json_transform : ".[] | .[] | \"Name : \(.name), Ballooning Enabled: \(.ballooning_enabled)\""
+  expect         : "Ballooning Enabled: true"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Datacenters"
+  info           : "Review the list of datacenters to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getDatacenters"
+  json_transform : ".[] | .[] | \"Name: \(.name), Description: \(.description), Status: \(.status)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Hosts"
+  info           : "Review the list of hosts to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getHosts"
+  json_transform : ".[] | .[] | \"Name: \(.name), Address: \(.address), Status: \(.status), Port: \(.port)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Hosts - Update required"
+  info           : "Review the list of hosts to monitor for updates."
+  solution       : "To update hosts, click Compute > Hosts > Review list of hosts needing an update"
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getHosts"
+  json_transform : ".[] | .[] | \"Name: \(.name), Update Available: \(.update_available)\""
+  expect         : "Update Available: false"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Roles"
+  info           : "Review the list of roles to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getRoles"
+  json_transform : ".[] | .[] | \"Name: \(.name), Description: \(.description), Mutable: \(.mutable), Administrative: \(.administrative)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Administrative Roles"
+  info           : "Review the list of administrative roles to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getRoles"
+  json_transform : ".[] | .[] | select(.administrative==\"true\") | \"Name: \(.name), Description: \(.description), Mutable: \(.mutable), Administrative: \(.administrative)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Storage Domains"
+  info           : "Review the list of storage domains to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getStorageDomains"
+  json_transform : ".[] | .[] | \"Name: \(.name), Description: \(.description), Status: \(.status), Master: \(.master), Address: \(.address)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Storage Domains - Backup storage"
+  info           : "Specify a storage domain for backup purposes.
+
+  From https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/administration_guide/sect-backing_up_and_restoring_virtual_machines_using_a_backup_domain:
+
+  A backup storage domain is one that you can use specifically for storing and migrating virtual machines and virtual machine templates for the purpose of backing up and restoring for disaster recovery, migration, or any other backup/restore usage model. A backup domain differs from a non-backup domain in that all virtual machines on a backup domain are in a powered-down state. A virtual machine cannot run on a backup domain."
+  solution       : "To specify a backup storage domain, click Storage > Domains > Manage Domain > Advanced Parameters > Check 'Backup' box"
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getStorageDomains"
+  json_transform : ".[] | .[] | \"Name: \(.name), Backup: \(.backup)\""
+  expect         : "Backup: true"
+  match_all      : NO
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Users"
+  info           : "Review the list of users to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getUsers"
+  json_transform : ".[] | .[] | \"User Name: \(.user_name), Name: \(.name), Principal: \(.admin)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Review Events with severity >= Error"
+  info           : "Review the list of events to monitor for errors."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getEvents"
+  json_transform : ".[] | .[] | select(.severity==\"error\") | \"Time: \(.time), Description: \(.description)\""
+  not_expect     : "Time:"
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Groups"
+  info           : "Review the list of groups to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getGroups"
+  json_transform : ".[] | .[] | \"Name: \(.name), Namespace: \(.namespace)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Domains"
+  info           : "Review the list of domains to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getDomains"
+  json_transform : ".[] | .[] | \"Name: \(.name)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: All VMs"
+  info           : "Review the list of virtual machines to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getVMs"
+  json_transform : ".[] | .[] | \"Name: \(.name), Description: \(.description), Status: \(.status)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Running VMs"
+  info           : "Review the list of active running machines to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getVMs"
+  json_transform : ".[] | .[] | select(.status==\"up\") | \"Name: \(.name), Description: \(.description), Status: \(.status)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Stopped VMs"
+  info           : "Review the list of stopped virtual machines to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getVMs"
+  json_transform : ".[] | .[] | select(.status==\"down\") | \"Name: \(.name), Description: \(.description), Status: \(.status)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: VMs copy/paste feature"
+  info           : "Disable the copy/paste feature"
+  solution       : "To disable the copy paste feature, click Compute > Virtual Machines > Choose VM > Edit > Show Advanced Options > Console > Uncheck 'Enable SPICE clipboard copy and paste'"
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getVMs"
+  json_transform : ".[] | .[] | \"Name: \(.name), Copy Paste Enabled: \(.display.copy_paste_enabled)\""
+  expect         : "Copy Paste Enabled: false"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: VMs file transfer feature"
+  info           : "Disable the file transfer feature"
+  solution       : "To disable the copy paste feature, click Compute > Virtual Machines > Choose VM > Edit > Show Advanced Options > Console > Uncheck 'Enable SPICE clipboard copy and paste'"
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getVMs"
+  json_transform : ".[] | .[] | \"Name: \(.name), File Transfer Enabled: \(.display.file_transfer_enabled)\""
+  expect         : "File Transfer Enabled: false"
+  match_all      : YES
+</custom_item>
+
+<custom_item>
+  type           : REST_API
+  description    : "RHEV: Disks"
+  info           : "Review the list of disks to monitor for changes.
+
+  NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+  see_also       : "https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/index"
+  request        : "getDisks"
+  json_transform : ".[] | .[] | \"Name: \(.name), Description: \(.description), Status: \(.status)\""
+  expect         : "Manual Review Required"
+  severity       : MEDIUM
+</custom_item>
+
+</check_type>

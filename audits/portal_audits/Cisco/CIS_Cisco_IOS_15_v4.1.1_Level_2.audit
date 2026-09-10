@@ -1,0 +1,2219 @@
+#TRUSTED 06041dd8d040baa8b3280e59f717828e551a92b1735c1b66498d8aedf75bc47c7878c963532b501972563814a7f26238d70f6505c43c72e6cd9b1fc20ce098cb2de1b9806aee4db342ddd77874276bb16f62166ec6e470eb16e224643979298e21e96a35298f83a9e9080b7eac4601f61f9fdfc0a7a2ea406bb0f4a6916e5759ed13c4371ba3b11cc7db161a7c95ab6abe7c689e6b17f969af6a99d79a85f53035f7a0d675a0baff2a77f6c31da468103da2e463c846fad00090073a8077a3bcabe612682a232e6225bc7eef64cd88feb388d0412d6db731bb5efb5b6ee4496d4a8bc25e6eb94d0950ae26d8e1f5eec85a6e1296e5db75c8b52c08ea654539c1631493572c35f6cb589635520558462e36fd9538f829f19c576249d933a45e0526b956841380ef1d31762a6e151c8d2eaa9d2fb306bc92d07333498b82c7e0e395fee5df420854f18ef342829c9ab168235d1632e5c22f9fa5147db122ca34dc7be53e6f910a5acffeebd8126495e5c8b498a97b9004e1f65e52963f90362a3730481f60a0e0ea5a09a14f59f28e31627712e9bad18f4b4d572809a5b2a13632e172e2b9a9211ddd76f6c356c42c5f0645fc90f02e5fd0036f6b487ff83aa065169941ef8818740e1c624bcc7093edc513411d30439d2466cc5d3990417d5a52469dc8d9c282d2319ca3350b83e17e0380b00cf8461f87b1781c0fb3dc40628c
+#TRUST-RSA-SHA256 87f8ba33be6d2359b712e4245c7f4f5215fb253d12a97a6f44f26f76edd4c1f12c41c7eb3b06a0e5ca25810f5b61584ec59b556fa5f98476f253fd4e2c54b66bb1339cecf6bc8c7183e8a1c0fa1e1c0e03cfbfea53ceea925e1babead96b0543d42277ce720db9d1b8a387c1787a15046c6b49ba3a5d452bdc6053d7e040b78c5175037008812b219786253700e4ea89b9823b3d605d006f404d6ced95a18c52f1dcdc55a08c877846da87f47aedadcdb84951f48b2e6b119967c565826bb298fb4b815f2313e7b93d7c5e81556c44a129dae68641cb10dbcbb8814766d6cd481f5a27a59b2c9152dc5ff1fa3cf01794115385ef3af037ec3feab5c98e96ad24be8a286bda6052b83572817c3848f49f4ca0b37726323b21f5aa704d7d2a734cac682783827c55f03338cd19d6d62fb81bd1ae94d58b1944ad97a0e0959ab357599b850c35c964c393bde70ccbb00cdde34342de593a0f24b9d6636f4c9c6118273500c3000b942e76f16f939b803657190724f5eecb9cbd1e78701d03041f31574edeed8b3d706a5f4cac3eb55f9a499c6c07b5a75a72f3f84fd40096e94d73be56dee4aa7a20fc9f5a840a937b42a565a9f4451256dac00aa77468dc2defd4e35da5bfc2f20580d51acd888a9d36a568001d28199b8a3f5de3f898ec906a087099f24839e55e2b749d2f19b256ed511c01c94840fbc97af46020b08345a19e
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+#
+# $Revision: 1.6 $
+# $Date: 2024/06/17 $
+#
+# description : This document implements the security configuration as recommended by the
+#               CIS Benchmark for Cisco IOS 15 Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS Cisco IOS 15 L2 v4.1.1</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Cisco IOS 15</name>
+#  <profile>L2</profile>
+#  <version>4.1.1</version>
+#  <link>https://workbench.cisecurity.org/files/3829</link>
+#</spec>
+#<labels>cisco,cis,ios,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>NTP_KEY_ID</name>
+#    <default>10</default>
+#    <description>Authentication key ID for NTP servs</description>
+#    <info>This key should be used to authenticate communications with the routers NTP servers</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>NTP_SERVER</name>
+#    <default>192.168.0.1</default>
+#    <description>NTP server IP address</description>
+#    <info>Your organization's preferred NTP server</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>AG_INGRESS_ACL</name>
+#    <default>3</default>
+#    <description>AG ingress ACL ID</description>
+#    <info>The number of the access control list on the perimeter router's external interface used to block internal source addresses.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>INTERNAL_NETWORK</name>
+#    <default>192\.168\.1\.0 0\.0\.0\.255</default>
+#    <description>Internal IP address and netmask</description>
+#    <info>Your organization's internal IP address range, defined by an IP address and network mask. This network is used in the TCP intercept ACL and in the AG ingress ACL to block spoofed addresses.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>EXTERNAL_INTERFACE</name>
+#    <default>FastEthernet0/1</default>
+#    <description>External interface name</description>
+#    <info>The external interface for your organization.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>KEY_CHAIN_NAME</name>
+#    <default>eigrp-keys</default>
+#    <description>Keychain name</description>
+#    <info>The keychain name for your organization's routing protocol.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>INTERNAL_NETWORK_INGRESS_ACL</name>
+#    <default>1</default>
+#    <description>Internal Network ingress ACL ID</description>
+#    <info>The number of the access control list used to allow internal source addresses to enter the external interface.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>AS_NUMBER</name>
+#    <default>100</default>
+#    <description>AS Number</description>
+#    <info>The Autonomous System number used by the router</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>OSPF_KEY_ID</name>
+#    <default>1</default>
+#    <description>OSPF Key ID</description>
+#    <info>Your organization's OSPF key ID</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>RIP_KEY_CHAIN</name>
+#    <default>rip-keys</default>
+#    <description>RIPv2 keychain name</description>
+#    <info>The keychain for your organization's RIPv2 authentication. Leave blank if this keychain type is not used.</info>
+#    <optional />
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>RIP_KEY_NUMBER</name>
+#    <default>key_number</default>
+#    <description>RIPv2 key number</description>
+#    <info>The key number for your organization's RIPv2 authentication. Leave blank if this keychain type is not used.</info>
+#    <optional />
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Cisco">
+
+<if>
+  <condition type:"AND">
+    <item>
+      type        : CONFIG_CHECK
+      description : "Check if Cisco IOS 15 is installed"
+      item        : "^version 15"
+    </item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Cisco_IOS_15_v4.1.1_Level_2.audit from CIS Cisco IOS 15 Benchmark"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+    </report>
+
+#
+## 1 Management Plane
+#
+#
+## 1.1 Local Authentication, Authorization and Accounting (AAA) Rules
+#
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "1.1.7 Set 'aaa accounting' to log all privileged use commands using 'commands 15'"
+      info        : "Runs accounting for all commands at the specified privilege level.
+
+Rationale:
+
+Authentication, authorization and accounting (AAA) systems provide an authoritative source for managing and monitoring access for devices. Centralizing control improves consistency of access control, the services that may be accessed once authenticated and accountability by tracking services accessed. Additionally, centralizing access control simplifies and reduces administrative costs of account provisioning and de-provisioning, especially when managing a large number of devices. AAA Accounting provides a management and audit trail for user and administrative sessions through RADIUS or TACACS+.
+
+Impact:
+
+Enabling 'aaa accounting' for privileged commands records and sends activity to the accounting servers and enables organizations to monitor and analyze privileged activity."
+      solution    : "Configure AAA accounting for commands.
+
+hostname(config)#aaa accounting commands 15 {default | list-name | guarantee-first}
+{start-stop | stop-only | none} {radius | group group-name}
+
+Default Value:
+
+AAA accounting is disabled.
+
+Additional Information:
+
+Valid privilege level entries are integers from 0 through 15."
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|5,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2A,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "aaa accounting commands 15 [^ ]+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "1.1.8 Set 'aaa accounting connection'"
+      info        : "Provides information about all outbound connections made from the network access server.
+
+Rationale:
+
+Authentication, authorization and accounting (AAA) systems provide an authoritative source for managing and monitoring access for devices. Centralizing control improves consistency of access control, the services that may be accessed once authenticated and accountability by tracking services accessed. Additionally, centralizing access control simplifies and reduces administrative costs of account provisioning and de-provisioning, especially when managing a large number of devices. AAA Accounting provides a management and audit trail for user and administrative sessions through RADIUS and TACACS+.
+
+Impact:
+
+Implementing aaa accounting connection creates accounting records about connections from the network access server. Organizations should regular monitor these connection records for exceptions, remediate issues, and report findings regularly."
+      solution    : "Configure AAA accounting for connections.
+
+hostname(config)#aaa accounting connection {default | list-name | guarantee-first}
+{start-stop | stop-only | none} {radius | group group-name}
+
+Default Value:
+
+AAA accounting is not enabled."
+      reference   : "800-171|3.1.1,800-53|AC-2(1),800-53r5|AC-2(1),CN-L3|7.1.3.2(d),CSCv7|16.2,CSCv8|5.6,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ITSG-33|AC-2(1),LEVEL|2A,NIAv2|AM28,NIAv2|NS5j,NIAv2|SS14e,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "aaa accounting connection [^ ]+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "1.1.9 Set 'aaa accounting exec'"
+      info        : "Runs accounting for the EXEC shell session.
+
+Rationale:
+
+Authentication, authorization and accounting (AAA) systems provide an authoritative source for managing and monitoring access for devices. Centralizing control improves consistency of access control, the services that may be accessed once authenticated and accountability by tracking services accessed. Additionally, centralizing access control simplifies and reduces administrative costs of account provisioning and de-provisioning, especially when managing a large number of devices. AAA Accounting provides a management and audit trail for user and administrative sessions through RADIUS and TACACS+.
+
+Impact:
+
+Enabling aaa accounting exec creates accounting records for the EXEC terminal sessions on the network access server. These records include start and stop times, usernames, and date information. Organizations should regularly monitor these records for exceptions, remediate issues, and report findings."
+      solution    : "Configure AAA accounting for EXEC shell session.
+
+hostname(config)#aaa accounting exec {default | list-name | guarantee-first}
+{start-stop | stop-only | none} {radius | group group-name}
+
+Default Value:
+
+AAA accounting is not enabled."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "aaa accounting exec [^ ]+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "1.1.10 Set 'aaa accounting network'"
+      info        : "Runs accounting for all network-related service requests.
+
+Rationale:
+
+Authentication, authorization and accounting (AAA) systems provide an authoritative source for managing and monitoring access for devices. Centralizing control improves consistency of access control, the services that may be accessed once authenticated and accountability by tracking services accessed. Additionally, centralizing access control simplifies and reduces administrative costs of account provisioning and de-provisioning, especially when managing a large number of devices. AAA Accounting provides a management and audit trail for user and administrative sessions through RADIUS and TACACS+.
+
+Impact:
+
+Implementing aaa accounting network creates accounting records for a method list including ARA, PPP, SLIP, and NCPs sessions. Organizations should regular monitor these records for exceptions, remediate issues, and report findings."
+      solution    : "Configure AAA accounting for connections.
+
+hostname(config)#aaa accounting network {default | list-name | guarantee-first}
+{start-stop | stop-only | none} {radius | group group-name}
+
+Default Value:
+
+AAA accounting is not enabled."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "aaa accounting network [^ ]+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "1.1.11 Set 'aaa accounting system'"
+      info        : "Performs accounting for all system-level events not associated with users, such as reloads.
+
+Rationale:
+
+Authentication, authorization and accounting (AAA) systems provide an authoritative source for managing and monitoring access for devices. Centralizing control improves consistency of access control, the services that may be accessed once authenticated and accountability by tracking services accessed. Additionally, centralizing access control simplifies and reduces administrative costs of account provisioning and de-provisioning, especially when managing a large number of devices. AAA Accounting provides a management and audit trail for user and administrative sessions through RADIUS and TACACS+.
+
+Impact:
+
+Enabling aaa accounting system creates accounting records for all system-level events. Organizations should regular monitor these records for exceptions, remediate issues, and report findings regularly."
+      solution    : "Configure AAA accounting system.
+
+hostname(config)#aaa accounting system {default | list-name | guarantee-first}
+{start-stop | stop-only | none} {radius | group group-name}
+
+Default Value:
+
+AAA accounting is not enabled."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "aaa accounting system [^ ]+"
+    </item>
+
+#
+## 1.2 Access Rules
+#
+# No applicable Level II Checks
+#
+## 1.3 Banner Rules
+#
+# No applicable Level II Checks
+#
+## 1.4 Password Rules
+#
+# No applicable Level II Checks
+#
+## 1.5 SNMP Rules
+#
+
+    <if>
+      <condition type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "SNMP is enabled"
+          item        : "snmp-server community .+"
+        </item>
+      </condition>
+
+      <then>
+        <item>
+          type        : CONFIG_CHECK
+          description : "1.5.9 Set 'priv' for each 'snmp-server group' using SNMPv3"
+          info        : "Specifies authentication of a packet with encryption when using SNMPv3
+
+Rationale:
+
+SNMPv3 provides much improved security over previous versions by offering options for Authentication and Encryption of messages. When configuring a user for SNMPv3 you have the option of using a range of encryption schemes, or no encryption at all, to protect messages in transit. AES128 is the minimum strength encryption method that should be deployed.
+
+Impact:
+
+Organizations using SNMP can significantly reduce the risks of unauthorized access by using the 'snmp-server group v3 priv' setting to encrypt messages in transit."
+          solution    : "For each SNMPv3 group created on your router add privacy options by issuing the following command...
+
+hostname(config)#snmp-server group {<em>group_name</em>} v3 priv
+
+Default Value:
+
+No SNMP server groups are configured."
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|4.5,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          regex       : "snmp-server group .+ v3 priv"
+          item        : "snmp-server group .+ v3"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK_NOT
+          description : "1.5.10 Require 'aes 128' as minimum for 'snmp-server user' when using SNMPv3"
+          info        : "Specify the use of a minimum of 128-bit AES algorithm for encryption when using SNMPv3.
+
+Rationale:
+
+SNMPv3 provides much improved security over previous versions by offering options for Authentication and Encryption of messages. When configuring a user for SNMPv3 you have the option of using a range of encryption schemes, or no encryption at all, to protect messages in transit. AES128 is the minimum strength encryption method that should be deployed.
+
+Impact:
+
+Organizations using SNMP can significantly reduce the risks of unauthorized access by using the 'snmp-server user' setting with appropriate authentication and privacy protocols to encrypt messages in transit."
+          solution    : "For each SNMPv3 user created on your router add privacy options by issuing the following command.
+
+hostname(config)#snmp-server user {user_name} {group_name} v3 auth sha {auth_password} priv aes 128 {priv_password} {acl_name_or_number}
+
+Default Value:
+
+SNMP username as not set by default."
+          reference   : "800-171|3.1.16,800-171|3.13.15,800-53|AC-18,800-53|SC-23,800-53r5|AC-18,800-53r5|SC-23,CSCv7|4.5,CSCv8|12.6,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ITSG-33|AC-18,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          cmd         : "show snmp user"
+          item        : "Privacy Protocol: (DES|3DES)"
+        </item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "1.5.9 Set 'priv' for each 'snmp-server group' using SNMPv3"
+          info        : "Specifies authentication of a packet with encryption when using SNMPv3
+
+Rationale:
+
+SNMPv3 provides much improved security over previous versions by offering options for Authentication and Encryption of messages. When configuring a user for SNMPv3 you have the option of using a range of encryption schemes, or no encryption at all, to protect messages in transit. AES128 is the minimum strength encryption method that should be deployed.
+
+Impact:
+
+Organizations using SNMP can significantly reduce the risks of unauthorized access by using the 'snmp-server group v3 priv' setting to encrypt messages in transit."
+          solution    : "For each SNMPv3 group created on your router add privacy options by issuing the following command...
+
+hostname(config)#snmp-server group {<em>group_name</em>} v3 priv
+
+Default Value:
+
+No SNMP server groups are configured."
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|4.5,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "1.5.10 Require 'aes 128' as minimum for 'snmp-server user' when using SNMPv3"
+          info        : "Specify the use of a minimum of 128-bit AES algorithm for encryption when using SNMPv3.
+
+Rationale:
+
+SNMPv3 provides much improved security over previous versions by offering options for Authentication and Encryption of messages. When configuring a user for SNMPv3 you have the option of using a range of encryption schemes, or no encryption at all, to protect messages in transit. AES128 is the minimum strength encryption method that should be deployed.
+
+Impact:
+
+Organizations using SNMP can significantly reduce the risks of unauthorized access by using the 'snmp-server user' setting with appropriate authentication and privacy protocols to encrypt messages in transit."
+          solution    : "For each SNMPv3 user created on your router add privacy options by issuing the following command.
+
+hostname(config)#snmp-server user {user_name} {group_name} v3 auth sha {auth_password} priv aes 128 {priv_password} {acl_name_or_number}
+
+Default Value:
+
+SNMP username as not set by default."
+          reference   : "800-171|3.1.16,800-171|3.13.15,800-53|AC-18,800-53|SC-23,800-53r5|AC-18,800-53r5|SC-23,CSCv7|4.5,CSCv8|12.6,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ITSG-33|AC-18,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+      </else>
+    </if>
+
+#
+## 2 Control Plane
+#
+#
+## 2.1 Global Service Rules
+#
+# No applicable Level II Checks
+#
+## 2.2 Logging Rules
+#
+# No applicable Level II Checks
+#
+## 2.3 NTP Rules
+#
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "2.3.1.1 Set 'ntp authenticate'"
+      info        : "Enable NTP authentication.
+
+Rationale:
+
+Using authenticated NTP ensures the Cisco device only permits time updates from authorized NTP servers.
+
+Impact:
+
+Organizations should establish three Network Time Protocol (NTP) hosts to set consistent time across the enterprise. Enabling the 'ntp authenticate' command enforces authentication between NTP hosts."
+      solution    : "Configure NTP authentication:
+
+hostname(config)#ntp authenticate
+
+Default Value:
+
+NTP authentication is not enabled."
+      reference   : "800-171|3.3.6,800-171|3.3.7,800-53|AU-7,800-53|AU-8,800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(b),CSCv7|6.1,CSCv8|8.4,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|2A,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "[ ]*ntp authenticate"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "2.3.1.2 Set 'ntp authentication-key'"
+      info        : "Define an authentication key for Network Time Protocol (NTP).
+
+Rationale:
+
+Using an authentication key provides a higher degree of security as only authenticated NTP servers will be able to update time for the Cisco device.
+
+Impact:
+
+Organizations should establish three Network Time Protocol (NTP) hosts to set consistent time across the enterprise. Enabling the 'ntp authentication-key' command enforces encrypted authentication between NTP hosts."
+      solution    : "Configure at the NTP key ring and encryption key using the following command
+
+hostname(config)#ntp authentication-key {ntp_key_id} md5 {ntp_key_hash}
+
+Default Value:
+
+No authentication key is defined for NTP."
+      reference   : "800-171|3.3.6,800-171|3.3.7,800-53|AU-7,800-53|AU-8,800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(b),CSCv7|6.1,CSCv8|8.4,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|2A,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      regex       : "[ ]*ntp authentication-key @NTP_KEY_ID@ md5"
+      item        : "[ ]*ntp authentication-key .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "2.3.1.3 Set the 'ntp trusted-key'"
+      info        : "Ensure you authenticate the identity of a system to which Network Time Protocol (NTP) will synchronize
+
+Rationale:
+
+This authentication function provides protection against accidentally synchronizing the system to another system that is not trusted, because the other system must know the correct authentication key.
+
+Impact:
+
+Organizations should establish three Network Time Protocol (NTP) hosts to set consistent time across the enterprise. Enabling the 'ntp trusted-key' command enforces encrypted authentication between NTP hosts."
+      solution    : "Configure the NTP trusted key using the following command
+
+hostname(config)#ntp trusted-key {ntp_key_id}
+
+Default Value:
+
+Authentication of the identity of the system is disabled."
+      reference   : "800-171|3.3.6,800-171|3.3.7,800-53|AU-7,800-53|AU-8,800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(b),CSCv7|6.1,CSCv8|8.4,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|2A,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      regex       : "[ ]*ntp trusted-key @NTP_KEY_ID@"
+      item        : "[ ]*ntp trusted-key .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "2.3.1.4 Set 'key' for each 'ntp server'"
+      info        : "Specifies the authentication key for NTP.
+
+Rationale:
+
+This authentication feature provides protection against accidentally synchronizing the ntp system to another system that is not trusted, because the other system must know the correct authentication key.
+
+Impact:
+
+Organizations should establish three Network Time Protocol (NTP) hosts to set consistent time across the enterprise. Enabling the 'ntp server key' command enforces encrypted authentication between NTP hosts."
+      solution    : "Configure each NTP Server to use a key ring using the following command.
+
+hostname(config)#ntp server {<em>ntp-server_ip_address</em>}{key <em>ntp_key_id</em>}
+
+Default Value:
+
+No NTP key is set by default"
+      reference   : "800-171|3.3.6,800-171|3.3.7,800-53|AU-7,800-53|AU-8,800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(b),CSCv7|6.1,CSCv8|8.4,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|2A,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      regex       : "[ ]*ntp server @NTP_SERVER@ key @NTP_KEY_ID@"
+      item        : "[ ]*ntp server .+ key .+"
+    </item>
+
+#
+## 2.4 Loopback Rules
+#
+
+    <item>
+      type            : CONFIG_CHECK
+      description     : "2.4.1 Create a single 'interface loopback' - 'Only one loopback interface is defined'"
+      info            : "Configure a single loopback interface.
+
+Rationale:
+
+Software-only loopback interface that emulates an interface that is always up. It is a virtual interface supported on all platforms.
+
+Alternate loopback addresses create a potential for abuse, mis-configuration, and inconsistencies. Additional loopback interfaces must be documented and approved prior to use by local security personnel.
+
+Impact:
+
+Organizations should plan and establish 'loopback interfaces' for the enterprise network. Loopback interfaces enable critical network information such as OSPF Router IDs and provide termination points for routing protocol sessions."
+      solution        : "Define and configure one loopback interface.
+
+hostname(config)#interface loopback <<em>number</em>>
+hostname(config-if)#ip address <<em>loopback_ip_address</em>> <<em>loopback_subnet_mask</em>>
+
+Default Value:
+
+There are no loopback interfaces defined by default."
+      reference       : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|9.2,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also        : "https://workbench.cisecurity.org/files/3829"
+      item            : "interface [Ll]oopback"
+      max_occurrences : "1"
+    </item>
+
+    <item>
+      type            : CONFIG_CHECK
+      description     : "2.4.1 Create a single 'interface loopback' - 'Only one loopback interface IP Address is defined'"
+      info            : "Configure a single loopback interface.
+
+Rationale:
+
+Software-only loopback interface that emulates an interface that is always up. It is a virtual interface supported on all platforms.
+
+Alternate loopback addresses create a potential for abuse, mis-configuration, and inconsistencies. Additional loopback interfaces must be documented and approved prior to use by local security personnel.
+
+Impact:
+
+Organizations should plan and establish 'loopback interfaces' for the enterprise network. Loopback interfaces enable critical network information such as OSPF Router IDs and provide termination points for routing protocol sessions."
+      solution        : "Define and configure one loopback interface.
+
+hostname(config)#interface loopback <<em>number</em>>
+hostname(config-if)#ip address <<em>loopback_ip_address</em>> <<em>loopback_subnet_mask</em>>
+
+Default Value:
+
+There are no loopback interfaces defined by default."
+      reference       : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|9.2,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also        : "https://workbench.cisecurity.org/files/3829"
+      context         : "interface [Ll]oopback"
+      item            : "ip address"
+      min_occurrences : "1"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "2.4.2 Set AAA 'source-interface'"
+      info        : "Force AAA to use the IP address of a specified interface for all outgoing AAA packets
+
+Rationale:
+
+This is required so that the AAA server (RADIUS or TACACS+) can easily identify routers and authenticate requests by their IP address.
+
+Impact:
+
+Organizations should design and implement authentication, authorization, and accounting (AAA) services for effective monitoring of enterprise network devices. Binding AAA services to the source-interface loopback enables these services."
+      solution    : "Bind AAA services to the loopback interface.
+
+Hostname(config)#ip radius source-interface loopback {loopback_interface_number}
+or
+Hostname(config)#aaa group server tacacs+ {group_name} hostname(config-sg-tacacs+)#ip tacacs source-interface {loopback_interface_number}"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|16.2,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "ip (tacacs|radius) source-interface [Ll]oopback"
+    </item>
+
+    <if>
+      <condition type:"OR">
+        <item>
+          type        : CONFIG_CHECK
+          description : "2.4.3 Set 'ntp source' to Loopback Interface - 'NTP is bound to loopback'"
+          item        : "[ ]*ntp source [Ll]oopback"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "2.4.3 Set 'ntp source' to Loopback Interface - 'SNTP is bound to loopback'"
+          item        : "[ ]*sntp source-interface [Ll]oopback"
+        </item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.4.3 Set 'ntp source' to Loopback Interface - 'NTP/SNTP is bound to loopback'"
+          info        : "Use a particular source address in Network Time Protocol (NTP) packets.
+
+Rationale:
+
+Set the source address to be used when sending NTP traffic. This may be required if the NTP servers you peer with filter based on IP address.
+
+Impact:
+
+Organizations should plan and implement network time protocol (NTP) services to establish official time for all enterprise network devices. Setting 'ntp source loopback' enforces the proper IP address for NTP services."
+          solution    : "Bind the NTP service to the loopback interface.
+
+hostname(config)#ntp source loopback {<em>loopback_interface_number}</em>
+
+Default Value:
+
+Source address is determined by the outgoing interface."
+          reference   : "800-171|3.3.6,800-171|3.3.7,800-53|AU-7,800-53|AU-8,800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(b),CSCv7|6.1,CSCv8|8.4,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|2A,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+      </then>
+
+      <else>
+        <item>
+          type        : CONFIG_CHECK
+          description : "2.4.3 Set 'ntp source' to Loopback Interface - 'NTP is bound to loopback'"
+          info        : "Use a particular source address in Network Time Protocol (NTP) packets.
+
+Rationale:
+
+Set the source address to be used when sending NTP traffic. This may be required if the NTP servers you peer with filter based on IP address.
+
+Impact:
+
+Organizations should plan and implement network time protocol (NTP) services to establish official time for all enterprise network devices. Setting 'ntp source loopback' enforces the proper IP address for NTP services."
+          solution    : "Bind the NTP service to the loopback interface.
+
+hostname(config)#ntp source loopback {<em>loopback_interface_number}</em>
+
+Default Value:
+
+Source address is determined by the outgoing interface."
+          reference   : "800-171|3.3.6,800-171|3.3.7,800-53|AU-7,800-53|AU-8,800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(b),CSCv7|6.1,CSCv8|8.4,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|2A,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          item        : "[ ]*(ntp source|sntp source-interface) [Ll]oopback"
+        </item>
+      </else>
+    </if>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "2.4.4 Set 'ip tftp source-interface' to the Loopback Interface"
+      info        : "Specify the IP address of an interface as the source address for TFTP connections.
+
+Rationale:
+
+This is required so that the TFTP servers can easily identify routers and authenticate requests by their IP address.
+
+Impact:
+
+Organizations should plan and implement trivial file transfer protocol (TFTP) services in the enterprise by setting 'tftp source-interface loopback', which enables the TFTP servers to identify routers and authenticate requests by IP address."
+      solution    : "Bind the TFTP client to the loopback interface.
+
+hostname(config)#ip tftp source-interface loopback {<em>loobpback_interface_number</em>}
+
+Default Value:
+
+The address of the closest interface to the destination is selected as the source address."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|9.2,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "ip tftp source-interface [Ll]oopback"
+    </item>
+
+#
+## 3 Data Plane
+#
+#
+## 3.1 Routing Rules
+#
+
+    <item>
+      type        : CONFIG_CHECK_NOT
+      description : "3.1.2 Set 'no ip proxy-arp'"
+      info        : "Disable proxy ARP on all interfaces.
+
+Rationale:
+
+Address Resolution Protocol (ARP) provides resolution between IP and MAC Addresses (or other Network and Link Layer addresses on none IP networks) within a Layer 2 network.
+
+Proxy ARP is a service where a device connected to one network (in this case the Cisco router) answers ARP Requests which are addressed to a host on another network, replying with its own MAC Address and forwarding the traffic on to the intended host.
+
+Sometimes used for extending broadcast domains across WAN links, in most cases Proxy ARP on enterprise networks is used to enable communication for hosts with mis-configured subnet masks, a situation which should no longer be a common problem. Proxy ARP effectively breaks the LAN Security Perimeter, extending a network across multiple Layer 2 segments. Using Proxy ARP can also allow other security controls such as PVLAN to be bypassed.
+
+Impact:
+
+Organizations should plan and implement network policies to ensure unnecessary services are explicitly disabled. The 'ip proxy-arp' feature effectively breaks the LAN security perimeter and should be disabled."
+      solution    : "Disable proxy ARP on all interfaces.
+
+hostname(config)#interface {interface}
+hostname(config-if)#no ip proxy-arp
+
+
+Default Value:
+
+Enabled"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "interface .+"
+      item        : "^[ ]*ip proxy-arp"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK_NOT
+      description : "3.1.3 Set 'no interface tunnel'"
+      info        : "Verify no tunnel interfaces are defined.
+
+Rationale:
+
+Tunnel interfaces should not exist in general. They can be used for malicious purposes. If they are necessary, the network admin's should be well aware of them and their purpose.
+
+Impact:
+
+Organizations should plan and implement enterprise network security policies that disable insecure and unnecessary features that increase attack surfaces such as 'tunnel interfaces'."
+      solution    : "Remove any tunnel interfaces.
+
+hostname(config)#no interface tunnel {<em>instance</em>}
+
+Default Value:
+
+No tunnel interfaces are defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      item        : "interface [Tt]unnel[0-9]+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.1.4 Set 'ip verify unicast source reachable-via'"
+      info        : "Examines incoming packets to determine whether the source address is in the Forwarding Information Base (FIB) and permits the packet only if the source is reachable through the interface on which the packet was received (sometimes referred to as strict mode).
+
+Rationale:
+
+Enabled uRPF helps mitigate IP spoofing by ensuring only packet source IP addresses only originate from expected interfaces. Configure unicast reverse-path forwarding (uRPF) on all external or high risk interfaces.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that protect the confidentiality, integrity, and availability of network devices. The 'unicast Reverse-Path Forwarding' (uRPF) feature dynamically uses the router table to either accept or drop packets when arriving on an interface.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure uRPF.
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip verify unicast source reachable-via rx
+
+Default Value:
+
+Unicast RPF is disabled."
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "interface .+"
+      regex       : "ip verify unicast source reachable-via rx"
+      item        : "ip verify unicast"
+      severity    : MEDIUM
+    </item>
+
+#
+## 3.2 Border Routing Filtering
+#
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny internal networks'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip @INTERNAL_NETWORK@ any log"
+      item        : "deny +ip @INTERNAL_NETWORK@ .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 127.0.0.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 127\\.0\\.0\\.0 0\\.255\\.255\\.255 any log"
+      item        : "deny +ip 127\\.0\\.0\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 10.0.0.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 10\\.0\\.0\\.0 0\\.255\\.255\\.255 any log"
+      item        : "deny +ip 10\\.0\\.0\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 0.0.0.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 0\\.0\\.0\\.0 0\\.255\\.255\\.255 any log"
+      item        : "deny +ip 0\\.0\\.0\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 172.16.0.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 172\\.16\\.0\\.0 0\\.15\\.255\\.255 any log"
+      item        : "deny +ip 172\\.16\\.0\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 192.168.0.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 192\\.168\\.0\\.0 0\\.0\\.255\\.255 any log"
+      item        : "deny +ip 192\\.168\\.0\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 192.0.2.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 192\\.0\\.2\\.0 0\\.0\\.0\\.255 any log"
+      item        : "deny +ip 192\\.0\\.2\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 169.254.0.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 169\\.254\\.0\\.0 0\\.0\\.255\\.255 any log"
+      item        : "deny +ip 169\\.254\\.0\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny 224.0.0.0'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip 224\\.0\\.0\\.0 31\\.255\\.255\\.255 any log"
+      item        : "deny +ip 224\\.0\\.0\\.0 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Deny host 255.255.255.255'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip host 255\\.255\\.255\\.255 any log"
+      item        : "deny +ip host 255\\.255\\.255\\.255 .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - 'Default deny configured'"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "ip access-list extended @AG_INGRESS_ACL@$"
+      regex       : "deny +ip any any log"
+      item        : "deny +ip any .+"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.1 Set 'ip access-list extended' to Forbid Private Source Addresses from External Networks - External interface has ACL applied"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that explicitly separate internal from external networks. Adding 'ip access-list' explicitly permitting and denying internal and external networks enforces these policies."
+      solution    : "Configure ACL for private source address restrictions from external networks.
+
+hostname(config)#ip access-list extended {<span><em>name | number</em>}
+</span><span>hostname(config-nacl)#deny ip {</span><em>internal_networks</em>} any log
+hostname(config<span>-nacl</span>)#deny ip 127.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 10.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 0.0.0.0 0.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 172.16.0.0 0.15.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.168.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 192.0.2.0 0.0.0.255 any log
+hostname(config<span>-nacl</span>)#deny ip 169.254.0.0 0.0.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip 224.0.0.0 31.255.255.255 any log
+hostname(config<span>-nacl</span>)#deny ip host 255.255.255.255 any log
+hostname(config<span>-nacl</span>)#permit {protocol} {source_ip} {source_mask} {destination} {destination_mask} log
+hostname(config<span>-nacl</span>)#deny any any log
+hostname(config)#interface <external_<em>interface</em>>
+hostname(config-if)#access-group <<em>access-list</em>> in
+
+
+Default Value:
+
+No access list defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "interface @EXTERNAL_INTERFACE@"
+      item        : "ip access-group @AG_INGRESS_ACL@ in"
+    </item>
+
+    <item>
+      type        : CONFIG_CHECK
+      description : "3.2.2 Set inbound 'ip access-group' on the External Interface"
+      info        : "This command places the router in access-list configuration mode, where you must define the denied or permitted access conditions by using the deny and permit commands.
+
+Rationale:
+
+Configuring access controls can help prevent spoofing attacks. To reduce the effectiveness of IP spoofing, configure access control to deny any traffic from the external network that has a source address that should reside on the internal network. Include local host address or any reserved private addresses (RFC 1918).
+
+Ensure the permit rule(s) above the final deny rule only allow traffic according to your organization's least privilege policy.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies explicitly permitting and denying access based upon access lists. Using the 'ip access-group' command enforces these policies by explicitly identifying groups permitted access."
+      solution    : "Apply the access-group for the external (untrusted) interface
+
+hostname(config)#interface {external_interface}
+hostname(config-if)#ip access-group {name | number} in
+
+Default Value:
+
+No access-group defined"
+      reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2M,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+      context     : "interface @EXTERNAL_INTERFACE@"
+      item        : "ip access-group @INTERNAL_NETWORK_INGRESS_ACL@ in"
+    </item>
+
+#
+## 3.3 Neighbor Authentication
+#
+
+    <if>
+      <condition type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "EIGRP is enabled"
+          item        : "router eigrp .+"
+        </item>
+      </condition>
+
+      <then>
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.1 Set 'key chain'"
+          info        : "Define an authentication key chain to enable authentication for routing protocols. A key chain must have at least one key and can have up to 2,147,483,647 keys.
+
+NOTE: Only DRP Agent, EIGRP, and RIPv2 use key chains.
+
+Rationale:
+
+Routing protocols such as DRP Agent, EIGRP, and RIPv2 use key chains for authentication.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key chains' for routing protocols enforces these policies."
+          solution    : "Establish the key chain.
+
+hostname(config)#key chain {<em>key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          regex       : "key chain @KEY_CHAIN_NAME@"
+          item        : "key chain .+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.2 Set 'key'"
+          info        : "Configure an authentication key on a key chain.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key numbers' for key chains for routing protocols enforces these policies."
+          solution    : "Configure the key number.
+
+hostname(config-keychain)#key {<em>key-number</em>}"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "key chain .+"
+          item        : "key .+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.3 Set 'key-string'"
+          info        : "Configure the authentication string for a key.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key strings' for key chains for routing protocols enforces these policies."
+          solution    : "Configure the key string.
+
+hostname(config-keychain-key)#key-string <<em>key-string</em>>
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "key chain .+"
+          item        : "key-string .+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.4 Set 'address-family ipv4 autonomous-system'"
+          info        : "Configure the EIGRP address family.
+
+Rationale:
+
+Rationale: EIGRP is a true multi-protocol routing protocol and the 'address-family' feature enables restriction of exchanges with specific neighbors
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'address-family' for EIGRP enforces these policies by restricting the exchanges between predefined network devices."
+          solution    : "Configure the EIGRP address family.
+
+hostname(config)#router eigrp <<em>virtual-instance-name</em>>
+hostname(config-router)#address-family ipv4 autonomous-system {<em>eigrp_as-number</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "router eigrp .+"
+          item        : "address-family ipv4.*autonomous-system [0-9]+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.5 Set 'af-interface default'"
+          info        : "Defines user defaults to apply to EIGRP interfaces that belong to an address-family.
+
+Rationale:
+
+Part of the EIGRP address-family setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'af-interface default' for EIGRP interfaces enforces these policies by restricting the exchanges between predefined network devices."
+          solution    : "Configure the EIGRP address family.
+
+hostname(config)#router eigrp <<em>virtual-instance-name</em>>
+hostname(config-router)#address-family ipv4 autonomous-system {<em>eigrp_as-number</em>}
+hostname(config-router-af)#af-interface default
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "router eigrp .+"
+          item        : "af-interface default"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.6 Set 'authentication key-chain'"
+          info        : "Configure the EIGRP address family key chain.
+
+Rationale:
+
+This is part of the EIGRP authentication configuration
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the address-family 'key chain' for EIGRP enforces these policies by restricting the exchanges between predefined network devices."
+          solution    : "Configure the EIGRP address family key chain.
+
+hostname(config)#router eigrp <virtual-instance-name>
+hostname(config-router)#address-family ipv4 autonomous-system {eigrp_as-number}
+hostname(config-router-af)#af-interface {interface-name}
+hostname(config-router-af-interface)#authentication key-chain {eigrp_key-chain_name}
+
+Default Value:
+
+No key chains are specified for EIGRP"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "router eigrp .+"
+          regex       : "authentication key-chain @KEY_CHAIN_NAME@"
+          item        : "authentication key-chain .+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.7 Set 'authentication mode md5'"
+          info        : "Configure authentication to prevent unapproved sources from introducing unauthorized or false service messages.
+
+Rationale:
+
+This is part of the EIGRP authentication configuration
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the 'authentication mode' for EIGRP address-family or service-family packets enforces these policies by restricting the type of authentication between network devices."
+          solution    : "Configure the EIGRP address family authentication mode.
+
+hostname(config)#router eigrp <virtual-instance-name>
+hostname(config-router)#address-family ipv4 autonomous-system {eigrp_as-number}
+hostname(config-router-af)#af-interface {interface-name}
+hostname(config-router-af-interface)#authentication mode md5
+
+Default Value:
+
+Not defined"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "router eigrp .+"
+          item        : "authentication mode md5"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.8 Set 'ip authentication key-chain eigrp'"
+          info        : "Specify the type of authentication used in Enhanced Interior Gateway Routing Protocol (EIGRP) packets per interface.
+
+Rationale:
+
+Configuring EIGRP authentication key-chain number and name to restrict packet exchanges between network devices.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the interface with 'ip authentication key chain' for EIGRP by name and number enforces these policies by restricting the exchanges between network devices."
+          solution    : "Configure the interface with the EIGRP key chain.
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip authentication key-chain eigrp {<em>eigrp_as-number</em>} {<em>eigrp_key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "interface .+"
+          regex       : "ip authentication key-chain eigrp @AS_NUMBER@ @KEY_CHAIN_NAME@"
+          item        : "ip authentication key-chain eigrp"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.1.9 Set 'ip authentication mode eigrp'"
+          info        : "Configure authentication to prevent unapproved sources from introducing unauthorized or false routing messages.
+
+Rationale:
+
+This is part of the EIGRP authentication configuration
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the interface with 'ip authentication mode' for EIGRP by number and mode enforces these policies by restricting the exchanges between network devices."
+          solution    : "Configure the interface with the EIGRP authentication mode.
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip authentication mode eigrp {<em><span>eigrp_as-number</span></em><span>}</span> md5
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "interface .+"
+          regex       : "ip authentication mode eigrp @AS_NUMBER@ md5"
+          item        : "ip authentication mode eigrp"
+        </item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.3.1.1 Set 'key chain'"
+          info        : "Define an authentication key chain to enable authentication for routing protocols. A key chain must have at least one key and can have up to 2,147,483,647 keys.
+
+NOTE: Only DRP Agent, EIGRP, and RIPv2 use key chains.
+
+Rationale:
+
+Routing protocols such as DRP Agent, EIGRP, and RIPv2 use key chains for authentication.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key chains' for routing protocols enforces these policies."
+          solution    : "Establish the key chain.
+
+hostname(config)#key chain {<em>key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.2 Set 'key'"
+          info        : "Configure an authentication key on a key chain.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key numbers' for key chains for routing protocols enforces these policies."
+          solution    : "Configure the key number.
+
+hostname(config-keychain)#key {<em>key-number</em>}"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.3 Set 'key-string'"
+          info        : "Configure the authentication string for a key.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key strings' for key chains for routing protocols enforces these policies."
+          solution    : "Configure the key string.
+
+hostname(config-keychain-key)#key-string <<em>key-string</em>>
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.4 Set 'address-family ipv4 autonomous-system'"
+          info        : "Configure the EIGRP address family.
+
+Rationale:
+
+Rationale: EIGRP is a true multi-protocol routing protocol and the 'address-family' feature enables restriction of exchanges with specific neighbors
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'address-family' for EIGRP enforces these policies by restricting the exchanges between predefined network devices."
+          solution    : "Configure the EIGRP address family.
+
+hostname(config)#router eigrp <<em>virtual-instance-name</em>>
+hostname(config-router)#address-family ipv4 autonomous-system {<em>eigrp_as-number</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.5 Set 'af-interface default'"
+          info        : "Defines user defaults to apply to EIGRP interfaces that belong to an address-family.
+
+Rationale:
+
+Part of the EIGRP address-family setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'af-interface default' for EIGRP interfaces enforces these policies by restricting the exchanges between predefined network devices."
+          solution    : "Configure the EIGRP address family.
+
+hostname(config)#router eigrp <<em>virtual-instance-name</em>>
+hostname(config-router)#address-family ipv4 autonomous-system {<em>eigrp_as-number</em>}
+hostname(config-router-af)#af-interface default
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.6 Set 'authentication key-chain'"
+          info        : "Configure the EIGRP address family key chain.
+
+Rationale:
+
+This is part of the EIGRP authentication configuration
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the address-family 'key chain' for EIGRP enforces these policies by restricting the exchanges between predefined network devices."
+          solution    : "Configure the EIGRP address family key chain.
+
+hostname(config)#router eigrp <virtual-instance-name>
+hostname(config-router)#address-family ipv4 autonomous-system {eigrp_as-number}
+hostname(config-router-af)#af-interface {interface-name}
+hostname(config-router-af-interface)#authentication key-chain {eigrp_key-chain_name}
+
+Default Value:
+
+No key chains are specified for EIGRP"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.7 Set 'authentication mode md5'"
+          info        : "Configure authentication to prevent unapproved sources from introducing unauthorized or false service messages.
+
+Rationale:
+
+This is part of the EIGRP authentication configuration
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the 'authentication mode' for EIGRP address-family or service-family packets enforces these policies by restricting the type of authentication between network devices."
+          solution    : "Configure the EIGRP address family authentication mode.
+
+hostname(config)#router eigrp <virtual-instance-name>
+hostname(config-router)#address-family ipv4 autonomous-system {eigrp_as-number}
+hostname(config-router-af)#af-interface {interface-name}
+hostname(config-router-af-interface)#authentication mode md5
+
+Default Value:
+
+Not defined"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.8 Set 'ip authentication key-chain eigrp'"
+          info        : "Specify the type of authentication used in Enhanced Interior Gateway Routing Protocol (EIGRP) packets per interface.
+
+Rationale:
+
+Configuring EIGRP authentication key-chain number and name to restrict packet exchanges between network devices.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the interface with 'ip authentication key chain' for EIGRP by name and number enforces these policies by restricting the exchanges between network devices."
+          solution    : "Configure the interface with the EIGRP key chain.
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip authentication key-chain eigrp {<em>eigrp_as-number</em>} {<em>eigrp_key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.1.9 Set 'ip authentication mode eigrp'"
+          info        : "Configure authentication to prevent unapproved sources from introducing unauthorized or false routing messages.
+
+Rationale:
+
+This is part of the EIGRP authentication configuration
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the interface with 'ip authentication mode' for EIGRP by number and mode enforces these policies by restricting the exchanges between network devices."
+          solution    : "Configure the interface with the EIGRP authentication mode.
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip authentication mode eigrp {<em><span>eigrp_as-number</span></em><span>}</span> md5
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "OSPF is enabled"
+          item        : "router ospf .+"
+        </item>
+      </condition>
+
+      <then>
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.2.1 Set 'authentication message-digest' for OSPF area"
+          info        : "Enable MD5 authentication for OSPF.
+
+Rationale:
+
+This is part of the OSPF authentication setup.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the area 'authentication message-digest' for OSPF enforces these policies by restricting exchanges between network devices."
+          solution    : "Configure the Message Digest option for OSPF.
+
+hostname(config)#router ospf <<em>ospf_process-id</em>>
+hostname(config-router)#area <<em>ospf_area-id</em>> authentication message-digest
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "router ospf .+"
+          item        : "area [^ ]+ authentication message-digest"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.2.2 Set 'ip ospf message-digest-key md5'"
+          info        : "Enable Open Shortest Path First (OSPF) Message Digest 5 (MD5) authentication.
+
+Rationale:
+
+This is part of the OSPF authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the proper interface(s) for 'ip ospf message-digest-key md5' enforces these policies by restricting exchanges between network devices."
+          solution    : "Configure the appropriate interface(s) for Message Digest authentication
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip ospf message-digest-key {<em>ospf_md5_key-id</em>} md5 {<em>ospf_md5_key</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "interface .+"
+          regex       : "ip ospf message-digest-key @OSPF_KEY_ID@ md5 ([A-Za-z0-9]+)"
+          item        : "ip ospf message-digest-key @OSPF_KEY_ID@"
+        </item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.3.2.1 Set 'authentication message-digest' for OSPF area"
+          info        : "Enable MD5 authentication for OSPF.
+
+Rationale:
+
+This is part of the OSPF authentication setup.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the area 'authentication message-digest' for OSPF enforces these policies by restricting exchanges between network devices."
+          solution    : "Configure the Message Digest option for OSPF.
+
+hostname(config)#router ospf <<em>ospf_process-id</em>>
+hostname(config-router)#area <<em>ospf_area-id</em>> authentication message-digest
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.2.2 Set 'ip ospf message-digest-key md5'"
+          info        : "Enable Open Shortest Path First (OSPF) Message Digest 5 (MD5) authentication.
+
+Rationale:
+
+This is part of the OSPF authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the proper interface(s) for 'ip ospf message-digest-key md5' enforces these policies by restricting exchanges between network devices."
+          solution    : "Configure the appropriate interface(s) for Message Digest authentication
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip ospf message-digest-key {<em>ospf_md5_key-id</em>} md5 {<em>ospf_md5_key</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "RIP is enabled"
+          context     : "interface .+"
+          regex       : "ip rip"
+          item        : "ip rip"
+        </item>
+      </condition>
+
+      <then>
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.3.1 Set 'key chain'"
+          info        : "Define an authentication key chain to enable authentication for RIPv2 routing protocols.
+
+Rationale:
+
+This is part of the routing authentication process.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the proper authentication 'key-chain (name)' for RIPv2 protocols enforces these policies by restricting acceptable authentication between network devices."
+          solution    : "Establish the key chain.
+
+hostname(config)#key chain {<em>rip_key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          regex       : "key chain @RIP_KEY_CHAIN@"
+          item        : "key chain .+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.3.2 Set 'key'"
+          info        : "Configure an authentication key on a key chain.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the proper authentication 'key' for RIPv2 protocols enforces these policies by restricting acceptable authentication between network devices."
+          solution    : "Configure the key number.
+
+hostname(config-keychain)#key {<em>key-number</em>}"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "key chain .+"
+          item        : "key @RIP_KEY_NUMBER@"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.3.3 Set 'key-string'"
+          info        : "Configure the authentication string for a key.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key-string' for key chains for routing protocols enforces these policies."
+          solution    : "Configure the key string.
+
+hostname(config-keychain-key)#key-string <<em>key-string</em>>
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "key chain .+"
+          item        : "key-string .+"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.3.4 Set 'ip rip authentication key-chain'"
+          info        : "Enable authentication for Routing Information Protocol (RIP) Version 2 packets and to specify the set of keys that can be used on an interface.
+
+Rationale:
+
+This is part of the RIPv2 authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the interface with 'ip rip authentication key-chain' by name enforces these policies by restricting the exchanges between network devices."
+          solution    : "Configure the Interface with the RIPv2 key chain.
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip rip authentication key-chain {<em>rip_key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "interface .+"
+          regex       : "ip rip authentication key-chain @RIP_KEY_CHAIN@"
+          item        : "ip rip authentication key-chain"
+        </item>
+
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.3.5 Set 'ip rip authentication mode' to 'md5'"
+          info        : "Configure the Interface with the RIPv2 key chain.
+
+Rationale:
+
+This is part of the RIPv2 authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the 'ip rip authentication mode md5' enforces these policies by restricting the type of authentication between network devices."
+          solution    : "Configure the RIPv2 authentication mode on the necessary interface(s)
+
+hostname(config)#interface <<em>interface_name</em>>
+hostname(config-if)#ip rip authentication mode md5
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "interface .+"
+          regex       : "ip rip authentication mode md5"
+          item        : "ip rip authentication mode"
+        </item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.3.3.1 Set 'key chain'"
+          info        : "Define an authentication key chain to enable authentication for RIPv2 routing protocols.
+
+Rationale:
+
+This is part of the routing authentication process.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the proper authentication 'key-chain (name)' for RIPv2 protocols enforces these policies by restricting acceptable authentication between network devices."
+          solution    : "Establish the key chain.
+
+hostname(config)#key chain {<em>rip_key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.3.2 Set 'key'"
+          info        : "Configure an authentication key on a key chain.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the proper authentication 'key' for RIPv2 protocols enforces these policies by restricting acceptable authentication between network devices."
+          solution    : "Configure the key number.
+
+hostname(config-keychain)#key {<em>key-number</em>}"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.3.3 Set 'key-string'"
+          info        : "Configure the authentication string for a key.
+
+Rationale:
+
+This is part of the routing authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using 'key-string' for key chains for routing protocols enforces these policies."
+          solution    : "Configure the key string.
+
+hostname(config-keychain-key)#key-string <<em>key-string</em>>
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.3.4 Set 'ip rip authentication key-chain'"
+          info        : "Enable authentication for Routing Information Protocol (RIP) Version 2 packets and to specify the set of keys that can be used on an interface.
+
+Rationale:
+
+This is part of the RIPv2 authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Configuring the interface with 'ip rip authentication key-chain' by name enforces these policies by restricting the exchanges between network devices."
+          solution    : "Configure the Interface with the RIPv2 key chain.
+
+hostname(config)#interface {<em>interface_name</em>}
+hostname(config-if)#ip rip authentication key-chain {<em>rip_key-chain_name</em>}
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+
+        <report type:"PASSED">
+          description : "3.3.3.5 Set 'ip rip authentication mode' to 'md5'"
+          info        : "Configure the Interface with the RIPv2 key chain.
+
+Rationale:
+
+This is part of the RIPv2 authentication setup
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the 'ip rip authentication mode md5' enforces these policies by restricting the type of authentication between network devices."
+          solution    : "Configure the RIPv2 authentication mode on the necessary interface(s)
+
+hostname(config)#interface <<em>interface_name</em>>
+hostname(config-if)#ip rip authentication mode md5
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+      </else>
+    </if>
+
+    <if>
+      <condition type:"AND">
+        <item>
+          type        : CONFIG_CHECK
+          description : "BGP is enabled"
+          item        : "router [Bb][Gg][Pp] .+"
+        </item>
+      </condition>
+
+      <then>
+        <item>
+          type        : CONFIG_CHECK
+          description : "3.3.4.1 Set 'neighbor password'"
+          info        : "Enable message digest5 (MD5) authentication on a TCP connection between two BGP peers
+
+Rationale:
+
+Enforcing routing authentication reduces the likelihood of routing poisoning and unauthorized routers from joining BGP routing.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the 'neighbor password' for BGP enforces these policies by restricting the type of authentication between network devices."
+          solution    : "Configure BGP neighbor authentication where feasible.
+
+hostname(config)#router bgp <<em>bgp_as-number</em>>
+hostname(config-router)#neighbor <<em>bgp_neighbor-ip</em> | <em>peer-group-name</em>> password <<em>password</em>>
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+          context     : "router [Bb][Gg][Pp] .+"
+          regex       : "neighbor [^ ]+ password ([A-Za-z0-9\\/\\$]{30})"
+          item        : "neighbor [^ ]+ password .+"
+        </item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "3.3.4.1 Set 'neighbor password'"
+          info        : "Enable message digest5 (MD5) authentication on a TCP connection between two BGP peers
+
+Rationale:
+
+Enforcing routing authentication reduces the likelihood of routing poisoning and unauthorized routers from joining BGP routing.
+
+Impact:
+
+Organizations should plan and implement enterprise security policies that require rigorous authentication methods for routing protocols. Using the 'neighbor password' for BGP enforces these policies by restricting the type of authentication between network devices."
+          solution    : "Configure BGP neighbor authentication where feasible.
+
+hostname(config)#router bgp <<em>bgp_as-number</em>>
+hostname(config-router)#neighbor <<em>bgp_neighbor-ip</em> | <em>peer-group-name</em>> password <<em>password</em>>
+
+Default Value:
+
+Not set"
+          reference   : "800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.15,800-53|CM-6,800-53|CM-7,800-53|SC-23,800-53r5|CM-6,800-53r5|CM-7,800-53r5|SC-23,CSCv7|11,CSCv8|12.3,CSF|PR.IP-1,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|SC-23,ITSG-33|SC-23a.,LEVEL|2A,NESA|T4.5.1,NIAv2|SS15a,PCI-DSSv3.2.1|2.2.2,QCSC-v1|5.2.1,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/files/3829"
+        </report>
+      </else>
+    </if>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Cisco_IOS_15_v4.1.1_Level_2.audit from CIS Cisco IOS 15 Benchmark"
+      info        : "Nessus has not identified that Cisco IOS 15 is installed.
+
+NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/3829"
+    </report>
+  </else>
+</if>
+
+</check_type>

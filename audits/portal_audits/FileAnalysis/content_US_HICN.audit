@@ -1,0 +1,70 @@
+#TRUSTED 221b54b4c2af765aaeb3b310e1d5216324393462b569d533317fd28e91d2c3cf18c498c9001a33a38e462e3646b12bf0bb0c89dfdeb08df8338a3aee8f3c4440634152c973187f2c4c5de8e40b7ab5cf7e9c0efc4b462383d63a45a55022d1b1cba17140106385ce017b0125f0612fa6b9dd4d097a6b024ee9010ab05ef31af65a657da6db22d329ec09fb08cca0c0f5a692cfa5759819d1a4667ff6cc795b8e6dc0d026053763a641701bfb05296138affab9f846b9b74569a0f39d217ca5fe6da74b8a4dec9e1d22f889e93064c7adbcb96d57f0be2a8bd2f40619941ee18ac5b5a044f4ff75b8576f183e3800338b6c1f20fbe51f74cd8ad76cbe00aac3e00c4a5da96932d3b8d06ff03bf569a7de2289c2fd71f327836132f23a41734002d9de9cc486bbf313fb2cda861f412f40459c12b0a4409dbdd53e05fa2175dd6cfa356c691c97d3d9bf21d48bc9fcab9b904376d2d8e860272458b6cd5969ffa8b8297359acd11c378adbe7aaaef0d0569fc07d9cdb2a7e4d546af0605831d07af32dbb5c91c480865c3c5b09372926883f257b611445ceee082231d8a4ce95540586b8965a5897425c7f1491a395a556409fc02a19c12efc5383fabe87d2a6a8718577b2b52080e7d3c7e748ec560d77d92fc548d1cd4de61a34ef63dcf7ae5e82835150638df26273d0da5a6709bc82966f6b8649920f8d4796f38deea87b9f
+#TRUST-RSA-SHA256 8db883941dbdc48db870d7c032be3a45fc6c4dd0fbc50ca22861c44a333563f34a0c53ed03b6657f50bb46cde2eccb90cacaa2f8ad8e1f8ac6968f3a22bca46bab2c14fe8acb17f0f4539d37247bae63837a26c3042487a16f106659f7c0ac57c45f836eadfa2925b7600441843df4762be3b212e50296c51e6bfb569589720780f2286c0b9d001beaa918482b5ada82b2ea74eaa46cc66f84bc744da35bd172a28cb3510e3dff9bf2cd0e5c8aaa31d901b48f16ff6d37442b8320df12430d57b6aabe116065436e3e380a34aea64296b8b7adb4e38049a1a45d893965e7cea83d5363b07c1e81e28615bd5213df74329b536204348573068ab84279a72ae19fe3d2e45fcab29d3419567678cd6e83c4225a5add3cfd5a24380bece952537374722a850852dace2227a65eea10fde9a99286ec5dd384fb699237bcecac4296cbad444c16827f24870666405443dcf4cc825dc7503d10030b3b6953430d0f47b3a8c0000a38a3385118ee41c0ecd187ae6d74379bf015a4c4c63c4a3af0166830129f022f490d45a16e50d072cd4f861d1c2e815db2b5e91c671b4c20e3227c2723a25839e0fd3040f0e34f59d564a3c8336972b1e314d79cf6a2eb7597a630e176d3eeceed861f92aa4544bf02253b099a40b91eeba6fb5e3bf6b1683a080532292c0319964a6151244b4a2d779726af3d936eecc521132a2593f67f7d883020
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.5 $
+# $Date: 2025/01/06 $
+#
+# Description    : This .audit file searches the first 50k bytes of all text, Word, Excel
+#                  and PDF files for evidence of a US Health Insurance Claim Number.
+#
+# NOTE           : References:
+#                   - https://www.cms.gov/Regulations-and-Guidance/Guidance/Manuals/Downloads/ge101c02.pdf
+#                   - http://www.ncdoi.com/_Publications/Beneficiary%20Identification%20Codes_SNE1.pdf
+#
+#<ui_metadata>
+#<display_name>TNS File Analysis - US Health Insurance Claim Number (HICN)</display_name>
+#<spec>
+#  <type>TNS</type>
+#  <name>File Analysis - US Health Insurance Claim Number (HICN)</name>
+#  <version>1.0.0</version>
+#</spec>
+#<labels>filecontent,content,health,insurance,claim,number,hicn,agent</labels>
+#</ui_metadata>
+
+<check_type:"FileContent">
+
+<item>
+  type           : FILE_CONTENT_CHECK
+  description    : "PII - File contains a HICN"
+  file_extension : "txt" | "doc" | "xls" | "pdf"
+  regex          : "([^0-9-]|^)([0-9]{3}-?[0-9]{2}-?[0-9]{4}-?(A|[BDE][1-9A-Z]?|[CK][1-9A-Z]|[FJ][1-9]|M[1]?|W[1-9RT]?))([^0-9-]|$)"
+#expect         : "HICN"
+#include_paths  : "/home"
+  max_size       : "50K"
+  only_show      : "6"
+</item>
+
+<item>
+  type           : FILE_CONTENT_CHECK
+  description    : "PII - File contains a RRB HICN - pre-1964"
+  file_extension : "txt" | "doc" | "xls" | "pdf"
+  regex          : "([^0-9A-Z-]|^)(A|CA|H|JA|M[AH]|P[ADH]|W[ADH]|WC[ADH])-?([0-9]{6})([^0-9A-Z-]|$)"
+#expect         : "HICN" || "RRB"
+#include_paths  : "/home"
+  max_size       : "50K"
+  only_show      : "4"
+</item>
+
+<item>
+  type           : FILE_CONTENT_CHECK
+  description    : "PII - File contains a RRB HICN"
+  file_extension : "txt" | "doc" | "xls" | "pdf"
+  regex          : "([^0-9A-Z-]|^)((A|CA|H|JA|M[AH]|P[ADH]|W[ADH]|WC[ADH])-?[0-9]{3}-?[0-9]{2}-?[0-9]{4})([^0-9A-Z-]|$)"
+#expect         : "HICN" || "RRB"
+#include_paths  : "/home"
+  max_size       : "50K"
+  only_show      : "4"
+</item>
+
+</check_type>

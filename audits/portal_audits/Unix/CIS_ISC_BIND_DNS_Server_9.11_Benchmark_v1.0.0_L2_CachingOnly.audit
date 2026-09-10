@@ -1,0 +1,312 @@
+#TRUSTED 8760bbbb5e38fc197b1b867b63a9f97a7c3b3b333cdec6e11a20af2610af586b79058a44b0a5f9a8b72cc48380aad13be59fc896df0a7007d49c819c1beb01d6f3b0322f94526f0e071ba00b5a1b256ba5e5072f3013eb322adfa52334e606c40e7951f7782ffc23db1ebf9fdb37e8ddb7e7e238c4c85747b73e9a569517cd0dd189cf2e58ac93509808d405b94f3eb2fd1acef441a7ab7293267c6f40119ec05b0163aa3a3fd3b83e1ee330bb0036c63c786980ae3c7a6b46d2caed3c12db17845eed38e91778ce2363f4466c302a1ab4f2dbbd53f107fba642dbdc4f05d66d9f87ecd9398fd7a156abea09d31cdf7807b816e2321e88cd869d1e393f89f1b979c27f50322d0fc92fecc10ec6860701d0e9465f920bd9b75341af7aa93c0a4b7187fe22cf5a1a29825730d885d2d5408d3c4e609487bec3491d5737d7ea8efe9047f82d1c032201b6ea0b3d38ab4919c1d2f505bee143d6b49d0c006c9b00df9c675119ac837e5eae25d292d9ff03e4d6c6a472df60dad49ed59782e014c47e40b25b32dfd96c9fb6d82bf55e481c72a2bac4ac1ccbc34f316ab5cc0d95d293accabb300290351cb8a5fc9eb5c980d719fb1c7b5cfa08f1e9a1dd4d4fa4841af78706b9b641d855ef65e0818fe323f9a843094c1ca1f5fcfb5c9daee171d18a769815bb94f345dea3a1e7bc9792a17d57155260058a5c9cdf9823e50a92e3e5
+#TRUST-RSA-SHA256 77f75e4711fa6c4ed57f7ba256fca603f7f5aa25821ec3d7a251176646f5428bfd246e05c86c4b6867feb0bbbc70dfddd47c3ccaa420f219e4cdf98958660c288a6f6bab5be33e164f60a7725342d86423cd25bb7d58df79d40eba8a85984e507d8134a0c0d0c96656fcf04bd75ae594baeb152ac449c4fdcf18149240ef06d720699624c1259c7f3713f60a6cc0d8f5e6ee8646f5215b6b14a66b8ef0a945f52f1bf48edb934dfde7adaaf12f42d227d9e5bcc2df74dc567723b61b72a5805dcac36d74c6b31c8fa37034f9f9af679a052fdfe548599583ce4eaf3444958c21a0b39576d0046c8d5f1a093bd4e0125faaf698ce17f6acc4a7bedd1ccc9fa9c471496ee4f549ce2b8c37cbe03d040a2ec3af92dd9e7fdc594707df02d51673a8fe1803cf4e9a0720628956aa64540adc09ce3ebb1ee26a25e70eba62d0640f378c575adfa45bbd315cd68af1640df8e109eddd4f48022994d03332cd09a2ecb0819d30e318c7f10531d853f444caf53f10f3d2b0a647e0d4dab7a84c94616a4d273d2b9ea45d33899a2259141fb696c29a0e572dbaecfc1a922e90ebb92e31898f5c7c6530c818522511c494514e1b0db267000954291ef52591d92199b47769ea1d43d74fec69b639b9cc2a5d7c776f1799baac27b592cf42510f3d073ca6c09ff2cdde37fbac64676dcc4110e961b7bd15e372617700c8a8b7cdafbc87e8c0
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.7 $
+# $Date: 2024/06/17 $
+#
+# Description   : This .audit is designed against the CIS ISC BIND DNS Server 9.11 v1.0.0
+#                 https://workbench.cisecurity.org/files/2997
+#
+#<ui_metadata>
+#<display_name>CIS BIND DNS v1.0.0 L2 Caching Only Name Server</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>ISC BIND DNS Server 9.11</name>
+#  <profile>L2 Caching Only</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/files/2997</link>
+#</spec>
+#<labels>unix,cis,bind_linux_9.11,agent,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>PLATFORM_VERSION</name>
+#    <default>9\.11</default>
+#    <description>Bind Version</description>
+#    <info>Bind Version</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : CMD_EXEC
+      description : "Check for BIND 9 installation"
+      cmd         : "/usr/sbin/named -v"
+      expect      : "^[\\s]*BIND @PLATFORM_VERSION@.*"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_ISC_BIND_DNS_Server_9.11_Benchmark_v1.0.0_L2_CachingOnly.audit"
+    </report>
+
+    <report type:"WARNING">
+      description : "1.4 Use Secure Upstream Caching DNS Servers"
+      info        : "Caching name servers often forward queries to another caching name server to allow the name service work to be aggregated and improve performance by taking advantage of the cache of an upstream name server. The default caching name server provided by the Internet service provider is often used in this manner. This may also be a security weakness by relying on insecure servers outside the organization's control and security policies.
+
+Rationale:
+
+The security of all of the external connections that your systems on your network depend in part on getting accurate IP addresses for external names. If the upstream caching name server is compromised, or has its cache poisoned with malicious records, then your entire network may be subject to an attack which may redirect web, email, or VPN traffic to malicious servers, or may cause denial of services attacks. Therefore, it is important to evaluate the security of the upstream caching name servers to reduce the risk of DNS attacks propagated to your network via the upstream provider. There are a number of security companies that offer secure caching DNS services that are worth considering. Features to look for and test include:
+
+Blocking of traffic to websites known to contain malware.
+
+Configurable categories for blocking inappropriate content, such as adult content.
+
+Detecting and blocking of malware communications to an external command and control server.
+
+Prevent DNS spoofing by ensuring the integrity and authenticity of all DNS responses.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform the following for remediation:
+
+Select an external DNS provider that sufficiently mitigates malicious DNS traffic to meet your organizational requirements.
+
+Review network architectural, approved internal DNS servers, and prepare to block outbound DNS traffic, except to the approved DNS servers from the internal caching name servers.
+
+Review, test and document the approved external DNS servers.
+
+Configure the internal caching-only DNS servers to forward queries to the approved external caching DNS server. The forwarders directive similar to the example below may be placed in the server options directive.
+
+        forwarders { acl_of_approved_servers; };
+
+Block outbound DNS traffic, except to the approved external DNS servers from the internal caching name servers."
+      reference   : "800-171|3.1.3,800-53|AC-4(8),800-53r5|AC-4(8),CN-L3|8.1.10.2(c),CSCv6|12,CSCv7|7.4,CSCv7|7.7,CSF|DE.AE-1,CSF|ID.AM-3,CSF|PR.AC-5,CSF|PR.PT-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ITSG-33|AC-4(8),LEVEL|2M,NESA|T4.2.1,NESA|T4.5.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T5.4.6,NESA|T5.7.2,NESA|T7.5.2,NESA|T7.6.4,NIAv2|GS10a,NIAv2|GS10d,NIAv2|NS12a,NIAv2|NS12b,NIAv2|NS12c,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.4"
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+    </report>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "2.9 Isolate BIND with chroot'ed Subdirectory"
+      info        : "The chroot() system call causes an application to run with limited file system access so that a subdirectory becomes the root directory for the application environment. When this is done, the application is 'jailed' and no longer has access to the entire file structure but is limited to the given subdirectory.
+
+The chroot'd subdirectory and the recommendations in section 'Enable SELinux to Restrict BIND Processes' provide similar controls, in that the DNS service is prevented from accessing and modifying inappropriate files. SELinux goes well beyond what the chroot is able to prevent, however for audit purposes either control, the chroot'd subdirectory or the SELinux in enforcing mode is sufficient.
+
+Rationale:
+
+Although there are ways that a chroot jail can be broken, most methods require that a process be running as root in order to escape. Since BIND should be run as a different user than root, a chroot is an effective defense, to limit access to sensitive system configuration files. In the event that BIND has a vulnerability that allows code execution, the attack will not have access to the real system files such as /etc/password, but will be limited to the files placed in the chroot subdirectory."
+      solution    : "Perform the following:
+
+Stop the named service and install the bind-chroot package to provide the chroot directories.
+
+# systemctl stop named.service
+# yum install bind-chroot
+
+Edit the /etc/sysconfig/named configuration file to have a line similar to the one shown below that sets the ROOTDIR environment variable.
+
+ROOTDIR='/var/named/chroot'
+
+Move all the configuration files and any master zone files into their respective directions under the subdirectory /var/named/chroot/
+
+It may be helpful to create symbolic links from a couple of system /etc files such as /etc/named.conf and /etc/rndc.key to the real files in the chroot'ed subdirectory, so that utilities like rndc will work as expected. Do not create symbolic links or hard links from inside the chroot to external resources! Instead use symbolic links to point from the outside resources into the chroot.
+
+Restart the named service and test the configuration.
+
+# systemctl start named.service
+
+Default Value:
+
+The BIND service is not chroot'ed by default."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv6|14.4,CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+      cmd         : "ls -ld /proc/`pidof named`/root | awk '{print} END {if (NR == 0) print \"Named process not found\" }'"
+      expect      : "chroot"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "10.1 Ensure SELinux Is Enabled in Enforcing Mode - current mode"
+      info        : "SELinux (Security-Enhanced Linux) is a Linux kernel security module that provides mandatory access control security policies with type enforcement that are checked after the traditional discretionary access controls. It was created by the US National Security Agency and can enforce rules on files and processes in a Linux system, and restrict actions, based on defined policies.
+
+Rationale:
+
+DNS servers act as a foundation for most of the internet and internal traffic. Web and mobile applications, email, cloud services and VPN connections, internal LAN connections all depend on DNS to translate names and route traffic to the correct destination. With DNS being such a critical service, it is a ripe target for attacks which may allow black-hat criminals to gain access to information and servers. The threat is especially high because DNS servers are often externally accessible and continue to have serious vulnerabilities. The SELinux mandatory access controls provide a much stronger security model which can be used to implement a deny-by-default model which only allows what is explicitly permitted."
+      solution    : "Perform the following to implement the recommended state:
+
+If SELinux is not enabled in the configuration file, edit the file /etc/selinux/config and set the value of SELINUX as enforcing and reboot the system for the new configuration to be effective.
+
+SELINUX=enforcing
+
+If the current mode is not enforcing, and an immediate reboot is not possible, the current mode can be set to enforcing with the setenable command shown below.
+
+# setenforce 1
+
+Default Value:
+
+SELinux is enforcing by default on some Linux distributions such as Red Hat Enterprise Linux 8."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv6|14.4,CSCv7|14.6,CSCv7|14.7,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+      cmd         : "sestatus | grep -i 'current mode'"
+      expect      : "enforcing"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "10.1 Ensure SELinux Is Enabled in Enforcing Mode - config file"
+      info        : "SELinux (Security-Enhanced Linux) is a Linux kernel security module that provides mandatory access control security policies with type enforcement that are checked after the traditional discretionary access controls. It was created by the US National Security Agency and can enforce rules on files and processes in a Linux system, and restrict actions, based on defined policies.
+
+Rationale:
+
+DNS servers act as a foundation for most of the internet and internal traffic. Web and mobile applications, email, cloud services and VPN connections, internal LAN connections all depend on DNS to translate names and route traffic to the correct destination. With DNS being such a critical service, it is a ripe target for attacks which may allow black-hat criminals to gain access to information and servers. The threat is especially high because DNS servers are often externally accessible and continue to have serious vulnerabilities. The SELinux mandatory access controls provide a much stronger security model which can be used to implement a deny-by-default model which only allows what is explicitly permitted."
+      solution    : "Perform the following to implement the recommended state:
+
+If SELinux is not enabled in the configuration file, edit the file /etc/selinux/config and set the value of SELINUX as enforcing and reboot the system for the new configuration to be effective.
+
+SELINUX=enforcing
+
+If the current mode is not enforcing, and an immediate reboot is not possible, the current mode can be set to enforcing with the setenable command shown below.
+
+# setenforce 1
+
+Default Value:
+
+SELinux is enforcing by default on some Linux distributions such as Red Hat Enterprise Linux 8."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv6|14.4,CSCv7|14.6,CSCv7|14.7,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+      cmd         : "sestatus | grep -i 'mode from config file'"
+      expect      : "enforcing"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "10.2 Ensure BIND Processes Run in the named_t Confined Context Type"
+      info        : "SELinux includes customizable targeted policies that may be used to confine the BIND named server to enforce least privileges so that the server has only the minimal access to specified directories, files and network ports. Access is controlled by process types (domains) defined for the named process. There are about a dozen related types defined in a default named SELinux policy. The default SELinux policies work well for a default BIND installation, however testing of the SELinux polices with the specific BIND operations is highly recommended. All directories and files to be accessed by the named server process must have security labels with appropriate types. The following file context types are a sample of the most commonly used:
+
+named_cache_t - Directories and files with dynamically updated contents
+
+named_conf_t - Directories and Configuration files to be read, but not updated
+
+named_exec_t - BIND related Executables
+
+The seinfo may be used list the types that are configured. For example, the following will list the relevant types that begin with named_
+
+# seinfo -t | grep ' named_'
+
+The semanage fcontext command may be used to list file context mapping. For example:
+
+# semanage fcontext -l | grep ':named_'
+
+Rationale:
+
+With the proper implementation of SELinux, vulnerabilities in the BIND named server may be prevented from being exploited due to the additional restrictions. For example, a vulnerability that allows an attacker to read inappropriate system files may be prevented from execution by SELinux because the inappropriate files are not labeled with necessary named specific context. Likewise writing to an unexpected directory or execution of unexpected content can be prevented by similar mandatory security labels enforced by SELinux."
+      solution    : "If the running named process is not confined to the named_t SELinux context. Then check the labeled context for the named binaries and set the binary files to have a context of named_exec_t as shown below. The named-checkconf executable should have named_checkconf_exec_t type.
+
+# ls -Z  /usr/sbin/named /usr/sbin/named-checkconf /usr/sbin/unbound-anchor
+          system_u:object_r:named_exec_t:s0 /usr/sbin/named
+system_u:object_r:named_checkconf_exec_t:s0 /usr/sbin/named-checkconf
+          system_u:object_r:named_exec_t:s0 /usr/sbin/unbound-anchor
+
+If the executable files are not labeled correctly, they may be relabeled with the chcon command, as shown, however the file system labeling is based on the SELinux file context mapping polices and the file systems will on some occasions be relabeled according to the policy.
+
+# chcon -t named_exec_t /usr/sbin/named /usr/sbin/unbound-anchor
+# chcon -t named_checkconf_exec_t /usr/sbin/named-checkconf
+
+Since the file system may be relabeled based on SELinux policy, it's best to check the SELinux policy with semanage fcontext -l option. If the policy is not present, then add the pattern to the policy using the --add option. The restorecon command shown below will restore the file context label according to the current policy, which is required if a pattern was added.
+
+# ### Check the Policy
+# semanage fcontext -l | grep '/usr/sbin/named*'
+/usr/sbin/named            regular file system_u:object_r:named_exec_t:s0
+/usr/sbin/named-checkconf  regular file system_u:object_r:named_checkconf_exec_t:
+s0
+
+# semanage fcontext -l | grep /usr/sbin/unbound-anchor
+/usr/sbin/unbound-anchor   regular file system_u:object_r:named_exec_t:s0
+
+# ### Add to the policy, if not present
+# semanage fcontext --add -f f -t named_exec_t /usr/sbin/named
+# semanage fcontext --add -f f -t named_exec_t /usr/sbin/unbound-anchor
+# semanage fcontext --add -f f -t named_checkconf_exec_t /usr/sbin/named-checkconf
+
+# ### Restore the file labeling accord to the SELinux policy
+# restorecon -v /usr/sbin/named /usr/sbin/named-checkconf /usr/sbin/unbound-anchor
+
+Restarting the BIND named service will also be required.
+
+Default Value:
+
+The name_t is the default type for ISC BIND named if SELinux is enabled."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv6|14.4,CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+      cmd         : "ps -eZ | grep named | cut -f3 -d':'"
+      expect      : "^named_t$"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "10.3 Ensure the named_t Process Type is Not in Permissive Mode"
+      info        : "In addition to setting the entire SELinux configuration in permissive mode, it is possible to set individual process types (domains) such as named_t into a permissive mode as well. The permissive mode will not prevent any access or actions, instead, any actions that would have been denied are simply logged.
+
+Rationale:
+
+Usage of the permissive mode is helpful for testing and ensuring that SELinux will not prevent access that is necessary for the proper function of the DNS server. However, inappropriate access will not be prevented in permissive mode by SELinux."
+      solution    : "Perform the following to implement the recommended state:
+
+If the named_t type is in permissive mode; the customized permissive mode should be deleted with the following semanage command.
+
+# semanage permissive -d named_t
+
+Default Value:
+
+The named_t type is not in permissive mode by default."
+      reference   : "800-171|3.1.1,800-53|AC-3,800-53r5|AC-3,CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSF|PR.AC-4,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,LEVEL|2A,NESA|T4.2.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM3,NIAv2|SS29,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|13.2,TBA-FIISB|31.1"
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+      cmd         : "semodule -l | grep permissive_named_t | awk '{print} END {if (NR == 0) print \"pass\" ; else print \"fail\"}'"
+      expect      : "pass"
+    </custom_item>
+
+    <custom_item>
+      type        : CMD_EXEC
+      description : "10.4 Ensure Only the Necessary SELinux Booleans are Enabled"
+      info        : "SELinux booleans allow or disallow specific behaviors. There are two boolean variables specific to the ISC BIND DNS server:
+
+named_tcp_bind_http_port - Allow named to tcp bind http port
+
+named_write_master_zones - Allow named to write master zones
+
+The named_tcp_bind_http_port would allow enabling the BIND statistics http channel which is not recommended. The named_write_master_zones allows BIND to update the master files, which is necessary when dynamic updates are performed, or the server is automatically maintaining DNSSEC digital signatures.
+
+Rationale:
+
+Enabling only the necessary named related booleans provides a defense in depth approach, that will deny actions that are not in use or expected."
+      solution    : "Perform the following to implement the recommended state:
+
+Disable the SELinux boolean using the setsebool command as shown below with the -P option to make the change persistent.
+
+# setsebool -P named_tcp_bind_http_port off
+
+Default Value:
+
+The default value for named_tcp_bind_http_port is off."
+      reference   : "800-171|3.14.6,800-171|3.14.7,800-53|SI-4,800-53r5|SI-4,CN-L3|7.1.3.5(a),CN-L3|8.1.10.5(b),CN-L3|8.1.10.6(f),CSCv7|9.2,CSF|DE.AE-1,CSF|DE.AE-2,CSF|DE.AE-3,CSF|DE.AE-4,CSF|DE.CM-1,CSF|DE.CM-5,CSF|DE.CM-6,CSF|DE.CM-7,CSF|DE.DP-2,CSF|DE.DP-3,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.DS-5,CSF|PR.IP-8,CSF|RS.AN-1,CSF|RS.CO-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|SI-4,LEVEL|2A,NESA|M1.2.2,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+      cmd         : "getsebool named_tcp_bind_http_port"
+      expect      : "off"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_ISC_BIND_DNS_Server_9.11_Benchmark_v1.0.0_L2_CachingOnly.audit"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/files/2997"
+    </report>
+  </else>
+</if>
+
+</check_type>

@@ -1,0 +1,424 @@
+#TRUSTED 9af05899c5d35a2e08386040cca038469ddd256b17f3aac73c088580f4b7ab31e312b38ff6abeadc88c9e4dad75972ea5764cf9d43e79655428726623963f8b31adcc27cefc38bbd5b070dbbf1ebb44791c3ba88bbe33b73e1834ec5e58d17555853ac9766877ff69204f46d8492eadbfa0184c89a6c6c98b90dbc57bb2153b255f880fa7b092a4934372deffc22f169a41d8dac1616e7a4e914e806706099861612ca91350fddfed3b728bcc6f7cd53f1cc735527356a7d36ffc29a8c65f6cdea881c1a0d89aa482e6d17c1fe2bad01a0e90074721d958afd95a89aee5f30267895bba01b8d7101ab0ee056d7c0a61dc89e62bdfce0bf782df6130c6f3ad9c32310f913c5878fca9de7e1cdfb1f0aab2e7d9d60be9e9ee60d8f140068d2f06cafb1c56739c0d36b3e325a337407ae339c19f5b1dcb702f927805ba308f10defe29a14e099ebece3067a92988a5963ce4d9ccfdd38f552a74e5e3405dc0221970a2892df4440ad25e261b14bd797a2bf8ec36b88ea7946fd3ad6364f6e33026e5a2493bf02965ae363d241d31f4cf82b9a927d6aa838fed66f42026b20aca03924b2d1987b6c9973e789d1bc1757841a61ddd8735d6a6d461abbef3f7e9175d0594cd72e617c2d9254169936c2e38f53d6d796c16f2a588b01377529295a7b94660e3b065bc8db322dcc7c832a9dce53b0fa7a1ab13a078792e13e0df6446aee
+#TRUST-RSA-SHA256 985b4caa718dbc2ebbaac80e4e3513b6566a047d71a327a98e3ca8a96ec3506b08dd3dec8b119346c4c31338f15474cd20caa41e0d419b83d4e5d8a566d7605d64b78f34f4ec16124314244b0255b0b015e76a564e48ad5f9e7ce5eb9b31795daf719f9949c54a8da34c11e8f38a31f1e744581569a9304309d337588c355d1291b76d8ab177b1c8308737e926bd6f9f61b6f3fe32c39771257b06825cceabcaf562f437e86796c1179d114e35dafd3b11b45aca361c1250a1751e79952e9ca4558e3ca54800502c1c2412d131cd49c4bde40761a2863cea55530e4ed0e6f10267f5f7c3d56e7e23d10a799d59c2d1f0ad9a7a66e8fb914d744c865e83f7384d3e49f73d8a7956140662982685353969afcc50fc5613717f2562cea830fc55a0a7376682f8c362b8ce8d1c6262275f37d5834a496a6f65304b11117d6006e592d30a8e2fef4ccba83c253c71b51eb4f13322d3d973dc37d843ac98f4c4b0508f5fffc43309826b716f7562324044624909a4f01454a5f414b43eaa53c7db413b776493810b400233e8d336b88d2703eca838b6054e801c81cf5a9f84a9b56b38ac751ad3f80fb7cf1ab685906616ab484909d112c704e32b082b5d7d60b9fd741c1f0c5b8288330aa23477470f5c49200c3d9db3faa9fcf29e0bda36b8c915c71300f3536da832001dc24f17d83df8bd5d67c6c8d054bbbba3e584cdbd440dda
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2024/06/17 $
+#
+# Description   : This .audit is designed against the CIS Bottlerocket Benchmark v1.0.0
+#         https://workbench.cisecurity.org/benchmarks/6709
+#
+#<ui_metadata>
+#<display_name>CIS Bottlerocket L1</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Bottlerocket</name>
+#  <profile>L1</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/6709</link>
+#</spec>
+#<labels>cis,bottlerocket,update_20230227</labels>
+#<benchmark_refs>CCE,CIS_Recommendation,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>SELINUX_POLICY</name>
+#    <default>fortified</default>
+#    <description>SELinux policy name</description>
+#    <info>The name of the SELinux policy that should be loaded on the target.</info>
+#    <value_type>SAFE_STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>NTP_SERVERS</name>
+#    <default>169\.254\.169\.123, 2\.amazon\.pool\.ntp\.org</default>
+#    <description>NTP Servers</description>
+#    <info>The NTP servers to use for this target.</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"Unix">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : FILE_CONTENT_CHECK
+      description : "Bottlerocket is installed"
+      file        : "/.bottlerocket/rootfs/etc/os-release"
+      regex       : "^PRETTY_NAME=\"Bottlerocket[\\s]+OS"
+      expect      : "^PRETTY_NAME=\"Bottlerocket[\\s]+OS"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_Bottlerocket_v1.0.0_L1.audit from CIS Bottlerocket Benchmark Level 1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+    </report>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.2.1 Ensure software update repositories are configured"
+      info        : "Systems need to have software update repositories configured to ensure they receive the latest updates.
+
+      Rationale:
+
+      If a system's software update repositories are misconfigured, important updates may not be identified.
+
+      NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure your software update repositories according to site policy."
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.4,CSCv7|3.5,CSCv8|7.3,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1M,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/usr/local/bin/apiclient update check | /bin/jq '.available_updates'"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "Ensure dm-verity is configured - dm-mod.create"
+          file        : "/proc/cmdline"
+          regex       : "[\\s]*dm-mod.create=root,,,ro,0[\\s]*"
+          expect      : "[\\s]*dm-mod.create=root,,,ro,0[\\s]*"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "Ensure dm-verity is configured - /dev/dm-0"
+          file        : "/proc/cmdline"
+          regex       : "[\\s]*root=/dev/dm-0[\\s]*"
+          expect      : "[\\s]*root=/dev/dm-0[\\s]*"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : FILE_CONTENT_CHECK
+          description : "Ensure dm-verity is configured - restart_on_corruption"
+          file        : "/proc/cmdline"
+          regex       : "[\\s]*restart_on_corruption[\\s]*"
+          expect      : "[\\s]*restart_on_corruption[\\s]*"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.3.1 Ensure dm-verity is configured"
+          info        : "dm-verity provides transparent integrity checking of block devices using a cryptographic digest. Because dm-verity devices are read-only, filesystems mounted from the devices are also read-only.
+
+          Rationale:
+
+          Using dm-verity prevents direct modification of the root filesystem. Indirect modifications, whether accidental or malicious, can be detected by rebooting the system if corrupt blocks are found."
+          solution    : "Replace the system or reinstall the distribution."
+          reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.4.1 Ensure setuid programs do not create core dumps"
+      info        : "A core dump is the memory of an executable program. It is generally used to determine why a program aborted. It can also be used to glean confidential information from a core file.
+
+      Rationale:
+
+      Setting the fs.suid_dumpable variable to 0 will prevent setuid programs from dumping core."
+      solution    : "Run the following command to set the active kernel parameter and persist the setting:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"fs.suid_dumpable\" = \"0\"
+EOF"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/sbin/sysctl fs.suid_dumpable"
+      expect      : "^[\\s]*fs\\.suid_dumpable[\\s]*=[\\s]*0$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.4.2 Ensure address space layout randomization (ASLR) is enabled"
+      info        : "Address space layout randomization (ASLR) is an exploit mitigation technique which randomly arranges the address space of key data areas of a process.
+
+Rationale:
+
+Randomly placing virtual memory regions will make it difficult to write memory page exploits as the memory placement will be consistently shifting."
+      solution    : "Run the following command to set the active kernel parameter and persist the setting:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"kernel.randomize_va_space\" = \"2\"
+EOF"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/sbin/sysctl kernel.randomize_va_space"
+      expect      : "^[\\s]*kernel\\.randomize_va_space[\\s]*=[\\s]*2$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.4.3 Ensure unprivileged eBPF is disabled"
+      info        : "Unprivileged users should not have access to eBPF.
+
+Rationale:
+
+eBPF requires complex verification and JIT compilation procedures, and any bugs in this logic can compromise kernel security. Access to eBPF can also facilitate speculative execution attacks."
+      solution    : "Run the following command to set the active kernel parameter and persist the setting:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"kernel.unprivileged_bpf_disabled\" = \"1\"
+EOF"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/sbin/sysctl kernel.unprivileged_bpf_disabled"
+      expect      : "^[\\s]*kernel\\.unprivileged_bpf_disabled[\\s]*=[\\s]*1$"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          system      : "Linux"
+          type        : CMD_EXEC
+          description : "Ensure SELinux is configured - enforcing"
+          cmd         : "/bin/sheltie sestatus"
+          expect      : "^[\\s]*Current[\\s]+mode:[\\s]+(?i)enforcing(?-i)"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : CMD_EXEC
+          description : "Ensure SELinux is configured - enabled"
+          cmd         : "/bin/sheltie sestatus"
+          expect      : "^[\\s]*SELinux[\\s]+status:[\\s]+(?i)enabled(?-i)"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : CMD_EXEC
+          description : "Ensure SELinux is configured - policy"
+          cmd         : "/bin/sheltie sestatus"
+          expect      : "^[\\s]*Loaded[\\s]+policy[\\s]+name:[\\s]+(?i)@SELINUX_POLICY@(?-i)"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "1.5.1 Ensure SELinux is configured"
+          info        : "SELinux must be enabled and in enforcing mode.
+
+Rationale:
+
+The mandatory access controls provided by the default SELinux policy are a critical mechanism to prevent containers from accessing sensitive data or modifying system files that belong to the host or to other containers."
+          solution    : "Replace the system or reinstall the distribution."
+          reference   : "800-171|3.1.1,800-171|3.1.4,800-171|3.1.5,800-171|3.8.1,800-171|3.8.2,800-171|3.8.3,800-53|AC-3,800-53|AC-5,800-53|AC-6,800-53|MP-2,800-53r5|AC-3,800-53r5|AC-5,800-53r5|AC-6,800-53r5|MP-2,CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.4.2(f),CN-L3|8.1.4.11(b),CN-L3|8.1.10.2(c),CN-L3|8.1.10.6(a),CN-L3|8.5.3.1,CN-L3|8.5.4.1(a),CSCv7|14.6,CSCv8|3.3,CSF|PR.AC-4,CSF|PR.DS-5,CSF|PR.PT-2,CSF|PR.PT-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.6.1.2,ISO/IEC-27001|A.9.4.1,ISO/IEC-27001|A.9.4.5,ITSG-33|AC-3,ITSG-33|AC-5,ITSG-33|AC-6,ITSG-33|MP-2,ITSG-33|MP-2a.,LEVEL|1A,NESA|T1.3.2,NESA|T1.3.3,NESA|T1.4.1,NESA|T4.2.1,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.4.1,NESA|T5.4.4,NESA|T5.4.5,NESA|T5.5.4,NESA|T5.6.1,NESA|T7.5.2,NESA|T7.5.3,NIAv2|AM1,NIAv2|AM3,NIAv2|AM23f,NIAv2|SS13c,NIAv2|SS15c,NIAv2|SS29,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|3.2,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "1.6 Ensure updates, patches, and additional security software are installed"
+      info        : "Periodically updates are released for included software either due to security flaws or to include additional functionality.
+
+Rationale:
+
+It is recommended that the latest software updates be used to take advantage of the latest functionality and security enhancements. As with any software installation, organizations need to determine if a given update meets their requirements and verify the compatibility and supportability of any additional software against the update revision that is selected.
+
+      NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Configure your software update repositories according to site policy."
+      reference   : "800-171|3.11.2,800-171|3.11.3,800-171|3.14.1,800-53|RA-5,800-53|SI-2,800-53|SI-2(2),800-53r5|RA-5,800-53r5|SI-2,800-53r5|SI-2(2),CN-L3|8.1.4.4(e),CN-L3|8.1.10.5(a),CN-L3|8.1.10.5(b),CN-L3|8.5.4.1(b),CN-L3|8.5.4.1(d),CN-L3|8.5.4.1(e),CSCv7|3.4,CSCv7|3.5,CSCv8|7.3,CSCv8|7.4,CSF|DE.CM-8,CSF|DE.DP-4,CSF|DE.DP-5,CSF|ID.RA-1,CSF|PR.IP-12,CSF|RS.CO-3,CSF|RS.MI-3,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ISO/IEC-27001|A.12.6.1,ITSG-33|RA-5,ITSG-33|SI-2,ITSG-33|SI-2(2),LEVEL|1M,NESA|M1.2.2,NESA|M5.4.1,NESA|T7.6.2,NESA|T7.7.1,NIAv2|PR9,PCI-DSSv3.2.1|6.1,PCI-DSSv3.2.1|6.2,PCI-DSSv4.0|6.3,PCI-DSSv4.0|6.3.1,PCI-DSSv4.0|6.3.3,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,SWIFT-CSCv1|2.2,SWIFT-CSCv1|2.7"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/usr/local/bin/apiclient update check"
+      expect      : "^Manual Review Required$"
+      severity    : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : CMD_EXEC
+          description : "Ensure chrony is configured - time-servers"
+          cmd         : "/usr/local/bin/apiclient get settings.ntp.time-servers | /bin/jq '.settings.ntp.\"time-servers\" | join(\", \")'"
+          expect      : "@NTP_SERVERS@"
+        </custom_item>
+
+        <custom_item>
+          system      : "Linux"
+          type        : CMD_EXEC
+          description : "Ensure chrony is configured - systemctl"
+          cmd         : "/bin/sheltie systemctl is-active chronyd"
+          expect      : "^active$"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "2.1.1.1 Ensure chrony is configured"
+          info        : "chrony is a daemon which implements the Network Time Protocol (NTP). It is designed to synchronize system clocks across a variety of systems and use a source that is highly accurate.
+
+Rationale:
+
+Proper configuration of chrony is vital to ensuring time synchronization is working properly."
+          solution    : "Configure additional time servers as needed.
+
+The following command would add \"2.pool.ntp.org\" to the list of time servers.
+
+# apiclient apply <<EOF
+[settings.ntp]
+time-servers = [ \"2.pool.ntp.org\" ]
+EOF
+
+If chrony is not running, update to a version of the OS with the correct service configuration."
+          reference   : "800-171|3.3.6,800-171|3.3.7,800-53|AU-7,800-53|AU-8,800-53r5|AU-7,800-53r5|AU-8,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(b),CSCv7|6.1,CSCv8|8.4,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-7,ITSG-33|AU-8,LEVEL|1A,NESA|T3.6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4,TBA-FIISB|37.4"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "3.2.5 Ensure broadcast ICMP requests are ignored"
+      info        : "Setting net.ipv4.icmp_echo_ignore_broadcasts to 1 will cause the system to ignore all ICMP echo and timestamp requests to broadcast and multicast addresses.
+
+Rationale:
+
+Accepting ICMP echo and timestamp requests with broadcast or multicast destinations for your network could be used to trick your host into starting (or participating) in a Smurf attack. A Smurf attack relies on an attacker sending large amounts of ICMP broadcast messages with a spoofed source address. All hosts receiving this message and responding would send echo-reply messages back to the spoofed address, which is probably not routable. If many hosts respond to the packets, the amount of traffic on the network could be significantly multiplied."
+      solution    : "Run the following command to set the active kernel parameter and persist the setting:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.icmp_echo_ignore_broadcasts\" = \"1\"
+EOF
+
+Run the following command to flush the routing cache:
+
+# sysctl -w net.ipv4.route.flush=1"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/sbin/sysctl net.ipv4.icmp_echo_ignore_broadcasts"
+      expect      : "^[\\s]*net\\.ipv4\\.icmp_echo_ignore_broadcasts[\\s]*=[\\s]*1[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "3.2.6 Ensure bogus ICMP responses are ignored"
+      info        : "Setting icmp_ignore_bogus_error_responses to 1 prevents the kernel from logging bogus responses (RFC-1122 non-compliant) from broadcast reframes, keeping file systems from filling up with useless log messages.
+
+Rationale:
+
+Some routers (and some attackers) will send responses that violate RFC-1122 and attempt to fill up a log file system with many useless error messages."
+      solution    : "Run the following command to set the active kernel parameter and persist the setting:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.icmp_ignore_bogus_error_responses\" = \"1\"
+EOF
+
+Run the following command to flush the routing cache:
+
+# sysctl -w net.ipv4.route.flush=1"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/sbin/sysctl net.ipv4.icmp_ignore_bogus_error_responses"
+      expect      : "^[\\s]*net\\.ipv4\\.icmp_ignore_bogus_error_responses[\\s]*=[\\s]*1[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : CMD_EXEC
+      description : "3.2.7 Ensure TCP SYN Cookies is enabled"
+      info        : "When tcp_syncookies is set, the kernel will handle TCP SYN packets normally until the half-open connection queue is full, at which time, the SYN cookie functionality kicks in. SYN cookies work by not using the SYN queue at all. Instead, the kernel simply replies to the SYN with a SYN|ACK, but will include a specially crafted TCP sequence number that encodes the source and destination IP address and port number and the time the packet was sent. A legitimate connection would send the ACK packet of the three way handshake with the specially crafted sequence number. This allows the system to verify that it has received a valid response to a SYN cookie and allow the connection, even though there is no corresponding SYN in the queue.
+
+Rationale:
+
+Attackers use SYN flood attacks to perform a denial of service attacked on a system by sending many SYN packets without completing the three way handshake. This will quickly use up slots in the kernel's half-open connection queue and prevent legitimate connections from succeeding. SYN cookies allow the system to keep accepting valid connections, even if under a denial of service attack."
+      solution    : "Run the following command to set the active kernel parameter and persist the setting:
+
+# apiclient apply <<EOF
+[settings.kernel.sysctl]
+\"net.ipv4.tcp_syncookies\" = \"1\"
+EOF
+
+Run the following command to flush the routing cache:
+
+# sysctl -w net.ipv4.route.flush=1"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      cmd         : "/sbin/sysctl net.ipv4.tcp_syncookies"
+      expect      : "^[\\s]*net\\.ipv4\\.tcp_syncookies[\\s]*=[\\s]*1[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CONTENT_CHECK
+      description : "4.1.1.1 Ensure journald is configured to write logfiles to persistent disk"
+      info        : "Data from journald may be stored in volatile memory or persisted locally on the server. Logs in memory will be lost upon a system reboot. By persisting logs to local disk on the server they are protected from loss.
+
+Note: The main configuration file /etc/systemd/journald.conf is read before any of the custom *.conf files. If there are custom configs present, they override the main configuration parameters
+
+Rationale:
+
+Writing log data to disk will provide the ability to forensically reconstruct events which may have impacted the operations or security of a system even after a system crash or reboot."
+      solution    : "Update to a version of the OS with the correct journald configuration."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv7|6.3,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|1A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      file        : "/.bottlerocket/rootfs/usr/lib/systemd/journald.conf.d/journald.conf"
+      regex       : "^[\\s]*Storage[\\s]*="
+      expect      : "^[\\s]*Storage[\\s]*=[\\s]*persistent[\\s]*$"
+    </custom_item>
+
+    <custom_item>
+      system      : "Linux"
+      type        : FILE_CHECK
+      description : "4.1.2 Ensure permissions on journal files are configured"
+      info        : "The journal is stored in /var/log/journal, and contains logged information from all services on the system.
+
+Rationale:
+
+It is important to ensure that log files have the correct permissions to ensure that sensitive data is archived and protected."
+      solution    : "Run the following commands to set permissions on all existing log files:
+
+# find /var/log/journal -type f -perm /g+wx,o+rwx -exec chmod g-wx,o-rwx \"{}\" +"
+      reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-53|CM-1,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,800-53|SA-8,800-53|SA-10,800-53r5|CM-1,800-53r5|CM-2,800-53r5|CM-6,800-53r5|CM-7,800-53r5|CM-7(1),800-53r5|CM-9,800-53r5|SA-3,800-53r5|SA-8,800-53r5|SA-10,CSCv7|5.1,CSCv8|4.1,CSF|DE.AE-1,CSF|ID.GV-1,CSF|ID.GV-3,CSF|PR.DS-7,CSF|PR.IP-1,CSF|PR.IP-2,CSF|PR.IP-3,CSF|PR.PT-3,GDPR|32.1.b,GDPR|32.4,HIPAA|164.306(a)(1),ITSG-33|CM-1,ITSG-33|CM-2,ITSG-33|CM-6,ITSG-33|CM-7,ITSG-33|CM-7(1),ITSG-33|CM-9,ITSG-33|SA-3,ITSG-33|SA-8,ITSG-33|SA-8a.,ITSG-33|SA-10,LEVEL|1A,NESA|M1.2.2,NESA|T1.2.1,NESA|T1.2.2,NESA|T3.2.5,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.2.1,NESA|T7.5.1,NESA|T7.5.3,NESA|T7.6.1,NESA|T7.6.2,NESA|T7.6.3,NESA|T7.6.5,NIAv2|GS8b,NIAv2|SS3,NIAv2|SS15a,NIAv2|SS16,NIAv2|VL2,NIAv2|VL7a,NIAv2|VL7b,PCI-DSSv3.2.1|2.2.2,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|7.2,SWIFT-CSCv1|2.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+      file        : "/.bottlerocket/rootfs/var/log/journal/*/*"
+      mask        : "037"
+    </custom_item>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_Bottlerocket_v1.0.0_L1.audit from CIS Bottlerocket Benchmark Level 1"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/6709"
+    </report>
+  </else>
+</if>
+
+</check_type>

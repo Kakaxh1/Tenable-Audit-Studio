@@ -1,0 +1,761 @@
+#TRUSTED 712a71ab84237bd9b652cf857b9f0fa0a5606db8e5c20d39e6274b7d4833f58aa8d5b5fb72ec3906f80c1c6ed30439e5f7180bfa91cd23e442e1c6cddfb551e6c88edf6536ec88b2d0e18f4d10279c96e25e4cf00e04c2981bc05e4311849b2ead3fc756f14e2fa1149d3d53ec03311869de37b9a6b882292d5c1738fd073eacbb52599f1077a9b6fbed5910c6f60064dc5e79e0e254f9f7eda5be248f16ec5b1cc4cc8365104cac9517a225adbeccb42b6b1e2963ea3632322170a6b469ba8f1697c15c7e89e7b647fed60ee292ee7c14a54064d2396d29fa3c35f4cf3c29c89f907b4d766f63112e9782a1e77081d0710216a5746d1f206e0538ecff1bf2c5e1173a75806321a4f7c7b1b7a5ee5b46abccf986f0154b7c59e2df63a310ea209d00851fcf25c4f4aca7243ad3bdb854f5c9a68286105137ec85e579afb684987d88beb9984764199d1389b0afa4138b1c367aa623b48947e5f76d6336b929eaaa8af6226b6257a0c69dec5fbe7193f346d6472ed067fc0e792f3a53ae9a02233f4967984480eed8b9ffe6e6f1d902f4192014ef932770f739cdf5005e70051c1369e97314a8519df6df02a787b8558be57f95936408b56fc3320ef724aaebefad9b89c2d6d25dcf1847d048aafd507235b4f7fe0c0931f51dd3f8c9137a4a0bae82dde58a86c0d67b6c48f05e6861bb7b3308abb6d92142ec430c5a1c3019dc
+#TRUST-RSA-SHA256 72f2489a1698dead30193de8bcf862e4edc196162c3ffb634effee1a8aeb156dacfa6699438b03d3fb99542fe8a447d6654370ce7ce905199f791b297cf9ee3a32793f4426859a9e2cb40859c6e65f089a5f8aca5f81c39b70ffa7e3065e8284f6e4ff11f5821f63cb496ce863552f9c2390a1c8fbf19d2766c50867434ec7cb39ffa3454cfa7935180842cde9103698233b921428c9ede5420d68401ee2c7e860b1126b5e20dcd36b031f4ca4db5a1f7714e805339ada251d075e5fb26102f643cebea50fbc9e0e0b303faa5bdaa8cdf470ee8f15a9e76145500b3a090506e34d220e9a323420c93005285ea3a48964667cc5fddcc5956c0a4a4131e742e46ef839c1f73a90b211ebfbe72aaa87969993db1f55182a1b3c9dc390dfcea68b5a0a5f2140a2bbed5a8dd23fc3cd9047c3843942bb546adfd0ed54c02a456ad6dbd3d261636b5ec538a42e6b8ec8264dd1ad886104c3c8bb3bceb0e1fdec99d13492f6c7f45057cd8988212d90967c872cb3518166a0bc19af69eaa25180094f18011d13f53e0968b3e919eb4e72fb0d69b63dae059c0ae85a20b10f58f570418f895591b81c65c249196a939177ef1a36f9f37b766706b54d38b0cdea1c3e1e01f36f439ff80cc25080b6479773c03bcf86137d331a6e3824905c2fa6958d08f1270f4deb20030ac73993c7444fc33c396db7140aad9dae928bc0884032fc9cac
+#
+# This script is Copyright (C) 2004-2024 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.1 $
+# $Date: 2024/06/17 $
+#
+# Description : This document implements the security configuration as recommended by the
+#               CIS MariaDB 10.6 Benchmark
+#
+#<ui_metadata>
+#<display_name>CIS MariaDB 10.6 Database L2 v1.1.0</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>MariaDB 10.6</name>
+#  <profile>L2 DB</profile>
+#  <version>1.1.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/16527</link>
+#</spec>
+#<labels>database,cis,mariadb,mariadb_10.6</labels>
+#<benchmark_refs>CCE,CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#<variables>
+#  <variable>
+#    <name>PLATFORM_VERSION</name>
+#    <default>10\.6</default>
+#    <description>MariaDB Version</description>
+#    <info>MariaDB Version</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>SSL_CIPHER</name>
+#    <default>ECDHE-ECDSA-AES128-GCM-SHA256</default>
+#    <description>Allowed SSL Cipher(s)</description>
+#    <info>Allowed SSL Cipher(s)</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#  <variable>
+#    <name>REPLICATION_SSL_CIPHER</name>
+#    <default>ECDHE-ECDSA-AES128-GCM-SHA256</default>
+#    <description>Replication SSL Cipher</description>
+#    <info>If replication is active, the SSL Cipher selection for connections to the primary server</info>
+#    <value_type>STRING</value_type>
+#  </variable>
+#</variables>
+#</ui_metadata>
+
+<check_type:"MySQLDB">
+
+<if>
+  <condition type:"AND">
+    <custom_item>
+      type        : SQL_POLICY
+      description : "MariaDB 10 is installed"
+      sql_request : "show variables like 'version';"
+      sql_types   : STRING, REGEX
+      sql_expect  : "version", "@PLATFORM_VERSION@"
+    </custom_item>
+  </condition>
+
+  <then>
+    <report type:"PASSED">
+      description : "CIS_MariaDB_10.6_Benchmark_v1.1.0_L2_Database.audit from CIS MariaDB 10.6 Benchmark"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+    </report>
+
+    <report type:"WARNING">
+      description : "1.7 Ensure MariaDB is Run Under a Sandbox Environment"
+      info        : "Use of the chroot() system call at startup, Systemd with settings to achieve isolation, or docker will put MariaDB in a Sandbox environment.
+
+Rationale:
+
+Running MariaDB in a Sandbox environment may reduce the impact of a MariaDB-born vulnerability by making portions of the file system inaccessible to the MariaDB instance.
+
+Impact:
+
+Use of the chroot option somewhat limits LOAD DATA INFILE and SELECT ... INTO OUTFILE.
+
+NOTE: Nessus has not performed this check. Please review the benchmark to ensure target compliance."
+      solution    : "Perform one of the following steps to remediate this setting:
+
+Configure MariaDB to use chroot:
+
+Choose a non-system partition <chroot location> for MariaDB
+
+Add chroot=<chroot_location> to the my.cnf option file
+
+Configure MariaDB to run under systemd:
+
+If MariaDB is managed by systemd and running, stop the service:
+
+$ sudo systemctl stop <mysqld>.service
+
+If a mysql user and group do not already exist, create them:
+
+$ sudo groupadd mysql
+$ sudo useradd -r -g mysql -s /bin/false mysql
+
+Set the ownership of the base directory:
+
+$ sudo chown -R mysql:mysql /usr/local/mysql/
+
+Create or modify the <mysqld>.service file in /lib/systemd/system to include the following entries, if not already present:
+
+[Unit]
+Description=MariaDB Server
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=mysql
+Group=mysql
+
+If MariaDB was not already already managed by systemd execute this command:
+
+$ sudo systemctl daemon-reload
+
+Start the MariaDB server:
+
+$ sudo systemctl start <mariadb>.service
+
+If you would like MariaDB to automatically run at startup execute this command:
+
+$ sudo systemctl enable <mariadb>.service
+
+Follow documentation in the references for standing up MariaDB in a Docker container. During setup, follow the special notes below.
+
+Do not set MARIADB_ALLOW_EMPTY_ROOT_PASSWORD or MYSQL_ALLOW_EMPTY_PASSWORD to a non-empty value.
+
+Ensure that passwords are not set as values of any environment variables being passed to the Docker container. For example, do not orchestrate your container by passing MARIADB_ROOT_PASSWORD= as an environment attribute. Instead, securely set MARIADB_ROOT_PASSWORD within your environment, then simply tell Docker to pass MARIADB_ROOT_PASSWORD (without setting the value) to the container."
+      reference   : "800-171|3.13.4,800-53|SC-4,800-53r5|SC-4,CSCv7|2.10,CSCv8|3.12,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|SC-4,ITSG-33|SC-4a.,LEVEL|2M"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+    </report>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.1.5 Point-in-Time Recovery"
+      info        : "With binlogs it is possible to implement point-in-time recovery. This makes it possible to restore the changes between the last full backup and the point-in-time.
+
+Enabling binlogs is not sufficient. The binlogs need to be backed up to separate media. The restore procedure should be created and tested. The data in the binlog files may contain sensitive information which needs be stored in the proper location with restrictive permissions and may require encryption.
+
+Rationale:
+
+Using binlogs can reduce the amount of information lost when recovering from a backup.
+
+Impact:
+
+Binlogs can grow quite large and take up a large amount of space so auto remove needs to be put into place."
+      solution    : "Enable binlogs, then create and test a restore procedure.
+
+Default Value:
+
+0"
+      reference   : "800-171|3.8.9,800-53|CP-9,800-53|CP-10,800-53r5|CP-9,800-53r5|CP-10,CSCv7|10.2,CSCv8|11.2,CSF|PR.IP-4,CSF|RC.RP-1,CSF|RS.RP-1,GDPR|32.1.b,GDPR|32.1.c,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(ii),ISO/IEC-27001|A.12.3.1,ITSG-33|CP-9,ITSG-33|CP-10,ITSG-33|CP-10a.,LEVEL|2A,NESA|M5.2.3,NESA|T2.2.4,QCSC-v1|5.2.3,QCSC-v1|10.2.1,QCSC-v1|11.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE, 'BINLOG - Log Expiration' as Note FROM information_schema.global_variables where variable_name = 'binlog_expire_logs_seconds';"
+      sql_types   : STRING, REGEX, STRING
+      sql_expect  : "binlog_expire_logs_seconds", "^[1-9][0-9]*$", "BINLOG - Log Expiration"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.7 Lock Out Accounts if Not Currently in Use"
+      info        : "If users with accounts will not be using their account for some time, to reduce the risk of attacks or inappropriate account usage or if suspicions exist that an account might be under attack, disabling the account will secure it and once it's ready to resume use it can easily be re-enabled.
+
+Rationale:
+
+Only have active accounts that will be used.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "To lock accounts - example:
+
+ALTER USER 'jeffrey'@'localhost' ACCOUNT LOCK;
+
+To unlock accounts - example
+
+ALTER USER 'jeffrey'@'localhost' ACCOUNT UNLOCK;
+
+Note: Works for CREATE as well. It is good practice to LOCK an account if created ahead of time.
+
+Default Value:
+
+Accounts are unlocked by default."
+      reference   : "800-171|3.1.1,800-53|AC-2(3),800-53r5|AC-2(3),CN-L3|7.1.3.2(e),CN-L3|8.1.4.2(c),CSCv7|16.9,CSCv8|5.3,CSF|PR.AC-1,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.1,ISO/IEC-27001|A.9.2.6,ITSG-33|AC-2(3),LEVEL|2M,NIAv2|AM26,QCSC-v1|5.2.2,QCSC-v1|8.2.1,QCSC-v1|13.2,QCSC-v1|15.2,TBA-FIISB|36.2.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SELECT CONCAT(user, '@', host, ' => ', JSON_DETAILED(priv)) FROM mysql.global_priv;"
+      sql_types   : STRING
+      sql_expect  : "Manual Review Required"
+      severity    : MEDIUM
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : SQL_POLICY
+          description : "auth_socket enabled"
+          sql_request : " SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME LIKE 'auth%';"
+          sql_types   : STRING, STRING
+          sql_expect  : "auth_socket", "ACTIVE"
+        </custom_item>
+      </condition>
+
+      <then>
+        <custom_item>
+          type        : SQL_POLICY
+          description : "2.8 Ensure Socket Peer-Credential Authentication is Used Appropriately"
+          info        : "The server-side unix_socket authentication plugin authenticates clients that connect to the MariaDB server from the local host through the Unix socket file. Users authenticated using unix_socket need not specify a password when connecting to the server. However, users authenticated by the unix_socket plugin are restricted from connecting remotely; they can only connect from the local host through the Unix socket file. This method is only suitable in situations where the server administrator OS account access is restricted.
+
+Rationale:
+
+This method may be desirable in specific cases, including:
+
+The Linux system where MariaDB is running is dedicated to the MariaDB server and only the MariaDB DBA and OS Admin have access.
+
+When control over user authentication is centralized in the operating system.
+
+It is desirable that audit trails in the database and operating system can use the same user names.
+
+For certain other narrow installation use cases unix_socket may be desirable.
+
+Only local connections for a user.
+
+Impact:
+
+Things to consider when using the operating system to authenticate users:
+
+The user must have an operating system account on the computer which must be accessed.
+
+If a user has logged in using this method and steps away from the terminal, another user could easily log in because this user does not need any passwords or credentials. This could pose a serious security problem.
+
+When an operating system is used to authenticate database users, managing distributed database environments and database links requires special care. Special care must also be taken not to leave such a terminal unlocked and unattended. Hence, we recommend that you carefully evaluate your requirements before opting for unix_socket.
+
+This will not work where distributed connections are required.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+          solution    : "If the plugin is active and you need to disable it in your environment, add the following option under the [mysqld] option group in your MariaDB configuration file, then restart MariaDB:
+
+unix_socket=OFF
+
+If the plugin is disabled but you seek to use it, ensure the following option is set under the [mysqld] option group in your MariaDB configuration file, then restart MariaDB:
+
+unix_socket=ON
+
+To enable an OS user to login to MariaDB using unix_socket, include 'unix_socket' as an authentication plugin in your IDENTIFIED VIA clause of CREATE USER commands. For example, run:
+
+CREATE USER '<user>'@'localhost' IDENTIFIED VIA unix_socket;
+
+The user can then login using:
+
+mysql -u <user>
+
+Default Value:
+
+The unix_socket plugin is ON by default."
+          reference   : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSCv8|6.6,CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+          sql_request : "select user, host, plugin from mysql.user where plugin = 'auth_socket';"
+          sql_types   : STRING, REGEX, REGEX
+          sql_expect  : "Manual Review Required", ".*", ".*"
+          severity    : MEDIUM
+        </custom_item>
+      </then>
+
+      <else>
+        <report type:"PASSED">
+          description : "2.8 Ensure Socket Peer-Credential Authentication is Used Appropriately"
+          info        : "The server-side unix_socket authentication plugin authenticates clients that connect to the MariaDB server from the local host through the Unix socket file. Users authenticated using unix_socket need not specify a password when connecting to the server. However, users authenticated by the unix_socket plugin are restricted from connecting remotely; they can only connect from the local host through the Unix socket file. This method is only suitable in situations where the server administrator OS account access is restricted.
+
+Rationale:
+
+This method may be desirable in specific cases, including:
+
+The Linux system where MariaDB is running is dedicated to the MariaDB server and only the MariaDB DBA and OS Admin have access.
+
+When control over user authentication is centralized in the operating system.
+
+It is desirable that audit trails in the database and operating system can use the same user names.
+
+For certain other narrow installation use cases unix_socket may be desirable.
+
+Only local connections for a user.
+
+Impact:
+
+Things to consider when using the operating system to authenticate users:
+
+The user must have an operating system account on the computer which must be accessed.
+
+If a user has logged in using this method and steps away from the terminal, another user could easily log in because this user does not need any passwords or credentials. This could pose a serious security problem.
+
+When an operating system is used to authenticate database users, managing distributed database environments and database links requires special care. Special care must also be taken not to leave such a terminal unlocked and unattended. Hence, we recommend that you carefully evaluate your requirements before opting for unix_socket.
+
+This will not work where distributed connections are required."
+          solution    : "If the plugin is active and you need to disable it in your environment, add the following option under the [mysqld] option group in your MariaDB configuration file, then restart MariaDB:
+
+unix_socket=OFF
+
+If the plugin is disabled but you seek to use it, ensure the following option is set under the [mysqld] option group in your MariaDB configuration file, then restart MariaDB:
+
+unix_socket=ON
+
+To enable an OS user to login to MariaDB using unix_socket, include 'unix_socket' as an authentication plugin in your IDENTIFIED VIA clause of CREATE USER commands. For example, run:
+
+CREATE USER '<user>'@'localhost' IDENTIFIED VIA unix_socket;
+
+The user can then login using:
+
+mysql -u <user>
+
+Default Value:
+
+The unix_socket plugin is ON by default."
+          reference   : "800-171|3.4.1,800-53|CM-8,800-53r5|CM-8,CN-L3|8.1.10.2(a),CN-L3|8.1.10.2(b),CSCv8|6.6,CSF|DE.CM-7,CSF|ID.AM-1,CSF|ID.AM-2,CSF|PR.DS-3,GDPR|32.1.b,HIPAA|164.306(a)(1),ITSG-33|CM-8,LEVEL|2M,NESA|T1.2.1,NESA|T1.2.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+        </report>
+      </else>
+    </if>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.9 Ensure MariaDB is Bound to an IP Address"
+      info        : "By default, the MariaDB server accepts TCP/IP connections from MariaDB user accounts on all server host IPv6 and IPv4 interfaces. You can make this configuration more restrictive by setting the bind_address configuration option to a specific IPv4 or IPv6 address so that the server only accepts TCP/IP connections on that address.
+
+Rationale:
+
+Limiting the IP address provides additional controls and restrictions on how client applications can connect to MariaDB. If not configured to a specific IP all IPs for this server can be used to connect to MariaDB."
+      solution    : "For example, to have the MariaDB server only accept connections on a specific IPv4 address, add an entry similar to this under the [mysqld] option group in MariaDB configuration files:
+
+bind_address=192.0.2.24
+
+This setting typically appears in /etc/mysql/mariadb.conf.d/50-server.cnf.
+In the case above, clients can connect to the server using --host=192.0.2.24. Connections on other server host addresses are not permitted.
+
+Default Value:
+
+Not set. On some linux variants (Ubuntu, Debian), bind_address is set to 127.0.0.1."
+      reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM information_schema.global_variables WHERE VARIABLE_NAME = 'bind_address'"
+      sql_types   : STRING, REGEX
+      sql_expect  : "BIND_ADDRESS", "[^(\*|::)$].+"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.10 Limit Accepted Transport Layer Security (TLS) Versions"
+      info        : "MariaDB supports multiple versions of TLS. The higher the version the stronger the security and/or better the performance.
+
+Rationale:
+
+Requiring clients attempting to connect to MariaDB to use higher versions of TLS to better protect data in transit.
+
+Impact:
+
+Connections attempting to use an unsupported version of TLS will fail."
+      solution    : "Set the version(s) of TLS you wish to accept by setting the tls_version option to a comma-separated (no whitespace) string in MariaDB configuration files.
+For example, to only accept TLS 1.2 or 1.3 connections, set tls_version likeso:
+
+tls_version=TLSv1.2,TLSv1.3
+
+Note: with this setting, only clients that support the specified TLS version(s) are able to establish an encrypted connection to the server.
+
+Default Value:
+
+TLSv1.1,TLSv1.2,TLSv1.3"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SA-15,800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SA-15,800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv7|18.5,CSCv8|3.10,CSCv8|16.11,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.IP-2,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS5,NIAv2|SS6a,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|4.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "select @@tls_version;"
+      sql_types   : REGEX
+      sql_expect  : "^TLSv1\.(2|3)(,|$)"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.11 Require Client-Side Certificates (X.509)"
+      info        : "Client-side certificates may be used as proof of identity.
+
+Rationale:
+
+Requiring client-side certificates provides additional validation of a user's identity.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Create or Alter users using the REQUIRE X509.
+For example:
+
+CREATE USER 'newuser2'@'%' IDENTIFIED BY <password> require x509;
+
+For accounts created with a REQUIRE X509 clause, clients must specify at least --ssl-cert and --ssl-key. In addition, --ssl-ca (or --ssl-capath) is recommended so that the public certificate provided by the server can be verified.
+For example:
+
+mysql --ssl-ca=ca.pem \
+      --ssl-cert=client-cert.pem \
+      --ssl-key=client-key.pem"
+      reference   : "800-171|3.1.13,800-171|3.5.2,800-171|3.13.8,800-53|AC-17(2),800-53|IA-5,800-53|IA-5(1),800-53|SC-8,800-53|SC-8(1),800-53r5|AC-17(2),800-53r5|IA-5,800-53r5|IA-5(1),800-53r5|SC-8,800-53r5|SC-8(1),CN-L3|7.1.2.7(g),CN-L3|7.1.3.1(d),CN-L3|8.1.2.2(a),CN-L3|8.1.2.2(b),CN-L3|8.1.4.1(c),CN-L3|8.1.4.7(a),CN-L3|8.1.4.8(a),CN-L3|8.2.4.5(c),CN-L3|8.2.4.5(d),CN-L3|8.5.2.2,CSCv7|14.4,CSCv8|3.10,CSF|PR.AC-1,CSF|PR.AC-3,CSF|PR.DS-2,CSF|PR.DS-5,CSF|PR.PT-4,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(d),HIPAA|164.312(e)(1),HIPAA|164.312(e)(2)(i),ISO/IEC-27001|A.6.2.2,ISO/IEC-27001|A.10.1.1,ISO/IEC-27001|A.13.2.3,ITSG-33|AC-17(2),ITSG-33|IA-5,ITSG-33|IA-5(1),ITSG-33|SC-8,ITSG-33|SC-8a.,ITSG-33|SC-8(1),LEVEL|2A,NESA|T4.3.1,NESA|T4.3.2,NESA|T4.5.1,NESA|T4.5.2,NESA|T5.2.3,NESA|T5.4.2,NESA|T7.3.3,NESA|T7.4.1,NIAv2|AM37,NIAv2|IE8,NIAv2|IE9,NIAv2|IE12,NIAv2|NS5d,NIAv2|NS6b,NIAv2|NS29,NIAv2|SS24,PCI-DSSv3.2.1|2.3,PCI-DSSv3.2.1|4.1,PCI-DSSv4.0|2.2.7,PCI-DSSv4.0|4.2.1,QCSC-v1|3.2,QCSC-v1|5.2.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|2.1,SWIFT-CSCv1|2.6,SWIFT-CSCv1|4.1,TBA-FIISB|29.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "select user, host, ssl_type from mysql.user where user not in ('mysql.infoschema', 'mysql.session', 'mysql.sys');"
+      sql_types   : STRING, REGEX, REGEX
+      sql_expect  : "Manual Review Required", ".*", ".*"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "2.12 Ensure Only Approved Ciphers are Used"
+      info        : "MariaDB supports multiple encryption ciphers. Ciphers can vary in strength, speed and overhead.
+
+Rationale:
+
+Requiring clients attempting to connect to MariaDB to use strong ciphers protects data in transit.
+
+Impact:
+
+Connections attempting to use an unsupported cipher will fail."
+      solution    : "Set ssl_cipher to one or more approved cipher suites in your MariaDB configuration file, then restart MariaDB.
+For example, set:
+
+ssl_cipher='ECDHE-ECDSA-AES128-GCM-SHA256'
+
+Default Value:
+
+None"
+      reference   : "800-53|SA-15,800-53r5|SA-15,CSCv7|18.5,CSCv8|16.11,CSF|PR.IP-2,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|2A,NIAv2|SS5,NIAv2|SS6a,QCSC-v1|4.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM information_schema.global_variables WHERE VARIABLE_NAME = 'ssl_cipher';"
+      sql_types   : STRING, STRING
+      sql_expect  : "ssl_cipher", "@SSL_CIPHER@"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "4.8 Ensure 'sql_mode' Contains 'STRICT_ALL_TABLES'"
+      info        : "When data changing statements are made (i.e., INSERT, UPDATE), MariaDB can handle invalid or missing values differently depending on whether strict SQL mode is enabled. When strict SQL mode is enabled, data may not be truncated or otherwise 'adjusted' to make the data changing statement work.
+
+Rationale:
+
+Without strict mode the server tries to proceed with the action when an error might have been a more secure choice. For example, by default MariaDB will truncate data if it does not fit in a field, which can lead to unknown behavior, or be leveraged by an attacker to circumvent data validation.
+
+Impact:
+
+Applications relying on the MariaDB database should be aware that STRICT_ALL_TABLES is in use, such that error conditions are handled appropriately."
+      solution    : "Set STRICT_ALL_TABLES to the sql_mode in the server's global configuration, for example:
+
+SET GLOBAL sql_mode ='STRICT_ALL_TABLES,ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+Default Value:
+
+STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+      reference   : "800-171|3.13.1,800-171|3.13.2,800-53|PL-8,800-53|SA-8,800-53r5|PL-8,800-53r5|SA-8,CSCv8|16.10,CSF|ID.AM-3,CSF|PR.IP-2,GDPR|32.1.b,GDPR|32.1.d,HIPAA|164.306(a)(1),ITSG-33|SA-8,ITSG-33|SA-8a.,LEVEL|2A,NESA|T3.4.1,NESA|T4.5.3,NESA|T4.5.4,NESA|T7.6.5,NIAv2|SS3,NIAv2|VL2,QCSC-v1|4.2,QCSC-v1|5.2.2,QCSC-v1|5.2.3,QCSC-v1|6.2"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SHOW VARIABLES LIKE 'sql_mode';"
+      sql_types   : STRING, REGEX
+      sql_expect  : "sql_mode", ".*STRICT_ALL_TABLES.*"
+    </custom_item>
+
+    <if>
+      <condition auto:"FAILED" type:"AND">
+        <custom_item>
+          type        : SQL_POLICY
+          description : "at-rest encryption"
+          sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE FROM information_schema.global_variables where variable_name like '%ENCRYPT%' and VARIABLE_VALUE IN ('OFF', 'ON');"
+          sql_types   : REGEX, STRING
+          sql_expect  : ".+", "ON"
+        </custom_item>
+
+        <custom_item>
+          type        : SQL_POLICY
+          description : "tablespace encryption"
+          sql_request : "SELECT SPACE,NAME FROM INFORMATION_SCHEMA.INNODB_TABLESPACES_ENCRYPTION;"
+          sql_types   : REGEX, REGEX
+          sql_expect  : ".+", ".+"
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "4.9 Enable data-at-rest encryption in MariaDB"
+          info        : "Data-at-rest encryption protects the privacy of your information, prevents data breaches and helps meet regulatory requirements.
+
+Rationale:
+
+File system based encryption does a good job of protecting against data theft on devices unable to limit physical access. It does not, however, protect against users who have or gain access to the operating system, backups, over the network copies, etc. Encrypting data from MariaDB adds an additional layer of data protection."
+          solution    : "MariaDB's data-at-rest encryption requires the use of a key management and encryption plugin.
+Create the key file:
+
+$ sudo mkdir -p /etc/mysql/encryption && (echo -n '1;' ; openssl rand -hex 32 ) | sudo tee -a  /etc/mysql/encryption/keyfile
+
+Generate a random encryption password:
+
+$ sudo openssl rand -hex 128 | sudo tee -a /etc/mysql/encryption/keyfile.key
+
+Encrypt the key file:
+
+$ sudo openssl enc -aes-256-cbc -md sha1 \
+   -pass file:/etc/mysql/encryption/keyfile.key \
+   -in /etc/mysql/encryption/keyfile \
+   -out /etc/mysql/encryption/keyfile.enc
+
+Delete the unencrypted key file:
+
+$ sudo rm /etc/mysql/encryption/keyfile
+
+Set permissions and ownership on the keyfile and key:
+
+$ sudo chown mysql:mysql -R /etc/mysql/encryption
+$ sudo chmod 640 /etc/mysql/encryption/keyfile*
+
+Edit mariadb.cnf to resemble the following block, optionally uncommenting file_key_management_encryption_algorithm = AES_CTR:
+
+[mariadb]
+...
+plugin_load_add = file_key_management
+file_key_management_filename = /etc/mysql/encryption/keyfile.enc
+file_key_management_filekey = FILE:/etc/mysql/encryption/keyfile.key
+
+# Binary Log Encryption
+encrypt_binlog = ON
+# Redo Log Encryption
+innodb_encrypt_log = ON
+# Encrypting Temporary Files
+encrypt_tmp_files = ON
+# Encrypt Temporary Tables
+innodb_encrypt_temporary_tables = ON
+
+# You can configure InnoDB encryption to automatically have all new InnoDB tables automatically encrypted, or specify encrypt per table.
+innodb_encrypt_tables = ON
+
+# Uncomment the line below if utilizing MariaDB built with OpenSSL
+# file_key_management_encryption_algorithm = AES_CTR
+
+If needed, see References for information about file_key_management_encryption_algorithm and OpenSSL usage.
+Restart MariaDB:
+
+$ sudo systemctl restart mariadb.service
+
+Run ALTER to enable encryption (Note: This will lock the table as table is encrypted).
+
+ALTER TABLE tab1
+   ENCRYPTED=YES ENCRYPTION_KEY_ID=1;
+
+Revisit recommendation 3.10 after completing remediation.
+
+Default Value:
+
+At rest encryption is off by default.
+
+When innodb_encrypt_tables is set to ON, InnoDB tables are automatically encrypted by default.
+
+mariadb.cnf.
+
+innodb_encrypt_tables=ON"
+          reference   : "800-171|3.5.2,800-171|3.13.16,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+          show_output : YES
+        </report>
+      </then>
+    </if>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "5.3 Ensure 'PROCESS' is Not Granted to Non-Administrative Users"
+      info        : "The PROCESS privilege found in the mysql.user table determines whether a given user can see statement execution information for all sessions.
+
+Rationale:
+
+The PROCESS privilege allows principals to view currently executing MariaDB statements beyond their own, including statements used to manage passwords. This may be leveraged by an attacker to compromise MariaDB or to gain access to potentially sensitive data.
+
+Impact:
+
+Users denied the PROCESS privilege may also be denied use of SHOW ENGINE.
+
+NOTE: Nessus has provided the target output to assist in reviewing the benchmark to ensure target compliance."
+      solution    : "Perform the following steps to remediate this setting:
+
+Enumerate the non-administrative users found in the result set of the audit procedure
+
+For each user, issue the following SQL statement (replace <user> with the non-administrative user):
+
+REVOKE PROCESS ON *.* FROM '<user>';"
+      reference   : "800-171|3.1.5,800-171|3.1.6,800-53|AC-6(2),800-53|AC-6(5),800-53r5|AC-6(2),800-53r5|AC-6(5),CN-L3|7.1.3.2(b),CN-L3|7.1.3.2(g),CN-L3|8.1.4.2(d),CN-L3|8.1.10.6(a),CSCv7|14.6,CSCv8|5.4,CSF|PR.AC-4,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(1),ISO/IEC-27001|A.9.2.3,ITSG-33|AC-6(2),ITSG-33|AC-6(5),LEVEL|2M,NESA|T5.1.1,NESA|T5.2.2,NESA|T5.6.1,NIAv2|AM1,NIAv2|AM23f,NIAv2|AM32,NIAv2|AM33,NIAv2|SS13c,NIAv2|SS15c,NIAv2|VL3a,PCI-DSSv3.2.1|7.1.2,PCI-DSSv4.0|7.2.1,PCI-DSSv4.0|7.2.2,QCSC-v1|5.2.2,QCSC-v1|6.2,SWIFT-CSCv1|1.2,SWIFT-CSCv1|5.1,TBA-FIISB|31.4.2,TBA-FIISB|31.4.3"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SELECT GRANTEE FROM INFORMATION_SCHEMA.USER_PRIVILEGES WHERE PRIVILEGE_TYPE = 'PROCESS';"
+      sql_types   : STRING
+      sql_expect  : "Manual Review Required"
+      severity    : MEDIUM
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.3 Ensure 'log_warnings' is Set to '2'"
+      info        : "The log_warnings system variable, set to 2 by default, specifies the verbosity of events sent to the MariaDB error log. A value of 2 enables logging of error and warning messages, a value of 3 also includes informational logging, a value of 1 logs only errors.
+
+Rationale:
+
+This might help to detect malicious behavior by logging communication errors and aborted connections."
+      solution    : "Perform the following actions to remediate this setting:
+
+Open the MySQL configuration file (mariadb.cnf)
+
+Ensure the following line is found in the mariadbd section
+
+log_warnings = 2
+
+Default Value:
+
+The option is enabled (2) - errors and warning events are logged - by default."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-3,800-53|AU-3(1),800-53|AU-7,800-53|AU-12,800-53r5|AU-3,800-53r5|AU-3(1),800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(a),CN-L3|7.1.2.3(b),CN-L3|7.1.2.3(c),CN-L3|7.1.3.3(a),CN-L3|7.1.3.3(b),CN-L3|8.1.4.3(b),CSCv7|6.3,CSCv8|8.5,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-3,ITSG-33|AU-3(1),ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|T3.6.2,NIAv2|AM34a,NIAv2|AM34b,NIAv2|AM34c,NIAv2|AM34d,NIAv2|AM34e,NIAv2|AM34f,NIAv2|AM34g,PCI-DSSv3.2.1|10.1,PCI-DSSv3.2.1|10.3,PCI-DSSv3.2.1|10.3.1,PCI-DSSv3.2.1|10.3.2,PCI-DSSv3.2.1|10.3.3,PCI-DSSv3.2.1|10.3.4,PCI-DSSv3.2.1|10.3.5,PCI-DSSv3.2.1|10.3.6,PCI-DSSv4.0|10.2.2,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SHOW GLOBAL VARIABLES LIKE 'log_warnings';"
+      sql_types   : STRING, STRING
+      sql_expect  : "log_warnings", "2"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.4 Ensure Audit Logging Is Enabled"
+      info        : "Enabling audit logging is an important consideration for a production environment, and MariaDB plugin exist to help with this. Enable audit logging for
+
+Connect events
+
+Query and Table events (optional)
+
+Rationale:
+
+Audit logging helps to identify who changed what and when. The audit log might be used as evidence in investigations. It might also help to identify what an attacker was able to accomplish."
+      solution    : "Although the plugin's shared library is distributed with MariaDB, the plugin is not actually installed by default.
+Add the following to MariaDB's config file.
+
+[mariadb]
+...
+#MariaDB plugin
+plugin_load_add = server_audit
+server_audit_logging=ON
+server_audit_events=CONNECT
+
+Reboot the instance."
+      reference   : "800-171|3.3.1,800-171|3.3.2,800-171|3.3.6,800-53|AU-2,800-53|AU-7,800-53|AU-12,800-53r5|AU-2,800-53r5|AU-7,800-53r5|AU-12,CN-L3|7.1.2.3(c),CN-L3|8.1.4.3(a),CSCv7|6.2,CSCv8|8.2,CSF|DE.CM-1,CSF|DE.CM-3,CSF|DE.CM-7,CSF|PR.PT-1,CSF|RS.AN-3,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(b),ITSG-33|AU-2,ITSG-33|AU-7,ITSG-33|AU-12,LEVEL|2A,NESA|M1.2.2,NESA|M5.5.1,NIAv2|AM7,NIAv2|AM11a,NIAv2|AM11b,NIAv2|AM11c,NIAv2|AM11d,NIAv2|AM11e,NIAv2|SS30,NIAv2|VL8,PCI-DSSv3.2.1|10.1,QCSC-v1|3.2,QCSC-v1|6.2,QCSC-v1|8.2.1,QCSC-v1|10.2.1,QCSC-v1|11.2,QCSC-v1|13.2,SWIFT-CSCv1|6.4"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SHOW VARIABLES WHERE variable_name IN ('server_audit_events', 'server_audit_logging');"
+      sql_types   : REGEX, REGEX
+      sql_expect  : "server_audit_(events|logging)", "(ON|CONNECT)"
+    </custom_item>
+
+    <custom_item>
+      type        : SQL_POLICY
+      description : "6.6 Ensure Binary and Relay Logs are Encrypted"
+      info        : "The encrypt_binlog system variable may be used to configure encryption of the binary and relay logs. This may be configured to ON even if binary logging is not enabled in order to encrypt relay log files.
+
+Rationale:
+
+The database, and thus the binary and relay logs, may contain sensitive information. Encrypting the binary and relay logs protects all data stored in these logs from internal and external threats."
+      solution    : "Encryption of binary logs is configured by the encrypt_binlog system variable.
+To remediate misconfiguration, add encrypt_binlog and restart MariaDB.
+
+[mariadb]
+...
+# Binary Log Encryption
+encrypt_binlog=ON
+
+Default Value:
+
+The default Default Value: OFF"
+      reference   : "800-171|3.5.2,800-171|3.13.16,800-53|IA-5(1),800-53|SC-28,800-53|SC-28(1),800-53r5|IA-5(1),800-53r5|SC-28,800-53r5|SC-28(1),CN-L3|8.1.4.7(b),CN-L3|8.1.4.8(b),CSCv7|14.8,CSCv8|3.11,CSF|PR.AC-1,CSF|PR.DS-1,GDPR|32.1.a,GDPR|32.1.b,HIPAA|164.306(a)(1),HIPAA|164.312(a)(2)(i),HIPAA|164.312(a)(2)(iv),HIPAA|164.312(d),HIPAA|164.312(e)(2)(ii),ITSG-33|IA-5(1),ITSG-33|SC-28,ITSG-33|SC-28a.,ITSG-33|SC-28(1),LEVEL|2A,NESA|T5.2.3,PCI-DSSv3.2.1|3.4,PCI-DSSv4.0|3.3.2,PCI-DSSv4.0|3.5.1,QCSC-v1|5.2.2,QCSC-v1|6.2,QCSC-v1|13.2,SWIFT-CSCv1|4.1,TBA-FIISB|28.1"
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+      sql_request : "SELECT VARIABLE_NAME, VARIABLE_VALUE, 'BINLOG - At Rest Encryption' as Note FROM information_schema.global_variables where variable_name like '%ENCRYPT_LOG%';"
+      sql_types   : REGEX, STRING, STRING
+      sql_expect  : ".*ENCRYPT_LOG.*", "ON", "BINLOG - At Rest Encryption"
+    </custom_item>
+
+    <if>
+      <condition type:"AND">
+        <custom_item>
+          type        : SQL_POLICY
+          description : "Check replica status null"
+          sql_request : "show replica status;"
+          sql_types   : NULL
+          sql_expect  : NULL
+        </custom_item>
+      </condition>
+
+      <then>
+        <report type:"PASSED">
+          description : "9.4 Ensure only approved ciphers are used for Replication"
+          info        : "MariaDB supports multiple encryption ciphers that can be used for TLS connections during replication. Ciphers can vary in strength, speed and overhead.
+
+Rationale:
+
+Requiring REPLICA servers to utilize strong ciphers when connecting to a PRIMARY server protects data in transit.
+
+Impact:
+
+If the PRIMARY and REPLICA servers don't support common cipher suites, replication will fail."
+          solution    : "To remediate this setting, you must use the CHANGE MASTER TO command with MASTER_SSL_CIPHER.
+For example, run:
+
+STOP REPLICA; -- required if replication was already running
+CHANGE MASTER TO
+   MASTER_SSL_CIPHER='ECDHE-ECDSA-AES128-GCM-SHA256';
+START REPLICA; -- required if you want to restart replication
+
+Default Value:
+
+Empty"
+          reference   : "800-53|SA-15,800-53r5|SA-15,CSCv7|18.5,CSCv8|16.11,CSF|PR.IP-2,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|2M,NIAv2|SS5,NIAv2|SS6a,QCSC-v1|4.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+        </report>
+      </then>
+
+      <else>
+        <custom_item>
+          type        : SQL_POLICY
+          description : "9.4 Ensure only approved ciphers are used for Replication"
+          info        : "MariaDB supports multiple encryption ciphers that can be used for TLS connections during replication. Ciphers can vary in strength, speed and overhead.
+
+Rationale:
+
+Requiring REPLICA servers to utilize strong ciphers when connecting to a PRIMARY server protects data in transit.
+
+Impact:
+
+If the PRIMARY and REPLICA servers don't support common cipher suites, replication will fail."
+          solution    : "To remediate this setting, you must use the CHANGE MASTER TO command with MASTER_SSL_CIPHER.
+For example, run:
+
+STOP REPLICA; -- required if replication was already running
+CHANGE MASTER TO
+   MASTER_SSL_CIPHER='ECDHE-ECDSA-AES128-GCM-SHA256';
+START REPLICA; -- required if you want to restart replication
+
+Default Value:
+
+Empty"
+          reference   : "800-53|SA-15,800-53r5|SA-15,CSCv7|18.5,CSCv8|16.11,CSF|PR.IP-2,GDPR|32.1.b,HIPAA|164.306(a)(1),LEVEL|2M,NIAv2|SS5,NIAv2|SS6a,QCSC-v1|4.2"
+          see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+          sql_request : "show replica status;"
+          sql_types   : REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, STRING, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL, REGEX_OR_NULL
+          sql_expect  : ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", "@REPLICATION_SSL_CIPHER@", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*", ".*"
+        </custom_item>
+      </else>
+    </if>
+  </then>
+
+  <else>
+    <report type:"WARNING">
+      description : "CIS_MariaDB_10.6_Benchmark_v1.1.0_L2_Database.audit from CIS MariaDB 10.6 Benchmark"
+      info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
+      see_also    : "https://workbench.cisecurity.org/benchmarks/16527"
+    </report>
+  </else>
+</if>
+
+</check_type>
