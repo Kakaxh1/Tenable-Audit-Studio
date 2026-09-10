@@ -156,8 +156,8 @@ graph TD
 
 ### 1. Installation
 ```bash
-git clone <repository-url>
-cd CA
+git clone https://github.com/Kakaxh1/Tenable-Audit-Studio.git
+cd Tenable-Audit-Studio
 pip install -r requirements.txt
 ```
 
