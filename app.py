@@ -2,6 +2,7 @@ import os
 import re
 import uuid
 import json
+import time
 import urllib.request
 import urllib.error
 from pathlib import Path
@@ -181,38 +182,49 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tenable Audit Studio - Enterprise Benchmark Customizer</title>
   <meta name="description" content="Minimal, clean compliance audit customizer with Magic UI FileTree, Offline AI model integration, and 1,760+ prebuilt benchmarks." />
+  <link rel="icon" type="image/svg+xml" href="/static/tas_badge.svg" />
   
-  <!-- Modern Clean Typography: Inter & JetBrains Mono -->
+  <!-- Modern Clean Typography with native system fallbacks for offline mode -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   
-  <!-- Tailwind CSS Play CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Offline-First Local Tailwind CSS (with CDN fallback) -->
+  <script src="/static/tailwindcss.js"></script>
+  <script>window.tailwind || document.write('<script src="https://cdn.tailwindcss.com"><\/script>')</script>
   
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Offline-First Local Lucide Icons (with CDN fallback) -->
+  <script src="/static/lucide.min.js"></script>
+  <script>window.lucide || document.write('<script src="https://unpkg.com/lucide@latest"><\/script>')</script>
+  <script>
+    // Safeguard for offline / missing lucide
+    if (typeof window.lucide === 'undefined') {
+      window.lucide = { createIcons: function() {} };
+    }
+  </script>
 
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca'
+    if (window.tailwind) {
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+              mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+            },
+            colors: {
+              brand: {
+                50: '#eef2ff',
+                100: '#e0e7ff',
+                500: '#6366f1',
+                600: '#4f46e5',
+                700: '#4338ca'
+              }
             }
           }
         }
-      }
+      };
     }
   </script>
 
@@ -220,6 +232,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     /* Minimalist, clean styling with generous spacing */
     body {
       letter-spacing: -0.01em;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     .panel-box {
       background: #09090b;
@@ -286,10 +299,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <!-- Clean Minimal Global Header -->
   <header class="h-16 border-b border-zinc-800 bg-zinc-950 px-6 flex items-center justify-between sticky top-0 z-40">
-    <div class="flex items-center gap-3.5">
-      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-xs">
-        <i data-lucide="shield-check" class="w-4 h-4"></i>
-      </div>
+    <div class="flex items-center gap-3">
+      <img src="/static/tas_badge.svg" alt="TAS Code Badge" class="w-8 h-8 rounded-xl object-contain shadow-md shadow-indigo-500/10 hover:scale-105 transition" />
       <div>
         <div class="flex items-center gap-2">
           <span class="font-bold text-sm text-white">Tenable Audit Studio</span>
@@ -351,7 +362,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <!-- ========================================================================================= -->
   <!-- MAIN LAYOUT: STUDIO WORKSPACE / EDITOR -->
   <!-- ========================================================================================= -->
-  <div class="flex-1 grid grid-cols-1 lg:grid-cols-[340px_1fr] overflow-hidden h-[calc(100vh-64px)]">
+  <div class="flex-1 grid grid-cols-1 lg:grid-cols-[340px_1fr] overflow-hidden h-[calc(100vh-100px)]">
     
     <!-- LEFT SIDEBAR: ACTIVE BENCHMARK, UPLOAD, COMPILER & CONSOLE -->
     <div class="border-r border-zinc-800 bg-zinc-950 p-4.5 flex flex-col h-full overflow-y-auto custom-scrollbar gap-4 select-none">
@@ -563,9 +574,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           </div>
         </div>
 
-        <div id="checks-empty-state" class="text-center py-24 text-xs text-zinc-500 flex flex-col items-center gap-2">
-          <i data-lucide="folder-open" class="w-8 h-8 text-zinc-600"></i>
-          <span>Select any benchmark from the FileTree explorer on the left to start editing.</span>
+        <div id="checks-empty-state" class="text-center py-20 text-xs text-zinc-500 flex flex-col items-center justify-center gap-3.5">
+          <img src="/static/tas_badge.svg" alt="TAS Badge" class="w-16 h-16 rounded-2xl object-contain opacity-90 shadow-2xl shadow-indigo-500/15" />
+          <div class="flex flex-col items-center gap-1">
+            <span class="font-semibold text-zinc-200 text-sm">Welcome to Tenable Audit Studio</span>
+            <span class="text-zinc-500">Select any benchmark from the library or press <kbd class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-zinc-900 border border-zinc-700 text-zinc-400">Ctrl+K</kbd> to start customizing.</span>
+          </div>
         </div>
       </div>
 
@@ -580,6 +594,32 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       </div>
     </div>
   </div>
+
+  <!-- Sleek Developer Footer (Permanently pinned & always on top) -->
+  <footer class="fixed bottom-0 inset-x-0 h-9 border-t border-zinc-800/90 bg-zinc-950/95 backdrop-blur-md px-6 flex items-center justify-between text-[11px] font-medium text-zinc-400 select-none z-[60]">
+    <div class="flex items-center gap-2">
+      <span class="text-zinc-500">Made by</span>
+      <a href="https://github.com/Kakaxh1" target="_blank" rel="noopener noreferrer" class="font-semibold text-zinc-200 hover:text-indigo-400 transition flex items-center gap-1">
+        <span>Kakaxh1</span>
+      </a>
+      <span class="text-zinc-700">•</span>
+      <span class="text-zinc-500">Tenable Audit Studio</span>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <a href="https://bhavymorvadiya.netlify.app/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-zinc-400 hover:text-indigo-400 transition" title="Personal Website">
+        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+        <span>bhavymorvadiya.netlify.app</span>
+      </a>
+      <span class="text-zinc-700">•</span>
+      <a href="https://github.com/Kakaxh1" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-zinc-400 hover:text-white transition" title="GitHub Profile">
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </footer>
 
   <!-- ========================================================================================= -->
   <!-- MODAL: BENCHMARK EXPLORER (5 TO 7 VISIBLE ITEMS, REST SCROLLABLE) -->
@@ -3121,6 +3161,9 @@ Please check:
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
       initAuditCatalog();
     });
   </script>
