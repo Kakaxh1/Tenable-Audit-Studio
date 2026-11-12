@@ -130,6 +130,18 @@ graph TD
 
 ---
 
+## Compliance Audit Authoring & Technical Reference Documentation
+
+For security auditors, policy authors, and DevSecOps teams building or troubleshooting custom Tenable Nessus `.audit` files, this repository includes comprehensive, production-grade technical specifications:
+
+| Guide / Specification | Scope & Purpose | Reference Link |
+| :--- | :--- | :--- |
+| **Universal Compliance Audit Master Reference Guide** | Comprehensive specification covering all platforms (Network, Firewalls, Operating Systems, Databases, Cloud, Hypervisors, Containers), evaluation flow, error catalogs, and boilerplate templates. | [NESSUS_AUDIT_MASTER_REFERENCE_GUIDE.md](NESSUS_AUDIT_MASTER_REFERENCE_GUIDE.md) |
+| **Audit Syntax, Variables & Matching Engine Specification** | In-depth technical reference on variable declaration (`<variable>`), runtime substitution (`@VARIABLE@`), context isolation, extraction filters, and the 5-stage evaluation engine. | [NESSUS_AUDIT_SYNTAX_VARIABLES_AND_MATCHING_ENGINE_SPEC.md](NESSUS_AUDIT_SYNTAX_VARIABLES_AND_MATCHING_ENGINE_SPEC.md) |
+| **Audit File Authoring & Troubleshooting Guide** | Diagnostic troubleshooting manual resolving real-world Nessus parser/lexer errors (`Field not supported: item`, `CONFIG_CHECK_NOT`, `unknown token context`, lexer failures, and 0-item evaluation bugs). | [NESSUS_AUDIT_FILE_AUTHORING_AND_TROUBLESHOOTING_GUIDE.md](NESSUS_AUDIT_FILE_AUTHORING_AND_TROUBLESHOOTING_GUIDE.md) |
+
+---
+
 ## Repository Structure
 
 ```
@@ -138,7 +150,12 @@ graph TD
 ├── audit_parser.py            # AST parser, tokenizer, compiler & syntax validator
 ├── requirements.txt           # Python package dependencies
 ├── README.md                  # Enterprise documentation & industry justification
+├── LICENSE                    # Enterprise software license
 ├── .gitignore                 # Exclusion rules protecting client data, spreadsheets, and outputs
+│
+├── NESSUS_AUDIT_MASTER_REFERENCE_GUIDE.md             # Universal multi-platform .audit specification & error catalog
+├── NESSUS_AUDIT_SYNTAX_VARIABLES_AND_MATCHING_ENGINE_SPEC.md # Variable mechanics & 5-stage evaluation engine spec
+├── NESSUS_AUDIT_FILE_AUTHORING_AND_TROUBLESHOOTING_GUIDE.md # Parser diagnostics & offline config sanitization
 │
 ├── audits/                    # 1,760+ prebuilt CIS & Tenable compliance baseline library
 ├── baselines/                 # Standalone reference baseline audit files
